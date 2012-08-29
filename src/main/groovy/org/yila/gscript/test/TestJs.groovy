@@ -4,6 +4,7 @@ import javax.script.ScriptEngineManager
 import javax.script.ScriptEngine
 import javax.script.Bindings
 import org.yila.gscript.util.GsConsole
+import org.yila.gscript.util.Util
 
 /**
  * JFL 27/08/12
@@ -18,22 +19,52 @@ class TestJs {
      */
     static jsEval(script,map) {
         def resultMap = [:]
+
+        //
+        //println 'Ruta->'+System.getProperty('user.dir')
         if (script) {
             try {
+
+                //def s = System.getProperty('path.separator')
+                //File file = new File(System.getProperty('user.dir')+"src${s}main${s}resources${s}js${s}gscript.js")
+
+                //We get gscript functions file
+                File file = Util.getJsFile('gscript.js')
+
+                //Add that file to javascript code
+                def finalScript = file.text + script
+
+                //Load script manager
                 ScriptEngineManager factory = new ScriptEngineManager()
                 ScriptEngine engine = factory.getEngineByName('JavaScript')
                 Bindings bind = engine.createBindings()
+                //Set the bindings
                 if (map) {
                     map.each {bind.putAt(it.key,it.value)}
                 }
-                engine.eval(script,bind)
+                //Run javascript script
+                engine.eval(finalScript,bind)
+                //Put binding result to resultMap
                 if (bind) {
                     bind.each {resultMap.putAt(it.key,it.value)}
                 }
+
+                //Set assertFails var to the map
+                resultMap.assertFails = resultMap.gSfails
+
             } catch (e) {
                 GsConsole.error('TestJs.jsEval '+e.message)
             }
         }
         resultMap
+    }
+
+    /**
+     * Launch a js script
+     * @param script
+     * @return
+     */
+    static jsEval(script) {
+        jsEval(script,null)
     }
 }

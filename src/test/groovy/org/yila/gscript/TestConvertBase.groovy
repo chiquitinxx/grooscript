@@ -1,4 +1,4 @@
-package org.yila.gscipt
+package org.yila.gscript
 
 import spock.lang.Specification
 import org.yila.gscript.GsConverter

@@ -44,4 +44,18 @@ class TestJavaScriptEngine extends Specification {
         map.c==25
     }
 
+    def 'function gSassert results'() {
+
+        def map = TestJs.jsEval("gSassert(${value});",null)
+
+        expect:
+        map.gSfails == result
+
+        where:
+        value   |result
+        'true'  |false
+        'false' |true
+        '1==2'  |true
+    }
+
 }
