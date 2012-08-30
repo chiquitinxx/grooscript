@@ -7,10 +7,18 @@ class Util {
 
     def static final FUNCTIONS_FILE = 'functions.groovy'
 
+    //Where Js stuff is
     def static getJsPath() {
         def s = System.getProperty('file.separator')
         return System.getProperty('user.dir')+"${s}src${s}main${s}resources${s}js${s}"
     }
+
+    //Location of groovy script examples
+    def static getGroovyTestPath() {
+        def s = System.getProperty('file.separator')
+        return System.getProperty('user.dir')+"${s}src${s}test${s}resources${s}"
+    }
+
     def static getNameFunctionsText() {
         def result
 
@@ -34,9 +42,23 @@ class Util {
                 finalName += '.js'
             }
 
-            def s = System.getProperty('file.separator')
-            //println '->'+System.getProperty('user.dir')+"${s}src${s}main${s}resources${s}js${s}${finalName}"
             File file = new File(getJsPath() +finalName)
+            if (file && file.exists() && file.isFile()) {
+                result = file
+            }
+        }
+        result
+    }
+
+    def static getGroovyTestScriptFile(String name) {
+        def result
+        if (name) {
+            def finalName = name
+            if (!finalName.endsWith('.groovy')) {
+                finalName += '.groovy'
+            }
+
+            File file = new File(getGroovyTestPath() +finalName)
             if (file && file.exists() && file.isFile()) {
                 result = file
             }

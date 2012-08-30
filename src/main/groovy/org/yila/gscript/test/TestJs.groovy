@@ -67,4 +67,8 @@ class TestJs {
     static jsEval(script) {
         jsEval(script,null)
     }
+
+    static File getGroovyTestScript(String name) {
+        Util.getGroovyTestScriptFile(name)
+    }
 }

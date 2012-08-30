@@ -17,7 +17,7 @@ class TestGroovyBasics extends Specification {
 
         when:
         def jsScript = converter.toJs('assert true')
-        //println 'jsScript->'+jsScript
+        println 'jsScript->'+jsScript
         def result =  TestJs.jsEval(jsScript)
 
         then:
@@ -32,6 +32,18 @@ class TestGroovyBasics extends Specification {
     }
 
     def 'variables and expressions'() {
-        //TODO
+
+        when:
+        def file = TestJs.getGroovyTestScript('variablesAndExpressions')
+        def jsScript = converter.toJs(file.text)
+        println 'jsScript->\n'+jsScript
+        def result =  TestJs.jsEval(jsScript)
+
+        then:
+        !result.assertFails
+        result.b == 3.2
+        result.a == 5
+        result.c == 'Hello!'
+
     }
 }

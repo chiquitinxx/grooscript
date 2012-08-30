@@ -2,11 +2,10 @@ package org.yila.gscript
 
 import org.codehaus.groovy.ast.builder.AstBuilder
 import org.codehaus.groovy.control.CompilePhase
-import org.codehaus.groovy.ast.stmt.BlockStatement
-import org.codehaus.groovy.ast.stmt.AssertStatement
-import org.codehaus.groovy.ast.expr.Expression
-import org.codehaus.groovy.ast.expr.BooleanExpression
+import org.codehaus.groovy.ast.stmt.*
+import org.codehaus.groovy.ast.expr.*
 import org.yila.gscript.util.Util
+import org.yila.gscript.util.GsConsole
 
 /**
  * JFL 27/08/12
@@ -16,6 +15,7 @@ class GsConverter {
     //Indent for pretty print
     def indent
     def static final TAB = '  '
+    def resultScript
 
     //We get this function names from functions.groovy
     def assertFunction
@@ -27,6 +27,8 @@ class GsConverter {
     def initFunctionNames() {
         def clos = new GroovyShell().evaluate('{ gscript ->\n'+Util.getNameFunctionsText()+'\n return gscript}')
         this.with clos
+        //GroovyShell gs = new GroovyShell()
+        //Util.getNameFunctionsText().eachLine { gs.evaluate(it) }
     }
 
     /**
@@ -52,10 +54,12 @@ class GsConverter {
     def processAstListToJs(list) {
         def result
         indent = 0
+        resultScript = ''
         if (list && list.size()>0) {
             //println '->'+list
             if (list.get(0) instanceof BlockStatement) {
-                result = processBlockStament(list.get(0))
+                processBlockStament(list.get(0))
+                result = resultScript
             }
         }
         //println 'res->'+ result
@@ -68,15 +72,11 @@ class GsConverter {
      * @return
      */
     def processBlockStament(block) {
-        def result
         if (block) {
             block.getStatements().each { it ->
-                result = addLine(result,processStatement(it))
-                //println 'pRes->'+ result
+                processStatement(it)
             }
         }
-        //println 'res->'+ result
-        result
     }
 
     /**
@@ -85,45 +85,150 @@ class GsConverter {
      * @param line
      * @return
      */
-    def addLine(script,line) {
+    def addLine() {
         //println "sc(${script}) line(${line})"
-        if (script) {
-            script += '\n'
+        if (resultScript) {
+            resultScript += '\n'
         } else {
-            script = ''
+            resultScript = ''
         }
-        indent.times { script += TAB }
-        script += line
-        //println "sc(${script}) line(${line})"
-        return script
+        indent.times { resultScript += TAB }
     }
 
-    def processStatement(statement) {
-        def result
-        //println 'statement->'+statement
-        if (statement instanceof AssertStatement) {
-            //Assert have a boolean expression
-            //TODO Ignoring messageExpression in AssertStatement
-            //result = 'gSassert('+processExpression(statement.booleanExpression)+');'
+    def addScript(text) {
+        //println 'adding ->'+text
+        resultScript += text
+    }
 
-            result = assertFunction +'('+processExpression(statement.booleanExpression)+');'
-        }
+    /**
+     * Process a statement, adding ; at the end
+     * @param statement
+     */
+    def void processStatement(statement) {
+
+        //println "statement (${statement.class.simpleName})->"+statement
+
+        "process${statement.class.simpleName}"(statement)
+
         //Adds ;
-        //if (result) {
-        //    result += ';'
-        //}
-        result
+        if (resultScript) {
+            resultScript += ';'
+        }
+        addLine()
     }
 
-    def processExpression(Expression e) {
-        def result
+    def processAssertStatement(statement) {
+        Expression e = statement.booleanExpression
+        addScript(assertFunction)
+        addScript('(')
+        "process${e.class.simpleName}"(e)
+        addScript(')')
+    }
 
-        //println 'Expression->'+e.class.name
-        if (e instanceof BooleanExpression) {
-            //println 'Adding->'+e.text
-            result = e.text
+    def processBooleanExpression(BooleanExpression b) {
+        //println 'BooleanExpression->'+e
+        //println 'BooleanExpression Inside->'+e.expression
+        //addScript('('+e.text+')')
+        Expression e = b.expression
+        "process${e.class.simpleName}"(e)
+    }
+
+    def processExpressionStatement(ExpressionStatement statement) {
+        Expression e = statement.expression
+        "process${e.class.simpleName}"(e)
+    }
+
+    def processDeclarationExpression(DeclarationExpression e) {
+        //println '->'+e.text
+        //println 'l->'+e.leftExpression
+        //println 'r->'+e.rightExpression
+        //println 'v->'+e.variableExpression
+        addScript('var ')
+        processVariableExpression(e.variableExpression)
+        if (!e.rightExpression instanceof  EmptyExpression) {
+            addScript(' = ')
+            "process${e.rightExpression.class.simpleName}"(e.rightExpression)
+        }
+    }
+
+    def processVariableExpression(VariableExpression v) {
+        addScript(v.name)
+    }
+
+    /**
+     *
+     * @param b
+     * @return
+     */
+    def processBinaryExpression(BinaryExpression b) {
+
+        //Adding () for operators order, can spam loads of ()
+        //Left
+        if (b.leftExpression instanceof BinaryExpression) {
+            addScript('(')
+        }
+        "process${b.leftExpression.class.simpleName}"(b.leftExpression)
+        if (b.leftExpression instanceof BinaryExpression) {
+            addScript(')')
+        }
+        //Operator
+        addScript(' '+b.operation.text+' ')
+        //Right
+        if (b.rightExpression instanceof BinaryExpression) {
+            addScript('(')
+        }
+        "process${b.rightExpression.class.simpleName}"(b.rightExpression)
+        if (b.rightExpression instanceof BinaryExpression) {
+            addScript(')')
+        }
+    }
+
+    def processConstantExpression(ConstantExpression c) {
+        if (c.value instanceof String) {
+            addScript('"'+c.value+'"')
+        } else {
+            addScript(c.value)
         }
 
-        result
     }
+
+    /**
+     * Finally GString is something like String + Value + String + Value + String....
+     * So we convert to "  " + value + "    " + value ....
+     * @param e
+     * @return
+     */
+    def processGStringExpression(GStringExpression e) {
+
+        def number = 0
+        e.getStrings().each {   exp ->
+            if (number>0) {
+                addScript(' + ')
+            }
+            //addScript('"')
+            "process${exp.class.simpleName}"(exp)
+            //addScript('"')
+
+            if (e.getValues().size() > number) {
+                addScript(' + ')
+                "process${e.getValue(number).class.simpleName}"(e.getValue(number))
+            }
+            number++
+        }
+    }
+
+    def processNotExpression(NotExpression n) {
+        addScript('!')
+        "process${n.expression.class.simpleName}"(n.expression)
+    }
+
+    def methodMissing(String name, Object args) {
+        if (name?.startsWith('process')) {
+            GsConsole.error('Conversion not supported for '+name.substring(7))
+        } else {
+            GsConsole.error('Error methodMissing '+name)
+        }
+
+    }
+
 }
