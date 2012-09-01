@@ -6,6 +6,7 @@ import org.codehaus.groovy.ast.stmt.*
 import org.codehaus.groovy.ast.expr.*
 import org.yila.gscript.util.Util
 import org.yila.gscript.util.GsConsole
+import org.codehaus.groovy.ast.*
 
 /**
  * JFL 27/08/12
@@ -16,6 +17,7 @@ class GsConverter {
     def indent
     def static final TAB = '  '
     def resultScript
+    Stack<String> classNameStack = new Stack<String>();
 
     //We get this function names from functions.groovy
     def assertFunction
@@ -56,14 +58,152 @@ class GsConverter {
         indent = 0
         resultScript = ''
         if (list && list.size()>0) {
-            //println '->'+list
-            if (list.get(0) instanceof BlockStatement) {
-                processBlockStament(list.get(0))
-                result = resultScript
+            println 'Size('+list.size+')->'+list
+            list.each { it ->
+                if (it instanceof BlockStatement) {
+                    processBlockStament(it)
+                } else if (it instanceof ClassNode) {
+                    processClassNode(it)
+                } else {
+                    GsConsole.error("AST Node not supported (${it.class.simpleName}).")
+                }
             }
+            result = resultScript
         }
         //println 'res->'+ result
         result
+    }
+
+    def processClassNode(ClassNode node) {
+
+        //Starting class conversion
+
+        //Ignoring annotations
+        //node?.annotations?.each {}
+
+        //Ignoring modifiers
+        //visitModifiers(node.modifiers)
+
+        //print "class $node.name"
+
+        //Push name in stack
+        classNameStack.push(node.name)
+
+        addScript("function gsCreate$node.name() {")
+        indent ++
+        addLine()
+
+
+        addScript('var object = inherit(gsClass);')
+        addLine()
+        //ignoring generics and interfaces and extends atm
+        //visitGenerics node?.genericsTypes
+        //node.interfaces?.each {
+        //visitType node.superClass
+        //println 'Superclass->'+node.superClass.class
+
+        //Adding initial values of properties
+        node?.properties?.each { it-> //println 'Property->'+it; println 'initialExpresion->'+it.initialExpression
+            if (it.initialExpression) {
+                addScript("object.${it.name} = ")
+                "process${it.initialExpression.class.simpleName}"(it.initialExpression)
+                addScript(';')
+                addLine()
+            }
+
+        }
+        //Ignoring fields
+        //node?.fields?.each { println 'field->'+it  }
+
+        //Constructors
+        node?.declaredConstructors?.each { //println 'declaredConstructor->'+it;
+            processMethodNode(it)
+        }
+
+        //Methods
+        node?.methods?.each { //println 'method->'+it;
+            processMethodNode(it)
+        }
+
+        indent --
+        addScript('}')
+        addLine()
+
+        //Pop name in stack
+        classNameStack.pop()
+
+        //Finish class conversion
+    }
+
+    def processMethodNode(MethodNode method) {
+
+        //Starting method conversion
+        //Ignoring annotations
+        //node?.annotations?.each {
+
+        //Ignoring modifiers
+        //visitModifiers(node.modifiers)
+
+        //Ignoring init methods
+        //if (node.name == '<init>') {
+        //} else if (node.name == '<clinit>') {
+        //visitType node.returnType
+
+        def name =  method.name
+        if (method.name=='<init>') {
+            //We add number of params to constructor name
+            name = classNameStack.peek() + (method.parameters?method.parameters.size():'0')
+        }
+        addScript("object.$name = function(")
+
+        boolean first = true
+        method.parameters?.each { param ->
+            if (!first) {
+                addScript(', ')
+            }
+            addScript(param.name)
+            first = false
+        }
+        addScript(') {')
+        indent++
+        addLine()
+
+        //println 'Method '+name+' Code:'+method.code
+        if (method.code instanceof BlockStatement) {
+            processBlockStament(method.code)
+        } else {
+            GsConsole.error("Method Code not supported (${method.code.class.simpleName})")
+        }
+
+        /*
+        print " $node.name("
+        visitParameters(node.parameters)
+        print ")"
+        if (node.exceptions) {
+            boolean first = true
+            print ' throws '
+            node.exceptions.each {
+                if (!first) {
+                    print ', '
+                }
+                first = false
+                visitType it
+            }
+        }
+        print " {"
+        printLineBreak()
+
+        indented {
+            node?.code?.visit(this)
+        }
+        printLineBreak()
+        print '}'
+        printDoubleBreak()
+        */
+
+        indent--
+        addScript('}')
+        addLine()
     }
 
     /**
@@ -97,6 +237,7 @@ class GsConverter {
 
     def addScript(text) {
         //println 'adding ->'+text
+        //indent.times { resultScript += TAB }
         resultScript += text
     }
 
@@ -192,6 +333,15 @@ class GsConverter {
 
     }
 
+    def processConstantExpression(ConstantExpression c,boolean addStuff) {
+        if (c.value instanceof String && addStuff) {
+            processConstantExpression(c)
+        } else {
+            addScript(c.value)
+        }
+
+    }
+
     /**
      * Finally GString is something like String + Value + String + Value + String....
      * So we convert to "  " + value + "    " + value ....
@@ -220,6 +370,49 @@ class GsConverter {
     def processNotExpression(NotExpression n) {
         addScript('!')
         "process${n.expression.class.simpleName}"(n.expression)
+    }
+
+    def processConstructorCallExpression(ConstructorCallExpression cce) {
+
+        //No super
+        //if (expression?.isSuperCall()) {
+        //No this?
+        //} else if (expression?.isThisCall()) {
+
+        addScript("gsCreate${cce.type.name}")
+        //println  'arguments->'+cce.arguments
+
+        //expression?.arguments?.visit this
+        "process${cce.arguments.class.simpleName}"(cce.arguments)
+    }
+
+    def processArgumentListExpression(ArgumentListExpression al) {
+        addScript '('
+        int count = al?.expressions?.size()
+        al.expressions?.each {
+            "process${it.class.simpleName}"(it)
+            count--
+            if (count) addScript ', '
+        }
+        addScript ')'
+    }
+
+    def processPropertyExpression(PropertyExpression pe) {
+        "process${pe.objectExpression.class.simpleName}"(pe.objectExpression)
+        addScript('.')
+        "process${pe.property.class.simpleName}"(pe.property,false)
+
+    }
+
+    def processMethodCallExpression(MethodCallExpression mc) {
+        "process${mc.objectExpression.class.simpleName}"(mc.objectExpression)
+        addScript(".${mc.methodAsString}")
+        "process${mc.arguments.class.simpleName}"(mc.arguments)
+
+    }
+
+    def processPostfixExpression(PostfixExpression p) {
+        addScript(p.text)
     }
 
     def methodMissing(String name, Object args) {

@@ -17,7 +17,7 @@ class TestGroovyBasics extends Specification {
 
         when:
         def jsScript = converter.toJs('assert true')
-        println 'jsScript->'+jsScript
+        //println 'jsScript->'+jsScript
         def result =  TestJs.jsEval(jsScript)
 
         then:
@@ -36,7 +36,7 @@ class TestGroovyBasics extends Specification {
         when:
         def file = TestJs.getGroovyTestScript('variablesAndExpressions')
         def jsScript = converter.toJs(file.text)
-        println 'jsScript->\n'+jsScript
+        //println 'jsScript->\n'+jsScript
         def result =  TestJs.jsEval(jsScript)
 
         then:
@@ -45,5 +45,17 @@ class TestGroovyBasics extends Specification {
         result.a == 5
         result.c == 'Hello!'
 
+    }
+
+    def 'starting class stuff'() {
+        when:
+        def file = TestJs.getGroovyTestScript('startingClass')
+        def jsScript = converter.toJs(file.text)
+        //TODO el problema es que no se pone el this en las variables dentro del objeto
+        println 'jsScript->\n'+jsScript
+        def result =  TestJs.jsEval(jsScript)
+
+        then:
+        result
     }
 }

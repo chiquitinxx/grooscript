@@ -28,11 +28,7 @@ class TestJs {
                 //def s = System.getProperty('path.separator')
                 //File file = new File(System.getProperty('user.dir')+"src${s}main${s}resources${s}js${s}gscript.js")
 
-                //We get gscript functions file
-                File file = Util.getJsFile('gscript.js')
-
-                //Add that file to javascript code
-                def finalScript = file.text + script
+                def finalScript = addJsLibrarys(script)
 
                 //Load script manager
                 ScriptEngineManager factory = new ScriptEngineManager()
@@ -57,6 +53,18 @@ class TestJs {
             }
         }
         resultMap
+    }
+
+    static addJsLibrarys(text) {
+        def result = text
+        //We get gscript functions file
+        File file = Util.getJsFile('gscript.js')
+        //Add that file to javascript code
+        result = file.text + result
+        file = Util.getJsFile('gsclass.js')
+        //Add that file to javascript code
+        result = file.text + result
+        return result
     }
 
     /**
