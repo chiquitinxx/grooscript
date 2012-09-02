@@ -50,6 +50,7 @@ class TestJs {
 
             } catch (e) {
                 GsConsole.error('TestJs.jsEval '+e.message)
+                throw new Exception('Fail in eval Js Script!')
             }
         }
         resultMap

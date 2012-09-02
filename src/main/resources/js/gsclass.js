@@ -18,6 +18,42 @@ function inherit(p) {
     return new f();
 }
 
+function gSmap() {
+    var object = inherit(gsClass)
+    object.add = function(key,value) {
+        this[key] = value;
+        return this;
+    }
+    return object;
+}
+
+function gSlist(value) {
+    var object = inherit(Array.prototype)
+    object = value
+
+    object.get = function(pos) {
+        return this[pos]
+    }
+
+    object.size = function() {
+        return this.length
+    }
+
+    object.add = function(element) {
+        this[this.length]=element
+    }
+    /*
+    object.recorre = function() {
+        for (element in this) {
+            if (typeof this[element] === "function") continue;
+            console.log('El->'+this[element]);
+        }
+    }
+    */
+
+    return object;
+}
+
 /*
 function gsCreateMyClass() {
     var object = inherit(gsClass)
@@ -35,4 +71,15 @@ me.yo = 'Yo'
 console.log('name='+me.name);
 me.say();
 me.say('Bob');
+*/
+/*
+var lista = [1,2,3]
+lista[4] = 4
+console.log('List->'+lista)
+var lista2 = gSlist([])
+console.log('List2->'+lista2)
+lista2[0]='hola'
+lista2[1]=3
+console.log('List2->'+lista2)
+lista2.recorre()
 */

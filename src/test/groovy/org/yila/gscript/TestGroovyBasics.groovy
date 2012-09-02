@@ -51,11 +51,33 @@ class TestGroovyBasics extends Specification {
         when:
         def file = TestJs.getGroovyTestScript('startingClass')
         def jsScript = converter.toJs(file.text)
-        //TODO el problema es que no se pone el this en las variables dentro del objeto
+        //println 'jsScript->\n'+jsScript
+        def result =  TestJs.jsEval(jsScript)
+
+        then:
+        !result.assertFails
+        result.gSconsole == 'Fan: GroovyRocks'
+    }
+
+    def 'starting closure stuff'() {
+        when:
+        def file = TestJs.getGroovyTestScript('startingClosuresWithClasses')
+        def jsScript = converter.toJs(file.text)
         println 'jsScript->\n'+jsScript
         def result =  TestJs.jsEval(jsScript)
 
         then:
-        result
+        !result.assertFails
+    }
+
+    def 'converting lists'() {
+        when:
+        def file = TestJs.getGroovyTestScript('workOnLists')
+        def jsScript = converter.toJs(file.text)
+        //println 'jsScript->\n'+jsScript
+        def result =  TestJs.jsEval(jsScript)
+
+        then:
+        !result.assertFails
     }
 }
