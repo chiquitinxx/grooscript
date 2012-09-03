@@ -71,7 +71,7 @@ class GsConverter {
             list.each { it ->
                 if (it instanceof BlockStatement) {
                     //scriptScope = true
-                    processBlockStament(it)
+                    processBlockStament(it,false)
                 } else if (it instanceof ClassNode) {
                     //scriptScope = false
                     processClassNode(it)
@@ -205,7 +205,7 @@ class GsConverter {
 
         //println 'Method '+name+' Code:'+method.code
         if (method.code instanceof BlockStatement) {
-            processBlockStament(method.code)
+            processBlockStament(method.code,false)
         } else {
             GsConsole.error("Method Code not supported (${method.code.class.simpleName})")
         }
@@ -256,14 +256,27 @@ class GsConverter {
     /**
      * Process an AST Block
      * @param block
+     * @param addReturn put 'return ' before last stament
      * @return
      */
-    def processBlockStament(block) {
+    def processBlockStament(block,addReturn) {
         if (block) {
-            block.getStatements().each { it ->
+            def number = 1
+            block.getStatements()?.each { it ->
+                if (addReturn && ((number++)==block.getStatements().size()) && !(it instanceof ReturnStatement)) {
+                    //this statement can be a complex statement with a return
+                    //So maybe dont have to add return
+                    //TODO we have a test that fails on this, continue tomorrow
+                    addScript('return ')
+                }
                 processStatement(it)
             }
         }
+    }
+
+    //???? there are both used
+    def processBlockStatement(block) {
+        processBlockStament(block,false)
     }
 
     /**
@@ -367,28 +380,45 @@ class GsConverter {
     def processBinaryExpression(BinaryExpression b) {
 
         //println 'Binary->'+b.text
-        //Adding () for operators order, can spam loads of ()
-        //Left
-        if (b.leftExpression instanceof BinaryExpression) {
+        //Getting a range from a list
+        if (b.operation.text=='[' && b.rightExpression instanceof RangeExpression) {
+            addScript('gSrangeFromList(')
+            upgradedExpresion(b.leftExpression)
+            addScript(", ")
+            "process${b.rightExpression.getFrom().class.simpleName}"(b.rightExpression.getFrom())
+            addScript(", ")
+            "process${b.rightExpression.getTo().class.simpleName}"(b.rightExpression.getTo())
+            addScript(')')
+        //Adding items
+        } else if (b.operation.text=='<<') {
+
+            upgradedExpresion(b.leftExpression)
+            addScript('.add(')
+            upgradedExpresion(b.rightExpression)
+            addScript(')')
+        } else {
+
+            //Left
+            upgradedExpresion(b.leftExpression)
+            //Operator
+            //println 'Operator->'+b.operation.text
+            addScript(' '+b.operation.text+' ')
+            //Right
+            upgradedExpresion(b.rightExpression)
+            if (b.operation.text=='[') {
+                addScript(']')
+            }
+        }
+    }
+
+    //Adding () for operators order, can spam loads of ()
+    def upgradedExpresion(expresion) {
+        if (expresion instanceof BinaryExpression) {
             addScript('(')
         }
-        "process${b.leftExpression.class.simpleName}"(b.leftExpression)
-        if (b.leftExpression instanceof BinaryExpression) {
+        "process${expresion.class.simpleName}"(expresion)
+        if (expresion instanceof BinaryExpression) {
             addScript(')')
-        }
-        //Operator
-        //println 'Operator->'+b.operation.
-        addScript(' '+b.operation.text+' ')
-        //Right
-        if (b.rightExpression instanceof BinaryExpression) {
-            addScript('(')
-        }
-        "process${b.rightExpression.class.simpleName}"(b.rightExpression)
-        if (b.rightExpression instanceof BinaryExpression) {
-            addScript(')')
-        }
-        if (b.operation.text=='[') {
-            addScript(']')
         }
     }
 
@@ -450,6 +480,7 @@ class GsConverter {
         //addScript("gsCreate${cce.type.name}")
         //"process${cce.arguments.class.simpleName}"(cce.arguments)
 
+        //Constructor have name witn number of params on it
         addScript("gsCreate${cce.type.name}().${cce.type.name}${cce.arguments.expressions.size()}")
         "process${cce.arguments.class.simpleName}"(cce.arguments)
     }
@@ -517,7 +548,7 @@ class GsConverter {
 
         //println 'Method '+name+' Code:'+method.code
         if (c.code instanceof BlockStatement) {
-            processBlockStament(c.code)
+            processBlockStament(c.code,true)
         } else {
             GsConsole.error("Closure Code not supported (${c.code.class.simpleName})")
         }
@@ -534,7 +565,7 @@ class GsConverter {
         addScript(') {')
         indent++
         addLine()
-        processBlockStament(is.ifBlock)
+        processBlockStament(is.ifBlock,false)
         indent--
         removeTabScript()
         addScript('}')
@@ -542,7 +573,7 @@ class GsConverter {
             addScript(' else {')
             indent++
             addLine()
-            processBlockStament(is.elseBlock)
+            processBlockStament(is.elseBlock,false)
             indent--
             removeTabScript()
             addScript('}')
@@ -574,6 +605,71 @@ class GsConverter {
             "process${it.class.simpleName}"(it)
         }
         addScript('])')
+    }
+
+    def processRangeExpression(RangeExpression r) {
+        addScript('gSrange(')
+
+        //println 'Is inclusive->'+r.isInclusive()
+        "process${r.from.class.simpleName}"(r.from)
+        addScript(", ")
+        "process${r.to.class.simpleName}"(r.to)
+        addScript(', '+r.isInclusive())
+        addScript(')')
+    }
+
+    def processForStatement(ForStatement statement) {
+
+        //????
+        if (statement?.variable != ForStatement.FOR_LOOP_DUMMY) {
+            //println 'DUMMY!-'+statement.variable
+            //We change this for in...  for a call lo closure each, that works fine in javascript
+            //"process${statement.variable.class.simpleName}"(statement.variable)
+            //addScript ' in '
+
+            "process${statement?.collectionExpression?.class.simpleName}"(statement?.collectionExpression)
+            addScript('.each(function(')
+            "process${statement.variable.class.simpleName}"(statement.variable)
+
+            /*
+            gSrange(5, 9).each(function(element) {
+                console.log('it element->'+element);
+                log += element;
+            })
+            */
+        } else {
+            addScript 'for ('
+            //println 'collectionExpression-'+ statement?.collectionExpression.text
+            "process${statement?.collectionExpression?.class.simpleName}"(statement?.collectionExpression)
+        }
+        addScript ') {'
+        indent++
+        addLine()
+
+        "process${statement?.loopBlock?.class.simpleName}"(statement?.loopBlock)
+
+        indent--
+        removeTabScript()
+        addScript('}')
+        if (statement?.variable != ForStatement.FOR_LOOP_DUMMY) {
+            addScript(')')
+        }
+    }
+
+    def processClosureListExpression(ClosureListExpression expression) {
+        //println 'ClosureListExpression-'+expression.text
+        boolean first = true
+        expression?.expressions?.each { it ->
+            if (!first) {
+                addScript(' ; ')
+            }
+            first = false
+            "process${it.class.simpleName}"(it)
+        }
+    }
+
+    def processParameter(Parameter parameter) {
+        addScript(parameter.name)
     }
 
     def methodMissing(String name, Object args) {

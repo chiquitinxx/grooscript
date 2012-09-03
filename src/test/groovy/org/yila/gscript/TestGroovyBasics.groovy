@@ -70,11 +70,22 @@ class TestGroovyBasics extends Specification {
         !result.assertFails
     }
 
-    def 'converting lists'() {
+    def 'starting converting lists'() {
         when:
-        def file = TestJs.getGroovyTestScript('workOnLists')
+        def file = TestJs.getGroovyTestScript('startingWorkOnLists')
         def jsScript = converter.toJs(file.text)
         //println 'jsScript->\n'+jsScript
+        def result =  TestJs.jsEval(jsScript)
+
+        then:
+        !result.assertFails
+    }
+
+    def 'list functions'() {
+        when:
+        def file = TestJs.getGroovyTestScript('listFunctions')
+        def jsScript = converter.toJs(file.text)
+        println 'jsScript->\n'+jsScript
         def result =  TestJs.jsEval(jsScript)
 
         then:
