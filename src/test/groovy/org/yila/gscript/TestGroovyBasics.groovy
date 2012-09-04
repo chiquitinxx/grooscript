@@ -31,13 +31,23 @@ class TestGroovyBasics extends Specification {
         result.assertFails
     }
 
+    def readAndConvert(nameOfFile,consoleOutput) {
+
+        def file = TestJs.getGroovyTestScript(nameOfFile)
+
+        def jsScript = converter.toJs(file.text)
+
+        if (consoleOutput) {
+            println 'jsScript->\n'+jsScript
+        }
+
+        return TestJs.jsEval(jsScript)
+    }
+
     def 'variables and expressions'() {
 
         when:
-        def file = TestJs.getGroovyTestScript('variablesAndExpressions')
-        def jsScript = converter.toJs(file.text)
-        //println 'jsScript->\n'+jsScript
-        def result =  TestJs.jsEval(jsScript)
+        def result = readAndConvert('variablesAndExpressions',false)
 
         then:
         !result.assertFails
@@ -49,10 +59,7 @@ class TestGroovyBasics extends Specification {
 
     def 'starting class stuff'() {
         when:
-        def file = TestJs.getGroovyTestScript('startingClass')
-        def jsScript = converter.toJs(file.text)
-        //println 'jsScript->\n'+jsScript
-        def result =  TestJs.jsEval(jsScript)
+        def result = readAndConvert('startingClass',false)
 
         then:
         !result.assertFails
@@ -61,10 +68,7 @@ class TestGroovyBasics extends Specification {
 
     def 'starting closure stuff'() {
         when:
-        def file = TestJs.getGroovyTestScript('startingClosuresWithClasses')
-        def jsScript = converter.toJs(file.text)
-        println 'jsScript->\n'+jsScript
-        def result =  TestJs.jsEval(jsScript)
+        def result = readAndConvert('startingClosuresWithClasses',false)
 
         then:
         !result.assertFails
@@ -72,10 +76,7 @@ class TestGroovyBasics extends Specification {
 
     def 'starting converting lists'() {
         when:
-        def file = TestJs.getGroovyTestScript('startingWorkOnLists')
-        def jsScript = converter.toJs(file.text)
-        //println 'jsScript->\n'+jsScript
-        def result =  TestJs.jsEval(jsScript)
+        def result = readAndConvert('startingWorkOnLists',false)
 
         then:
         !result.assertFails
@@ -83,10 +84,16 @@ class TestGroovyBasics extends Specification {
 
     def 'list functions'() {
         when:
-        def file = TestJs.getGroovyTestScript('listFunctions')
-        def jsScript = converter.toJs(file.text)
-        println 'jsScript->\n'+jsScript
-        def result =  TestJs.jsEval(jsScript)
+        def result = readAndConvert('listFunctions',false)
+
+        then:
+        !result.assertFails
+    }
+
+    def 'some inheritance class'() {
+        when:
+        //TODO have to add properties of the father to a class with extens, so the get this. before
+        def result = readAndConvert('someInheritance',true)
 
         then:
         !result.assertFails

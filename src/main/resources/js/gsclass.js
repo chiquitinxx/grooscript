@@ -181,7 +181,8 @@ function gSassert(value) {
     } else {
          console.log('OK.');
     }
-}*/
+}
+*/
 
 /*
 var doubled = gSlist([1 , 2 , 3]).collect(function(item) {
