@@ -24,6 +24,32 @@ function gSmap() {
         this[key] = value;
         return this;
     }
+    object.put = function(key,value) {
+        return this.add(key,value)
+    }
+    object.size = function() {
+        var number = 0;
+        for (ob in this) {
+            if (typeof this[ob] !== "function") {
+                number++;
+            }
+        }
+        return number;
+    }
+    object.each = function(closure) {
+        for (ob in this) {
+            if (typeof this[ob] !== "function") {
+                var f = arguments[0];
+                //Nice, number of arguments in length property
+                if (f.length==1) {
+                    closure({key:ob, value:this[ob]})
+                }
+                if (f.length==2) {
+                    closure(ob,this[ob]);
+                }
+            }
+        }
+    }
     return object;
 }
 
@@ -165,6 +191,13 @@ function gSrange(begin,end,inclusive) {
     object.toList = function() {
         return gSlist(this.values());
     }
+    return object;
+}
+
+function gSdate() {
+    var object = new Date();
+
+    object.time = object.getTime();
     return object;
 }
 

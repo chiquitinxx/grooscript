@@ -92,8 +92,16 @@ class TestGroovyBasics extends Specification {
 
     def 'some inheritance class'() {
         when:
-        //TODO have to add properties of the father to a class with extens, so the get this. before
-        def result = readAndConvert('someInheritance',true)
+        def result = readAndConvert('someInheritance',false)
+
+        then:
+        !result.assertFails
+    }
+
+    def 'maps and more closures'() {
+        when:
+        //TODO Continue with maps
+        def result = readAndConvert('mappingAndClosuring',true)
 
         then:
         !result.assertFails

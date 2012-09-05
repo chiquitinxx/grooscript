@@ -14,11 +14,11 @@ class MotorizedVehicle extends Vehicle {
     }
 
     def putVehicleBack(vehicle) {
-        this.backVehicles << vehicle
+        backVehicles << vehicle
     }
 
     def String toString() {
-        return "MotorizedVehicle(${name}).wheels(${wheels}).seats(${seats}).company($company).back(${backVehicles})"
+        return "MotorizedVehicle(${name}).wheels(${wheels}).seats(${seats}).company($company).back(${backVehicles.size()})"
     }
 }
 
@@ -30,8 +30,8 @@ class Vehicle {
 
     Vehicle(name) {
         this.name = name
-        this.wheels = 0
-        this.seats = 0
+        wheels = 0
+        seats = 0
     }
 
     def String toString() {
@@ -54,9 +54,7 @@ assert error
 
 def car = new MotorizedVehicle('Car',4,4)
 car.company = 'Opel'
-assert car.toString() == 'MotorizedVehicle(Car).wheels(4).seats(4).company(Opel).back([])'
-/*
-car.putVehicleBack(bike)
-assert car.toString() == 'MotorizedVehicle(Car).wheels(4).seats(4).company(Opel).back([Vehicle(Bike).wheels(2).seats(1)])'
+assert car.toString() == 'MotorizedVehicle(Car).wheels(4).seats(4).company(Opel).back(0)'
 
- */
+car.putVehicleBack(bike)
+assert car.toString() == 'MotorizedVehicle(Car).wheels(4).seats(4).company(Opel).back(1)'

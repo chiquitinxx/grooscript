@@ -1,6 +1,11 @@
 /**
  * JFL 01/09/12
  */
+class Base {
+    def prop
+    def method() {}
+}
+assert new Base()
 
 class MyClass {
     def name
