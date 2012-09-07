@@ -50,6 +50,32 @@ function gSmap() {
             }
         }
     }
+    object.get = function(key,defaultValue) {
+        if (arguments.length ==2 && (this[key]=='undefined' || this[key]==null)) {
+            return defaultValue;
+        } else {
+            return this[key];
+        }
+    }
+    object.containsKey = function(key) {
+        if (this[key]=='undefined' || this[key]==null) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    object.containsValue = function(value) {
+        var gotIt = false;
+        for (ob in this) {
+            if (typeof this[ob] !== "function") {
+                if (this[ob]==value) {
+                    gotIt = true;
+                    break;
+                }
+            }
+        }
+        return gotIt;
+    }
     return object;
 }
 

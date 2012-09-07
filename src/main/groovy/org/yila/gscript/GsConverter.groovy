@@ -41,10 +41,11 @@ class GsConverter {
     }
 
     def initFunctionNames() {
-        def clos = new GroovyShell().evaluate('{ gscript ->\n'+Util.getNameFunctionsText()+'\n return gscript}')
+        //def clos = new GroovyShell().evaluate('{ gscript ->\n'+Util.getNameFunctionsText()+'\n return gscript}')
+        //this.with clos
+        def clos = new GroovyShell().evaluate('{ it ->\n'+Util.getNameFunctionsText()+'\n return}')
         this.with clos
-        //GroovyShell gs = new GroovyShell()
-        //Util.getNameFunctionsText().eachLine { gs.evaluate(it) }
+
     }
 
     /**
@@ -134,6 +135,32 @@ class GsConverter {
         }
     }
 
+    /**
+     * Create code the js class definition, for execute constructor
+     * @param numberArguments
+     * @param paramList
+     * @return
+     */
+    def addConditionConstructorExecution(numberArguments,paramList) {
+
+        addScript("if (arguments.length==${numberArguments}) {")
+        addScript("object.${classNameStack.peek()}${numberArguments}")
+
+        addScript '('
+        def count = 0
+        paramList?.each { param ->
+            //"process${param.class.simpleName}"(param)
+            //count--
+            if (count>0) addScript ', '
+            addScript("arguments[${count}]")
+            count++
+        }
+        addScript ')'
+
+        addScript('; }')
+        addLine()
+    }
+
     def processClassNode(ClassNode node) {
 
         //Starting class conversion
@@ -191,33 +218,39 @@ class GsConverter {
         //Ignoring fields
         //node?.fields?.each { println 'field->'+it  }
 
-        //Constructors
-        //If no constructor with 1 parameter, we create 1 that recive a map, for put value on properties
-        boolean has1parameterConstructor = false
-        boolean has0parameterConstructor = false
-        node?.declaredConstructors?.each { //println 'declaredConstructor->'+it;
-            if (it.parameters?.size()==1) {
-                has1parameterConstructor = true
-            }
-            if (it.parameters?.size()==0) {
-                has0parameterConstructor = true
-            }
-            processMethodNode(it,true)
-        }
-        if (!has1parameterConstructor) {
-            addScript("object.${node.name}1 = function(map) { gSpassMapToObject(map,this); return this;};")
-            addLine()
-        }
-        if (!has0parameterConstructor) {
-            addScript("object.${node.name}0 = function() { };")
-            addLine()
-        }
-
         //Methods
         node?.methods?.each { //println 'method->'+it;
 
             processMethodNode(it,false)
         }
+
+        //Constructors
+        //If no constructor with 1 parameter, we create 1 that get a map, for put value on properties
+        boolean has1parameterConstructor = false
+        //boolean has0parameterConstructor = false
+        node?.declaredConstructors?.each { //println 'declaredConstructor->'+it;
+            def numberArguments = it.parameters?.size()
+            if (numberArguments==1) {
+                has1parameterConstructor = true
+            }
+            //if (it.parameters?.size()==0) {
+            //    has0parameterConstructor = true
+            //}
+            processMethodNode(it,true)
+
+            addConditionConstructorExecution(numberArguments,it.parameters)
+
+        }
+        if (!has1parameterConstructor) {
+            addScript("object.${node.name}1 = function(map) { gSpassMapToObject(map,this); return this;};")
+            addLine()
+            addScript("if (arguments.length==1) {object.${node.name}1(arguments[0]); }")
+            addLine()
+        }
+        //if (!has0parameterConstructor) {
+        //    addScript("object.${node.name}0 = function() { };")
+        //    addLine()
+        //}
 
         indent --
         addScript("return object;")
@@ -585,8 +618,9 @@ class GsConverter {
         } else if (expression.type.name=='java.util.Date') {
             addScript('gSdate')
         } else {
-            //Constructor have name witn number of params on it
-            addScript("gsCreate${expression.type.name}().${expression.type.name}${expression.arguments.expressions.size()}")
+            //Constructor have name with number of params on it
+            //addScript("gsCreate${expression.type.name}().${expression.type.name}${expression.arguments.expressions.size()}")
+            addScript("gsCreate${expression.type.name}")
         }
         "process${expression.arguments.class.simpleName}"(expression.arguments)
     }
