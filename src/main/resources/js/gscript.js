@@ -19,6 +19,7 @@ function gSprintln(value) {
 
 function gSpassMapToObject(source,destination) {
     for (prop in source) {
+        if (typeof source[prop] === "function") continue;
         destination[prop] = source[prop]
     }
 }

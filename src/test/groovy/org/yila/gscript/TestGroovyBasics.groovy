@@ -44,6 +44,14 @@ class TestGroovyBasics extends Specification {
         return TestJs.jsEval(jsScript)
     }
 
+    def 'test Web Main example' () {
+        when:
+        def result = readAndConvert('webMainExample',true)
+
+        then:
+        !result.assertFails
+    }
+
     def 'variables and expressions'() {
 
         when:

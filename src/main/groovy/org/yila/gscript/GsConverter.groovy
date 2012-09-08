@@ -144,7 +144,7 @@ class GsConverter {
     def addConditionConstructorExecution(numberArguments,paramList) {
 
         addScript("if (arguments.length==${numberArguments}) {")
-        addScript("object.${classNameStack.peek()}${numberArguments}")
+        addScript("gSobject.${classNameStack.peek()}${numberArguments}")
 
         addScript '('
         def count = 0
@@ -187,12 +187,12 @@ class GsConverter {
         //Allowed inheritance
         if (node.superClass.name != 'java.lang.Object') {
             //println 'Allowed!'+ node.superClass.class.name
-            addScript("var object = gsCreate${node.superClass.name}();")
+            addScript("var gSobject = gsCreate${node.superClass.name}();")
 
             //We add to this class scope variables of fathers
             variableScoping.peek().addAll(inheritedVariables[node.superClass.name])
         } else {
-            addScript('var object = inherit(gsClass);')
+            addScript('var gSobject = inherit(gsClass);')
         }
         addLine()
         //ignoring generics and interfaces and extends atm
@@ -203,9 +203,12 @@ class GsConverter {
         //Adding initial values of properties
         node?.properties?.each { it-> //println 'Property->'+it; println 'initialExpresion->'+it.initialExpression
             if (it.initialExpression) {
-                addScript("object.${it.name} = ")
+                addScript("gSobject.${it.name} = ")
                 "process${it.initialExpression.class.simpleName}"(it.initialExpression)
                 addScript(';')
+                addLine()
+            } else {
+                addScript("gSobject.${it.name} = null;")
                 addLine()
             }
 
@@ -242,9 +245,9 @@ class GsConverter {
 
         }
         if (!has1parameterConstructor) {
-            addScript("object.${node.name}1 = function(map) { gSpassMapToObject(map,this); return this;};")
+            addScript("gSobject.${node.name}1 = function(map) { gSpassMapToObject(map,this); return this;};")
             addLine()
-            addScript("if (arguments.length==1) {object.${node.name}1(arguments[0]); }")
+            addScript("if (arguments.length==1) {gSobject.${node.name}1(arguments[0]); }")
             addLine()
         }
         //if (!has0parameterConstructor) {
@@ -253,7 +256,7 @@ class GsConverter {
         //}
 
         indent --
-        addScript("return object;")
+        addScript("return gSobject;")
         addLine()
         addScript('}')
         addLine()
@@ -289,7 +292,7 @@ class GsConverter {
             //BEWARE Atm only accepts constructor with different number or arguments
             name = classNameStack.peek() + (method.parameters?method.parameters.size():'0')
         }
-        addScript("object.$name = function(")
+        addScript("gSobject.$name = function(")
 
         boolean first = true
         actualScope = []
@@ -505,7 +508,7 @@ class GsConverter {
         //println "name:${v.name} - class:${classVariableNames} - scope:${variableScoping.peek()} - decl:${declaringVariable}"
         //if (!variableScoping.peek().contains(v.name) && !declaringVariable &&!dontAddMoreThis && variableScoping.size()>1) {
         if (variableScoping.peek().contains(expression.name) && !actualScope.contains(expression.name)) {
-            addScript('this.'+expression.name)
+            addScript('gSobject.'+expression.name)
         } else {
             addScript(expression.name)
         }

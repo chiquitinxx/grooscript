@@ -7,6 +7,6 @@ eval(fs.readFileSync('gscript.js')+'');
 
 var a = gSlist([]);
 
-console.log('Ok!');
+console.log('Ready to Test!');
 
 //////// Tests here
