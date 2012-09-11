@@ -369,20 +369,26 @@ class GsConverter {
     def processBlockStament(block,addReturn) {
         if (block) {
             def number = 1
-            block.getStatements()?.each { it ->
-                def position
-                if (addReturn && ((number++)==block.getStatements().size()) && !(it instanceof ReturnStatement)) {
-                    //this statement can be a complex statement with a return
-                    //Go looking for a return statement in last statement
-                    position = getSavePoint()
-                    //We use actualScoping for getting return statement in this scope
-                    variableScoping.peek().remove(gSgotResultStatement)
-                }
-                processStatement(it)
-                if (position && !variableScoping.peek().contains(gSgotResultStatement)) {
-                    //No return statement, then we want add return
-                    //println 'Yes!'+position
-                    addScriptAt('return ',position)
+            //println 'Block->'+block
+            if (block instanceof EmptyStatement) {
+                println 'BlockEmpty->'+block.text
+                println 'Empty->'+block.getStatementLabel()
+            } else {
+                block.getStatements()?.each { it ->
+                    def position
+                    if (addReturn && ((number++)==block.getStatements().size()) && !(it instanceof ReturnStatement)) {
+                        //this statement can be a complex statement with a return
+                        //Go looking for a return statement in last statement
+                        position = getSavePoint()
+                        //We use actualScoping for getting return statement in this scope
+                        variableScoping.peek().remove(gSgotResultStatement)
+                    }
+                    processStatement(it)
+                    if (position && !variableScoping.peek().contains(gSgotResultStatement)) {
+                        //No return statement, then we want add return
+                        //println 'Yes!'+position
+                        addScriptAt('return ',position)
+                    }
                 }
             }
         }
@@ -521,7 +527,7 @@ class GsConverter {
      */
     def processBinaryExpression(BinaryExpression expression) {
 
-        //println 'Binary->'+b.text
+        //println 'Binary->'+expression.text
         //Getting a range from a list
         if (expression.operation.text=='[' && expression.rightExpression instanceof RangeExpression) {
             addScript('gSrangeFromList(')
@@ -536,6 +542,21 @@ class GsConverter {
 
             upgradedExpresion(expression.leftExpression)
             addScript('.add(')
+            upgradedExpresion(expression.rightExpression)
+            addScript(')')
+        //Regular Expression exact match all
+        } else if (expression.operation.text=='==~') {
+            addScript('gSexactMatch(')
+            upgradedExpresion(expression.leftExpression)
+            addScript(',')
+            upgradedExpresion(expression.rightExpression)
+            addScript(')')
+        //A matcher of regular expresion
+        } else if (expression.operation.text=='=~') {
+            addScript('gSregExp(')
+            //println 'rx->'+expression.leftExpression
+            upgradedExpresion(expression.leftExpression)
+            addScript(',')
             upgradedExpresion(expression.rightExpression)
             addScript(')')
         } else {
@@ -565,6 +586,7 @@ class GsConverter {
     }
 
     def processConstantExpression(ConstantExpression expression) {
+        //println 'ConstantExpression->'+expression.text
         if (expression.value instanceof String) {
             addScript('"'+expression.value+'"')
         } else {
@@ -732,15 +754,29 @@ class GsConverter {
         addScript(') {')
         indent++
         addLine()
-        processBlockStament(statement.ifBlock,false)
+        if (statement.ifBlock instanceof BlockStatement) {
+            processBlockStament(statement.ifBlock,false)
+        } else {
+            //println 'if2->'+ statement.ifBlock.text
+            "process${statement.ifBlock.class.simpleName}"(statement.ifBlock)
+            addLine()
+        }
+
         indent--
         removeTabScript()
         addScript('}')
-        if (statement.elseBlock) {
+        if (statement.elseBlock && !(statement.elseBlock instanceof EmptyStatement)) {
+            //println 'Else->'+statement.elseBlock.text
             addScript(' else {')
             indent++
             addLine()
-            processBlockStament(statement.elseBlock,false)
+            if (statement.elseBlock instanceof BlockStatement) {
+                processBlockStament(statement.elseBlock,false)
+            } else {
+                //println 'if2->'+ statement.ifBlock.text
+                "process${statement.elseBlock.class.simpleName}"(statement.elseBlock)
+                addLine()
+            }
             indent--
             removeTabScript()
             addScript('}')
@@ -869,6 +905,67 @@ class GsConverter {
 
     def processCatchStatement(CatchStatement statement) {
         processBlockStament(statement.code,false)
+    }
+
+    def processTernaryExpression(TernaryExpression expression) {
+        //println 'Ternary->'+expression.text
+        addScript('(')
+        "process${expression.booleanExpression.class.simpleName}"(expression.booleanExpression)
+        addScript(' ? ')
+        "process${expression.trueExpression.class.simpleName}"(expression.trueExpression)
+        addScript(' : ')
+        "process${expression.falseExpression.class.simpleName}"(expression.falseExpression)
+        addScript(')')
+    }
+
+    def processSwitchStatement(SwitchStatement statement) {
+
+        addScript('switch (')
+        "process${statement.expression.class.simpleName}"(statement.expression)
+        addScript(') {')
+        indent++
+        addLine()
+        statement.caseStatements?.each { it ->
+            "process${it.class.simpleName}"(it)
+            //addScript('break;')
+        }
+        if (statement.defaultStatement) {
+            addScript('default :')
+            "process${statement.defaultStatement.class.simpleName}"(statement.defaultStatement)
+        }
+        indent--
+        removeTabScript()
+        addScript('}')
+        //addLine()
+    }
+
+    def processCaseStatement(CaseStatement statement) {
+        addScript 'case '
+        "process${statement?.expression.class.simpleName}"(statement?.expression)
+        addScript ':'
+        indent++
+        addLine()
+        "process${statement?.code.class.simpleName}"(statement?.code)
+        indent--
+        removeTabScript()
+        //addLine()
+    }
+
+    def processBreakStatement(BreakStatement statement) {
+        addScript('break')
+        //addLine()
+    }
+
+    def processWhileStatement(WhileStatement statement) {
+        addScript('while (')
+        "process${statement.booleanExpression.class.simpleName}"(statement.booleanExpression)
+        addScript(') {')
+        indent++
+        addLine()
+        "process${statement.loopBlock.class.simpleName}"(statement.loopBlock)
+        indent--
+        removeTabScript()
+        addScript('}')
     }
 
     def methodMissing(String name, Object args) {

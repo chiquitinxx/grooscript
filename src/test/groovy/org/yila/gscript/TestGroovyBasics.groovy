@@ -108,8 +108,24 @@ class TestGroovyBasics extends Specification {
 
     def 'maps and more closures'() {
         when:
-        //TODO Continue with maps
-        def result = readAndConvert('mappingAndClosuring',true)
+        def result = readAndConvert('mappingAndClosuring',false)
+
+        then:
+        !result.assertFails
+    }
+
+    def 'control structures'() {
+        when:
+        def result = readAndConvert('controlStructures',false)
+
+        then:
+        !result.assertFails
+    }
+
+    def 'regular expressions'() {
+        when:
+        //TODO continue here
+        def result = readAndConvert('regularExpressionsBegin',true)
 
         then:
         !result.assertFails

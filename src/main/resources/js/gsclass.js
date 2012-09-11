@@ -232,6 +232,47 @@ function gSrangeFromList(list,begin,end) {
     return list.slice(begin,end+1)
 }
 
+function gSexactMatch(text,regExp) {
+    var mock = text;
+
+    if (regExp instanceof RegExp) {
+        mock = mock.replace(regExp,"#");
+    } else {
+        mock = mock.replace(new RegExp(regExp),"#");
+    }
+
+    //console.log('After->'+mock);
+    return mock == "#";
+}
+
+function gSregExp(text,pattern) {
+    var object = inherit(gsClass);
+    if (pattern instanceof RegExp) {
+        object.pattern = pattern;
+    } else {
+        //g for search all occurences
+        object.pattern = new RegExp(pattern,'g');
+    }
+    object.text = text;
+
+    object.each = function(closure) {
+        //console.log('text->'+this.text);
+        //console.log('pattern->'+this.pattern);
+        //match function dont work as expected, only returns 1 result
+        var result = this.text.match(this.pattern);
+        if (result != null) {
+            //console.log('res->'+result);
+            var i;
+            for (i=0;i<result.length;i++) {
+                closure(result[i]);
+            }
+        }
+
+    }
+
+    return object;
+}
+
 /*
 function gSassert(value) {
     console.log('Assert-'+value);
