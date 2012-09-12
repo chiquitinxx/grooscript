@@ -18,6 +18,9 @@ function inherit(p) {
     return new f();
 }
 
+/////////////////////////////////////////////////////////////////
+// gSmap
+/////////////////////////////////////////////////////////////////
 function gSmap() {
     var object = inherit(gsClass)
     object.add = function(key,value) {
@@ -79,8 +82,9 @@ function gSmap() {
     return object;
 }
 
-//
+/////////////////////////////////////////////////////////////////
 //gsList
+/////////////////////////////////////////////////////////////////
 function gSlist(value) {
     var object = inherit(Array.prototype);
     object = value;
@@ -187,8 +191,10 @@ function gSlist(value) {
     return object;
 }
 
+/////////////////////////////////////////////////////////////////
 //gSrange
 //Only works with numbers atm
+/////////////////////////////////////////////////////////////////
 function gSrange(begin,end,inclusive) {
     var start = begin;
     var finish = end;
@@ -220,10 +226,24 @@ function gSrange(begin,end,inclusive) {
     return object;
 }
 
+/////////////////////////////////////////////////////////////////
+//gSdate
+/////////////////////////////////////////////////////////////////
 function gSdate() {
-    var object = new Date();
+
+    var object;
+    if (arguments.length==1) {
+        object = new Date(arguments[0]);
+    } else {
+        object = new Date();
+    }
 
     object.time = object.getTime();
+
+    object.year = object.getFullYear();
+    object.month = object.getMonth();
+    object.date = object.getDay();
+
     return object;
 }
 
@@ -232,6 +252,9 @@ function gSrangeFromList(list,begin,end) {
     return list.slice(begin,end+1)
 }
 
+/////////////////////////////////////////////////////////////////
+//gSexactMatch
+/////////////////////////////////////////////////////////////////
 function gSexactMatch(text,regExp) {
     var mock = text;
 
@@ -245,10 +268,13 @@ function gSexactMatch(text,regExp) {
     return mock == "#";
 }
 
+/////////////////////////////////////////////////////////////////
+//gSregExp
+/////////////////////////////////////////////////////////////////
 function gSregExp(text,pattern) {
     var object = inherit(gsClass);
     if (pattern instanceof RegExp) {
-        object.pattern = pattern;
+        object.pattern = new RegExp(pattern.source,'g');
     } else {
         //g for search all occurences
         object.pattern = new RegExp(pattern,'g');
@@ -271,6 +297,46 @@ function gSregExp(text,pattern) {
     }
 
     return object;
+}
+
+/////////////////////////////////////////////////////////////////
+//Number functions
+/////////////////////////////////////////////////////////////////
+Number.prototype.times = function(closure) {
+    var i;
+    for (i=0;i<this;i++) {
+        closure(i);
+    }
+}
+
+/////////////////////////////////////////////////////////////////
+//String functions
+/////////////////////////////////////////////////////////////////
+String.prototype.contains = function(value) {
+    return this.indexOf(value)>=0;
+}
+
+String.prototype.startsWith = function(value) {
+    return this.indexOf(value)==0;
+}
+
+String.prototype.count = function(value) {
+    var reg = new RegExp(value,'g');
+    var result = this.match(reg);
+    if (result!=null && result!='undefined') {
+        return result.length;
+    } else {
+        return 0;
+    }
+}
+
+String.prototype.size = function() {
+    return this.length;
+}
+
+String.prototype.replaceAll = function(oldValue,newValue) {
+    var reg = new RegExp(oldValue,'g');
+    return this.replace(reg,newValue);
 }
 
 /*

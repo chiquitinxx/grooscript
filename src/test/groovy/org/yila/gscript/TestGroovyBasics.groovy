@@ -124,8 +124,16 @@ class TestGroovyBasics extends Specification {
 
     def 'regular expressions'() {
         when:
+        def result = readAndConvert('regularExpressionsBegin',false)
+
+        then:
+        !result.assertFails
+    }
+
+    def 'working with strings'() {
+        when:
         //TODO continue here
-        def result = readAndConvert('regularExpressionsBegin',true)
+        def result = readAndConvert('workingWithStrings',true)
 
         then:
         !result.assertFails

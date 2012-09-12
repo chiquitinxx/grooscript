@@ -531,7 +531,7 @@ class GsConverter {
         //Getting a range from a list
         if (expression.operation.text=='[' && expression.rightExpression instanceof RangeExpression) {
             addScript('gSrangeFromList(')
-            upgradedExpresion(b.leftExpression)
+            upgradedExpresion(expression.leftExpression)
             addScript(", ")
             "process${expression.rightExpression.getFrom().class.simpleName}"(expression.rightExpression.getFrom())
             addScript(", ")
@@ -539,7 +539,7 @@ class GsConverter {
             addScript(')')
         //Adding items
         } else if (expression.operation.text=='<<') {
-
+            //We call add function
             upgradedExpresion(expression.leftExpression)
             addScript('.add(')
             upgradedExpresion(expression.rightExpression)
@@ -549,7 +549,15 @@ class GsConverter {
             addScript('gSexactMatch(')
             upgradedExpresion(expression.leftExpression)
             addScript(',')
-            upgradedExpresion(expression.rightExpression)
+            //If is a regular expresion /fgsg/, comes like a contantExpresion fgsg, we keep /'s for javascript
+            if (expression.rightExpression instanceof ConstantExpression) {
+                addScript('/')
+                processConstantExpression(expression.rightExpression,false)
+                addScript('/')
+            } else {
+                upgradedExpresion(expression.rightExpression)
+            }
+
             addScript(')')
         //A matcher of regular expresion
         } else if (expression.operation.text=='=~') {
@@ -557,7 +565,15 @@ class GsConverter {
             //println 'rx->'+expression.leftExpression
             upgradedExpresion(expression.leftExpression)
             addScript(',')
-            upgradedExpresion(expression.rightExpression)
+            //If is a regular expresion /fgsg/, comes like a contantExpresion fgsg, we keep /'s for javascript
+            if (expression.rightExpression instanceof ConstantExpression) {
+                addScript('/')
+                processConstantExpression(expression.rightExpression,false)
+                addScript('/')
+            } else {
+                upgradedExpresion(expression.rightExpression)
+            }
+
             addScript(')')
         } else {
 
@@ -588,7 +604,9 @@ class GsConverter {
     def processConstantExpression(ConstantExpression expression) {
         //println 'ConstantExpression->'+expression.text
         if (expression.value instanceof String) {
-            addScript('"'+expression.value+'"')
+            def String value = ''
+            expression.value.eachLine { if (it) value += it }
+            addScript('"'+value+'"')
         } else {
             addScript(expression.value)
         }
@@ -687,7 +705,7 @@ class GsConverter {
         }
 
         //Change println for javascript function
-        if (expression.methodAsString == 'println') {
+        if (expression.methodAsString == 'println' || expression.methodAsString == 'print') {
             addScript(printlnFunction)
         //Remove call method call from closures
         } else if (expression.methodAsString == 'call') {
@@ -696,6 +714,12 @@ class GsConverter {
         } else if (expression.objectExpression instanceof VariableExpression &&
                 expression.objectExpression.name=='super') {
             addScript("${superMethodBegin}${expression.methodAsString}")
+        //Function times, with a number, have to put (number)
+        } else if (expression.methodAsString == 'times' && expression.objectExpression instanceof ConstantExpression) {
+            addScript('(')
+            "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
+            addScript(')')
+            addScript(".${expression.methodAsString}")
         } else {
             "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
             addScript(".${expression.methodAsString}")

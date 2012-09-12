@@ -34,3 +34,7 @@ assert house.code == null
 
 house.applyCode(getCode)
 assert house.code == 0
+
+def salute = ''
+5.times {it-> salute+=it}
+assert salute == "01234"
