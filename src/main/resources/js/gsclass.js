@@ -312,6 +312,20 @@ Number.prototype.times = function(closure) {
 /////////////////////////////////////////////////////////////////
 //String functions
 /////////////////////////////////////////////////////////////////
+function gSmetaClass(item) {
+    var type = typeof item;
+    //console.log('typeof before-'+typeof item);
+    if (type == "string") {
+        item = new String(item);
+    }
+    if (type == "number") {
+        item = new Number(item);
+    }
+    //console.log('typeof after-'+typeof item);
+
+    return item;
+}
+
 String.prototype.contains = function(value) {
     return this.indexOf(value)>=0;
 }
@@ -338,110 +352,3 @@ String.prototype.replaceAll = function(oldValue,newValue) {
     var reg = new RegExp(oldValue,'g');
     return this.replace(reg,newValue);
 }
-
-/*
-function gSassert(value) {
-    console.log('Assert-'+value);
-    if (!value) {
-         console.log('FAILS!');
-    } else {
-         console.log('OK.');
-    }
-}
-*/
-
-/*
-var doubled = gSlist([1 , 2 , 3]).collect(function(item) {
-  return item * 2;
-});
-console.log('l->'+doubled);
-gSassert((doubled [ 0]) == 2);
-gSassert((doubled [ 1]) == 4);
-gSassert((doubled [ 2]) == 6);
-gSassert(doubled.size() == 3);
-*/
-
-/*
-list = gSlist(["a" , "b" , "c" , "b" , "d" , "c"]);
-list.removeAll(gSlist(["b" , "c"]));
-gSassert(list.size() == 2);
-gSassert((list [ 1]) == "d");
-*/
-
-/*
-var list = gSlist([1 , 2]);
-gSassert((list.reverse() [ 0]) == 2);
-list.add(3);
-gSassert(list.size() == 3);
-gSassert((list.sort() [ 0]) == 1);
-list = gSlist([1 , "A" , 3]);
-list.remove(2);
-list.remove("A");
-gSassert(list.size() == 1);
-gSassert((list [ 0]) == 1);
-*/
-
-/*
-for (element in  [5,6,7,8,9]) { //gSrange(5, 9).values()) {
-    console.log('it element->'+element);
-  log += element;
-};
-*/
-
-/*
-log = "";
-for (element in gSrange(9, 5)) {
-  log += element;
-};
-gSassert(log == "98765");
-log = "";
-gSrange(9, 5).each(function(element) {
-  log += element;
-});
-gSassert(log == "9876");
-*/
-
-/*
-var list = gSlist([5 , 6 , 7 , 8]);
-console.log('list->'+list);
-console.log('range->'+gSrangeFromList(list, 1, 2));
-console.log('range->'+gSlist([6 , 7]));
-console.log('siono->'+((gSrangeFromList(list, 1, 2)) == gSlist([6 , 7])))
-console.log('siono array->'+([1,2]==[1,2]))
-//gSassert((gSrangeFromList(list, 1, 2)) == gSlist([6 , 7]));
-
-console.log('r(-1,3)->'+gSrange(-1,3))
-console.log('r(5,1)->'+gSrange(5,1))
-console.log('r(1,1)->'+gSrange(1,1))
-console.log('r(1,0)->'+gSrange(1,0))
-*/
-
-/*
-function gsCreateMyClass() {
-    var object = inherit(gsClass)
-    object.name = ''
-    object.say = function () {console.log('Hey!')}
-    object.say = function (something) {console.log('Hey!->'+something)}
-
-    return object
-}
-
-var me = gsCreateMyClass();
-me.name = 'Mac';
-console.log('yo='+me.yo);
-me.yo = 'Yo'
-console.log('name='+me.name);
-me.say();
-me.say('Bob');
-*/
-/*
-var lista = [1,2,3]
-lista[4] = 4
-console.log('List->'+lista)
-var lista2 = gSlist([])
-console.log('List2->'+lista2)
-lista2[0]='hola'
-lista2[1]=3
-console.log('List2->'+lista2)
-lista2.recorre()
-*/

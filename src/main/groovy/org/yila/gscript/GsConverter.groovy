@@ -172,6 +172,7 @@ class GsConverter {
         //visitModifiers(node.modifiers)
 
         //println "class-> $node.name"
+        addLine()
 
         //Push name in stack
         classNameStack.push(node.name)
@@ -311,7 +312,7 @@ class GsConverter {
 
         //println 'Method '+name+' Code:'+method.code
         if (method.code instanceof BlockStatement) {
-            processBlockStament(method.code,false)
+            processBlockStament(method.code,true)
         } else {
             GsConsole.error("Method Code not supported (${method.code.class.simpleName})")
         }
@@ -376,7 +377,8 @@ class GsConverter {
             } else {
                 block.getStatements()?.each { it ->
                     def position
-                    if (addReturn && ((number++)==block.getStatements().size()) && !(it instanceof ReturnStatement)) {
+                    if (addReturn && ((number++)==block.getStatements().size()) && !(it instanceof ReturnStatement)
+                            && !(it instanceof IfStatement) ) {
                         //this statement can be a complex statement with a return
                         //Go looking for a return statement in last statement
                         position = getSavePoint()
@@ -682,15 +684,31 @@ class GsConverter {
     def processPropertyExpression(PropertyExpression expression) {
 
         //println 'Pe->'+expression.objectExpression
-        if (expression.objectExpression instanceof VariableExpression) {
-            if (expression.objectExpression.name == 'this') {
-                dontAddMoreThis = true
-            }
-        }
 
-        "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
-        addScript('.')
-        "process${expression.property.class.simpleName}"(expression.property,false)
+        //If metaClass property we ignore it, javascript permits add directly properties and methods
+        if (expression.property instanceof ConstantExpression && expression.property.value == 'metaClass') {
+            if (expression.objectExpression instanceof VariableExpression) {
+                //I had to add variable = ... cause gSmetaClass changing object and sometimes variable don't change
+                addScript("(${expression.objectExpression.name} = gSmetaClass(")
+                "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
+                addScript('))')
+            } else {
+                addScript('gSmetaClass(')
+                "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
+                addScript(')')
+            }
+        } else {
+
+            if (expression.objectExpression instanceof VariableExpression) {
+                if (expression.objectExpression.name == 'this') {
+                    dontAddMoreThis = true
+                }
+            }
+
+            "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
+            addScript('.')
+            "process${expression.property.class.simpleName}"(expression.property,false)
+        }
 
         dontAddMoreThis = false
 
