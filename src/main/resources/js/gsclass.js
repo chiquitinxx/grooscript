@@ -2,6 +2,11 @@ gsClass = {
 
 }
 
+function gScreateExpando() {
+    var object = inherit(gsClass);
+     return object;
+}
+
 function inherit(p) {
     if (p == null) throw TypeError();
     if (Object.create)
@@ -22,7 +27,7 @@ function inherit(p) {
 // gSmap
 /////////////////////////////////////////////////////////////////
 function gSmap() {
-    var object = inherit(gsClass)
+    var object = inherit(gsClass);
     object.add = function(key,value) {
         this[key] = value;
         return this;

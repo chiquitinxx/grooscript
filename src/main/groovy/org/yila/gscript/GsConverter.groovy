@@ -104,7 +104,8 @@ class GsConverter {
     def processClassList(List<ClassNode> list) {
 
         def finalList = []
-        while (finalList.size()<list.size()) {
+        def extraClasses = []
+        while ((finalList.size()+extraClasses.size())<list.size()) {
 
             list.each { ClassNode it ->
                 if (it.superClass.name=='java.lang.Object')  {
@@ -113,14 +114,20 @@ class GsConverter {
                         finalList.add(it.name)
                     }
                 } else {
-                    //Looking for superclass, only accepts superclass a class in same script
-                    if (it.superClass.name.indexOf('.')>=0) {
-                        throw new Exception('Inheritance not Allowed on '+it.superClass.class.name)
-                    }
-                    //If father in the list, we can add it
-                    if (finalList.contains(it.superClass.name)) {
-                        //println 'Adding 2 '+it.name
-                        finalList.add(it.name)
+                    //Expando allowed
+                    if (it.superClass.name=='groovy.lang.Script') {
+                        extraClasses.add(it.name)
+                    } else {
+                        //Looking for superclass, only accepts superclass a class in same script
+                        if (it.superClass.name.indexOf('.')>=0) {
+                            throw new Exception('Inheritance not Allowed on '+it.superClass.class.name)
+                        }
+
+                        //If father in the list, we can add it
+                        if (finalList.contains(it.superClass.name)) {
+                            //println 'Adding 2 '+it.name
+                            finalList.add(it.name)
+                        }
                     }
                 }
 
@@ -128,11 +135,13 @@ class GsConverter {
         }
         //Finally process classes in order
         finalList.each { String nameClass ->
-            //println 'Order->'+nameClass
+            //println 'Class->'+nameClass
             processClassNode(list.find { ClassNode it ->
                 return it.name == nameClass
             })
         }
+        //Expandos - Nothing to do!
+        //extraClasses
     }
 
     /**
@@ -662,6 +671,8 @@ class GsConverter {
             addScript("this.${superNameStack.peek()}${expression.arguments.expressions.size()}")
         } else if (expression.type.name=='java.util.Date') {
             addScript('gSdate')
+        } else if (expression.type.name=='groovy.util.Expando') {
+            addScript('gScreateExpando')
         } else {
             //Constructor have name with number of params on it
             //addScript("gsCreate${expression.type.name}().${expression.type.name}${expression.arguments.expressions.size()}")
@@ -706,8 +717,14 @@ class GsConverter {
             }
 
             "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
-            addScript('.')
-            "process${expression.property.class.simpleName}"(expression.property,false)
+            if (expression.property instanceof GStringExpression) {
+                addScript('[')
+                "process${expression.property.class.simpleName}"(expression.property)
+                addScript(']')
+            } else {
+                addScript('.')
+                "process${expression.property.class.simpleName}"(expression.property,false)
+            }
         }
 
         dontAddMoreThis = false

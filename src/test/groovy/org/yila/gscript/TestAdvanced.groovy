@@ -35,5 +35,22 @@ class TestAdvanced extends Specification {
         !result.assertFails
     }
 
+    def 'expando world' () {
+        when:
+        def result = readAndConvert('advanced/ExpandoWorld',false)
+
+        then:
+        !result.assertFails
+    }
+
+    def 'super table' () {
+        when:
+        //TODO packages in class names!
+        def result = readAndConvert('advanced/SuperTable',true)
+
+        then:
+        !result.assertFails
+    }
+
 
 }
