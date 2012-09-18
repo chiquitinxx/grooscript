@@ -45,7 +45,7 @@ class TestAdvanced extends Specification {
 
     def 'super table' () {
         when:
-        //TODO packages in class names!
+        //TODO More stuff!
         def result = readAndConvert('advanced/SuperTable',true)
 
         then:

@@ -34,7 +34,8 @@ class GsConverter {
     def printlnFunction
 
     //When true, we dont add this no variables
-    def dontAddMoreThis
+    //TODO remove this variable properly
+    //def dontAddMoreThis
 
     def GsConverter() {
         initFunctionNames()
@@ -170,6 +171,16 @@ class GsConverter {
         addLine()
     }
 
+    def translateClassName(String name) {
+        def result = name
+        def i
+        while ((i = result.indexOf('.'))>=0) {
+            result = result.substring(i+1)
+        }
+
+        result
+    }
+
     def processClassNode(ClassNode node) {
 
         //Starting class conversion
@@ -187,7 +198,7 @@ class GsConverter {
         classNameStack.push(node.name)
         variableScoping.push([])
 
-        addScript("function gsCreate$node.name() {")
+        addScript("function gsCreate${translateClassName(node.name)}() {")
 
         indent ++
         addLine()
@@ -197,7 +208,7 @@ class GsConverter {
         //Allowed inheritance
         if (node.superClass.name != 'java.lang.Object') {
             //println 'Allowed!'+ node.superClass.class.name
-            addScript("var gSobject = gsCreate${node.superClass.name}();")
+            addScript("var gSobject = gsCreate${translateClassName(node.superClass.name)}();")
 
             //We add to this class scope variables of fathers
             variableScoping.peek().addAll(inheritedVariables[node.superClass.name])
@@ -234,6 +245,9 @@ class GsConverter {
         //Methods
         node?.methods?.each { //println 'method->'+it;
 
+            //Add too method names to variable scoping
+            variableScoping.peek().add(it.name)
+
             processMethodNode(it,false)
         }
 
@@ -255,9 +269,9 @@ class GsConverter {
 
         }
         if (!has1parameterConstructor) {
-            addScript("gSobject.${node.name}1 = function(map) { gSpassMapToObject(map,this); return this;};")
+            addScript("gSobject.${translateClassName(node.name)}1 = function(map) { gSpassMapToObject(map,this); return this;};")
             addLine()
-            addScript("if (arguments.length==1) {gSobject.${node.name}1(arguments[0]); }")
+            addScript("if (arguments.length==1) {gSobject.${translateClassName(node.name)}1(arguments[0]); }")
             addLine()
         }
         //if (!has0parameterConstructor) {
@@ -676,7 +690,8 @@ class GsConverter {
         } else {
             //Constructor have name with number of params on it
             //addScript("gsCreate${expression.type.name}().${expression.type.name}${expression.arguments.expressions.size()}")
-            addScript("gsCreate${expression.type.name}")
+            def name = translateClassName(expression.type.name)
+            addScript("gsCreate${name}")
         }
         "process${expression.arguments.class.simpleName}"(expression.arguments)
     }
@@ -712,7 +727,7 @@ class GsConverter {
 
             if (expression.objectExpression instanceof VariableExpression) {
                 if (expression.objectExpression.name == 'this') {
-                    dontAddMoreThis = true
+                    //dontAddMoreThis = true
                 }
             }
 
@@ -727,7 +742,7 @@ class GsConverter {
             }
         }
 
-        dontAddMoreThis = false
+        //dontAddMoreThis = false
 
     }
 
@@ -735,7 +750,7 @@ class GsConverter {
         //println "MCE ${expression.objectExpression} - ${expression.methodAsString}"
         if (expression.objectExpression instanceof VariableExpression) {
             if (expression.objectExpression.name == 'this') {
-                dontAddMoreThis = true
+                //dontAddMoreThis = true
             }
         }
 
@@ -749,19 +764,28 @@ class GsConverter {
         } else if (expression.objectExpression instanceof VariableExpression &&
                 expression.objectExpression.name=='super') {
             addScript("${superMethodBegin}${expression.methodAsString}")
-        //Function times, with a number, have to put (number)
+        //Function times, with a number, have to put (number) in javascript
         } else if (expression.methodAsString == 'times' && expression.objectExpression instanceof ConstantExpression) {
             addScript('(')
             "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
             addScript(')')
             addScript(".${expression.methodAsString}")
         } else {
-            "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
-            addScript(".${expression.methodAsString}")
+            //A lot of times come with this
+            //println 'Maybe this->'+expression.objectExpression
+            if (expression.objectExpression instanceof VariableExpression &&
+                    expression.objectExpression.name == 'this' &&
+                    variableScoping.peek()?.contains(expression.methodAsString)) {
+                //Remove this and put gSobject for variable scoping
+                addScript("gSobject.${expression.methodAsString}")
+            } else {
+                "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
+                addScript(".${expression.methodAsString}")
+            }
         }
         "process${expression.arguments.class.simpleName}"(expression.arguments)
 
-        dontAddMoreThis = false
+        //dontAddMoreThis = false
     }
 
     def processPostfixExpression(PostfixExpression expression) {
@@ -781,13 +805,19 @@ class GsConverter {
 
         boolean first = true
         actualScope = []
-        expression.parameters?.each { param ->
-            if (!first) {
-                addScript(', ')
+        //If no parameters, we add it by defaul
+        if (!expression.parameters || expression.parameters.size()==0) {
+            addScript('it')
+            actualScope.add('it')
+        } else {
+            expression.parameters?.each { param ->
+                if (!first) {
+                    addScript(', ')
+                }
+                actualScope.add(param.name)
+                addScript(param.name)
+                first = false
             }
-            actualScope.add(param.name)
-            addScript(param.name)
-            first = false
         }
         addScript(') {')
         indent++

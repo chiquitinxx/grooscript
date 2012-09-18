@@ -13,12 +13,11 @@ class SuperTab {
         items << object
     }
 
-    def addMultiple(head,number) {
+    def addMultiple(head,property,number) {
         number.times {
             def object = new Expando()
-            object.name = head + it
-            object.date = new Date()
-            items << object
+            object."$property" = head + it
+            add object
         }
     }
 
@@ -28,7 +27,7 @@ class SuperTab {
 }
 
 def superTable = new SuperTab()
-superTable.addMultiple('Groovy ',10)
+superTable.addMultiple('Groovy ','name',10)
 
 assert superTable.getItems()[0].name == 'Groovy 0'
 assert superTable.getItems().size() == 10
