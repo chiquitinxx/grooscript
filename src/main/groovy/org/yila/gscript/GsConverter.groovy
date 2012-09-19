@@ -77,11 +77,16 @@ class GsConverter {
             //println 'Size('+list.size+')->'+list
             variableScoping.clear()
             variableScoping.push([])
+            //Store all classes here
             def classList = []
+            //We process blocks at the end
+            def listBlocks = []
             list.each { it ->
+                //println 'it->'+it
                 if (it instanceof BlockStatement) {
                     //scriptScope = true
-                    processBlockStament(it,false)
+                    listBlocks << it
+                    //processBlockStament(it,false)
                 } else if (it instanceof ClassNode) {
                     //scriptScope = false
                     classList << it
@@ -94,6 +99,11 @@ class GsConverter {
             if (classList) {
                 processClassList(classList)
             }
+            //Process blocks after
+            listBlocks?.each { it->
+                processBlockStament(it,false)
+            }
+
             result = resultScript
         }
         //println 'res->'+ result
@@ -109,6 +119,7 @@ class GsConverter {
         while ((finalList.size()+extraClasses.size())<list.size()) {
 
             list.each { ClassNode it ->
+                //println 'it->'+it.name+' super - '+it.superClass.name+
                 if (it.superClass.name=='java.lang.Object')  {
                     if (!finalList.contains(it.name)) {
                         //println 'Adding '+it.name
@@ -142,7 +153,12 @@ class GsConverter {
             })
         }
         //Expandos - Nothing to do!
-        //extraClasses
+        extraClasses.each { String nameClass ->
+            //println 'Class->'+nameClass
+            processScriptClassNode(list.find { ClassNode it ->
+                return it.name == nameClass
+            })
+        }
     }
 
     /**
@@ -179,6 +195,54 @@ class GsConverter {
         }
 
         result
+    }
+
+    def processScriptClassNode(ClassNode node) {
+
+        //Push name in stack
+        variableScoping.push([])
+
+        addLine()
+
+        //Adding initial values of properties
+        /*
+        node?.properties?.each { it->
+            println 'Property->'+it; println 'initialExpresion->'+it.initialExpression
+            if (it.initialExpression) {
+                addScript("gSobject.${it.name} = ")
+                "process${it.initialExpression.class.simpleName}"(it.initialExpression)
+                addScript(';')
+                addLine()
+            } else {
+                addScript("gSobject.${it.name} = null;")
+                addLine()
+            }
+
+            //We add variable names of the class
+            variableScoping.peek().add(it.name)
+        }*/
+
+        //Methods
+        node?.methods?.each {
+
+            //println 'method->'+it.name;
+
+            if (it.name!='main' && it.name!='run') {
+
+                //Add too method names to variable scoping
+                variableScoping.peek().add(it.name)
+
+                processBasicFunction(it.name,it,false)
+
+                //processMethodNode(it,false)
+            }
+        }
+
+        addLine()
+
+        //Remove variable class names from the list
+        variableScoping.pop()
+
     }
 
     def processClassNode(ClassNode node) {
@@ -295,6 +359,43 @@ class GsConverter {
         //Finish class conversion
     }
 
+    def processBasicFunction(name, method, isConstructor) {
+
+        addScript("$name = function(")
+
+        boolean first = true
+        actualScope = []
+        method.parameters?.each { param ->
+            if (!first) {
+                addScript(', ')
+            }
+            actualScope.add(param.name)
+            addScript(param.name)
+            first = false
+        }
+        addScript(') {')
+
+        indent++
+        addLine()
+
+        //println 'Method '+name+' Code:'+method.code
+        if (method.code instanceof BlockStatement) {
+            processBlockStament(method.code,true)
+        } else {
+            GsConsole.error("Method Code not supported (${method.code.class.simpleName})")
+        }
+
+        indent--
+        if (isConstructor) {
+            addScript('return this;')
+            addLine()
+        } else {
+            removeTabScript()
+        }
+        addScript('}')
+        addLine()
+    }
+
     def processMethodNode(MethodNode method,isConstructor) {
 
         //Starting method conversion
@@ -316,6 +417,9 @@ class GsConverter {
             //BEWARE Atm only accepts constructor with different number or arguments
             name = classNameStack.peek() + (method.parameters?method.parameters.size():'0')
         }
+
+        processBasicFunction("gSobject.$name",method,isConstructor)
+        /*
         addScript("gSobject.$name = function(")
 
         boolean first = true
@@ -339,6 +443,7 @@ class GsConverter {
         } else {
             GsConsole.error("Method Code not supported (${method.code.class.simpleName})")
         }
+        */
 
         /*
         print " $node.name("
@@ -373,6 +478,7 @@ class GsConverter {
         //    methodVariableNames.remove(param.name)
         //}
 
+        /*
         indent--
         if (isConstructor) {
             addScript('return this;')
@@ -382,6 +488,7 @@ class GsConverter {
         }
         addScript('}')
         addLine()
+        */
     }
 
     /**
@@ -791,6 +898,11 @@ class GsConverter {
     def processPostfixExpression(PostfixExpression expression) {
         "process${expression.expression.class.simpleName}"(expression.expression)
         addScript(expression.operation.text)
+    }
+
+    def processPrefixExpression(PrefixExpression expression) {
+        addScript(expression.operation.text)
+        "process${expression.expression.class.simpleName}"(expression.expression)
     }
 
     def processReturnStatement(ReturnStatement statement) {
