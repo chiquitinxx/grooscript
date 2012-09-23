@@ -1,5 +1,8 @@
 package org.yila.gscript.util
 
+import org.yila.gscript.test.TestJs
+import org.yila.gscript.GsConverter
+
 /**
  * JFL 29/08/12
  */
@@ -64,5 +67,24 @@ class Util {
             }
         }
         result
+    }
+
+    def static fullProcessScript(String script) {
+
+        def result = [:]
+
+        try {
+
+            def converter = new GsConverter()
+            def jsScript = converter.toJs(script)
+
+            result = TestJs.jsEval(jsScript)
+
+            result.jsScript = jsScript
+        } catch (e) {
+            result.exception = e.message
+        }
+
+        return result
     }
 }

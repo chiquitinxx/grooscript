@@ -57,9 +57,20 @@ class GsConverter {
     def toJs(String script) {
         def result
         //Script not empty plz!
+        def phase = 0
         if (script) {
-            def list = new AstBuilder().buildFromString(CompilePhase.SEMANTIC_ANALYSIS,script)
-            result = processAstListToJs(list)
+
+            try {
+                def list = new AstBuilder().buildFromString(CompilePhase.SEMANTIC_ANALYSIS,script)
+                phase++
+                result = processAstListToJs(list)
+            } catch (e) {
+                if (phase==0) {
+                    throw new Exception("Compiler ERROR on Script")
+                } else {
+                    throw e
+                }
+            }
         }
         result
     }
@@ -601,11 +612,15 @@ class GsConverter {
         addLine()
     }
 
-    def processAssertStatement(statement) {
+    def processAssertStatement(AssertStatement statement) {
         Expression e = statement.booleanExpression
         addScript(assertFunction)
         addScript('(')
         "process${e.class.simpleName}"(e)
+        if (statement.getMessageExpression() && !(statement.messageExpression instanceof EmptyExpression)) {
+            addScript(', ')
+            "process${statement.messageExpression.class.simpleName}"(statement.messageExpression)
+        }
         addScript(')')
     }
 

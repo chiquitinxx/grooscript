@@ -4,7 +4,12 @@ var gSfails = false;
 function gSassert(value) {
     if(value==false) {
           gSfails = true;
-          gSprintln('Assert Fails!-'+value)
+          var message = 'Assert Fails! - ';
+          //gSprintln('tam-'+arguments.length);
+          if (arguments.length == 2 && arguments[1]!=null) {
+            message = arguments[1] + ' - ';
+          }
+          gSprintln(message+value);
     }
 }
 
@@ -17,12 +22,7 @@ function gSprintln(value) {
     gSconsole = gSconsole + value
 }
 
-function gSpassMapToObject(source,destination) {
-    for (prop in source) {
-        if (typeof source[prop] === "function") continue;
-        destination[prop] = source[prop]
-    }
-}
+
 
 //gSassert(true);
 //console.log('gSfails->'+gSfails);

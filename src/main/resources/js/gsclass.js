@@ -184,6 +184,17 @@ function gSlist(value) {
         var values = this.filter(closure)
         return gSlist(values)
     }
+
+    object.find = function(closure) {
+        var result,i;
+        for (i=0;!result && i<this.length;i++) {
+            if (closure(this[i])) {
+                result = this[i];
+            }
+        }
+        return result;
+
+    }
     /*
     object.recorre = function() {
         for (element in this) {
@@ -317,26 +328,16 @@ Number.prototype.times = function(closure) {
 /////////////////////////////////////////////////////////////////
 //String functions
 /////////////////////////////////////////////////////////////////
-function gSmetaClass(item) {
-    var type = typeof item;
-    //console.log('typeof before-'+typeof item);
-    if (type == "string") {
-        item = new String(item);
-    }
-    if (type == "number") {
-        item = new Number(item);
-    }
-    //console.log('typeof after-'+typeof item);
-
-    return item;
-}
-
 String.prototype.contains = function(value) {
     return this.indexOf(value)>=0;
 }
 
 String.prototype.startsWith = function(value) {
     return this.indexOf(value)==0;
+}
+
+String.prototype.endsWith = function(value) {
+    return this.indexOf(value)==(this.length - value.length);
 }
 
 String.prototype.count = function(value) {
@@ -356,4 +357,28 @@ String.prototype.size = function() {
 String.prototype.replaceAll = function(oldValue,newValue) {
     var reg = new RegExp(oldValue,'g');
     return this.replace(reg,newValue);
+}
+
+/////////////////////////////////////////////////////////////////
+// Misc Functions
+/////////////////////////////////////////////////////////////////
+function gSmetaClass(item) {
+    var type = typeof item;
+    //console.log('typeof before-'+typeof item);
+    if (type == "string") {
+        item = new String(item);
+    }
+    if (type == "number") {
+        item = new Number(item);
+    }
+    //console.log('typeof after-'+typeof item);
+
+    return item;
+}
+
+function gSpassMapToObject(source,destination) {
+    for (prop in source) {
+        if (typeof source[prop] === "function") continue;
+        destination[prop] = source[prop];
+    }
 }
