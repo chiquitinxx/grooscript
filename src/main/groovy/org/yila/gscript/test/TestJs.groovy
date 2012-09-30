@@ -33,6 +33,9 @@ class TestJs {
                 //Load script manager
                 ScriptEngineManager factory = new ScriptEngineManager()
                 ScriptEngine engine = factory.getEngineByName('JavaScript')
+                if (!engine) {
+                    throw new Exception('Not engine available!')
+                }
                 Bindings bind = engine.createBindings()
                 //Set the bindings
                 if (map) {
@@ -50,7 +53,7 @@ class TestJs {
 
             } catch (e) {
                 GsConsole.error('TestJs.jsEval '+e.message)
-                throw new Exception('Fail in eval Js Script!')
+                throw new Exception('Fail in eval Js Script! - '+e.message)
             }
         }
         resultMap

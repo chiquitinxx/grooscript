@@ -21,6 +21,15 @@ class TestConvertBase extends Specification {
         !converter.toJs()
     }
 
+    def 'conversion basic'() {
+        when:
+        def result = Util.fullProcessScript("println 'Trying GScript!'")
+
+        then:
+        result
+        !result.assertFails
+    }
+
     def 'full conversion results'() {
         when:
         def result = Util.fullProcessScript("def a=0;println 'Hey';assert true")

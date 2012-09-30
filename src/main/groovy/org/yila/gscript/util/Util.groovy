@@ -13,7 +13,12 @@ class Util {
     //Where Js stuff is
     def static getJsPath() {
         def s = System.getProperty('file.separator')
-        return System.getProperty('user.dir')+"${s}src${s}main${s}resources${s}js${s}"
+        def path = System.getProperty('user.dir')+"${s}src${s}main${s}resources${s}js${s}"
+        def file = new File(path)
+        if (!file || !file.exists() || !file.isDirectory()) {
+            path = System.getProperty('user.dir')+"${s}web${s}scripts${s}"
+        }
+        return path
     }
 
     //Location of groovy script examples
@@ -44,6 +49,9 @@ class Util {
             if (!finalName.endsWith('.js')) {
                 finalName += '.js'
             }
+
+            //println 'User->'+System.getProperty('user.dir')
+            //println 'JsPath->'+getJsPath()
 
             File file = new File(getJsPath() +finalName)
             if (file && file.exists() && file.isFile()) {
