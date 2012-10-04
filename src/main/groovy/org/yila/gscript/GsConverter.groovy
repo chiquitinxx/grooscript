@@ -21,6 +21,7 @@ class GsConverter {
     def Stack<String> superNameStack = new Stack<String>()
     //Use for variable scoping
     def Stack variableScoping = new Stack()
+    def Stack returnScoping = new Stack()
     def actualScope = []
     def String gSgotResultStatement = 'gSgotResultStatement'
     def String superMethodBegin = 'super_'
@@ -514,24 +515,31 @@ class GsConverter {
             //println 'Block->'+block
             if (block instanceof EmptyStatement) {
                 println 'BlockEmpty->'+block.text
-                println 'Empty->'+block.getStatementLabel()
+                //println 'Empty->'+block.getStatementLabel()
             } else {
+                //println 'Block->'+block.text
                 block.getStatements()?.each { it ->
+                    //println 'Block Statement-> size '+ block.getStatements().size() + ' number '+number+ ' it->'+it
                     def position
+                    returnScoping.push(false)
                     if (addReturn && ((number++)==block.getStatements().size()) && !(it instanceof ReturnStatement)
                             && !(it instanceof IfStatement) ) {
+                        //println 'Saving return - '+ variableScoping.peek()
                         //this statement can be a complex statement with a return
                         //Go looking for a return statement in last statement
                         position = getSavePoint()
                         //We use actualScoping for getting return statement in this scope
-                        variableScoping.peek().remove(gSgotResultStatement)
+                        //variableScoping.peek().remove(gSgotResultStatement)
                     }
                     processStatement(it)
-                    if (position && !variableScoping.peek().contains(gSgotResultStatement)) {
-                        //No return statement, then we want add return
-                        //println 'Yes!'+position
-                        addScriptAt('return ',position)
+                    if (position) {
+                        if (!returnScoping.peek()) {
+                            //No return statement, then we want add return
+                            //println 'Yes!'+position
+                            addScriptAt('return ',position)
+                        }
                     }
+                    returnScoping.pop()
                 }
             }
         }
@@ -921,7 +929,8 @@ class GsConverter {
     }
 
     def processReturnStatement(ReturnStatement statement) {
-        variableScoping.peek().add(gSgotResultStatement)
+        //variableScoping.peek().add(gSgotResultStatement)
+        returnScoping.add(true)
         addScript('return ')
         "process${statement.expression.class.simpleName}"(statement.expression)
     }
@@ -932,12 +941,20 @@ class GsConverter {
 
         boolean first = true
         actualScope = []
+
+        //Parameters with default values if not shown
+        //TODO add too to methods or make common function if possible
+        def initalValues = [:]
         //If no parameters, we add it by defaul
         if (!expression.parameters || expression.parameters.size()==0) {
             addScript('it')
             actualScope.add('it')
         } else {
             expression.parameters?.each { param ->
+                if (param.getInitialExpression()) {
+                    //println 'Initial->'+param.getInitialExpression()
+                    initalValues.putAt(param.name,param.getInitialExpression())
+                }
                 if (!first) {
                     addScript(', ')
                 }
@@ -950,7 +967,14 @@ class GsConverter {
         indent++
         addLine()
 
-        //println 'Method '+name+' Code:'+method.code
+        //At start we add initialization of default values
+        initalValues.each { key,value ->
+            addScript("if (${key} === undefined) ${key} = ")
+            "process${value.class.simpleName}"(value)
+            addScript(';')
+            addLine()
+        }
+        //println 'Closure '+expression+' Code:'+expression.code
         if (expression.code instanceof BlockStatement) {
             processBlockStament(expression.code,true)
         } else {
@@ -1088,6 +1112,7 @@ class GsConverter {
     }
 
     def processParameter(Parameter parameter) {
+        //println 'Initial->'+parameter.getInitialExpression()
         addScript(parameter.name)
     }
 

@@ -36,4 +36,13 @@ class TestContributors extends Specification {
         !result.assertFails
     }
 
+    def 'test MrHaki' () {
+        when:
+        def result = readAndConvert('contribution/MrHakiClosureReturn',true)
+
+        then:
+        !result.assertFails
+
+    }
+
 }

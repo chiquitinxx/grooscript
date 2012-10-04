@@ -359,6 +359,10 @@ String.prototype.replaceAll = function(oldValue,newValue) {
     return this.replace(reg,newValue);
 }
 
+String.prototype.reverse = function() {
+    return this.split("").reverse().join("");
+}
+
 /////////////////////////////////////////////////////////////////
 // Misc Functions
 /////////////////////////////////////////////////////////////////
