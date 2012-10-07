@@ -81,17 +81,19 @@ class Util {
 
         def result = [:]
 
+        def jsScript = null
         try {
 
             def converter = new GsConverter()
-            def jsScript = converter.toJs(script)
+            jsScript = converter.toJs(script)
 
             result = TestJs.jsEval(jsScript)
 
-            result.jsScript = jsScript
         } catch (e) {
             result.exception = e.message
         }
+
+        result.jsScript = jsScript
 
         return result
     }
