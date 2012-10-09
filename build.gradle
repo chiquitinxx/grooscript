@@ -6,15 +6,15 @@ apply plugin: 'groovy'
 
 repositories {
     mavenCentral()
-    maven {
-        url "http://oss.sonatype.org/content/repositories/snapshots/"
-    }
+    //maven {
+    //    url "http://oss.sonatype.org/content/repositories/snapshots/"
+    //}
 }
 
 dependencies {
 	groovy group: 'org.codehaus.groovy', name: 'groovy', version: '2.0.5'
 	//missing spock for groovy 2
-    testCompile 'org.spockframework:spock-core:0.7-groovy-2.0-SNAPSHOT'
+    testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 	//testCompile 'junit:junit:4.10'
 	//testCompile fileTree(dir: 'lib', include: '*.jar')
 }

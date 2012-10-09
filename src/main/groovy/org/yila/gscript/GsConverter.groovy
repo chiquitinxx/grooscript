@@ -1209,6 +1209,28 @@ class GsConverter {
         addScript('}')
     }
 
+    def processTupleExpression(TupleExpression expression) {
+        //println 'Tuple->'+expression.text
+        //expression.expressions.each { println '-'+it}
+        addScript('(gSmap()')
+        expression.expressions.each {
+            "process${it.class.simpleName}"(it)
+            addScript(')')
+        }
+    }
+
+    def processNamedArgumentListExpression(NamedArgumentListExpression expression) {
+        expression.mapEntryExpressions.eachWithIndex { MapEntryExpression exp,i ->
+            //println 'key->'+ exp.keyExpression
+            addScript('.add(')
+            "process${exp.keyExpression.class.simpleName}"(exp.keyExpression)
+            addScript(',')
+            "process${exp.valueExpression.class.simpleName}"(exp.valueExpression)
+            addScript(')')
+        }
+        //"process${expression.transformExpression().class.simpleName}"(expression.transformExpression())
+    }
+
     def methodMissing(String name, Object args) {
         def message
         if (name?.startsWith('process')) {

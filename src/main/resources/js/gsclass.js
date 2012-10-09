@@ -195,6 +195,43 @@ function gSlist(value) {
         return result;
 
     }
+
+    object.first = function() {
+            return this[0];
+    }
+
+    object.last = function() {
+            return this[this.length-1];
+    }
+
+    object.sum = function() {
+
+        var result = 0;
+
+        //can pass a closure to sum
+        if (arguments.length == 1) {
+            for (i=0;i<this.length;i++) {
+                if (typeof this[i] === "function") continue;
+                result = result + arguments[0](this[i]);
+            }
+        } else {
+
+            if (this.length>0 && this[0]['plus']) {
+                 var i;
+                 var item = this[0];
+                 for (i=0;i+1<this.length;i++) {
+                     item = item.plus(this[i+1]);
+                 }
+                 return item;
+            } else {
+                 var i;
+                 for (i=0;i<this.length;i++) {
+                     result = result + this[i];
+                 }
+            }
+        }
+        return result;
+    }
     /*
     object.recorre = function() {
         for (element in this) {

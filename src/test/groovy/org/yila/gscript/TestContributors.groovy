@@ -37,11 +37,15 @@ class TestContributors extends Specification {
     }
 
     def 'test MrHaki' () {
-        when:
-        def result = readAndConvert('contribution/MrHakiClosureReturn',true)
-
-        then:
+        expect:
+        def result = readAndConvert(file,file=='contribution/MrHakiSum')
         !result.assertFails
+
+        where:
+        file                                |_
+        'contribution/MrHakiClosureReturn'  |_
+        'contribution/MrHakiFirstLast'      |_
+        'contribution/MrHakiSum'            |_
 
     }
 
