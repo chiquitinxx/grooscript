@@ -46,7 +46,7 @@ class TestGroovyBasics extends Specification {
 
     def 'test Web Main example' () {
         when:
-        def result = readAndConvert('webMainExample',true)
+        def result = readAndConvert('webMainExample',false)
 
         then:
         !result.assertFails
@@ -63,6 +63,14 @@ class TestGroovyBasics extends Specification {
         result.a == 5
         result.c == 'Hello!'
 
+    }
+
+    def 'inital class'() {
+        when:
+        def result = readAndConvert('initialClass',false)
+
+        then:
+        !result.assertFails
     }
 
     def 'starting class stuff'() {

@@ -9,5 +9,11 @@ var a = gSlist([]);
 
 console.log('Ready to Test!');
 
-//////// Tests here
+/////////////////////////////////////////////////////////// Tests here
 
+
+
+////////////////////////////////////////--------------------End Test here -> Resume
+
+console.log('\nConsole OutPut\n--------------\n'+gSconsole);
+console.log('\nFails = '+gSfails);

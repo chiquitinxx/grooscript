@@ -371,8 +371,86 @@ class GsConverter {
         //Finish class conversion
     }
 
+    def putFunctionParametersAndBody(functionOrMethod) {
+
+        boolean first = true
+        actualScope = []
+        boolean lastParameterCanBeMore = false
+
+        //Parameters with default values if not shown
+        def initalValues = [:]
+        //If no parameters, we add it by defaul
+        if (!functionOrMethod.parameters || functionOrMethod.parameters.size()==0) {
+            addScript('it')
+            actualScope.add('it')
+        } else {
+            functionOrMethod.parameters?.eachWithIndex { Parameter param, index ->
+
+                //If the last parameter is an Object[] then, maybe, can get more parameters as optional
+                if (param.type.name=='[Ljava.lang.Object;' && index+1==functionOrMethod.parameters.size()) {
+                    lastParameterCanBeMore = true
+                }
+                //println 'pe->'+param.toString()+' - '+param.type.name //+' - '+param.type
+
+                if (param.getInitialExpression()) {
+                    //println 'Initial->'+param.getInitialExpression()
+                    initalValues.putAt(param.name,param.getInitialExpression())
+                }
+                if (!first) {
+                    addScript(', ')
+                }
+                actualScope.add(param.name)
+                addScript(param.name)
+                first = false
+            }
+        }
+        addScript(') {')
+        indent++
+        addLine()
+
+        //At start we add initialization of default values
+        initalValues.each { key,value ->
+            addScript("if (${key} === undefined) ${key} = ")
+            "process${value.class.simpleName}"(value)
+            addScript(';')
+            addLine()
+        }
+
+        if (lastParameterCanBeMore) {
+            def Parameter lastParameter = functionOrMethod.parameters.last()
+            addScript("if (arguments.length==${functionOrMethod.parameters.size()}) { ${lastParameter.name}=gSlist([arguments[${functionOrMethod.parameters.size()}-1]]); }")
+            addLine()
+            addScript("if (arguments.length<${functionOrMethod.parameters.size()}) { ${lastParameter.name}=gSlist([]); }")
+            addLine()
+            addScript("if (arguments.length>${functionOrMethod.parameters.size()}) {")
+            addLine()
+            addScript("  ${lastParameter.name}=gSlist([${lastParameter.name}]);")
+            addLine()
+            addScript("  for (gScount=${functionOrMethod.parameters.size()};gScount<arguments.length;gScount++) {")
+            addLine()
+            addScript("    ${lastParameter.name}.add(arguments[gScount]);")
+            addLine()
+            addScript("  }")
+            addLine()
+            addScript("}")
+            addLine()
+        }
+
+        //println 'Closure '+expression+' Code:'+expression.code
+        if (functionOrMethod.code instanceof BlockStatement) {
+            processBlockStament(functionOrMethod.code,true)
+        } else {
+            GsConsole.error("FunctionOrMethod Code not supported (${functionOrMethod.code.class.simpleName})")
+        }
+    }
+
     def processBasicFunction(name, method, isConstructor) {
 
+        addScript("$name = function(")
+
+        putFunctionParametersAndBody(method)
+
+        /*
         addScript("$name = function(")
 
         boolean first = true
@@ -396,6 +474,7 @@ class GsConverter {
         } else {
             GsConsole.error("Method Code not supported (${method.code.class.simpleName})")
         }
+        */
 
         indent--
         if (isConstructor) {
@@ -406,6 +485,7 @@ class GsConverter {
         }
         addScript('}')
         addLine()
+
     }
 
     def processMethodNode(MethodNode method,isConstructor) {
@@ -523,7 +603,8 @@ class GsConverter {
                     def position
                     returnScoping.push(false)
                     if (addReturn && ((number++)==block.getStatements().size()) && !(it instanceof ReturnStatement)
-                            && !(it instanceof IfStatement) ) {
+                            && !(it instanceof IfStatement) && !(it.expression && it.expression instanceof DeclarationExpression)) {
+                        //println 'Saving statemen->'+it
                         //println 'Saving return - '+ variableScoping.peek()
                         //this statement can be a complex statement with a return
                         //Go looking for a return statement in last statement
@@ -939,11 +1020,14 @@ class GsConverter {
 
         addScript("function(")
 
+        putFunctionParametersAndBody(expression)
+
+        /*
+
         boolean first = true
         actualScope = []
 
         //Parameters with default values if not shown
-        //TODO add too to methods or make common function if possible
         def initalValues = [:]
         //If no parameters, we add it by defaul
         if (!expression.parameters || expression.parameters.size()==0) {
@@ -951,6 +1035,14 @@ class GsConverter {
             actualScope.add('it')
         } else {
             expression.parameters?.each { param ->
+
+                println 'pe->'+param.toString()
+                //if (param instanceof ListExpression) {
+                //    def le = (ListExpression)it
+                //    println 'Argument->'+le.toString()
+                //    println 'Exp->'+le.type
+                //}
+
                 if (param.getInitialExpression()) {
                     //println 'Initial->'+param.getInitialExpression()
                     initalValues.putAt(param.name,param.getInitialExpression())
@@ -980,6 +1072,7 @@ class GsConverter {
         } else {
             GsConsole.error("Closure Code not supported (${c.code.class.simpleName})")
         }
+        */
 
         indent--
         actualScope = []

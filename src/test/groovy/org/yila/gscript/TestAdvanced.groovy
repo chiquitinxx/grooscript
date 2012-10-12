@@ -52,5 +52,13 @@ class TestAdvanced extends Specification {
         !result.assertFails
     }
 
+    def 'summer function callings' () {
+        when:
+        def result = readAndConvert('advanced/summer',true)
+
+        then:
+        !result.assertFails
+    }
+
 
 }

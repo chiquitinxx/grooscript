@@ -58,13 +58,7 @@ function gSmap() {
             }
         }
     }
-    object.get = function(key,defaultValue) {
-        if (arguments.length ==2 && (this[key]=='undefined' || this[key]==null)) {
-            return defaultValue;
-        } else {
-            return this[key];
-        }
-    }
+
     object.containsKey = function(key) {
         if (this[key]=='undefined' || this[key]==null) {
             return false;
@@ -84,6 +78,13 @@ function gSmap() {
         }
         return gotIt;
     }
+
+    object.get = function(key,defaultValue) {
+        if (!this.containsKey(key)) {
+            this[key] = defaultValue;
+        }
+        return this[key];
+    }
     return object;
 }
 
@@ -95,7 +96,18 @@ function gSlist(value) {
     object = value;
 
     object.get = function(pos) {
-        return this[pos];
+
+        //Maybe comes a second parameter with default value
+        if (arguments.length==2) {
+            //console.log('uh->'+this[pos]);
+            if (this[pos]==null || this[pos]=='undefined') {
+                return arguments[1];
+            } else {
+                return this[pos];
+            }
+        } else {
+            return this[pos];
+        }
     }
 
     object.size = function() {
@@ -232,6 +244,63 @@ function gSlist(value) {
         }
         return result;
     }
+
+    object.inject = function() {
+
+        var acc;
+        //only 1 argument, just the closure
+        if (arguments.length == 1) {
+
+            acc = this[0];
+            var i;
+            for (i=1;i<this.length;i++) {
+                if (typeof this[i] === "function") continue;
+                acc = arguments[0](acc,this[i]);
+            }
+
+        } else {
+            //We suppose arguments = 2
+            acc = arguments[0];
+            //console.log('number->'+this.length);
+            var j;
+            for (j=0;j<this.length;j++) {
+                //console.log('acc->'+acc);
+                if (typeof this[j] === "function") continue;
+                acc = arguments[1](acc,this[j]);
+                //console.log('fin acc->'+acc);
+            }
+        }
+        return acc;
+    }
+
+    object.toList = function() {
+        return this;
+    }
+
+    object.intersect = function(otherList) {
+        var result = gSlist([]);
+        var i;
+        for (i=0;i<this.length;i++) {
+            if (typeof this[i] === "function") continue;
+            if (otherList.contains(this[i])) {
+                result.add(this[i]);
+            }
+        }
+        return result;
+    }
+
+    object.max = function() {
+        var result = null;
+        var i;
+        for (i=0;i<this.length;i++) {
+            if (typeof this[i] === "function") continue;
+            if (result==null || this[i]>result) {
+                result = this[i];
+            }
+        }
+        return result;
+    }
+
     /*
     object.recorre = function() {
         for (element in this) {

@@ -45,7 +45,8 @@ map.each { element ->
 }
 assert values == 12
 assert map.get('one') == 1
-assert map.get('five',5) == 5
 assert !map.containsKey('five')
+assert map.get('five',5) == 5
+assert map.containsKey('five')
 assert map.containsKey('two')
 assert map.containsValue(3)
