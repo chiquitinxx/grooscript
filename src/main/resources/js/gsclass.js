@@ -1,5 +1,6 @@
 gsClass = {
-
+    //The with function, with is a reserved word in JavaScript
+    gSwith : function(closure) { closure.apply(this,closure.arguments); }
 }
 
 function gScreateExpando() {
@@ -85,6 +86,14 @@ function gSmap() {
         }
         return this[key];
     }
+
+    object.toString = function() {
+        var items = '';
+        this.each (function(key,value) {
+                     items = items + key+': '+value+' ,';
+         });
+        return 'gSmap->'+items;
+    }
     return object;
 }
 
@@ -129,10 +138,19 @@ function gSlist(value) {
         }
         return gotIt;
     }
+
     object.each = function(closure) {
         for (i=0;i<this.length;i++) {
             if (typeof this[i] === "function") continue;
             closure(this[i]);
+        }
+        return this;
+    }
+
+    object.eachWithIndex = function(closure,index) {
+        for (index=0;index<this.length;index++) {
+            if (typeof this[index] === "function") continue;
+            closure(this[index],index);
         }
         return this;
     }
@@ -430,6 +448,22 @@ Number.prototype.times = function(closure) {
         closure(i);
     }
 }
+
+Number.prototype.upto = function(number,closure) {
+    var i;
+    for (i=this.value;i<=number;i++) {
+        closure(i);
+    }
+}
+
+Number.prototype.step = function(number,jump,closure) {
+    var i;
+    for (i=this.value;i<number;) {
+        closure(i);
+        i=i+jump;
+    }
+}
+
 
 /////////////////////////////////////////////////////////////////
 //String functions

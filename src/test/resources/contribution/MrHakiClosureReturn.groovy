@@ -1,8 +1,8 @@
 package contribution
 
 /**
- * JFL 04/10/12
- * Changin * string for a closure
+ * MrHaki Code
+ * Changing * string for a closure
  */
 
 def repeater(times) {

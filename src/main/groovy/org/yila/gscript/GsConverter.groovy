@@ -19,12 +19,15 @@ class GsConverter {
     def String resultScript
     def Stack<String> classNameStack = new Stack<String>()
     def Stack<String> superNameStack = new Stack<String>()
-    //Use for variable scoping
+    //Use for variable scoping, for class variable names and function names mainly
     def Stack variableScoping = new Stack()
     def Stack returnScoping = new Stack()
-    def actualScope = []
+    //def actualScope = []
+    //Use por function variable names
+    def Stack actualScope = new Stack()
     def String gSgotResultStatement = 'gSgotResultStatement'
     def String superMethodBegin = 'super_'
+    def boolean processingClosure = false
 
     def inheritedVariables = [:]
     //def methodVariableNames
@@ -48,6 +51,20 @@ class GsConverter {
         def clos = new GroovyShell().evaluate('{ it ->\n'+Util.getNameFunctionsText()+'\n return}')
         this.with clos
 
+    }
+
+    def addToActualScope(variableName) {
+        if (!actualScope.isEmpty()) {
+            actualScope.peek().add(variableName)
+        }
+    }
+
+    def actualScopeContains(variableName) {
+        if (!actualScope.isEmpty()) {
+            return actualScope.peek().contains(variableName)
+        } else {
+            return false
+        }
     }
 
     /**
@@ -89,6 +106,8 @@ class GsConverter {
             //println 'Size('+list.size+')->'+list
             variableScoping.clear()
             variableScoping.push([])
+            actualScope.clear()
+            actualScope.push([])
             //Store all classes here
             def classList = []
             //We process blocks at the end
@@ -213,6 +232,7 @@ class GsConverter {
 
         //Push name in stack
         variableScoping.push([])
+        actualScope.push([])
 
         addLine()
 
@@ -254,6 +274,7 @@ class GsConverter {
 
         //Remove variable class names from the list
         variableScoping.pop()
+        actualScope.pop()
 
     }
 
@@ -350,6 +371,12 @@ class GsConverter {
             addScript("if (arguments.length==1) {gSobject.${translateClassName(node.name)}1(arguments[0]); }")
             addLine()
         }
+
+        //Add with function
+        addLine()
+        //addScript("gSobject.gSwith = function(closure) { closure.apply(this,closure.arguments); };")
+        //addLine()
+
         //if (!has0parameterConstructor) {
         //    addScript("object.${node.name}0 = function() { };")
         //    addLine()
@@ -374,7 +401,9 @@ class GsConverter {
     def putFunctionParametersAndBody(functionOrMethod) {
 
         boolean first = true
-        actualScope = []
+        //actualScope = []
+        actualScope.push([])
+        //variableScoping.push([])
         boolean lastParameterCanBeMore = false
 
         //Parameters with default values if not shown
@@ -382,7 +411,9 @@ class GsConverter {
         //If no parameters, we add it by defaul
         if (!functionOrMethod.parameters || functionOrMethod.parameters.size()==0) {
             addScript('it')
-            actualScope.add('it')
+            //actualScope.add('it')
+            addToActualScope('it')
+            //variableScoping.peek().add('it')
         } else {
             functionOrMethod.parameters?.eachWithIndex { Parameter param, index ->
 
@@ -399,7 +430,9 @@ class GsConverter {
                 if (!first) {
                     addScript(', ')
                 }
-                actualScope.add(param.name)
+                //actualScope.add(param.name)
+                addToActualScope(param.name)
+                //variableScoping.peek().add(param.name)
                 addScript(param.name)
                 first = false
             }
@@ -442,6 +475,10 @@ class GsConverter {
         } else {
             GsConsole.error("FunctionOrMethod Code not supported (${functionOrMethod.code.class.simpleName})")
         }
+
+        //actualScope = []
+        actualScope.pop()
+        //variableScoping.pop()
     }
 
     def processBasicFunction(name, method, isConstructor) {
@@ -564,7 +601,7 @@ class GsConverter {
         */
 
         //Delete method variable names
-        actualScope = []
+        //actualScope = []
 
         //method.parameters?.each { param ->
         //    methodVariableNames.remove(param.name)
@@ -730,7 +767,9 @@ class GsConverter {
         //println 'r->'+e.rightExpression
         //println 'v->'+e.variableExpression
 
-        actualScope.add(expression.variableExpression.name)
+        //actualScope.add(expression.variableExpression.name)
+        addToActualScope(expression.variableExpression.name)
+        //variableScoping.add(expression.variableExpression.name)
 
         addScript('var ')
         processVariableExpression(expression.variableExpression)
@@ -745,14 +784,44 @@ class GsConverter {
         }
     }
 
+    def fuckStack(Stack stack,variableName) {
+        if (stack.isEmpty()) {
+            return false
+        } else if (stack.peek()?.contains(variableName)) {
+            return true
+        } else {
+            //println 'going stack->'+stack.peek()
+            def keep = stack.pop()
+            def result = fuckStack(stack,variableName)
+            stack.push(keep)
+            return result
+        }
+    }
+
+    def variableScopingContains(variableName) {
+        //println 'vs('+variableName+')->'+fuckStack(variableScoping,variableName) //variableScoping.peek()?.contains(variableName) //variableScoping.search(variableName)
+        //println 'actualScope->'+actualScope
+        return fuckStack(variableScoping,variableName)
+    }
+
+    def allActualScopeContains(variableName) {
+        //println 'as('+variableName+')->'+fuckStack(actualScope,variableName) //variableScoping.peek()?.contains(variableName) //variableScoping.search(variableName)
+        return fuckStack(actualScope,variableName)
+    }
+
     def processVariableExpression(VariableExpression expression) {
 
         //println "name:${v.name} - class:${classVariableNames} - scope:${variableScoping.peek()} - decl:${declaringVariable}"
         //if (!variableScoping.peek().contains(v.name) && !declaringVariable &&!dontAddMoreThis && variableScoping.size()>1) {
-        if (variableScoping.peek().contains(expression.name) && !actualScope.contains(expression.name)) {
+        if (variableScoping.peek().contains(expression.name) && !(actualScopeContains(expression.name))) {
             addScript('gSobject.'+expression.name)
         } else {
-            addScript(expression.name)
+            if (processingClosure && !expression.isThisExpression()
+                    && !allActualScopeContains(expression.name) && !variableScopingContains(expression.name)) {
+                addScript('this.'+expression.name)
+            } else {
+                addScript(expression.name)
+            }
         }
     }
 
@@ -976,11 +1045,15 @@ class GsConverter {
                 expression.objectExpression.name=='super') {
             addScript("${superMethodBegin}${expression.methodAsString}")
         //Function times, with a number, have to put (number) in javascript
-        } else if (expression.methodAsString == 'times' && expression.objectExpression instanceof ConstantExpression) {
+        } else if (['times','upto','step'].contains(expression.methodAsString) && expression.objectExpression instanceof ConstantExpression) {
             addScript('(')
             "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
             addScript(')')
             addScript(".${expression.methodAsString}")
+        } else if (expression.methodAsString == 'with' && expression.arguments instanceof ArgumentListExpression &&
+                expression.arguments.getExpression(0) && expression.arguments.getExpression(0) instanceof ClosureExpression) {
+            "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
+            addScript(".gSwith")
         } else {
             //A lot of times come with this
             //println 'Maybe this->'+expression.objectExpression
@@ -1020,7 +1093,9 @@ class GsConverter {
 
         addScript("function(")
 
+        processingClosure = true
         putFunctionParametersAndBody(expression)
+        processingClosure = false
 
         /*
 
@@ -1075,7 +1150,7 @@ class GsConverter {
         */
 
         indent--
-        actualScope = []
+        //actualScope = []
         removeTabScript()
         addScript('}')
 

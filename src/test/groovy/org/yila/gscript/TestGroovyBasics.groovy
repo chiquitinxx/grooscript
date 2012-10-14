@@ -140,8 +140,7 @@ class TestGroovyBasics extends Specification {
 
     def 'working with strings'() {
         when:
-        //TODO continue here
-        def result = readAndConvert('workingWithStrings',true)
+        def result = readAndConvert('workingWithStrings',false)
 
         then:
         !result.assertFails

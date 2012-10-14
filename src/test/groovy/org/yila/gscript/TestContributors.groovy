@@ -38,7 +38,7 @@ class TestContributors extends Specification {
 
     def 'test MrHaki' () {
         expect:
-        def result = readAndConvert(file,file=='contribution/MrHakiSum')
+        def result = readAndConvert(file,file=='contribution/MrHakiInject')
         !result.assertFails
 
         where:
@@ -46,6 +46,8 @@ class TestContributors extends Specification {
         'contribution/MrHakiClosureReturn'  |_
         'contribution/MrHakiFirstLast'      |_
         'contribution/MrHakiSum'            |_
+        'contribution/MrHakiLooping'        |_
+        'contribution/MrHakiInject'         |_
 
     }
 
