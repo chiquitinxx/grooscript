@@ -10,13 +10,13 @@ class GTree {
 
         if (leaf==object) {
             //Nothing to do, we dont add repeated values
-        } else if (leaf>object) {
+        } else if (leaf > object) {
             if (leaf.left) {
                 insert leaf.left,object
             } else {
                 leaf.left = object
             }
-        } else if (leaf<object) {
+        } else if (leaf < object) {
             if (leaf?.right) {
                 insert leaf.right,object
             } else {

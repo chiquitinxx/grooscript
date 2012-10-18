@@ -18,6 +18,10 @@ class Util {
         if (!file || !file.exists() || !file.isDirectory()) {
             path = System.getProperty('user.dir')+"${s}web${s}scripts${s}"
         }
+        file = new File(path)
+        if (!file || !file.exists() || !file.isDirectory()) {
+            path = System.getProperty('user.dir')+"${s}webapp${s}web${s}scripts${s}"
+        }
         return path
     }
 

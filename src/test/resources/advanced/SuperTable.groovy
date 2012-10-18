@@ -7,14 +7,13 @@ class SuperTab {
 
     def items = []
 
-    //Only can add expandos
+    //Add objects
     def add(object) {
-        if (!object.date) {
-            object.date = new Date()
-        }
+        object.metaClass.date = new Date()
         items << object
     }
 
+    //Insert multiple items
     def addMultiple(head,property,number) {
         number.times {
             def object = new Expando()
@@ -50,14 +49,14 @@ def index = 0
 superTable.applyClosure({it-> it.index = index++})
 assert superTable.getItems()[5].index == 5
 
-def exp = new Expando()
-exp.value = 'Eleven'
+def exp = ''
+exp.metaClass.value = 'Eleven'
 
 //superTable.add (exp)
 
 superTable.with {
     add(exp)
-    items[10].index = 10
+    items[10].metaClass.index = 10
 }
 
 assert superTable.items.size() == 11

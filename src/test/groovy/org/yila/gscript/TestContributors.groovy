@@ -1,6 +1,5 @@
 package org.yila.gscript
 
-import org.yila.gscript.GsConverter
 import spock.lang.Specification
 import org.yila.gscript.test.TestJs
 
@@ -48,6 +47,16 @@ class TestContributors extends Specification {
         'contribution/MrHakiSum'            |_
         'contribution/MrHakiLooping'        |_
         'contribution/MrHakiInject'         |_
+
+    }
+
+    def 'test alex anderson' () {
+        when:
+        def result = readAndConvert('contribution/AlexAnderson',false)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
 
     }
 

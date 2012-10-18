@@ -119,6 +119,11 @@ function gSlist(value) {
         }
     }
 
+    object.gSwith = function(closure) {
+        //closure.apply(this,closure.arguments);
+        gSinterceptClosureCall(closure, this);
+    }
+
     object.size = function() {
         return this.length;
     }
@@ -140,9 +145,13 @@ function gSlist(value) {
     }
 
     object.each = function(closure) {
+        var i;
         for (i=0;i<this.length;i++) {
             if (typeof this[i] === "function") continue;
-            closure(this[i]);
+
+            //TODO Beware this change, have to apply to all closure calls
+            gSinterceptClosureCall(closure, this[i]);
+            //closure(this[i]);
         }
         return this;
     }
@@ -240,6 +249,7 @@ function gSlist(value) {
 
         //can pass a closure to sum
         if (arguments.length == 1) {
+            var i;
             for (i=0;i<this.length;i++) {
                 if (typeof this[i] === "function") continue;
                 result = result + arguments[0](this[i]);
@@ -327,6 +337,27 @@ function gSlist(value) {
         }
     }
     */
+    //object.equals = function(other) {
+    //    return true;
+    //}
+    //Array.prototype.equals = function(other) {
+    //    return true;
+    //}
+    object.toString = function() {
+
+        if (this.length>0) {
+            var i;
+            var result = '[';
+            for (i=0;i<this.length-1;i++) {
+                if (typeof this[i] === "function") continue;
+                result = result + this[i] + ', ';
+            }
+            result = result + this[this.length-1] + ']';
+            return result;
+        } else {
+            return '[]';
+        }
+    }
 
     return object;
 }
@@ -526,3 +557,25 @@ function gSpassMapToObject(source,destination) {
         destination[prop] = source[prop];
     }
 }
+
+/*
+function gSControlParameters(params) {
+    gSprintln('Going!'+params+' '+params[0]);
+    //if (params.length > 1) {
+        gSprintln('1-'+(params instanceof Array)+ ' 2-'+params.arguments+' 3-'+params.length);
+        if ((params instanceof Array) && params[1]==null && params[0].size()==params.length) {
+            gSprintln('YEAH!');
+        }
+    //}
+}
+*/
+
+function gSinterceptClosureCall(func, param) {
+    if ((param instanceof Array) && func.length>1) {
+        func.apply(func,param);
+    } else {
+        func(param);
+    }
+
+}
+

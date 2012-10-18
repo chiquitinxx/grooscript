@@ -4,6 +4,17 @@ apply plugin: 'groovy'
 
 //mainClassName = 'org.yila.gscript'
 
+def appName = 'GrooScript'
+def webDir = '../gscript-web/webapp'
+def webDirJar = "$webDir/jar"
+def webDirExamples = "$webDir/web/examples/"
+def webDirJs = "$webDir/web/scripts/"
+
+def examplesDir = 'src/test/resources/'
+def webExamples = [:]
+webExamples.putAt 'SuperTable',"${examplesDir}advanced/SuperTable.groovy"
+webExamples.putAt 'ExpandoTree',"${examplesDir}advanced/Tree.groovy"
+
 repositories {
     mavenCentral()
     //maven {
@@ -17,4 +28,33 @@ dependencies {
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 	//testCompile 'junit:junit:4.10'
 	//testCompile fileTree(dir: 'lib', include: '*.jar')
+}
+
+task copyToGscriptWeb(dependsOn: build) << {
+	println "Copying $appName jar to $webDirJar ..."
+	copy {
+		into "$webDirJar"
+		from "build/libs"			
+		include "**/*.jar"
+	}
+	
+	println "Copying $appName jsFiles to $webDirJs ..."
+	copy {
+		into "$webDirJs"
+		from "src/main/resources/js"			
+		include "**/*.*"
+		exclude "test.js"
+	}
+	
+	println "Copying $appName examples to $webDirExamples ..."
+	webExamples.each { key, value ->
+		copy {
+			into "$webDirExamples"
+			from "$value"			
+			rename { 
+				return "${key}.groovy"
+			}
+		}
+	}
+	
 }
