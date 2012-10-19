@@ -25,7 +25,7 @@ class GsConverter {
     //def actualScope = []
     //Use por function variable names
     def Stack actualScope = new Stack()
-    def String gSgotResultStatement = 'gSgotResultStatement'
+    //def String gSgotResultStatement = 'gSgotResultStatement'
     def String superMethodBegin = 'super_'
     def boolean processingClosure = false
 
@@ -882,15 +882,23 @@ class GsConverter {
             addScript(')')
         } else {
 
-            //Left
-            upgradedExpresion(expression.leftExpression)
-            //Operator
-            //println 'Operator->'+b.operation.text
-            addScript(' '+expression.operation.text+' ')
-            //Right
-            upgradedExpresion(expression.rightExpression)
-            if (expression.operation.text=='[') {
-                addScript(']')
+            if (expression.operation.text=='==') {
+                addScript('gSequals(')
+                upgradedExpresion(expression.leftExpression)
+                addScript(', ')
+                upgradedExpresion(expression.rightExpression)
+                addScript(')')
+            } else {
+                //Left
+                upgradedExpresion(expression.leftExpression)
+                //Operator
+                //println 'Operator->'+b.operation.text
+                addScript(' '+expression.operation.text+' ')
+                //Right
+                upgradedExpresion(expression.rightExpression)
+                if (expression.operation.text=='[') {
+                    addScript(']')
+                }
             }
         }
     }
@@ -945,8 +953,9 @@ class GsConverter {
             //addScript('"')
 
             if (expression.getValues().size() > number) {
-                addScript(' + ')
+                addScript(' + (')
                 "process${expression.getValue(number).class.simpleName}"(expression.getValue(number))
+                addScript(')')
             }
             number++
         }
@@ -1397,6 +1406,11 @@ class GsConverter {
             addScript(')')
         }
         //"process${expression.transformExpression().class.simpleName}"(expression.transformExpression())
+    }
+
+    def processBitwiseNegationExpression(BitwiseNegationExpression expression) {
+        //addScript("gSpattern('/${expression.text}/')")
+        addScript("/${expression.text}/")
     }
 
     def methodMissing(String name, Object args) {

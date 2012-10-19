@@ -47,4 +47,4 @@ def map = persons.inject([:]) { result, person ->
     result[person.username] = person.email
     result
 }
-assert [mrhaki: 'email@host.com', hubert: 'other@host.com'].toString() == map.toString()
+assert [mrhaki: 'email@host.com', hubert: 'other@host.com'] == map

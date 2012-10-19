@@ -43,10 +43,9 @@ class TestAdvanced extends Specification {
         !result.assertFails
     }
 
-    def 'super table' () {
+    def 'mystic table' () {
         when:
-        //TODO More stuff!
-        def result = readAndConvert('advanced/SuperTable',true)
+        def result = readAndConvert('advanced/MysticTable',true)
 
         then:
         !result.assertFails
@@ -57,6 +56,16 @@ class TestAdvanced extends Specification {
         def result = readAndConvert('advanced/summer',false)
 
         then:
+        !result.assertFails
+    }
+
+    def 'regular expressions' () {
+        when:
+        //TODO Continue here
+		  def result = readAndConvert('advanced/RegularExpressions',true)
+
+        then:
+        println 'Console->'+result.gSconsole
         !result.assertFails
     }
 

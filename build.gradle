@@ -12,7 +12,7 @@ def webDirJs = "$webDir/web/scripts/"
 
 def examplesDir = 'src/test/resources/'
 def webExamples = [:]
-webExamples.putAt 'SuperTable',"${examplesDir}advanced/SuperTable.groovy"
+webExamples.putAt 'MysticTable',"${examplesDir}advanced/MysticTable.groovy"
 webExamples.putAt 'ExpandoTree',"${examplesDir}advanced/Tree.groovy"
 
 repositories {

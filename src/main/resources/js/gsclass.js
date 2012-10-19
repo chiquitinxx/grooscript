@@ -94,6 +94,27 @@ function gSmap() {
          });
         return 'gSmap->'+items;
     }
+
+    object.equals = function(otherMap) {
+
+        /*if (otherMap==null || otherMap=='undefined' || otherMap.toString==null ||  otherMap.toString== 'undefined' || !(typeof otherMap.toString === "function")) {
+            return false;
+        } else {
+            return this.toString() == otherMap.toString();
+        }
+        */
+        var result = true;
+        for (ob in this) {
+            if (typeof this[ob] !== "function") {
+                if (!gSequals(this[ob],otherMap[ob])) {
+                    result = false;
+                }
+            }
+        }
+        return result;
+
+    }
+
     return object;
 }
 
@@ -137,7 +158,7 @@ function gSlist(value) {
         var gotIt,i;
         for (i=0;!gotIt && i<this.length;i++) {
             if (this[i]==object) {
-                if (typeof this[i] === "function") continue;
+                //if (typeof this[i] === "function") continue;
                 gotIt = true;
             }
         }
@@ -147,7 +168,7 @@ function gSlist(value) {
     object.each = function(closure) {
         var i;
         for (i=0;i<this.length;i++) {
-            if (typeof this[i] === "function") continue;
+            //if (typeof this[i] === "function") continue;
 
             //TODO Beware this change, have to apply to all closure calls
             gSinterceptClosureCall(closure, this[i]);
@@ -158,7 +179,7 @@ function gSlist(value) {
 
     object.eachWithIndex = function(closure,index) {
         for (index=0;index<this.length;index++) {
-            if (typeof this[index] === "function") continue;
+            //if (typeof this[index] === "function") continue;
             closure(this[index],index);
         }
         return this;
@@ -212,7 +233,7 @@ function gSlist(value) {
         //this.forEach(closure)
         var i;
         for (i=0;i<this.length;i++) {
-            if (typeof this[i] === "function") continue;
+            //if (typeof this[i] === "function") continue;
             this[i] = closure(this[i]);
         }
 
@@ -251,7 +272,7 @@ function gSlist(value) {
         if (arguments.length == 1) {
             var i;
             for (i=0;i<this.length;i++) {
-                if (typeof this[i] === "function") continue;
+                //if (typeof this[i] === "function") continue;
                 result = result + arguments[0](this[i]);
             }
         } else {
@@ -282,7 +303,7 @@ function gSlist(value) {
             acc = this[0];
             var i;
             for (i=1;i<this.length;i++) {
-                if (typeof this[i] === "function") continue;
+                //if (typeof this[i] === "function") continue;
                 acc = arguments[0](acc,this[i]);
             }
 
@@ -293,7 +314,7 @@ function gSlist(value) {
             var j;
             for (j=0;j<this.length;j++) {
                 //console.log('acc->'+acc);
-                if (typeof this[j] === "function") continue;
+                //if (typeof this[j] === "function") continue;
                 acc = arguments[1](acc,this[j]);
                 //console.log('fin acc->'+acc);
             }
@@ -309,7 +330,7 @@ function gSlist(value) {
         var result = gSlist([]);
         var i;
         for (i=0;i<this.length;i++) {
-            if (typeof this[i] === "function") continue;
+            //if (typeof this[i] === "function") continue;
             if (otherList.contains(this[i])) {
                 result.add(this[i]);
             }
@@ -321,7 +342,7 @@ function gSlist(value) {
         var result = null;
         var i;
         for (i=0;i<this.length;i++) {
-            if (typeof this[i] === "function") continue;
+            //if (typeof this[i] === "function") continue;
             if (result==null || this[i]>result) {
                 result = this[i];
             }
@@ -349,13 +370,68 @@ function gSlist(value) {
             var i;
             var result = '[';
             for (i=0;i<this.length-1;i++) {
-                if (typeof this[i] === "function") continue;
+                //if (typeof this[i] === "function") continue;
                 result = result + this[i] + ', ';
             }
             result = result + this[this.length-1] + ']';
             return result;
         } else {
             return '[]';
+        }
+    }
+
+    object.grep = function(param) {
+        if (param instanceof RegExp) {
+            var i;
+            var result = gSlist([]);
+            for (i=0;i<this.length;i++) {
+                //if (typeof this[i] === "function") continue;
+                if (gSmatch(this[i],param)) {
+                    result.add(this[i]);
+                }
+            }
+            return result;
+        } else if (param instanceof Array) {
+            return this.intersect(param);
+        } else if (typeof param === "function") {
+            var i;
+            var result = gSlist([]);
+            for (i=0;i<this.length;i++) {
+                //if (typeof this[i] === "function") continue;
+                if (param(this[i])) {
+                    result.add(this[i]);
+                }
+            }
+            return result;
+
+        } else {
+            var i;
+            var result = gSlist([]);
+            for (i=0;i<this.length;i++) {
+                //if (typeof this[i] === "function") continue;
+                if (this[i]==param) {
+                    result.add(this[i]);
+                }
+            }
+            return result;
+
+        }
+    }
+
+    object.equals = function(other) {
+        //console.log('EQUALS!');
+        if (!(other instanceof Array) || other.length!=this.length) {
+            return false;
+        } else {
+            var i;
+            var result = true;
+            for (i=0;i<this.length && result;i++) {
+                if (!gSequals(this[i],other[i])) {
+                    result = false;
+                }
+            }
+            //console.log('EQUALS RESULT-'+result);
+            return result;
         }
     }
 
@@ -439,6 +515,18 @@ function gSexactMatch(text,regExp) {
     return mock == "#";
 }
 
+function gSmatch(text,regExp) {
+    var pos;
+
+    if (regExp instanceof RegExp) {
+        pos = text.search(regExp)
+    }
+
+    //console.log('After->'+mock);
+    return (pos>=0);
+}
+
+
 /////////////////////////////////////////////////////////////////
 //gSregExp
 /////////////////////////////////////////////////////////////////
@@ -455,7 +543,7 @@ function gSregExp(text,pattern) {
     object.each = function(closure) {
         //console.log('text->'+this.text);
         //console.log('pattern->'+this.pattern);
-        //match function dont work as expected, only returns 1 result
+        //match function doesn't work as expected, only returns 1 result
         var result = this.text.match(this.pattern);
         if (result != null) {
             //console.log('res->'+result);
@@ -467,6 +555,15 @@ function gSregExp(text,pattern) {
 
     }
 
+    return object;
+}
+
+/////////////////////////////////////////////////////////////////
+//Pattern
+/////////////////////////////////////////////////////////////////
+function gSpattern(pattern) {
+    var object = inherit(gsClass);
+    object.value = pattern;
     return object;
 }
 
@@ -569,6 +666,15 @@ function gSControlParameters(params) {
     //}
 }
 */
+function gSequals(value1, value2) {
+    if (value1==null || value1=='undefined' || value1.equals=='undefined' || value1.equals==null || !(typeof value1.equals === "function")) {
+        //console.log(' 1 ');
+        return value1==value2;
+    } else {
+        //console.log(' 2 ');
+        return value1.equals(value2);
+    }
+}
 
 function gSinterceptClosureCall(func, param) {
     if ((param instanceof Array) && func.length>1) {

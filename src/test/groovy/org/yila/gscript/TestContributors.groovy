@@ -38,6 +38,7 @@ class TestContributors extends Specification {
     def 'test MrHaki' () {
         expect:
         def result = readAndConvert(file,file=='contribution/MrHakiInject')
+        //println 'Console->'+result.gSconsole
         !result.assertFails
 
         where:
@@ -47,6 +48,7 @@ class TestContributors extends Specification {
         'contribution/MrHakiSum'            |_
         'contribution/MrHakiLooping'        |_
         'contribution/MrHakiInject'         |_
+        'contribution/MrHakiGrep'           |_
 
     }
 
