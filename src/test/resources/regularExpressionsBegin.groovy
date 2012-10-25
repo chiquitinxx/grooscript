@@ -15,8 +15,8 @@ myFairStringy = 'The rain in Spain stays mainly in the plain!'
 // words that end with 'ain': \b\w*ain\b
 //BOUNDS = /\b/
 //rhyme = /$BOUNDS\w*ain$BOUNDS/
+
 found = ''
-//(myFairStringy =~ rhyme).each { match ->
 (myFairStringy =~ /\b\w*ain\b/).each { match ->
         found += match + ' '
 }

@@ -504,7 +504,8 @@ function gSrangeFromList(list,begin,end) {
 /////////////////////////////////////////////////////////////////
 function gSexactMatch(text,regExp) {
     var mock = text;
-
+    //console.log('r->'+regExp instanceof RegExp);
+    //console.log('t->'+text instanceof String);
     if (regExp instanceof RegExp) {
         mock = mock.replace(regExp,"#");
     } else {
@@ -522,7 +523,7 @@ function gSmatch(text,regExp) {
         pos = text.search(regExp)
     }
 
-    //console.log('After->'+mock);
+    //console.log('After->'+pos+' - '+text+' - '+regExp);
     return (pos>=0);
 }
 
@@ -530,29 +531,53 @@ function gSmatch(text,regExp) {
 /////////////////////////////////////////////////////////////////
 //gSregExp
 /////////////////////////////////////////////////////////////////
-function gSregExp(text,pattern) {
-    var object = inherit(gsClass);
-    if (pattern instanceof RegExp) {
-        object.pattern = new RegExp(pattern.source,'g');
+function gSregExp(text,ppattern) {
+
+    var patt;
+    if (ppattern instanceof RegExp) {
+        patt = new RegExp(ppattern.source,'g');
     } else {
         //g for search all occurences
-        object.pattern = new RegExp(pattern,'g');
+        patt = new RegExp(ppattern,'g');
     }
+
+    var object;
+
+    //var object;
+    var data = patt.exec(text);//text.match(patt);
+    //console.log('data->'+data);
+    if (data==null || data=='undefined') {
+        return null;
+    } else {
+        var list = [];
+        var i = 0;
+
+        while (data!=null && data!='undefined') {
+            //console.log('adding data->'+data);
+            if (data instanceof Array && data.length>1) {
+                list[i] = gSlist(data);
+            } else {
+                list[i] = data;
+            }
+            i = i + 1;
+            data = patt.exec(text);
+        }
+        object = inherit(gSlist(list));
+    }
+
+    object.pattern = patt;
     object.text = text;
 
-    object.each = function(closure) {
-        //console.log('text->'+this.text);
-        //console.log('pattern->'+this.pattern);
-        //match function doesn't work as expected, only returns 1 result
-        var result = this.text.match(this.pattern);
-        if (result != null) {
-            //console.log('res->'+result);
-            var i;
-            for (i=0;i<result.length;i++) {
-                closure(result[i]);
-            }
-        }
+    object.replaceFirst = function(data) {
+        return this.text.replaceFirst(this[0],data);
+    }
 
+    object.replaceAll = function(data) {
+        return this.text.replaceAll(this.pattern,data);
+    }
+
+    object.reset = function() {
+        return this;
     }
 
     return object;
@@ -565,6 +590,27 @@ function gSpattern(pattern) {
     var object = inherit(gsClass);
     object.value = pattern;
     return object;
+}
+
+/////////////////////////////////////////////////////////////////
+// Regular Expresions
+/////////////////////////////////////////////////////////////////
+function gSmatcher(item,regExpression) {
+
+    var object = inherit(gsClass);
+
+    object.data = item;
+    object.regExp = regExpression;
+
+    object.matches = function() {
+        return gSexactMatch(this.data,this.regExp);
+    }
+
+    return object;
+}
+
+RegExp.prototype.matcher = function(item) {
+    return gSmatcher(item,this);
 }
 
 /////////////////////////////////////////////////////////////////
@@ -623,9 +669,19 @@ String.prototype.size = function() {
 }
 
 String.prototype.replaceAll = function(oldValue,newValue) {
-    var reg = new RegExp(oldValue,'g');
+    var reg;
+    if (oldValue instanceof RegExp) {
+        reg = new RegExp(oldValue.source,'g');
+    } else {
+        reg = new RegExp(oldValue,'g');
+    }
     return this.replace(reg,newValue);
 }
+
+String.prototype.replaceFirst = function(oldValue,newValue) {
+    return this.replace(oldValue,newValue);
+}
+
 
 String.prototype.reverse = function() {
     return this.split("").reverse().join("");
@@ -667,6 +723,7 @@ function gSControlParameters(params) {
 }
 */
 function gSequals(value1, value2) {
+    //console.log('going eq:'+value1+ ' = '+value2+' -> '+value1.equals);
     if (value1==null || value1=='undefined' || value1.equals=='undefined' || value1.equals==null || !(typeof value1.equals === "function")) {
         //console.log(' 1 ');
         return value1==value2;

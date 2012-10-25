@@ -45,7 +45,7 @@ class TestAdvanced extends Specification {
 
     def 'mystic table' () {
         when:
-        def result = readAndConvert('advanced/MysticTable',true)
+        def result = readAndConvert('advanced/MysticTable',false)
 
         then:
         !result.assertFails
@@ -62,7 +62,7 @@ class TestAdvanced extends Specification {
     def 'regular expressions' () {
         when:
         //TODO Continue here
-		  def result = readAndConvert('advanced/RegularExpressions',true)
+		def result = readAndConvert('advanced/RegularExpressions',true)
 
         then:
         println 'Console->'+result.gSconsole

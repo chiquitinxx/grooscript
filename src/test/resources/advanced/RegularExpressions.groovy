@@ -55,14 +55,22 @@ matcher = "eat green cheese" =~ "e+"
 
 assert "ee" == matcher[2]
 assert ["ee", "e"] == matcher[2..3]
+/*
 assert ["e", "ee"] == matcher[0, 2]
 assert ["e", "ee", "ee"] == matcher[0, 1..2]
+*/
 
 matcher = "cheese please" =~ /([^e]+)e+/
 assert ["se", "s"] == matcher[1]
+
+/*
 assert [["se", "s"], [" ple", " pl"]] == matcher[1, 2]
+*/
 assert [["se", "s"], [" ple", " pl"]] == matcher[1 .. 2]
+/*
 assert [["chee", "ch"], [" ple", " pl"], ["ase", "as"]] == matcher[0, 2..3]
+*/
+
 // Matcher defines an iterator() method, so it can be used, for example,
 // with collect() and each():
 matcher = "cheese please" =~ /([^e]+)e+/
