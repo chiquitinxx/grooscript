@@ -147,7 +147,8 @@ class GsConverter {
 
         def finalList = []
         def extraClasses = []
-        while ((finalList.size()+extraClasses.size())<list.size()) {
+        def enumClasses = []
+        while ((finalList.size()+extraClasses.size()+enumClasses.size())<list.size()) {
 
             list.each { ClassNode it ->
                 //println 'it->'+it.name+' super - '+it.superClass.name+
@@ -163,7 +164,12 @@ class GsConverter {
                     } else {
                         //Looking for superclass, only accepts superclass a class in same script
                         if (it.superClass.name.indexOf('.')>=0) {
-                            throw new Exception('Inheritance not Allowed on '+it.superClass.class.name)
+                            if (it.superClass.name=='java.lang.Enum') {
+                                //processEnum(it)
+                                enumClasses.add(it.name)
+                            } else {
+                                throw new Exception('Inheritance not Allowed on '+it.superClass.class.name)
+                            }
                         }
 
                         //If father in the list, we can add it
@@ -187,6 +193,12 @@ class GsConverter {
         extraClasses.each { String nameClass ->
             //println 'Class->'+nameClass
             processScriptClassNode(list.find { ClassNode it ->
+                return it.name == nameClass
+            })
+        }
+        //Enums!
+        enumClasses.each { String nameClass ->
+            processEnum(list.find { ClassNode it ->
                 return it.name == nameClass
             })
         }
@@ -1411,6 +1423,90 @@ class GsConverter {
     def processBitwiseNegationExpression(BitwiseNegationExpression expression) {
         //addScript("gSpattern('/${expression.text}/')")
         addScript("/${expression.text}/")
+    }
+
+    def processEnum(ClassNode node) {
+
+        addLine()
+
+        //Push name in stack
+        variableScoping.push([])
+
+        addScript("var ${node.name} = {")
+
+        indent ++
+        addLine()
+
+        //Allowed inheritance
+        //addScript('var gSobject = inherit(gsClass);')
+
+        //addLine()
+        //ignoring generics and interfaces and extends atm
+        //visitGenerics node?.genericsTypes
+        //node.interfaces?.each {
+        //visitType node.superClass
+
+        //Fields
+        def numero = 0
+        node?.fields?.each { it->
+            if (!['MIN_VALUE','MAX_VALUE','$VALUES'].contains(it.name)) {
+                addScript("${it.name} : ${numero++},")
+                addLine()
+                variableScoping.peek().add(it.name)
+            }
+        }
+
+        //Methods
+        node?.methods?.each { //println 'method->'+it;
+
+            if (!['values','next','previous','valueOf','$INIT','<clinit>'].contains(it.name)) {
+
+                //println 'Method->'+ it.name
+                variableScoping.peek().add(it.name)
+                //processMethodNode(it,false)
+                //processBasicFunction(it.name,it,false)
+
+                addScript("${it.name} : function(")
+                putFunctionParametersAndBody(it)
+
+                indent--
+                removeTabScript()
+                addScript('},')
+                addLine()
+
+            }
+        }
+
+        //addLine()
+
+        indent --
+        //addScript("return gSobject;")
+        addLine()
+        addScript('}')
+        addLine()
+
+        //Remove variable class names from the list
+        variableScoping.pop()
+
+        //Pop name in stack
+
+    }
+
+    /*
+    def processFieldExpression(FieldExpression expression) {
+        //println '->'+expression.fieldName
+
+        FieldNode node = expression.field
+        println '->'+node.name
+    }
+
+    def processStaticMethodCallExpression(StaticMethodCallExpression expression) {
+        println 'StaticMethodCallExpression->'+expression.text
+    }*/
+
+    def processClassExpression(ClassExpression expression) {
+        //println 'ClassExpression-'+ expression.text
+        addScript(expression.text)
     }
 
     def methodMissing(String name, Object args) {

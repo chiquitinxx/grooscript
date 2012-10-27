@@ -145,4 +145,13 @@ class TestGroovyBasics extends Specification {
         then:
         !result.assertFails
     }
+
+    def 'working with enums'() {
+        when:
+        def result = readAndConvert('enums',false)
+
+        then:
+        !result.assertFails
+    }
+
 }
