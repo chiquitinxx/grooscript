@@ -980,6 +980,7 @@ class GsConverter {
 
     def processConstructorCallExpression(ConstructorCallExpression expression) {
 
+        //println 'ConstructorCallExpression->'+expression.type.name
         //Super expression in constructor is allowed
         if (expression?.isSuperCall()) {
 
@@ -987,7 +988,9 @@ class GsConverter {
         } else if (expression.type.name=='java.util.Date') {
             addScript('gSdate')
         } else if (expression.type.name=='groovy.util.Expando') {
-            addScript('gScreateExpando')
+            addScript('gSexpando')
+        } else if (expression.type.name=='java.util.Random') {
+            addScript('gSrandom')
         } else {
             //Constructor have name with number of params on it
             //addScript("gsCreate${expression.type.name}().${expression.type.name}${expression.arguments.expressions.size()}")

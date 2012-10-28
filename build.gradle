@@ -14,6 +14,7 @@ def examplesDir = 'src/test/resources/'
 def webExamples = [:]
 webExamples.putAt 'MysticTable',"${examplesDir}advanced/MysticTable.groovy"
 webExamples.putAt 'ExpandoTree',"${examplesDir}advanced/Tree.groovy"
+webExamples.putAt 'Random',"${examplesDir}advanced/RandomWorld.groovy"
 
 repositories {
     mavenCentral()

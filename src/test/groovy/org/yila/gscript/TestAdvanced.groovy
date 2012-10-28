@@ -61,13 +61,20 @@ class TestAdvanced extends Specification {
 
     def 'regular expressions' () {
         when:
-        //TODO Continue here
-		def result = readAndConvert('advanced/RegularExpressions',true)
+		def result = readAndConvert('advanced/RegularExpressions',false)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+    }
+
+    def 'random world' () {
+        when:
+        def result = readAndConvert('advanced/RandomWorld',true)
 
         then:
         println 'Console->'+result.gSconsole
         !result.assertFails
     }
-
 
 }

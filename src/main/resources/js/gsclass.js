@@ -3,9 +3,9 @@ gsClass = {
     gSwith : function(closure) { closure.apply(this,closure.arguments); }
 }
 
-function gScreateExpando() {
+function gSexpando() {
     var object = inherit(gsClass);
-     return object;
+    return object;
 }
 
 function inherit(p) {
@@ -739,6 +739,21 @@ function gSinterceptClosureCall(func, param) {
     } else {
         func(param);
     }
-
 }
+
+function gSrandom() {
+    var object = inherit(gsClass);
+    object.nextInt = function(number) {
+        var ran = Math.ceil(Math.random()*number)
+        return ran - 1;
+    }
+    object.nextBoolean = function() {
+        var ran = Math.random();
+        return ran < 0.5;
+    }
+    return object;
+}
+
+
+
 
