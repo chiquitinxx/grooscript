@@ -1,3 +1,7 @@
 GScript.iml
 GScript.ipr
 GScript.iws
+src/test/resources/robot/Direction.groovy
+src/test/resources/robot/Position.groovy
+src/test/resources/robot/Robot.groovy
+src/test/resources/robot/RobotGame.groovy

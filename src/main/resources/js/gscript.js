@@ -11,16 +11,16 @@ function gSassert(value) {
           }
           gSprintln(message+value);
     }
-}
+};
 
-var gSconsole = ""
+var gSconsole = "";
 
 function gSprintln(value) {
     if (gSconsole != "") {
         gSconsole = gSconsole + "\n"
     }
     gSconsole = gSconsole + value
-}
+};
 
 
 

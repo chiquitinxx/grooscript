@@ -213,7 +213,7 @@ class GsConverter {
     def addConditionConstructorExecution(numberArguments,paramList) {
 
         addScript("if (arguments.length==${numberArguments}) {")
-        addScript("gSobject.${classNameStack.peek()}${numberArguments}")
+        addScript("gSobject.${translateClassName(classNameStack.peek())}${numberArguments}")
 
         addScript '('
         def count = 0
@@ -353,9 +353,13 @@ class GsConverter {
 
         //Methods
         node?.methods?.each { //println 'method->'+it;
-
             //Add too method names to variable scoping
             variableScoping.peek().add(it.name)
+        }
+        node?.methods?.each { //println 'method->'+it;
+
+            //Add too method names to variable scoping
+            //variableScoping.peek().add(it.name)
 
             processMethodNode(it,false)
         }
@@ -397,7 +401,7 @@ class GsConverter {
         indent --
         addScript("return gSobject;")
         addLine()
-        addScript('}')
+        addScript('};')
         addLine()
 
         //Remove variable class names from the list
@@ -410,7 +414,7 @@ class GsConverter {
         //Finish class conversion
     }
 
-    def putFunctionParametersAndBody(functionOrMethod) {
+    def putFunctionParametersAndBody(functionOrMethod, boolean isConstructor) {
 
         boolean first = true
         //actualScope = []
@@ -483,7 +487,7 @@ class GsConverter {
 
         //println 'Closure '+expression+' Code:'+expression.code
         if (functionOrMethod.code instanceof BlockStatement) {
-            processBlockStament(functionOrMethod.code,true)
+            processBlockStament(functionOrMethod.code,!isConstructor)
         } else {
             GsConsole.error("FunctionOrMethod Code not supported (${functionOrMethod.code.class.simpleName})")
         }
@@ -497,7 +501,7 @@ class GsConverter {
 
         addScript("$name = function(")
 
-        putFunctionParametersAndBody(method)
+        putFunctionParametersAndBody(method,isConstructor)
 
         /*
         addScript("$name = function(")
@@ -556,7 +560,8 @@ class GsConverter {
         if (isConstructor) {
             //Add number of params to constructor name
             //BEWARE Atm only accepts constructor with different number or arguments
-            name = classNameStack.peek() + (method.parameters?method.parameters.size():'0')
+            name = translateClassName(classNameStack.peek()) + (method.parameters?method.parameters.size():'0')
+            //println 'Fucking name-'+name
         }
 
         processBasicFunction("gSobject.$name",method,isConstructor)
@@ -649,10 +654,12 @@ class GsConverter {
                 //println 'Block->'+block.text
                 block.getStatements()?.each { it ->
                     //println 'Block Statement-> size '+ block.getStatements().size() + ' number '+number+ ' it->'+it
+                    //println 'it-> '+ it.text
                     def position
                     returnScoping.push(false)
                     if (addReturn && ((number++)==block.getStatements().size()) && !(it instanceof ReturnStatement)
-                            && !(it instanceof IfStatement) && !(it.expression && it.expression instanceof DeclarationExpression)) {
+                            && !(it instanceof IfStatement) && !(it instanceof WhileStatement)
+                            && !(it.expression && it.expression instanceof DeclarationExpression)) {
                         //println 'Saving statemen->'+it
                         //println 'Saving return - '+ variableScoping.peek()
                         //this statement can be a complex statement with a return
@@ -662,7 +669,7 @@ class GsConverter {
                         //variableScoping.peek().remove(gSgotResultStatement)
                     }
                     processStatement(it)
-                    if (position) {
+                    if (addReturn && position) {
                         if (!returnScoping.peek()) {
                             //No return statement, then we want add return
                             //println 'Yes!'+position
@@ -1029,13 +1036,18 @@ class GsConverter {
             }
         } else {
 
+            //println 'Property-'+expression.objectExpression
             if (expression.objectExpression instanceof VariableExpression) {
                 if (expression.objectExpression.name == 'this') {
                     //dontAddMoreThis = true
                 }
             }
 
-            "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
+            if (expression.objectExpression instanceof ClassExpression) {
+                addScript(translateClassName(expression.objectExpression.type.name))
+            } else {
+                "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
+            }
             if (expression.property instanceof GStringExpression) {
                 addScript('[')
                 "process${expression.property.class.simpleName}"(expression.property)
@@ -1078,6 +1090,8 @@ class GsConverter {
                 expression.arguments.getExpression(0) && expression.arguments.getExpression(0) instanceof ClosureExpression) {
             "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
             addScript(".gSwith")
+        } else if (expression.objectExpression instanceof ClassExpression && expression.objectExpression.type.name=='java.lang.Math') {
+            addScript("Math.${expression.methodAsString}")
         } else {
             //A lot of times come with this
             //println 'Maybe this->'+expression.objectExpression
@@ -1118,7 +1132,7 @@ class GsConverter {
         addScript("function(")
 
         processingClosure = true
-        putFunctionParametersAndBody(expression)
+        putFunctionParametersAndBody(expression,false)
         processingClosure = false
 
         /*
@@ -1435,7 +1449,7 @@ class GsConverter {
         //Push name in stack
         variableScoping.push([])
 
-        addScript("var ${node.name} = {")
+        addScript("var ${translateClassName(node.name)} = {")
 
         indent ++
         addLine()
@@ -1450,7 +1464,7 @@ class GsConverter {
         //visitType node.superClass
 
         //Fields
-        def numero = 0
+        def numero = 1
         node?.fields?.each { it->
             if (!['MIN_VALUE','MAX_VALUE','$VALUES'].contains(it.name)) {
                 addScript("${it.name} : ${numero++},")
@@ -1470,7 +1484,7 @@ class GsConverter {
                 //processBasicFunction(it.name,it,false)
 
                 addScript("${it.name} : function(")
-                putFunctionParametersAndBody(it)
+                putFunctionParametersAndBody(it,false)
 
                 indent--
                 removeTabScript()
@@ -1510,6 +1524,11 @@ class GsConverter {
     def processClassExpression(ClassExpression expression) {
         //println 'ClassExpression-'+ expression.text
         addScript(expression.text)
+    }
+
+    def processThrowStatement(ThrowStatement statement) {
+        addScript('throw "Exception"')
+        //println 'throw expression'+statement.expression.text
     }
 
     def methodMissing(String name, Object args) {

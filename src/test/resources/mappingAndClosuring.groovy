@@ -15,6 +15,7 @@ gettingTime = { closure ->
 }
 
 def map = [:]
+assert map.size() == 0
 
 map['time'] = gettingTime {
     map.put('time',0)
@@ -50,3 +51,7 @@ assert map.get('five',5) == 5
 assert map.containsKey('five')
 assert map.containsKey('two')
 assert map.containsValue(3)
+
+map = [one:1,two:2,three:3]
+def mapValues = map.values()
+assert map.values().toList() == [1,2,3]

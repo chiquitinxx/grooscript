@@ -36,6 +36,9 @@ function gSmap() {
     object.put = function(key,value) {
         return this.add(key,value)
     }
+    object.putAt = function(key,value) {
+        return this.add(key,value)
+    }
     object.size = function() {
         var number = 0;
         for (ob in this) {
@@ -71,7 +74,7 @@ function gSmap() {
         var gotIt = false;
         for (ob in this) {
             if (typeof this[ob] !== "function") {
-                if (this[ob]==value) {
+                if (gSequals(this[ob],value)) {
                     gotIt = true;
                     break;
                 }
@@ -112,7 +115,16 @@ function gSmap() {
             }
         }
         return result;
+    }
 
+    object.values = function() {
+        var result = gSlist([]);
+        for (ob in this) {
+            if (typeof this[ob] !== "function") {
+                result.add(this[ob]);
+            }
+        }
+        return result;
     }
 
     return object;
@@ -157,7 +169,7 @@ function gSlist(value) {
     object.contains = function(object) {
         var gotIt,i;
         for (i=0;!gotIt && i<this.length;i++) {
-            if (this[i]==object) {
+            if (gSequals(this[i],object)) {
                 //if (typeof this[i] === "function") continue;
                 gotIt = true;
             }
@@ -344,6 +356,18 @@ function gSlist(value) {
         for (i=0;i<this.length;i++) {
             //if (typeof this[i] === "function") continue;
             if (result==null || this[i]>result) {
+                result = this[i];
+            }
+        }
+        return result;
+    }
+
+    object.min = function() {
+        var result = null;
+        var i;
+        for (i=0;i<this.length;i++) {
+            //if (typeof this[i] === "function") continue;
+            if (result==null || this[i]<result) {
                 result = this[i];
             }
         }
@@ -744,7 +768,7 @@ function gSinterceptClosureCall(func, param) {
 function gSrandom() {
     var object = inherit(gsClass);
     object.nextInt = function(number) {
-        var ran = Math.ceil(Math.random()*number)
+        var ran = Math.ceil(Math.random()*number);
         return ran - 1;
     }
     object.nextBoolean = function() {
@@ -752,7 +776,7 @@ function gSrandom() {
         return ran < 0.5;
     }
     return object;
-}
+};
 
 
 

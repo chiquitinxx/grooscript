@@ -29,6 +29,7 @@ class TestJs {
                 //File file = new File(System.getProperty('user.dir')+"src${s}main${s}resources${s}js${s}gscript.js")
 
                 def finalScript = addJsLibrarys(script)
+                //println finalScript
 
                 //Load script manager
                 ScriptEngineManager factory = new ScriptEngineManager()

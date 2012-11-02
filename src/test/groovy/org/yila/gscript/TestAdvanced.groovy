@@ -70,11 +70,32 @@ class TestAdvanced extends Specification {
 
     def 'random world' () {
         when:
-        def result = readAndConvert('advanced/RandomWorld',true)
+        def result = readAndConvert('advanced/RandomWorld',false)
 
         then:
-        println 'Console->'+result.gSconsole
+        //println 'Console->'+result.gSconsole
         !result.assertFails
     }
+
+    /*
+    def 'test Robot'() {
+        when:
+        def result = readAndConvert('robot/Robot',false)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+
+    }
+
+    def 'test robot'() {
+        when:
+        def result = readAndConvert('robot/RobotGame',false)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+
+    } */
 
 }
