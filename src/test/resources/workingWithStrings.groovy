@@ -30,3 +30,6 @@ def numbers = '1 2 4 2 6 3 1'
 out = numbers.replaceAll('1','one')
 assert numbers == '1 2 4 2 6 3 1'
 assert out == 'one 2 4 2 6 3 one'
+
+assert 'one two'.tokenize() == ['one','two']
+assert 'one two'.split(" ")[0] == 'one'

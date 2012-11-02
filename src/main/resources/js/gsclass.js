@@ -37,7 +37,7 @@ function gSmap() {
         return this.add(key,value)
     }
     object.putAt = function(key,value) {
-        return this.add(key,value)
+        this.put(key,value)
     }
     object.size = function() {
         var number = 0;
@@ -48,18 +48,124 @@ function gSmap() {
         }
         return number;
     }
+    object.isEmpty = function() {
+        return (this.size() == 0);
+    }
     object.each = function(closure) {
         for (ob in this) {
             if (typeof this[ob] !== "function") {
                 var f = arguments[0];
                 //Nice, number of arguments in length property
                 if (f.length==1) {
-                    closure({key:ob, value:this[ob]})
+                    closure({key:ob, value:this[ob]});
                 }
                 if (f.length==2) {
                     closure(ob,this[ob]);
                 }
             }
+        }
+    }
+
+    object.any = function(closure) {
+        for (ob in this) {
+            if (typeof this[ob] !== "function") {
+                var f = arguments[0];
+                if (f.length==1) {
+                    if (closure({key:ob, value:this[ob]})) {
+                        return true;
+                    }
+                }
+                if (f.length==2) {
+                    if (closure(ob,this[ob])) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    object.every = function(closure) {
+        for (ob in this) {
+            if (typeof this[ob] !== "function") {
+                var f = arguments[0];
+                if (f.length==1) {
+                    if (!closure({key:ob, value:this[ob]})) {
+                        return false;
+                    }
+                }
+                if (f.length==2) {
+                    if (!closure(ob,this[ob])) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    object.find = function(closure) {
+        for (ob in this) {
+            if (typeof this[ob] !== "function") {
+                var f = arguments[0];
+                if (f.length==1) {
+                    var entry = {key:ob, value:this[ob]};
+                    if (closure(entry)) {
+                        return entry;
+                    }
+                }
+                if (f.length==2) {
+                    if (closure(ob,this[ob])) {
+                        return {key:ob, value:this[ob]};
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    object.findAll = function(closure) {
+        var result = gSmap();
+        for (ob in this) {
+            if (typeof this[ob] !== "function") {
+                var f = arguments[0];
+                if (f.length==1) {
+                    var entry = {key:ob, value:this[ob]};
+                    if (closure(entry)) {
+                        result.add(entry.key,entry.value);
+                    }
+                }
+                if (f.length==2) {
+                    if (closure(ob,this[ob])) {
+                        result.add(ob,this[ob]);
+                    }
+                }
+            }
+        }
+        if (result.size()>0) {
+            return result;
+        } else {
+            return null;
+        }
+    }
+
+    object.collect = function(closure) {
+        var result = gSlist([]);
+        for (ob in this) {
+            if (typeof this[ob] !== "function") {
+                var f = arguments[0];
+                if (f.length==1) {
+                    result.add(closure({key:ob, value:this[ob]}));
+                }
+                if (f.length==2) {
+                    result.add(closure(ob,this[ob]));
+                }
+            }
+        }
+        if (result.size()>0) {
+            return result;
+        } else {
+            return null;
         }
     }
 
@@ -195,6 +301,16 @@ function gSlist(value) {
             closure(this[index],index);
         }
         return this;
+    }
+
+    object.any = function(closure) {
+        var i;
+        for (i=0;i<this.length;i++) {
+            if (closure(this[i])) {
+                return true;
+            }
+        }
+        return false;
     }
 
     object.values = function() {
@@ -711,6 +827,15 @@ String.prototype.reverse = function() {
     return this.split("").reverse().join("");
 }
 
+String.prototype.tokenize = function() {
+    var str = " ";
+    if (arguments.length==1) {
+        str = arguments[0];
+    }
+    var list = this.split(str);
+    return gSlist(list);
+}
+
 /////////////////////////////////////////////////////////////////
 // Misc Functions
 /////////////////////////////////////////////////////////////////
@@ -750,7 +875,11 @@ function gSequals(value1, value2) {
     //console.log('going eq:'+value1+ ' = '+value2+' -> '+value1.equals);
     if (value1==null || value1=='undefined' || value1.equals=='undefined' || value1.equals==null || !(typeof value1.equals === "function")) {
         //console.log(' 1 ');
-        return value1==value2;
+        if (value2!=null && value2!='undefined' && value1.equals!='undefined' && value2.equals!=null && (typeof value1.equals === "function")) {
+            return value2.equals(value1);
+        } else {
+            return value1==value2;
+        }
     } else {
         //console.log(' 2 ');
         return value1.equals(value2);

@@ -98,4 +98,13 @@ class TestAdvanced extends Specification {
 
     } */
 
+    def 'closuring and maps again' () {
+        when:
+        def result = readAndConvert('advanced/ClosuringRevisited',false)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+    }
+
 }
