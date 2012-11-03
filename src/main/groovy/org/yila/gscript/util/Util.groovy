@@ -8,7 +8,7 @@ import org.yila.gscript.GsConverter
  */
 class Util {
 
-    def static final FUNCTIONS_FILE = 'functions.groovy'
+    //def static final FUNCTIONS_FILE = 'unused_functions.groovy'
 
     //Where Js stuff is
     def static getJsPath() {
@@ -31,6 +31,8 @@ class Util {
         return System.getProperty('user.dir')+"${s}src${s}test${s}resources${s}"
     }
 
+
+    /*
     def static getNameFunctionsText() {
         def result
 
@@ -40,6 +42,7 @@ class Util {
         }
         result
     }
+    */
 
     /**
      * Gets a Js file from js directory

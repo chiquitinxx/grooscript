@@ -1,3 +1,33 @@
+/////////////////////////////////////////////////////////////////
+// assert and println conversions
+/////////////////////////////////////////////////////////////////
+var gSfails = false;
+
+function gSassert(value) {
+    if(value==false) {
+          gSfails = true;
+          var message = 'Assert Fails! - ';
+          //gSprintln('tam-'+arguments.length);
+          if (arguments.length == 2 && arguments[1]!=null) {
+            message = arguments[1] + ' - ';
+          }
+          gSprintln(message+value);
+    }
+};
+
+var gSconsole = "";
+
+function gSprintln(value) {
+    //console.log(value);
+    if (gSconsole != "") {
+        gSconsole = gSconsole + "\n"
+    }
+    gSconsole = gSconsole + value
+};
+
+/////////////////////////////////////////////////////////////////
+// Class functions
+/////////////////////////////////////////////////////////////////
 gsClass = {
     //The with function, with is a reserved word in JavaScript
     gSwith : function(closure) { closure.apply(this,closure.arguments); }

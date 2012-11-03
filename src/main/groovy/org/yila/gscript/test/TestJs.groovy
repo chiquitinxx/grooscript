@@ -26,7 +26,7 @@ class TestJs {
             try {
 
                 //def s = System.getProperty('path.separator')
-                //File file = new File(System.getProperty('user.dir')+"src${s}main${s}resources${s}js${s}gscript.js")
+                //File file = new File(System.getProperty('user.dir')+"src${s}main${s}resources${s}js${s}unused_gscript.js")
 
                 def finalScript = addJsLibrarys(script)
                 //println finalScript
@@ -63,12 +63,12 @@ class TestJs {
     static addJsLibrarys(text) {
         def result = text
         //We get gscript functions file
-        File file = Util.getJsFile('gscript.js')
+        File file = Util.getJsFile('grooscript.js')
         //Add that file to javascript code
         result = file.text + result
-        file = Util.getJsFile('gsclass.js')
+        //file = Util.getJsFile('grooscript.js')
         //Add that file to javascript code
-        result = file.text + result
+        //result = file.text + result
         return result
     }
 

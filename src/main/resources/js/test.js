@@ -1,9 +1,7 @@
 var fs = require('fs');
 
 // file is included here:
-eval(fs.readFileSync('gsclass.js')+'');
-
-eval(fs.readFileSync('gscript.js')+'');
+eval(fs.readFileSync('grooscript.js')+'');
 
 var a = gSlist([]);
 

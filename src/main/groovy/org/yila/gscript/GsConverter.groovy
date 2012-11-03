@@ -33,7 +33,8 @@ class GsConverter {
     //def methodVariableNames
     //def scriptScope
 
-    //We get this function names from functions.groovy
+    //We get this function names from unused_functions.groovy
+    //Not now, changed, maybe in future can use a file for define that
     def assertFunction
     def printlnFunction
 
@@ -48,9 +49,11 @@ class GsConverter {
     def initFunctionNames() {
         //def clos = new GroovyShell().evaluate('{ gscript ->\n'+Util.getNameFunctionsText()+'\n return gscript}')
         //this.with clos
-        def clos = new GroovyShell().evaluate('{ it ->\n'+Util.getNameFunctionsText()+'\n return}')
-        this.with clos
 
+        //def clos = new GroovyShell().evaluate('{ it ->\n'+Util.getNameFunctionsText()+'\n return}')
+        //this.with clos
+        assertFunction = 'gSassert'
+        printlnFunction = 'gSprintln'
     }
 
     def addToActualScope(variableName) {
@@ -344,6 +347,25 @@ class GsConverter {
 
             //We add variable names of the class
             variableScoping.peek().add(it.name)
+        }
+
+        node.fields.each { FieldNode field ->
+            if (field.owner.name == node.name && (field.isPublic()||field.isProtected() || !node.properties.any { it.name == field.name})) {
+
+                //TODO repetido del que hay un poco más arriba, ponerlo en una función
+                if (field.initialExpression) {
+                    addScript("gSobject.${field.name} = ")
+                    "process${field.initialExpression.class.simpleName}"(field.initialExpression)
+                    addScript(';')
+                    addLine()
+                } else {
+                    addScript("gSobject.${field.name} = null;")
+                    addLine()
+                }
+
+            }
+            //println 'Field->'+field.name+' owner:'+field.owner+' t:'+node.name + ' p:'+node.syntheticPublic
+
         }
 
         //Save variables from this class for use in 'son' classes

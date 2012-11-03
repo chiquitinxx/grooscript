@@ -43,8 +43,8 @@ task copyToGscriptWeb(dependsOn: build) << {
 	copy {
 		into "$webDirJs"
 		from "src/main/resources/js"			
-		include "**/*.*"
-		exclude "test.js"
+		include "grooscript.js"
+		//exclude "test.js"
 	}
 	
 	println "Copying $appName examples to $webDirExamples ..."

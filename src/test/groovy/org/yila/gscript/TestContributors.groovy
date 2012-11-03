@@ -37,7 +37,7 @@ class TestContributors extends Specification {
 
     def 'test MrHaki' () {
         expect:
-        def result = readAndConvert(file,file=='contribution/MrHakiInject')
+        def result = readAndConvert(file,false)//file=='contribution/MrHakiInject')
         //println 'Console->'+result.gSconsole
         !result.assertFails
 
@@ -55,6 +55,16 @@ class TestContributors extends Specification {
     def 'test alex anderson' () {
         when:
         def result = readAndConvert('contribution/AlexAnderson',false)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+
+    }
+
+    def 'test mario garcia' () {
+        when:
+        def result = readAndConvert('contribution/MarioGarcia',false)
 
         then:
         //println 'Console->'+result.gSconsole
