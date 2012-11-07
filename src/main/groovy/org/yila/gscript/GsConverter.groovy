@@ -21,6 +21,7 @@ class GsConverter {
     def Stack<String> superNameStack = new Stack<String>()
     //Use for variable scoping, for class variable names and function names mainly
     def Stack variableScoping = new Stack()
+    def Stack variableStaticScoping = new Stack()
     def Stack returnScoping = new Stack()
     //def actualScope = []
     //Use por function variable names
@@ -73,7 +74,7 @@ class GsConverter {
     /**
      * Converts Groovy script to Javascript
      * @param String script in groovy
-     * @return String sript in javascript
+     * @return String script in javascript
      */
     def toJs(String script) {
         def result
@@ -109,6 +110,8 @@ class GsConverter {
             //println 'Size('+list.size+')->'+list
             variableScoping.clear()
             variableScoping.push([])
+            variableStaticScoping.clear()
+            variableStaticScoping.push([])
             actualScope.clear()
             actualScope.push([])
             //Store all classes here
@@ -293,6 +296,32 @@ class GsConverter {
 
     }
 
+    def addPropertyToClass(fieldOrProperty,isStatic) {
+
+        def previous = 'gSobject'
+        if (isStatic) {
+            previous = ''
+        }
+
+        if (fieldOrProperty.initialExpression) {
+            addScript("${previous}.${fieldOrProperty.name} = ")
+            "process${fieldOrProperty.initialExpression.class.simpleName}"(fieldOrProperty.initialExpression)
+            addScript(';')
+            addLine()
+        } else {
+            addScript("${previous}.${fieldOrProperty.name} = null;")
+            addLine()
+        }
+    }
+
+    def addPropertyStaticToClass(String name) {
+
+        addScript("gSobject.__defineGetter__('${name}', function(){ return ${translateClassName(classNameStack.peek())}.${name}; });")
+        addLine()
+        addScript("gSobject.__defineSetter__('${name}', function(gSval){ ${translateClassName(classNameStack.peek())}.${name} = gSval; });")
+        addLine()
+    }
+
     def processClassNode(ClassNode node) {
 
         //Starting class conversion
@@ -309,8 +338,10 @@ class GsConverter {
         //Push name in stack
         classNameStack.push(node.name)
         variableScoping.push([])
+        variableStaticScoping.push([])
 
-        addScript("function gsCreate${translateClassName(node.name)}() {")
+        //addScript("function gsCreate${translateClassName(node.name)}() {")
+        addScript("function ${translateClassName(node.name)}() {")
 
         indent ++
         addLine()
@@ -320,7 +351,8 @@ class GsConverter {
         //Allowed inheritance
         if (node.superClass.name != 'java.lang.Object') {
             //println 'Allowed!'+ node.superClass.class.name
-            addScript("var gSobject = gsCreate${translateClassName(node.superClass.name)}();")
+            //addScript("var gSobject = gsCreate${translateClassName(node.superClass.name)}();")
+            addScript("var gSobject = ${translateClassName(node.superClass.name)}();")
 
             //We add to this class scope variables of fathers
             variableScoping.peek().addAll(inheritedVariables[node.superClass.name])
@@ -335,34 +367,27 @@ class GsConverter {
 
         //Adding initial values of properties
         node?.properties?.each { it-> //println 'Property->'+it; println 'initialExpresion->'+it.initialExpression
-            if (it.initialExpression) {
-                addScript("gSobject.${it.name} = ")
-                "process${it.initialExpression.class.simpleName}"(it.initialExpression)
-                addScript(';')
-                addLine()
-            } else {
-                addScript("gSobject.${it.name} = null;")
-                addLine()
-            }
 
-            //We add variable names of the class
-            variableScoping.peek().add(it.name)
+            if (!it.isStatic()) {
+                addPropertyToClass(it,false)
+                //We add variable names of the class
+                variableScoping.peek().add(it.name)
+            } else {
+                variableStaticScoping.peek().add(it.name);
+                addPropertyStaticToClass(it.name)
+            }
         }
 
+        //Add fields not added as properties
         node.fields.each { FieldNode field ->
             if (field.owner.name == node.name && (field.isPublic()||field.isProtected() || !node.properties.any { it.name == field.name})) {
-
-                //TODO repetido del que hay un poco más arriba, ponerlo en una función
-                if (field.initialExpression) {
-                    addScript("gSobject.${field.name} = ")
-                    "process${field.initialExpression.class.simpleName}"(field.initialExpression)
-                    addScript(';')
-                    addLine()
+                if (!field.isStatic()) {
+                    addPropertyToClass(field,false)
+                    variableScoping.peek().add(field.name)
                 } else {
-                    addScript("gSobject.${field.name} = null;")
-                    addLine()
+                    variableStaticScoping.peek().add(field.name)
+                    addPropertyStaticToClass(field.name)
                 }
-
             }
             //println 'Field->'+field.name+' owner:'+field.owner+' t:'+node.name + ' p:'+node.syntheticPublic
 
@@ -374,16 +399,23 @@ class GsConverter {
         //node?.fields?.each { println 'field->'+it  }
 
         //Methods
-        node?.methods?.each { //println 'method->'+it;
+        node?.methods?.each { MethodNode it -> //println 'method->'+it;
             //Add too method names to variable scoping
-            variableScoping.peek().add(it.name)
+            if (!it.isStatic()) {
+                variableScoping.peek().add(it.name)
+            }
         }
-        node?.methods?.each { //println 'method->'+it;
+        node?.methods?.each { MethodNode it -> //println 'method->'+it;
 
-            //Add too method names to variable scoping
-            //variableScoping.peek().add(it.name)
-
-            processMethodNode(it,false)
+            //Process the methods
+            if (!it.isStatic()) {
+                processMethodNode(it,false)
+            } else {
+                addScript("gSobject.${it.name} = function() { return ${translateClassName(node.name)}.${it.name}(")
+                it.parameters?.join(',')
+                addScript("); }")
+                addLine()
+            }
         }
 
         //Constructors
@@ -426,8 +458,24 @@ class GsConverter {
         addScript('};')
         addLine()
 
+        //Static methods
+        node?.methods?.each { MethodNode method ->
+            if (method.isStatic()) {
+                println 'Static!'
+                processBasicFunction("${translateClassName(node.name)}.${method.name}",method,false)
+            }
+        }
+        //Static properties
+        node?.properties?.each { it-> //println 'Property->'+it; println 'initialExpresion->'+it.initialExpression
+            if (it.isStatic()) {
+                addScript(translateClassName(node.name))
+                addPropertyToClass(it,true)
+            }
+        }
+
         //Remove variable class names from the list
         variableScoping.pop()
+        variableStaticScoping.pop()
 
         //Pop name in stack
         classNameStack.pop()
@@ -792,10 +840,23 @@ class GsConverter {
     }
 
     def processBooleanExpression(BooleanExpression expression) {
-        //println 'BooleanExpression->'+e
-        //println 'BooleanExpression Inside->'+e.expression
+        //println 'BooleanExpression->'+expression
+        //println 'BooleanExpression Inside->'+expression.expression
 
-        "process${expression.expression.class.simpleName}"(expression.expression)
+        //Groovy truth is a bit different, empty collections return false, we fix that here
+        if (expression.expression instanceof VariableExpression ||
+            (expression.expression instanceof NotExpression && expression.expression.expression instanceof VariableExpression)) {
+            if (expression.expression instanceof NotExpression) {
+                addScript('!gSbool(')
+                "process${expression.expression.expression.class.simpleName}"(expression.expression.expression)
+            } else {
+                addScript('gSbool(')
+                "process${expression.expression.class.simpleName}"(expression.expression)
+            }
+            addScript(')')
+        } else {
+            "process${expression.expression.class.simpleName}"(expression.expression)
+        }
     }
 
     def processExpressionStatement(ExpressionStatement statement) {
@@ -825,7 +886,7 @@ class GsConverter {
         }
     }
 
-    def fuckStack(Stack stack,variableName) {
+    def tourStack(Stack stack,variableName) {
         if (stack.isEmpty()) {
             return false
         } else if (stack.peek()?.contains(variableName)) {
@@ -833,7 +894,7 @@ class GsConverter {
         } else {
             //println 'going stack->'+stack.peek()
             def keep = stack.pop()
-            def result = fuckStack(stack,variableName)
+            def result = tourStack(stack,variableName)
             stack.push(keep)
             return result
         }
@@ -842,12 +903,12 @@ class GsConverter {
     def variableScopingContains(variableName) {
         //println 'vs('+variableName+')->'+fuckStack(variableScoping,variableName) //variableScoping.peek()?.contains(variableName) //variableScoping.search(variableName)
         //println 'actualScope->'+actualScope
-        return fuckStack(variableScoping,variableName)
+        return tourStack(variableScoping,variableName)
     }
 
     def allActualScopeContains(variableName) {
         //println 'as('+variableName+')->'+fuckStack(actualScope,variableName) //variableScoping.peek()?.contains(variableName) //variableScoping.search(variableName)
-        return fuckStack(actualScope,variableName)
+        return tourStack(actualScope,variableName)
     }
 
     def processVariableExpression(VariableExpression expression) {
@@ -856,6 +917,8 @@ class GsConverter {
         //if (!variableScoping.peek().contains(v.name) && !declaringVariable &&!dontAddMoreThis && variableScoping.size()>1) {
         if (variableScoping.peek().contains(expression.name) && !(actualScopeContains(expression.name))) {
             addScript('gSobject.'+expression.name)
+        } else if (variableStaticScoping.peek().contains(expression.name) && !(actualScopeContains(expression.name))) {
+            addScript(translateClassName(classNameStack.peek())+'.'+expression.name)
         } else {
             if (processingClosure && !expression.isThisExpression()
                     && !allActualScopeContains(expression.name) && !variableScopingContains(expression.name)) {
@@ -1024,7 +1087,8 @@ class GsConverter {
             //Constructor have name with number of params on it
             //addScript("gsCreate${expression.type.name}().${expression.type.name}${expression.arguments.expressions.size()}")
             def name = translateClassName(expression.type.name)
-            addScript("gsCreate${name}")
+            //addScript("gsCreate${name}")
+            addScript(name)
         }
         "process${expression.arguments.class.simpleName}"(expression.arguments)
     }
@@ -1551,6 +1615,13 @@ class GsConverter {
     def processThrowStatement(ThrowStatement statement) {
         addScript('throw "Exception"')
         //println 'throw expression'+statement.expression.text
+    }
+
+    def processStaticMethodCallExpression(StaticMethodCallExpression expression) {
+
+        //println 'SMCE->'+expression.text
+        addScript("${expression.ownerType.name}.${expression.method}")
+        "process${expression.arguments.class.simpleName}"(expression.arguments)
     }
 
     def methodMissing(String name, Object args) {

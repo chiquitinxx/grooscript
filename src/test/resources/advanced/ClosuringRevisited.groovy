@@ -31,15 +31,17 @@ assert map.findAll { it.value>1} == [b:2, c:3, d:4]
 
 assert map.collect { it.value*it.value} == [1, 4, 9, 16]
 assert map.collect { key, value -> key} == ['a', 'b', 'c', 'd']
+assert map
 
 assert !map.findAll{ it.value>8}
 def m0 = [:]
 assert m0.isEmpty()
 //This not works in javascript
-//assert !m0
+assert !m0
 
-//def l0 = []
-//assert !l0
+def l0 = []
+assert l0.isEmpty()
+assert !l0
 
 assert list.any { it > 2}
 assert !list.any { it > 7}

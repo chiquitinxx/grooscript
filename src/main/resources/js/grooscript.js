@@ -297,6 +297,10 @@ function gSlist(value) {
         return this.length;
     }
 
+    object.isEmpty = function() {
+        return this.length == 0;
+    }
+
     object.add = function(element) {
         this[this.length]=element;
         return this;
@@ -905,7 +909,7 @@ function gSequals(value1, value2) {
     //console.log('going eq:'+value1+ ' = '+value2+' -> '+value1.equals);
     if (value1==null || value1=='undefined' || value1.equals=='undefined' || value1.equals==null || !(typeof value1.equals === "function")) {
         //console.log(' 1 ');
-        if (value2!=null && value2!='undefined' && value1.equals!='undefined' && value2.equals!=null && (typeof value1.equals === "function")) {
+        if (value2!=null && value2!='undefined' && value2.equals!='undefined' && value2.equals!=null && (typeof value2.equals === "function")) {
             return value2.equals(value1);
         } else {
             return value1==value2;
@@ -936,6 +940,16 @@ function gSrandom() {
     }
     return object;
 };
+
+function gSbool(item) {
+    //console.log('item->'+item+' - '+item.isEmpty+' - '+(item.isEmpty === "function"));
+    if (item!=null && item!='undefined' && item.isEmpty!=null) {
+        //console.log('bool yeah->'+!item.isEmpty());
+        return !item.isEmpty();
+    } else {
+        return item;
+    }
+}
 
 
 

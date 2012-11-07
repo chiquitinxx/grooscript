@@ -4,7 +4,7 @@ import org.yila.gscript.test.TestJs
 import spock.lang.Specification
 
 /**
- * First test for converts groovy code to javascript code
+ * First tests for converts groovy code to javascript code
  * Following GroovyInAction Book
  * Chap 2. Groovy basics
  * JFL 27/08/12
@@ -149,6 +149,14 @@ class TestGroovyBasics extends Specification {
     def 'working with enums'() {
         when:
         def result = readAndConvert('enums',false)
+
+        then:
+        !result.assertFails
+    }
+
+    def 'static stuff in classes'() {
+        when:
+        def result = readAndConvert('staticRealm',false)
 
         then:
         !result.assertFails
