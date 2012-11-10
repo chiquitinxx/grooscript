@@ -609,6 +609,58 @@ function gSlist(value) {
         }
     }
 
+    object.sort = function() {
+        var modify = true;
+        if (arguments.length > 0 && arguments[0] == false) {
+            modify = false;
+        }
+        var i,copy = [];
+        //Maybe some closure as last parameter
+        var tempFunction = null;
+        if (arguments.length == 2 && typeof arguments[1] === "function") {
+            tempFunction = arguments[1];
+        }
+        if (arguments.length == 1 && typeof arguments[0] === "function") {
+            tempFunction = arguments[0];
+        }
+        //Copy all items
+        for (i=0;i<this.length;i++) {
+            //if (tempFunction!=null && tempFunction.length == 1) {
+                //If closure has 1 parameter we apply it to all items
+            //    [i] = tempFunction(this[i]);
+            //}
+            copy[i] = this[i];
+        }
+        //console.log('tempFunction->'+tempFunction);
+        //If function has 2 parameter, inside compare both and return a number
+        if (tempFunction!=null && tempFunction.length == 2) {
+            copy.sort(tempFunction);
+        }
+        //If function has 1 parameter, we have to compare transformed items
+        if (tempFunction!=null && tempFunction.length == 1) {
+            copy.sort(function(a, b) {
+                return gSspaceShip(tempFunction(a),tempFunction(b));
+            });
+        }
+        if (tempFunction==null) {
+            //console.log('Before-'+copy);
+            copy.sort();
+            //console.log('After-'+copy);
+        }
+        var result = gSlist(copy);
+        if (modify) {
+            for (i=0;i<this.length;i++) {
+                this[i] = copy[i];
+            }
+            //console.log('Modify'+this.toString());
+            return this;
+        } else {
+            //console.log('Not Modify-'+copy);
+            return gSlist(copy);
+        }
+
+    }
+
     return object;
 }
 
@@ -948,6 +1000,26 @@ function gSbool(item) {
         return !item.isEmpty();
     } else {
         return item;
+    }
+}
+
+function gSless(itemLeft,itemRight) {
+    return itemLeft < itemRight;
+}
+
+function gSgreater(itemLeft,itemRight) {
+    return itemLeft > itemRight;
+}
+
+function gSspaceShip(itemLeft, itemRight) {
+    if (gSequals(itemLeft,itemRight)) {
+        return 0;
+    }
+    if (gSless(itemLeft,itemRight)) {
+        return -1;
+    }
+    if (gSgreater(itemLeft,itemRight)) {
+        return 1;
     }
 }
 

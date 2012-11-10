@@ -21,6 +21,8 @@ Losing pretty print, had to function == (equals), and I suppose same for other o
 
 Javascript 'split' not the same, maybe will translate to tokenize.
 
+String.length() not work, cause length is property in Javascript.
+
 ---
 
 Twitter: @jfrancoleza

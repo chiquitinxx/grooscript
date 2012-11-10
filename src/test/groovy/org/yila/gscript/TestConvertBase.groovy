@@ -43,5 +43,13 @@ class TestConvertBase extends Specification {
         result.jsScript == 'var a = 0;\ngSprintln("Hey");\ngSassert(true, null);\n'
     }
 
+    def 'use static class converter'() {
+        when:
+        def result = GrooScript.convert('def a=0')
+
+        then:
+        result == 'var a = 0;\n'
+    }
+
 
 }

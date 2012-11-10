@@ -77,10 +77,20 @@ class TestAdvanced extends Specification {
         !result.assertFails
     }
 
+    def 'test Robot'() {
+        when:
+        def result = readAndConvert('advanced/SampleRobot',false)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+
+    }
+
     /*
     def 'test Robot'() {
         when:
-        def result = readAndConvert('robot/Robot',false)
+        def result = readAndConvert('robot/Robot',true)
 
         then:
         //println 'Console->'+result.gSconsole
@@ -90,13 +100,14 @@ class TestAdvanced extends Specification {
 
     def 'test robot'() {
         when:
-        def result = readAndConvert('robot/RobotGame',false)
+        def result = readAndConvert('robot/RobotGame',true)
 
         then:
         //println 'Console->'+result.gSconsole
         !result.assertFails
 
-    } */
+    }
+    */
 
     def 'closuring and maps again' () {
         when:
@@ -105,6 +116,16 @@ class TestAdvanced extends Specification {
         then:
         //println 'Console->'+result.gSconsole
         !result.assertFails
+    }
+
+    def 'sorting lists' () {
+        when:
+        def result = readAndConvert('advanced/Sorting',true)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+
     }
 
 }

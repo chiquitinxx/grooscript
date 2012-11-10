@@ -322,8 +322,22 @@ class GsConverter {
         addLine()
     }
 
+    def haveAnnotationNonConvert(annotations) {
+        boolean exit = false
+        annotations.each { AnnotationNode it ->
+            //If dont have to convert then exit
+            if (it.getClassNode().nameWithoutPackage=='GsNotConvert') {
+                exit = true
+            }
+        }
+        return exit
+    }
+
     def processClassNode(ClassNode node) {
 
+        if (haveAnnotationNonConvert(node.annotations)) {
+            return 0
+        }
         //Starting class conversion
 
         //Ignoring annotations
@@ -380,7 +394,7 @@ class GsConverter {
 
         //Add fields not added as properties
         node.fields.each { FieldNode field ->
-            if (field.owner.name == node.name && (field.isPublic()||field.isProtected() || !node.properties.any { it.name == field.name})) {
+            if (field.owner.name == node.name && (field.isPublic()|| !node.properties.any { it.name == field.name})) {
                 if (!field.isStatic()) {
                     addPropertyToClass(field,false)
                     variableScoping.peek().add(field.name)
@@ -400,21 +414,26 @@ class GsConverter {
 
         //Methods
         node?.methods?.each { MethodNode it -> //println 'method->'+it;
-            //Add too method names to variable scoping
-            if (!it.isStatic()) {
-                variableScoping.peek().add(it.name)
+
+            if (!haveAnnotationNonConvert(it.annotations)) {
+                //Add too method names to variable scoping
+                if (!it.isStatic()) {
+                    variableScoping.peek().add(it.name)
+                }
             }
         }
         node?.methods?.each { MethodNode it -> //println 'method->'+it;
 
-            //Process the methods
-            if (!it.isStatic()) {
-                processMethodNode(it,false)
-            } else {
-                addScript("gSobject.${it.name} = function() { return ${translateClassName(node.name)}.${it.name}(")
-                it.parameters?.join(',')
-                addScript("); }")
-                addLine()
+            if (!haveAnnotationNonConvert(it.annotations)) {
+                //Process the methods
+                if (!it.isStatic()) {
+                    processMethodNode(it,false)
+                } else {
+                    addScript("gSobject.${it.name} = function() { return ${translateClassName(node.name)}.${it.name}(")
+                    it.parameters?.join(',')
+                    addScript("); }")
+                    addLine()
+                }
             }
         }
 
@@ -453,6 +472,7 @@ class GsConverter {
         //}
 
         indent --
+        //addScript("this.gSobject=gSobject;return gSobject;")
         addScript("return gSobject;")
         addLine()
         addScript('};')
@@ -460,9 +480,11 @@ class GsConverter {
 
         //Static methods
         node?.methods?.each { MethodNode method ->
-            if (method.isStatic()) {
-                println 'Static!'
-                processBasicFunction("${translateClassName(node.name)}.${method.name}",method,false)
+            if (!haveAnnotationNonConvert(method.annotations)) {
+                if (method.isStatic()) {
+                    println 'Static!'
+                    processBasicFunction("${translateClassName(node.name)}.${method.name}",method,false)
+                }
             }
         }
         //Static properties
@@ -984,25 +1006,30 @@ class GsConverter {
             }
 
             addScript(')')
-        } else {
-
-            if (expression.operation.text=='==') {
+        //Equals
+        } else if (expression.operation.text=='==') {
                 addScript('gSequals(')
                 upgradedExpresion(expression.leftExpression)
                 addScript(', ')
                 upgradedExpresion(expression.rightExpression)
                 addScript(')')
-            } else {
-                //Left
-                upgradedExpresion(expression.leftExpression)
-                //Operator
-                //println 'Operator->'+b.operation.text
-                addScript(' '+expression.operation.text+' ')
-                //Right
-                upgradedExpresion(expression.rightExpression)
-                if (expression.operation.text=='[') {
-                    addScript(']')
-                }
+        //Spaceship operator <=>
+        } else if (expression.operation.text=='<=>') {
+            addScript('gSspaceShip(')
+            upgradedExpresion(expression.leftExpression)
+            addScript(', ')
+            upgradedExpresion(expression.rightExpression)
+            addScript(')')
+        } else {
+            //Left
+            upgradedExpresion(expression.leftExpression)
+            //Operator
+            //println 'Operator->'+b.operation.text
+            addScript(' '+expression.operation.text+' ')
+            //Right
+            upgradedExpresion(expression.rightExpression)
+            if (expression.operation.text=='[') {
+                addScript(']')
             }
         }
     }
