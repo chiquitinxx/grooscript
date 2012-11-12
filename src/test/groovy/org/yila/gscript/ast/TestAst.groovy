@@ -13,8 +13,6 @@ import org.yila.gscript.util.Util
  */
 class TestAst extends Specification {
 
-    def converter = new GsConverter()
-
     def readAndConvert(nameOfFile,consoleOutput) {
 
         def file = TestJs.getGroovyTestScript(nameOfFile)
@@ -36,6 +34,16 @@ class TestAst extends Specification {
         then:
         !result.assertFails
         result.jsScript.indexOf('NotConvert')<0
+
+    }
+
+    def 'test GsNative' () {
+        when:
+        def result = readAndConvert('asts/Native',true)
+
+        then:
+        !result.assertFails
+        result.jsScript.indexOf('return true;')>0
 
     }
 

@@ -1,5 +1,7 @@
 package asts
 
+import org.yila.gscript.asts.GsNative
+
 /**
  * JFL 06/11/12
  */
@@ -7,9 +9,11 @@ package asts
 
 class Data {
 
-    def sayTrue() { /*{
+    @GsNative def saySomething(some){/*return some;*/}
+    @GsNative
+    def sayTrue() { /*
         return true;
-    }*/}
+    */}
 }
 
 data = new Data()

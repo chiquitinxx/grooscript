@@ -68,6 +68,11 @@ class Util {
         result
     }
 
+    /**
+     * Get a groovy file in test path
+     * @param name
+     * @return
+     */
     def static getGroovyTestScriptFile(String name) {
         def result
         if (name) {
@@ -84,6 +89,11 @@ class Util {
         result
     }
 
+    /**
+     * Full process a script
+     * @param script
+     * @return map with exception,jsScript,assertFails,...
+     */
     def static fullProcessScript(String script) {
 
         def result = [:]
@@ -103,5 +113,44 @@ class Util {
         result.jsScript = jsScript
 
         return result
+    }
+
+    /**
+     * Get map with native functions
+     * @param text to be converted
+     * @return map [name:code]
+     */
+    def static getNativeFunctions(String text) {
+
+        def mapResult = [:]
+
+        def seg = text.replaceAll('\n','')
+
+        //def pat = /@GsNative(\s)+.+\w+\s*\(.*\)\s*\{(\s)*\/\*(\s)*$LINES\*\/\s*\}/
+        def pat = /@GsNative(\s)+.+\w+\s*\(.*\)\s*\{\s*\\/\*[^(\*\/)]*\*\\/\s*\}/
+
+        seg.eachMatch(pat) { match ->
+            //println 'Item->'+match[0]
+            def list = match[0].split('@GsNative')
+
+            list.each { lines ->
+
+                if (lines && lines.trim().size()>4) {
+
+                    //println 'lines->'+lines
+
+                    def line = lines.substring(lines.indexOf('/*')+2,lines.indexOf('*/'))
+                    def function = (lines =~ /\w+\s*\(/)[0] /*.each { ma2 ->
+                        println 'Miniitem->'+ma2
+                    }*/
+                    function = function.substring(0,function.length()-1)
+                    mapResult.put(function.trim(),line.trim())
+                }
+            }
+        }
+
+        //println 'MapResult->'+mapResult
+
+        return mapResult
     }
 }
