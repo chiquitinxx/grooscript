@@ -1,6 +1,12 @@
 apply plugin: 'idea'
 apply plugin: 'groovy'
-//apply plugin: 'application'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+//name = 'grooscript'
+group = 'org.grooscript'
+version = '0.1'
+
 
 //mainClassName = 'org.yila.gscript'
 
@@ -31,12 +37,79 @@ dependencies {
 	//testCompile fileTree(dir: 'lib', include: '*.jar')
 }
 
+//Sonar repository stuff
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from 'build/docs/javadoc'
+}
+ 
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+artifacts {
+    archives jar
+	archives javadocJar
+    archives sourcesJar
+}
+	
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signPom(deployment) }
+ 
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+              authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
+ 
+            pom.project {
+               name 'grooscript'
+               packaging 'jar'
+               description 'GrooScript converts your groovy code to javascript'
+               url 'http://grooscript.org/'
+ 
+               scm {
+                   url 'scm:git@github.com:chiquitinxx/grooscript.git'
+                   connection 'scm:git@github.com:chiquitinxx/grooscript.git'
+                   developerConnection 'scm:git@github.com:chiquitinxx/grooscript.git'
+               }
+ 
+               licenses {
+                   license {
+                       name 'The Apache Software License, Version 2.0'
+                       url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                       distribution 'repo'
+                   }
+               }
+ 
+               developers {
+                   developer {
+                       id 'chiquitinxx'
+                       name 'Jorge Franco'
+                   }
+               }
+           }
+        }
+    }
+}
+//End Sonar
+
+//Copy jar, js file, and examples to web directory, defined at start
 task copyToGscriptWeb(dependsOn: build) << {
 	println "Copying $appName jar to $webDirJar ..."
 	copy {
 		into "$webDirJar"
 		from "build/libs"			
 		include "**/*.jar"
+		rename { 
+			return "grooscript.jar"
+		}
 	}
 	
 	println "Copying $appName jsFiles to $webDirJs ..."
@@ -56,6 +129,5 @@ task copyToGscriptWeb(dependsOn: build) << {
 				return "${key}.groovy"
 			}
 		}
-	}
-	
+	}	
 }

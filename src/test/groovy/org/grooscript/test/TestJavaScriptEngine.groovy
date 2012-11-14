@@ -1,4 +1,4 @@
-package org.yila.gscript.test
+package org.grooscript.test
 
 import spock.lang.Specification
 import javax.script.ScriptEngine

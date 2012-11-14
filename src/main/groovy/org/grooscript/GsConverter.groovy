@@ -1,11 +1,11 @@
-package org.yila.gscript
+package org.grooscript
 
 import org.codehaus.groovy.ast.builder.AstBuilder
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.ast.stmt.*
 import org.codehaus.groovy.ast.expr.*
-import org.yila.gscript.util.Util
-import org.yila.gscript.util.GsConsole
+import org.grooscript.util.Util
+import org.grooscript.util.GsConsole
 import org.codehaus.groovy.ast.*
 
 /**
@@ -513,7 +513,7 @@ class GsConverter {
         node?.methods?.each { MethodNode method ->
             if (!haveAnnotationNonConvert(method.annotations)) {
                 if (method.isStatic()) {
-                    println 'Static!'
+                    //println 'Static!'
                     processBasicFunction("${translateClassName(node.name)}.${method.name}",method,false)
                 }
             }

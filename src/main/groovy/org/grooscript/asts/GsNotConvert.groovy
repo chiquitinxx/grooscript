@@ -1,4 +1,4 @@
-package org.yila.gscript.asts
+package org.grooscript.asts
 
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
@@ -12,6 +12,6 @@ import org.codehaus.groovy.transform.GroovyASTTransformationClass
 @Retention(RetentionPolicy.SOURCE)
 @Target([ElementType.METHOD,ElementType.TYPE])
 //@GroovyASTTransformationClass(["Nativing"])
-@GroovyASTTransformationClass(['org.yila.gscript.asts.NotConvert'])
+@GroovyASTTransformationClass(['org.grooscript.asts.NotConvert'])
 public @interface GsNotConvert {
 }

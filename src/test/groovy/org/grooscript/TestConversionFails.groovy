@@ -1,8 +1,7 @@
-package org.yila.gscript
+package org.grooscript
 
-import org.yila.gscript.GsConverter
 import spock.lang.Specification
-import org.yila.gscript.test.TestJs
+import org.grooscript.test.TestJs
 
 /**
  * First test for converts groovy code to javascript code

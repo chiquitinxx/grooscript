@@ -1,6 +1,6 @@
 package asts
 
-import org.yila.gscript.asts.GsNotConvert
+import org.grooscript.asts.GsNotConvert
 
 /**
  * JFL 10/11/12

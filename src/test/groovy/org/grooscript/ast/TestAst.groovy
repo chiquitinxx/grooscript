@@ -1,9 +1,8 @@
-package org.yila.gscript.ast
+package org.grooscript.ast
 
-import org.yila.gscript.GsConverter
-import org.yila.gscript.test.TestJs
+import org.grooscript.test.TestJs
 import spock.lang.Specification
-import org.yila.gscript.util.Util
+import org.grooscript.util.Util
 
 /**
  * First test for converts groovy code to javascript code
@@ -39,7 +38,7 @@ class TestAst extends Specification {
 
     def 'test GsNative' () {
         when:
-        def result = readAndConvert('asts/Native',true)
+        def result = readAndConvert('asts/Native',false)
 
         then:
         !result.assertFails

@@ -1,6 +1,6 @@
-package org.yila.gscript
+package org.grooscript
 
-import org.yila.gscript.test.TestJs
+import org.grooscript.test.TestJs
 import spock.lang.Specification
 
 /**

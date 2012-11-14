@@ -1,6 +1,6 @@
 package asts
 
-import org.yila.gscript.asts.GsNative
+import org.grooscript.asts.GsNative
 
 /**
  * JFL 06/11/12

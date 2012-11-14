@@ -1,10 +1,10 @@
-package org.yila.gscript.test
+package org.grooscript.test
 
 import javax.script.ScriptEngineManager
 import javax.script.ScriptEngine
 import javax.script.Bindings
-import org.yila.gscript.util.GsConsole
-import org.yila.gscript.util.Util
+import org.grooscript.util.GsConsole
+import org.grooscript.util.Util
 
 /**
  * JFL 27/08/12

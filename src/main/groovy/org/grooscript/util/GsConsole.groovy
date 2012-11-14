@@ -1,4 +1,4 @@
-package org.yila.gscript.util
+package org.grooscript.util
 
 /**
  * JFL 27/08/12

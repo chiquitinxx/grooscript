@@ -1,7 +1,7 @@
-package org.yila.gscript.util
+package org.grooscript.util
 
-import org.yila.gscript.test.TestJs
-import org.yila.gscript.GsConverter
+import org.grooscript.test.TestJs
+import org.grooscript.GsConverter
 
 /**
  * JFL 29/08/12

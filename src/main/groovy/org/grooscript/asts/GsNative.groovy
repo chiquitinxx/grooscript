@@ -1,4 +1,4 @@
-package org.yila.gscript.asts
+package org.grooscript.asts
 
 import org.codehaus.groovy.transform.GroovyASTTransformationClass
 
@@ -13,6 +13,6 @@ import java.lang.annotation.Target
 @Retention(RetentionPolicy.SOURCE)
 @Target([ElementType.METHOD])
 //@GroovyASTTransformationClass(["Nativing"])
-@GroovyASTTransformationClass(['org.yila.gscript.asts.Native'])
+@GroovyASTTransformationClass(['org.grooscript.asts.Native'])
 public @interface GsNative {
 }

@@ -1,8 +1,7 @@
-package org.yila.gscript
+package org.grooscript
 
 import spock.lang.Specification
-import org.yila.gscript.GsConverter
-import org.yila.gscript.util.Util
+import org.grooscript.util.Util
 
 /**
  * Tests for converter initialization and run modes
