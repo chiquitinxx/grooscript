@@ -1,6 +1,3 @@
-GScript.iml
-GScript.ipr
-GScript.iws
 src/test/resources/robot/Direction.groovy
 src/test/resources/robot/Position.groovy
 src/test/resources/robot/Robot.groovy
@@ -8,3 +5,5 @@ src/test/resources/robot/RobotGame.groovy
 src/main/resources/js/unused_functions.groovy
 src/main/resources/js/unused_gscript.js
 grooscript.iml
+grooscript.ipr
+grooscript.iws

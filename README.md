@@ -3,8 +3,16 @@ GrooScript
 
 Converts your Groovy code to JavaScript(Groovy 2.0 to Javascript ECMAScript 5).
 
-Get AST -> To JavaScript, some common functions in other js files.
+For run JavaScript need grooscript.js
 
+**Version 0.1 is out!**
+
+In sonar maven repository:
+
+https://oss.sonatype.org/content/groups/public/
+org.grooscript:grooscript:0.1
+
+Please all feedback welcome, thanks!
 
 Missing some Groovy stuff:
 --------------------------

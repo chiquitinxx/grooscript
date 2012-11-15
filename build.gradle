@@ -69,7 +69,7 @@ uploadArchives {
             }
  
             pom.project {
-               name 'grooscript'
+               name 'GrooScript'
                packaging 'jar'
                description 'GrooScript converts your groovy code to javascript'
                url 'http://grooscript.org/'
