@@ -91,10 +91,11 @@ class Util {
 
     /**
      * Full process a script
-     * @param script
+     * @param script code to process
+     * @param jsFile grooscript.js file
      * @return map with exception,jsScript,assertFails,...
      */
-    def static fullProcessScript(String script) {
+    def static fullProcessScript(String script,File jsFile) {
 
         def result = [:]
 
@@ -104,7 +105,11 @@ class Util {
             def converter = new GsConverter()
             jsScript = converter.toJs(script)
 
-            result = TestJs.jsEval(jsScript)
+            if (!jsFile) {
+                result = TestJs.jsEval(jsScript)
+            } else {
+                result = TestJs.jsEvalWithFile(jsScript,jsFile)
+            }
 
         } catch (e) {
             result.exception = e.message
@@ -113,6 +118,15 @@ class Util {
         result.jsScript = jsScript
 
         return result
+    }
+
+    /**
+     * Full process a script
+     * @param script
+     * @return map with exception,jsScript,assertFails,...
+     */
+    def static fullProcessScript(String script) {
+        return fullProcessScript(script,null)
     }
 
     /**

@@ -14,10 +14,21 @@ class TestJs {
     /**
      * Launch a js script and returns result binding
      * @param script to execute
-     * @param map of start bindingd
+     * @param map of start binding
      * @return map of bindings in result
      */
     static jsEval(script,map) {
+        return jsEval(script,map,null)
+    }
+
+    /**
+     * Launch a js script and returns result binding
+     * @param script to execute
+     * @param map of start binding
+     * @param jsFile grooscript.js can be null
+     * @return map of bindings in result
+     */
+    static jsEval(script,map,jsFile) {
         def resultMap = [:]
 
         //
@@ -28,7 +39,12 @@ class TestJs {
                 //def s = System.getProperty('path.separator')
                 //File file = new File(System.getProperty('user.dir')+"src${s}main${s}resources${s}js${s}unused_gscript.js")
 
-                def finalScript = addJsLibrarys(script)
+                def finalScript
+                if (!jsFile) {
+                    finalScript = addJsLibrarys(script)
+                } else {
+                    finalScript = jsFile.text + script
+                }
                 //println finalScript
 
                 //Load script manager
@@ -79,6 +95,16 @@ class TestJs {
      */
     static jsEval(script) {
         jsEval(script,null)
+    }
+
+    /**
+     * Launch a js script
+     * @param script
+     * @param jsFile grooscript.js file
+     * @return
+     */
+    static jsEvalWithFile(script,File jsFile) {
+        jsEval(script,null,jsFile)
     }
 
     static File getGroovyTestScript(String name) {

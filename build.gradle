@@ -11,10 +11,10 @@ version = '0.2'
 //mainClassName = 'org.yila.gscript'
 
 def appName = 'GrooScript'
-def webDir = '../gscript-web/webapp'
-def webDirJar = "$webDir/jar"
-def webDirExamples = "$webDir/web/examples/"
-def webDirJs = "$webDir/web/scripts/"
+def webDir = '../workspace/grooscript_web'
+def webDirJar = "$webDir/lib"
+//def webDirExamples = "$webDir/web-app/web/examples/"
+def webDirJs = "$webDir/web-app/js/"
 
 def examplesDir = 'src/test/resources/'
 def webExamples = [:]
@@ -108,7 +108,7 @@ task copyToGscriptWeb(dependsOn: build) << {
 		from "build/libs"			
 		include "**/*.jar"
 		rename { 
-			return "grooscript.jar"
+			return "grooscript-0.1.jar"
 		}
 	}
 	
@@ -119,7 +119,8 @@ task copyToGscriptWeb(dependsOn: build) << {
 		include "grooscript.js"
 		//exclude "test.js"
 	}
-	
+
+    /*
 	println "Copying $appName examples to $webDirExamples ..."
 	webExamples.each { key, value ->
 		copy {
@@ -129,5 +130,5 @@ task copyToGscriptWeb(dependsOn: build) << {
 				return "${key}.groovy"
 			}
 		}
-	}	
+	}*/
 }
