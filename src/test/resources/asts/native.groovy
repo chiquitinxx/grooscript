@@ -9,7 +9,7 @@ import org.grooscript.asts.GsNative
 
 class Data {
 
-    @GsNative def saySomething(some){/*return some;*/}
+    @GsNative def String saySomething(some){/*return some;*/}
     @GsNative
     def sayTrue() { /*
         return true;

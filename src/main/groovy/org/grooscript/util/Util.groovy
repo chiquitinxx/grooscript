@@ -124,10 +124,13 @@ class Util {
 
         def mapResult = [:]
 
-        def seg = text.replaceAll('\n','')
+        //First lets remove comment lines (//)
+        //text = text.replaceAll(/(?m)\/\/.*$/,'')
+
+        def seg = text//text.replaceAll('\n','')
 
         //def pat = /@GsNative(\s)+.+\w+\s*\(.*\)\s*\{(\s)*\/\*(\s)*$LINES\*\/\s*\}/
-        def pat = /@GsNative(\s)+.+\w+\s*\(.*\)\s*\{\s*\\/\*[^(\*\/)]*\*\\/\s*\}/
+        def pat = /(?ms)@(GsNative|org\.grooscript\.GsNative).+\w+\s*\(.*\)\s*\{\s*(\/\*).*(\*\/\s*\})/
 
         seg.eachMatch(pat) { match ->
             //println 'Item->'+match[0]

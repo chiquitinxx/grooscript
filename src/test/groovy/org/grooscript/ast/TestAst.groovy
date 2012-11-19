@@ -36,6 +36,15 @@ class TestAst extends Specification {
 
     }
 
+    def 'test simpleGsNative' () {
+        when:
+        def result = readAndConvert('asts/simpleNative',false)
+
+        then:
+        !result.assertFails
+
+    }
+
     def 'test GsNative' () {
         when:
         def result = readAndConvert('asts/Native',false)
