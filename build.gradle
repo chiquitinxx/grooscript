@@ -13,7 +13,7 @@ version = '0.2'
 def appName = 'GrooScript'
 def webDir = '../workspace/grooscript_web'
 def webDirJar = "$webDir/lib"
-//def webDirExamples = "$webDir/web-app/web/examples/"
+def webDirExamples = "$webDir/scripts/examples/"
 def webDirJs = "$webDir/web-app/js/"
 
 def examplesDir = 'src/test/resources/'
@@ -120,7 +120,7 @@ task copyToGscriptWeb(dependsOn: build) << {
 		//exclude "test.js"
 	}
 
-    /*
+    
 	println "Copying $appName examples to $webDirExamples ..."
 	webExamples.each { key, value ->
 		copy {
@@ -130,5 +130,5 @@ task copyToGscriptWeb(dependsOn: build) << {
 				return "${key}.groovy"
 			}
 		}
-	}*/
+	}
 }
