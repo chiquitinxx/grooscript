@@ -98,9 +98,9 @@ class GsConverter {
                 result = processAstListToJs(list)
             } catch (e) {
                 if (phase==0) {
-                    throw new Exception("Compiler ERROR on Script")
+                    throw new Exception("Compiler ERROR on Script -"+e.message)
                 } else {
-                    throw e
+                    throw new Exception("Compiler END ERROR on Script -"+e.message)
                 }
             }
         }
