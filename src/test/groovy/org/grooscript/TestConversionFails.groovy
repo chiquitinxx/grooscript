@@ -41,7 +41,7 @@ class TestConversionFails extends Specification {
 
         then:
         Exception e = thrown()
-        e.message == 'Compiler ERROR on Script'
+        e.message.startsWith 'Compiler ERROR on Script'
     }
 
  }

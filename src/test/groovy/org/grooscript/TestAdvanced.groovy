@@ -120,10 +120,19 @@ class TestAdvanced extends Specification {
 
     def 'sorting lists' () {
         when:
-        def result = readAndConvert('advanced/Sorting',true)
+        def result = readAndConvert('advanced/Sorting',false)
 
         then:
         //println 'Console->'+result.gSconsole
+        !result.assertFails
+
+    }
+
+    def 'features 0.1' () {
+        when:
+        def result = readAndConvert('features/ZeroOne',false)
+
+        then:
         !result.assertFails
 
     }
