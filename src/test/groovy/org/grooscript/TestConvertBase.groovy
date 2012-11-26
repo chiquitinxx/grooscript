@@ -17,7 +17,7 @@ class TestConvertBase extends Specification {
         then:
         converter
         //Returns null if no script passed
-        !converter.toJs()
+        !converter.toJs(null)
     }
 
     def 'conversion basic'() {

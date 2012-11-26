@@ -28,13 +28,14 @@ function gSprintln(value) {
 /////////////////////////////////////////////////////////////////
 // Class functions
 /////////////////////////////////////////////////////////////////
-gsClass = {
+gsBaseClass = {
     //The with function, with is a reserved word in JavaScript
-    gSwith : function(closure) { closure.apply(this,closure.arguments); }
+    gSwith : function(closure) { closure.apply(this,closure.arguments); },
+    //gSclass : []
 }
 
 function gSexpando() {
-    var object = inherit(gsClass);
+    var object = inherit(gsBaseClass);
     return object;
 }
 
@@ -58,7 +59,7 @@ function inherit(p) {
 // gSmap
 /////////////////////////////////////////////////////////////////
 function gSmap() {
-    var object = inherit(gsClass);
+    var object = inherit(gsBaseClass);
     object.add = function(key,value) {
         this[key] = value;
         return this;
@@ -72,7 +73,7 @@ function gSmap() {
     object.size = function() {
         var number = 0;
         for (ob in this) {
-            if (typeof this[ob] !== "function") {
+            if (typeof this[ob] !== "function" && ob!='gSclass') {
                 number++;
             }
         }
@@ -83,7 +84,7 @@ function gSmap() {
     }
     object.each = function(closure) {
         for (ob in this) {
-            if (typeof this[ob] !== "function") {
+            if (typeof this[ob] !== "function" && ob!='gSclass') {
                 var f = arguments[0];
                 //Nice, number of arguments in length property
                 if (f.length==1) {
@@ -98,7 +99,7 @@ function gSmap() {
 
     object.any = function(closure) {
         for (ob in this) {
-            if (typeof this[ob] !== "function") {
+            if (typeof this[ob] !== "function" && ob!='gSclass') {
                 var f = arguments[0];
                 if (f.length==1) {
                     if (closure({key:ob, value:this[ob]})) {
@@ -117,7 +118,7 @@ function gSmap() {
 
     object.every = function(closure) {
         for (ob in this) {
-            if (typeof this[ob] !== "function") {
+            if (typeof this[ob] !== "function" && ob!='gSclass') {
                 var f = arguments[0];
                 if (f.length==1) {
                     if (!closure({key:ob, value:this[ob]})) {
@@ -136,7 +137,7 @@ function gSmap() {
 
     object.find = function(closure) {
         for (ob in this) {
-            if (typeof this[ob] !== "function") {
+            if (typeof this[ob] !== "function" && ob!='gSclass') {
                 var f = arguments[0];
                 if (f.length==1) {
                     var entry = {key:ob, value:this[ob]};
@@ -157,7 +158,7 @@ function gSmap() {
     object.findAll = function(closure) {
         var result = gSmap();
         for (ob in this) {
-            if (typeof this[ob] !== "function") {
+            if (typeof this[ob] !== "function" && ob!='gSclass') {
                 var f = arguments[0];
                 if (f.length==1) {
                     var entry = {key:ob, value:this[ob]};
@@ -182,7 +183,7 @@ function gSmap() {
     object.collect = function(closure) {
         var result = gSlist([]);
         for (ob in this) {
-            if (typeof this[ob] !== "function") {
+            if (typeof this[ob] !== "function" && ob!='gSclass') {
                 var f = arguments[0];
                 if (f.length==1) {
                     result.add(closure({key:ob, value:this[ob]}));
@@ -209,7 +210,7 @@ function gSmap() {
     object.containsValue = function(value) {
         var gotIt = false;
         for (ob in this) {
-            if (typeof this[ob] !== "function") {
+            if (typeof this[ob] !== "function" && ob!='gSclass') {
                 if (gSequals(this[ob],value)) {
                     gotIt = true;
                     break;
@@ -244,7 +245,7 @@ function gSmap() {
         */
         var result = true;
         for (ob in this) {
-            if (typeof this[ob] !== "function") {
+            if (typeof this[ob] !== "function" && ob!='gSclass') {
                 if (!gSequals(this[ob],otherMap[ob])) {
                     result = false;
                 }
@@ -256,7 +257,7 @@ function gSmap() {
     object.values = function() {
         var result = gSlist([]);
         for (ob in this) {
-            if (typeof this[ob] !== "function") {
+            if (typeof this[ob] !== "function" && ob!='gSclass') {
                 result.add(this[ob]);
             }
         }
@@ -813,7 +814,7 @@ function gSregExp(text,ppattern) {
 //Pattern
 /////////////////////////////////////////////////////////////////
 function gSpattern(pattern) {
-    var object = inherit(gsClass);
+    var object = inherit(gsBaseClass);
     object.value = pattern;
     return object;
 }
@@ -823,7 +824,7 @@ function gSpattern(pattern) {
 /////////////////////////////////////////////////////////////////
 function gSmatcher(item,regExpression) {
 
-    var object = inherit(gsClass);
+    var object = inherit(gsBaseClass);
 
     object.data = item;
     object.regExp = regExpression;
@@ -981,7 +982,7 @@ function gSinterceptClosureCall(func, param) {
 }
 
 function gSrandom() {
-    var object = inherit(gsClass);
+    var object = inherit(gsBaseClass);
     object.nextInt = function(number) {
         var ran = Math.ceil(Math.random()*number);
         return ran - 1;

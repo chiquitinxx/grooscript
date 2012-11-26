@@ -12,6 +12,7 @@ import spock.lang.Specification
 class TestAdvanced extends Specification {
 
     def converter = new GsConverter()
+    def static DEPENDENCY =  'Dependency'
 
     def readAndConvert(nameOfFile,consoleOutput) {
 
@@ -135,6 +136,27 @@ class TestAdvanced extends Specification {
         then:
         !result.assertFails
 
+    }
+
+
+    def 'check dependency resolution'() {
+
+        //def path = 'src/test/resources'
+        def path = 'script'
+        def File jsFile = new File("${path}/${DEPENDENCY}.js")
+        if (jsFile.exists()) {
+            jsFile.delete()
+        }
+
+        when:
+        //This fails always on gradle
+        GrooScript.setOwnClassPath('script/src')
+        GrooScript.convert("${path}/${DEPENDENCY}.groovy",path)
+
+        then:
+        jsFile.exists()
+        jsFile.isFile()
+        jsFile.text == 'var robot = Need();\n'
     }
 
 }

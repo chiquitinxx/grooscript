@@ -6,6 +6,7 @@ package org.grooscript
 class GrooScript {
 
     def private static GsConverter converter
+    def private static String ownClassPath
 
     /**
      * Get a GsConverter singleton
@@ -63,11 +64,20 @@ class GrooScript {
         }
     }
 
+    /**
+     * Set the dir where all your groovy starts, the mainSource ( src/main/groovy, src/groovy, ..)
+     * @param dir
+     * @return
+     */
+    def static setOwnClassPath(String dir) {
+        ownClassPath = dir
+    }
+
     def private static fileConvert(File source,File destination) {
         if (source.isFile() && source.name.endsWith('.groovy')) {
             //println 'Name file->'+source.name
             def name = source.name.split(/\./)[0]
-            def jsResult = getConverter().toJs(source.text)
+            def jsResult = getConverter().toJs(source.text,ownClassPath)
 
             //println 'Result file->'+destination.path+System.getProperty('file.separator')+name+'.js'
             def newFile = new File(destination.path+System.getProperty('file.separator')+name+'.js')

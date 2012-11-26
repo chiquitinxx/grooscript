@@ -7,6 +7,9 @@ import org.codehaus.groovy.ast.expr.*
 import org.grooscript.util.Util
 import org.grooscript.util.GsConsole
 import org.codehaus.groovy.ast.*
+import org.codehaus.groovy.control.CompilerConfiguration
+import org.codehaus.groovy.tools.RootLoader
+import org.codehaus.groovy.control.CompilationUnit
 
 /**
  * JFL 27/08/12
@@ -84,6 +87,18 @@ class GsConverter {
      * @return String script in javascript
      */
     def toJs(String script) {
+
+        return toJs(script,null)
+
+    }
+
+    /**
+     * Converts Groovy script to Javascript
+     * @param String script in groovy
+     * @param String classPath to add to classpath
+     * @return String script in javascript
+     */
+    def toJs(String script,String classPath) {
         def result
         //Script not empty plz!
         def phase = 0
@@ -93,10 +108,44 @@ class GsConverter {
 
                 nativeFunctions = Util.getNativeFunctions(script)
 
-                def list = new AstBuilder().buildFromString(CompilePhase.SEMANTIC_ANALYSIS,script)
+                //def AstBuilder ast
+                def list
+
+                //System.getProperty("java.class.path", ".").tokenize(File.pathSeparator).each {
+                //    println '->'+it
+                //}
+
+                if (classPath && classPath.trim()!='') {
+
+                    //def loaderUrls = this.class.classLoader.rootLoader.URLs
+                    //def files = loaderUrls.collect { new URI(it.toString()).path - '/'}
+                    //def all = files.join(File.pathSeparator)
+                    //if (all.indexOf(classPath)<0) {
+                    //    all+= File.pathSeparator + classPath
+                    //}
+
+                    //Add classpath to groovyClassLoader classpath for compile groovy source
+                    //CompilerConfiguration config = new CompilerConfiguration()
+                    //config.setClasspath(all)
+
+                    //def GroovyClassLoader gcl =  new GroovyClassLoader(this.class.getClassLoader())//GroovyClassLoader.getSystemClassLoader(),config,true)
+                    //gcl.addClasspath(classPath)
+
+                    /*def clz = gcl.loadClass("org.codehaus.groovy.ast.builder.AstBuilder")
+                    ast =  (AstBuilder)clz.newInstance()
+
+                    list = ast.buildFromString(CompilePhase.SEMANTIC_ANALYSIS,script) */
+                    //println 'cp->'+ classPath
+                    list = getAstFromText(script,classPath)
+
+                } else {
+                    list = new AstBuilder().buildFromString(CompilePhase.SEMANTIC_ANALYSIS,script)
+                }
+
                 phase++
                 result = processAstListToJs(list)
             } catch (e) {
+
                 if (phase==0) {
                     throw new Exception("Compiler ERROR on Script -"+e.message)
                 } else {
@@ -105,6 +154,39 @@ class GsConverter {
             }
         }
         result
+    }
+
+    /**
+     * Get AST tree from code, add classpath to compilation
+     * @param text
+     * @param classpath
+     * @return
+     */
+    def getAstFromText(text,classpath) {
+
+        def scriptClassName = "script" + System.currentTimeMillis()
+        GroovyClassLoader classLoader = new GroovyClassLoader()
+        classLoader.addClasspath(classpath)
+        GroovyCodeSource codeSource = new GroovyCodeSource(text, scriptClassName + ".groovy", "/groovy/script")
+        CompilationUnit cu = new CompilationUnit(CompilerConfiguration.DEFAULT, codeSource.codeSource, classLoader)
+        cu.addSource(codeSource.getName(), text);
+        cu.compile(CompilePhase.SEMANTIC_ANALYSIS.phaseNumber)
+        // collect all the ASTNodes into the result, possibly ignoring the script body if desired
+        def list = cu.ast.modules.inject([]) {List acc, ModuleNode node ->
+
+            if (node.statementBlock)
+                acc.add(node.statementBlock)
+            /* We dont add dependencies in conversion
+            node.classes?.each {
+                println 'uh->'+it.name
+                if (!(it.name == scriptClassName)) {
+                    println 'add->'+it.name
+                    acc << it
+                }
+            }*/
+            acc
+        }
+        return list
     }
 
     /**
@@ -178,20 +260,22 @@ class GsConverter {
                     if (it.superClass.name=='groovy.lang.Script') {
                         extraClasses.add(it.name)
                     } else {
-                        //Looking for superclass, only accepts superclass a class in same script
-                        if (it.superClass.name.indexOf('.')>=0) {
-                            if (it.superClass.name=='java.lang.Enum') {
-                                //processEnum(it)
-                                enumClasses.add(it.name)
-                            } else {
-                                throw new Exception('Inheritance not Allowed on '+it.superClass.class.name)
-                            }
-                        }
 
                         //If father in the list, we can add it
                         if (finalList.contains(it.superClass.name)) {
                             //println 'Adding 2 '+it.name
                             finalList.add(it.name)
+                        } else {
+
+                            //Looking for superclass, only accepts superclass a class in same script
+                            if (it.superClass.name.indexOf('.')>=0) {
+                                if (it.superClass.name=='java.lang.Enum') {
+                                    //processEnum(it)
+                                    enumClasses.add(it.name)
+                                } else {
+                                    throw new Exception('Inheritance not Allowed on '+it.superClass.class.name)
+                                }
+                            }
                         }
                     }
                 }
@@ -391,13 +475,16 @@ class GsConverter {
             //We add to this class scope variables of fathers
             variableScoping.peek().addAll(inheritedVariables[node.superClass.name])
         } else {
-            addScript('var gSobject = inherit(gsClass);')
+            addScript('var gSobject = inherit(gsBaseClass);')
         }
         addLine()
         //ignoring generics and interfaces and extends atm
         //visitGenerics node?.genericsTypes
         //node.interfaces?.each {
         //visitType node.superClass
+
+        //Add class name and super name
+        addClassNames(node.name, (node.superClass.name != 'java.lang.Object'?node.superClass.name:null))
 
         //Adding initial values of properties
         node?.properties?.each { it-> //println 'Property->'+it; println 'initialExpresion->'+it.initialExpression
@@ -535,6 +622,32 @@ class GsConverter {
         superNameStack.pop()
 
         //Finish class conversion
+    }
+
+    def addClassNames(actualClassName,superClassName) {
+
+        if (superClassName) {
+            addScript('var temp = gSobject.gSclass;')
+            addLine()
+            addScript('gSobject.gSclass = [];')
+            addLine()
+            addScript("gSobject.gSclass.superclass = temp;")
+            addLine()
+        } else {
+            addScript('gSobject.gSclass = [];')
+            addLine()
+            addScript('gSobject.gSclass.superclass = [];')
+            addLine()
+            addScript('gSobject.gSclass.superclass.name= "java.lang.Object";')
+            addLine()
+            addScript('gSobject.gSclass.superclass.simpleName= "Object";')
+            addLine()
+        }
+        addScript("gSobject.gSclass.name = '${actualClassName}';")
+        addLine()
+        addScript("gSobject.gSclass.simpleName = '${translateClassName(actualClassName)}';")
+        addLine()
+
     }
 
     def private processFunctionOrMethodParameters(functionOrMethod, boolean isConstructor,boolean addItInParameter) {
@@ -1185,6 +1298,9 @@ class GsConverter {
                 "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
                 addScript(')')
             }
+        } else if (expression.property instanceof ConstantExpression && expression.property.value == 'class') {
+            "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
+            addScript('.gSclass')
         } else {
 
             //println 'Property-'+expression.objectExpression
@@ -1606,7 +1722,7 @@ class GsConverter {
         addLine()
 
         //Allowed inheritance
-        //addScript('var gSobject = inherit(gsClass);')
+        //addScript('var gSobject = inherit(gsBaseClass);')
 
         //addLine()
         //ignoring generics and interfaces and extends atm
