@@ -34,4 +34,12 @@ class TestAdvancedClass extends Specification {
         !result.assertFails
     }
 
+    def 'test instanceof basic'() {
+        when:
+        def result = readAndConvert('classes/InstanceOf',true)
+
+        then:
+        !result.assertFails
+    }
+
 }

@@ -923,6 +923,18 @@ String.prototype.tokenize = function() {
     return gSlist(list);
 }
 
+String.prototype.multiply = function(value) {
+    if (typeof(value)=='number') {
+        var result = '';
+        var i;
+        for (i=0;i<(value | 0);i++) {
+            result = result + this;
+        }
+
+        return result;
+    }
+}
+
 /////////////////////////////////////////////////////////////////
 // Misc Functions
 /////////////////////////////////////////////////////////////////
@@ -1012,6 +1024,7 @@ function gSgreater(itemLeft,itemRight) {
     return itemLeft > itemRight;
 }
 
+// Operator <=>
 function gSspaceShip(itemLeft, itemRight) {
     if (gSequals(itemLeft,itemRight)) {
         return 0;
@@ -1022,6 +1035,50 @@ function gSspaceShip(itemLeft, itemRight) {
     if (gSgreater(itemLeft,itemRight)) {
         return 1;
     }
+}
+
+//InstanceOf function
+function gSinstanceOf(item,name) {
+    var classItem;
+    var gotIt = false;
+
+    if (name=="java.lang.String")  {
+        return typeof(item)=='string';
+    } else if (name=="java.lang.Number") {
+        return typeof(item)=='number';
+    } else if (item.gSclass) {
+        classItem = item.gSclass;
+        while (classItem!=null && classItem!='undefined' && !gotIt) {
+            if (classItem.name == name || classItem.simpleName == name) {
+                gotIt = true;
+            } else {
+                classItem = classItem.superclass;
+            }
+        }
+    }
+    return gotIt;
+}
+
+//Elvis operator
+function gSelvis(booleanExpression,trueExpression,falseExpression) {
+    if (gSbool(booleanExpression)) {
+        return trueExpression;
+    } else {
+        return falseExpression;
+    }
+}
+
+function gSmultiply(a,b) {
+     if (a==null || a=='undefined' || a.multiply=='undefined' || a.multiply==null || !(typeof a.multiply === "function")) {
+          if (b==null || b=='undefined' || b.multiply=='undefined' || b.multiply==null || !(typeof b.multiply === "function")) {
+            return a*b;
+          } else {
+            return a.multiply(b);
+          }
+
+     } else {
+        return a.multiply(b);
+     }
 }
 
 

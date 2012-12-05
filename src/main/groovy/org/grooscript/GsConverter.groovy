@@ -1033,6 +1033,7 @@ class GsConverter {
     }
 
     def private processExpressionStatement(ExpressionStatement statement) {
+        //println '->'+statement
         Expression e = statement.expression
         "process${e.class.simpleName}"(e)
     }
@@ -1109,7 +1110,7 @@ class GsConverter {
      */
     def private processBinaryExpression(BinaryExpression expression) {
 
-        //println 'Binary->'+expression.text
+        //println 'Binary->'+expression.text + ' - '+expression.operation.text
         //Getting a range from a list
         if (expression.operation.text=='[' && expression.rightExpression instanceof RangeExpression) {
             addScript('gSrangeFromList(')
@@ -1167,6 +1168,20 @@ class GsConverter {
         //Spaceship operator <=>
         } else if (expression.operation.text=='<=>') {
             addScript('gSspaceShip(')
+            upgradedExpresion(expression.leftExpression)
+            addScript(', ')
+            upgradedExpresion(expression.rightExpression)
+            addScript(')')
+        //instanceof
+        } else if (expression.operation.text=='instanceof') {
+            addScript('gSinstanceOf(')
+            upgradedExpresion(expression.leftExpression)
+            addScript(', "')
+            upgradedExpresion(expression.rightExpression)
+            addScript('")')
+        //Multiply
+        } else if (expression.operation.text=='*') {
+            addScript('gSmultiply(')
             upgradedExpresion(expression.leftExpression)
             addScript(', ')
             upgradedExpresion(expression.rightExpression)
@@ -1803,6 +1818,21 @@ class GsConverter {
         //println 'SMCE->'+expression.text
         addScript("${expression.ownerType.name}.${expression.method}")
         "process${expression.arguments.class.simpleName}"(expression.arguments)
+    }
+
+    def private processElvisOperatorExpression(ElvisOperatorExpression expression) {
+        //println 'Elvis->'+expression.text
+        //println 'true->'+expression.trueExpression
+        //println 'false->'+expression.falseExpression
+
+        addScript('gSelvis(')
+        "process${expression.booleanExpression.class.simpleName}"(expression.booleanExpression)
+        addScript(' , ')
+        "process${expression.trueExpression.class.simpleName}"(expression.trueExpression)
+        addScript(' , ')
+        "process${expression.falseExpression.class.simpleName}"(expression.falseExpression)
+        addScript(')')
+
     }
 
     def methodMissing(String name, Object args) {
