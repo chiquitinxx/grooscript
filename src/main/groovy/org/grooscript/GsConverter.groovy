@@ -40,6 +40,10 @@ class GsConverter {
     //Where code of native functions stored, as a map
     def nativeFunctions
 
+    //Control switch inside switch
+    def switchCount = 0
+    def addClosureSwitchInitialization = false
+
     //We get this function names from unused_functions.groovy
     //Not now, changed, maybe in future can use a file for define that
     def assertFunction
@@ -657,6 +661,7 @@ class GsConverter {
 
         //Parameters with default values if not shown
         def initalValues = [:]
+
         //If no parameters, we add it by defaul
         if (addItInParameter && (!functionOrMethod.parameters || functionOrMethod.parameters.size()==0)) {
             addScript('it')
@@ -699,6 +704,14 @@ class GsConverter {
             addLine()
         }
 
+        //We add initialization of it inside switch closure function
+        if (addClosureSwitchInitialization) {
+            def name = 'gSswitch' + (switchCount - 1)
+            addScript("if (it === undefined) it = ${name};")
+            addLine()
+            addClosureSwitchInitialization = false
+        }
+
         if (lastParameterCanBeMore) {
             def Parameter lastParameter = functionOrMethod.parameters.last()
             addScript("if (arguments.length==${functionOrMethod.parameters.size()}) { ${lastParameter.name}=gSlist([arguments[${functionOrMethod.parameters.size()}-1]]); }")
@@ -720,13 +733,13 @@ class GsConverter {
         }
     }
 
-    def private putFunctionParametersAndBody(functionOrMethod, boolean isConstructor) {
+    def private putFunctionParametersAndBody(functionOrMethod, boolean isConstructor, boolean addItDefault) {
 
         //actualScope = []
         actualScope.push([])
         //variableScoping.push([])
 
-        processFunctionOrMethodParameters(functionOrMethod,isConstructor,true)
+        processFunctionOrMethodParameters(functionOrMethod,isConstructor,addItDefault)
 
         //println 'Closure '+expression+' Code:'+expression.code
         if (functionOrMethod.code instanceof BlockStatement) {
@@ -744,7 +757,7 @@ class GsConverter {
 
         addScript("$name = function(")
 
-        putFunctionParametersAndBody(method,isConstructor)
+        putFunctionParametersAndBody(method,isConstructor,true)
 
         /*
         addScript("$name = function(")
@@ -1410,11 +1423,15 @@ class GsConverter {
     }
 
     def private processClosureExpression(ClosureExpression expression) {
+        processClosureExpression(expression, true)
+    }
+
+    def private processClosureExpression(ClosureExpression expression, boolean addItDefault) {
 
         addScript("function(")
 
         processingClosure = true
-        putFunctionParametersAndBody(expression,false)
+        putFunctionParametersAndBody(expression,false,addItDefault)
         processingClosure = false
 
         /*
@@ -1647,8 +1664,61 @@ class GsConverter {
         addScript(')')
     }
 
+    def private getSwitchExpression(Expression expression,String varName) {
+
+        if (expression instanceof ClosureExpression) {
+            def ClosureExpression clos = (ClosureExpression)expression
+            addClosureSwitchInitialization = true
+            "process${expression.class.simpleName}"(expression,true)
+            addScript('()')
+        } else {
+            addScript("${varName} === ")
+            "process${expression.class.simpleName}"(expression)
+        }
+
+    }
+
     def private processSwitchStatement(SwitchStatement statement) {
 
+        def varName = 'gSswitch' + switchCount++
+
+        addScript('var '+varName+' = ')
+        "process${statement.expression.class.simpleName}"(statement.expression)
+        addScript(';')
+        addLine()
+
+        def first = true
+
+        statement.caseStatements?.each { it ->
+            if (first) {
+                addScript("if (")
+                first = false
+            } else {
+                addScript("} else if (")
+            }
+            getSwitchExpression(it.expression,varName)
+            //println 'Exp->'+it?.expression
+            addScript(') {')
+            indent++
+            addLine()
+            "process${it?.code.class.simpleName}"(it?.code)
+            indent--
+            removeTabScript()
+
+            //"process${it.class.simpleName}"(it)
+        }
+        if (statement.defaultStatement) {
+            addScript('} else {')
+            indent++
+            addLine()
+            "process${statement.defaultStatement.class.simpleName}"(statement.defaultStatement)
+            indent--
+            removeTabScript()
+        }
+
+        addScript('}')
+
+        /* changed javascript switch to if
         addScript('switch (')
         "process${statement.expression.class.simpleName}"(statement.expression)
         addScript(') {')
@@ -1666,6 +1736,9 @@ class GsConverter {
         removeTabScript()
         addScript('}')
         //addLine()
+        */
+
+        switchCount--
     }
 
     def private processCaseStatement(CaseStatement statement) {
@@ -1681,7 +1754,9 @@ class GsConverter {
     }
 
     def private processBreakStatement(BreakStatement statement) {
-        addScript('break')
+        if (switchCount==0) {
+            addScript('break')
+        }
         //addLine()
     }
 
@@ -1766,7 +1841,7 @@ class GsConverter {
                 //processBasicFunction(it.name,it,false)
 
                 addScript("${it.name} : function(")
-                putFunctionParametersAndBody(it,false)
+                putFunctionParametersAndBody(it,false,true)
 
                 indent--
                 removeTabScript()
