@@ -10,6 +10,7 @@ For run JavaScript need grooscript.js
 In sonar maven repository:
 
 https://oss.sonatype.org/content/groups/public/
+
 org.grooscript:grooscript:0.1
 
 Please all feedback welcome, thanks!
@@ -23,13 +24,19 @@ Not class, instanceof, super,... Types not supported.
 
 Not allowed same number of parameters in methods / constructors.
 
-Can add methods and properties with metaclass, but some problems with primitive types as String and Number.
+Can add methods and properties with metaclass, some problems with primitive types as String and Number.
+
+Can't access delegate property, set or get.
+
+Groovy ast transformations as @Cannonical, @ToString, ... not supported.
 
 Losing pretty print, had to function == (equals), and I suppose same for other operators.
 
 Javascript 'split' not the same, maybe will translate to tokenize.
 
 String.length() not work, cause length is property in Javascript.
+
+Variable assignment not allowed inside boolean expressions as ternary (?:).
 
 ---
 

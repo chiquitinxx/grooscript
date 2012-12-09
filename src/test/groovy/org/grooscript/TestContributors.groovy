@@ -74,13 +74,16 @@ class TestContributors extends Specification {
 
     def 'test anonymous contributions in web' () {
         expect:
-        def result = readAndConvert(file,true)
+        def result = readAndConvert(file,false)
         !result.assertFails
-        println result.gSconsole
+        result.gSconsole.contains(text)
+        //println result.gSconsole
 
         where:
-        file                       |_
-        'contribution/Anonymous0'  |_
+        file                       | text
+        'contribution/Anonymous0'  | 'FizzBuzz\n91'
+        'contribution/Anonymous1'  | 'fizzbuzz\n91'
+        'contribution/Anonymous2'  | 'fizZbuzZ\n16'
 
     }
 

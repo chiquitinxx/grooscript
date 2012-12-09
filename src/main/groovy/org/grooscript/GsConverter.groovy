@@ -1031,7 +1031,9 @@ class GsConverter {
 
         //Groovy truth is a bit different, empty collections return false, we fix that here
         if (expression.expression instanceof VariableExpression ||
-            (expression.expression instanceof NotExpression && expression.expression.expression instanceof VariableExpression)) {
+            (expression.expression instanceof NotExpression &&
+                    expression.expression.expression &&
+                    expression.expression.expression instanceof VariableExpression)) {
             if (expression.expression instanceof NotExpression) {
                 addScript('!gSbool(')
                 "process${expression.expression.expression.class.simpleName}"(expression.expression.expression)
