@@ -34,3 +34,6 @@ result = [heads:0, tails:0]
 
 println (result.heads>result.tails?'Next bid on TAILS':(result.heads==result.tails?'WHO KNOWS!':'Next bid on HEADS'))
 println " h:${result.heads} t:${result.tails}"
+
+def r = new Random().nextInt(4)
+assert r>=0 && r<4

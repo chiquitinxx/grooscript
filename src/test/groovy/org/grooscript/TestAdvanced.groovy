@@ -159,4 +159,13 @@ class TestAdvanced extends Specification {
         jsFile.text == 'var robot = Need();\n'
     }
 
+    def 'mastering scope'() {
+        when:
+        def result = readAndConvert('advanced/MasterScoping',false)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+    }
+
 }
