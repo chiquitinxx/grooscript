@@ -1081,6 +1081,40 @@ function gSmultiply(a,b) {
      }
 }
 
+//Set a property of a class
+function gSsetProperty(item,nameProperty,value) {
+
+    if (nameProperty=='setProperty') {
+        item[nameProperty] = value;
+    } else {
+
+        if (item['setProperty']=='undefined' || item['setProperty']==null || !(typeof item['setProperty'] === "function")) {
+
+            var nameFunction = 'set' + nameProperty.charAt(0).toUpperCase() + nameProperty.slice(1);
+
+            if (item[nameFunction]=='undefined' || item[nameFunction]==null || !(typeof item[nameFunction] === "function")) {
+                item[nameProperty] = value;
+            } else {
+                item[nameFunction](value);
+            }
+        } else {
+            item.setProperty(nameProperty,value)
+        }
+    }
+}
+
+//Calling a setMethod
+function gSsetMethod(item,methodName,value) {
+
+    if (item[methodName]=='undefined' || item[methodName]==null || !(typeof item[methodName] === "function")) {
+
+        var nameProperty = methodName.charAt(3).toLowerCase() + methodName.slice(4);
+        item[nameProperty] = value;
+    } else {
+        item[methodName](value);
+    }
+
+}
 
 
 

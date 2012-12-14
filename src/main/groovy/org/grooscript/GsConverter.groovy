@@ -44,6 +44,9 @@ class GsConverter {
     def switchCount = 0
     def addClosureSwitchInitialization = false
 
+    //Control no infinite calls of set propertyes
+    def insideSetProperty = false
+
     //We get this function names from unused_functions.groovy
     //Not now, changed, maybe in future can use a file for define that
     def assertFunction
@@ -1202,15 +1205,35 @@ class GsConverter {
             upgradedExpresion(expression.rightExpression)
             addScript(')')
         } else {
-            //Left
-            upgradedExpresion(expression.leftExpression)
-            //Operator
-            //println 'Operator->'+b.operation.text
-            addScript(' '+expression.operation.text+' ')
-            //Right
-            upgradedExpresion(expression.rightExpression)
-            if (expression.operation.text=='[') {
-                addScript(']')
+
+            //Execute setter if available
+            if (expression.leftExpression instanceof PropertyExpression && expression.operation.text == '=' &&
+                !(expression.leftExpression instanceof AttributeExpression)) {
+                    //(expression.leftExpression instanceof PropertyExpression && !expression.leftExpression instanceof AttributeExpression)) {
+
+                PropertyExpression pe = (PropertyExpression)expression.leftExpression
+                //println 'pe->'+pe.propertyAsString
+                addScript('gSsetProperty(')
+                upgradedExpresion(pe.objectExpression)
+                addScript(',')
+                //addScript(pe.propertyAsString)
+                upgradedExpresion(pe.property)
+                addScript(',')
+                upgradedExpresion(expression.rightExpression)
+                addScript(')')
+
+            } else {
+
+                //Left
+                upgradedExpresion(expression.leftExpression)
+                //Operator
+                //println 'Operator->'+expression.operation.text
+                addScript(' '+expression.operation.text+' ')
+                //Right
+                upgradedExpresion(expression.rightExpression)
+                if (expression.operation.text=='[') {
+                    addScript(']')
+                }
             }
         }
     }
@@ -1367,6 +1390,8 @@ class GsConverter {
             }
         }
 
+        def addPar = false
+
         //Change println for javascript function
         if (expression.methodAsString == 'println' || expression.methodAsString == 'print') {
             addScript(printlnFunction)
@@ -1389,6 +1414,21 @@ class GsConverter {
             addScript(".gSwith")
         } else if (expression.objectExpression instanceof ClassExpression && expression.objectExpression.type.name=='java.lang.Math') {
             addScript("Math.${expression.methodAsString}")
+        //Let's see if we have a setter
+        } else if (expression.methodAsString.size()>3 && expression.methodAsString.startsWith('set') &&
+                expression.methodAsString[3].toUpperCase() == expression.methodAsString[3] &&
+                expression.arguments) {
+
+            addScript('gSsetMethod(')
+            upgradedExpresion(expression.objectExpression)
+            addScript(',')
+            upgradedExpresion(expression.method)
+            //addScript(expression.methodAsString)
+            addScript(',')
+            //upgradedExpresion(expression.rightExpression)
+            //addScript(')')
+            addPar = true
+
         } else {
             //A lot of times come with this
             //println 'Maybe this->'+expression.objectExpression
@@ -1404,6 +1444,9 @@ class GsConverter {
         }
         "process${expression.arguments.class.simpleName}"(expression.arguments)
 
+        if (addPar) {
+            addScript(')')
+        }
         //dontAddMoreThis = false
     }
 
@@ -1910,6 +1953,12 @@ class GsConverter {
         "process${expression.falseExpression.class.simpleName}"(expression.falseExpression)
         addScript(')')
 
+    }
+
+    def private processAttributeExpression(AttributeExpression expression) {
+        processPropertyExpression(expression)
+        //addScript(expression.propertyAsString)
+        //upgradedExpresion(expression.property)
     }
 
     def methodMissing(String name, Object args) {

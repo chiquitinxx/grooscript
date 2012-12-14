@@ -168,4 +168,14 @@ class TestAdvanced extends Specification {
         !result.assertFails
     }
 
+    def 'test getter and setters'() {
+        when:
+        def result = readAndConvert('advanced/GetterAndSetters',true)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+
+    }
+
 }
