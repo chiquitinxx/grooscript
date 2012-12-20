@@ -88,4 +88,17 @@ class GrooScript {
             println 'Converted file: '+newFile.name
         }
     }
+
+    /**
+     * Set a value to a conversion property
+     * @param name
+     * @param value
+     */
+    def static setConversionProperty(name,value) {
+        try {
+            getConverter()."$name" = value
+        } catch (e) {
+            throw new Exception("Error setting conversion property ${name} to ${value}.")
+        }
+    }
 }

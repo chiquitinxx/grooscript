@@ -52,6 +52,9 @@ class GsConverter {
     def assertFunction
     def printlnFunction
 
+    //Conversion Options
+    def addClassNames = false
+
     //When true, we dont add this no variables
     //TODO remove this variable properly
     //def dontAddMoreThis
@@ -491,7 +494,9 @@ class GsConverter {
         //visitType node.superClass
 
         //Add class name and super name
-        addClassNames(node.name, (node.superClass.name != 'java.lang.Object'?node.superClass.name:null))
+        if (addClassNames) {
+            addClassNames(node.name, (node.superClass.name != 'java.lang.Object'?node.superClass.name:null))
+        }
 
         //Adding initial values of properties
         node?.properties?.each { it-> //println 'Property->'+it; println 'initialExpresion->'+it.initialExpression
@@ -1033,10 +1038,10 @@ class GsConverter {
         //println 'BooleanExpression Inside->'+expression.expression
 
         //Groovy truth is a bit different, empty collections return false, we fix that here
-        if (expression.expression instanceof VariableExpression ||
+        if (expression.expression instanceof VariableExpression || expression.expression instanceof PropertyExpression ||
             (expression.expression instanceof NotExpression &&
                     expression.expression.expression &&
-                    expression.expression.expression instanceof VariableExpression)) {
+                    (expression.expression.expression instanceof VariableExpression || expression.expression.expression instanceof PropertyExpression))) {
             if (expression.expression instanceof NotExpression) {
                 addScript('!gSbool(')
                 "process${expression.expression.expression.class.simpleName}"(expression.expression.expression)
@@ -1428,6 +1433,17 @@ class GsConverter {
             //upgradedExpresion(expression.rightExpression)
             //addScript(')')
             addPar = true
+
+        } else if (expression.methodAsString.size()>3 && expression.methodAsString.startsWith('get') &&
+                expression.methodAsString[3].toUpperCase() == expression.methodAsString[3] &&
+                expression.arguments && expression.arguments instanceof ArgumentListExpression &&
+                expression.arguments.expressions?.size() == 0) {
+            //println '-->'+expression.arguments.expressions?.size()
+            addScript('gSgetMethod(')
+            upgradedExpresion(expression.objectExpression)
+            addScript(',')
+            upgradedExpresion(expression.method)
+            addScript(')')
 
         } else {
             //A lot of times come with this

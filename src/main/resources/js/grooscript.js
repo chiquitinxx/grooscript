@@ -1012,6 +1012,9 @@ function gSbool(item) {
         //console.log('bool yeah->'+!item.isEmpty());
         return !item.isEmpty();
     } else {
+        if (typeof(item)=='number' && item==0) {
+            return false;
+        }
         return item;
     }
 }
@@ -1116,5 +1119,18 @@ function gSsetMethod(item,methodName,value) {
 
 }
 
+//Calling a getMethod
+function gSgetMethod(item,methodName) {
+
+    if (item[methodName]=='undefined' || item[methodName]==null || !(typeof item[methodName] === "function")) {
+
+        var nameProperty = methodName.charAt(3).toLowerCase() + methodName.slice(4);
+        var res = function () { return item[nameProperty];}
+        return res;
+    } else {
+        return item[methodName];
+    }
+
+}
 
 

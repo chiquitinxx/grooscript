@@ -7,6 +7,7 @@ apply plugin: 'signing'
 group = 'org.grooscript'
 version = '0.2'
 
+//sourceCompatibility = 1.7
 
 //mainClassName = 'org.yila.gscript'
 

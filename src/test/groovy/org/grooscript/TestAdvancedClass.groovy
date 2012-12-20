@@ -17,6 +17,9 @@ class TestAdvancedClass extends Specification {
 
         def file = TestJs.getGroovyTestScript(nameOfFile)
 
+        //Added this conversion option
+        converter.addClassNames = true
+
         def jsScript = converter.toJs(file.text)
 
         if (consoleOutput) {
@@ -28,7 +31,7 @@ class TestAdvancedClass extends Specification {
 
     def 'test class names' () {
         when:
-        def result = readAndConvert('classes/Names',true)
+        def result = readAndConvert('classes/Names',false)
 
         then:
         !result.assertFails
@@ -36,7 +39,7 @@ class TestAdvancedClass extends Specification {
 
     def 'test instanceof basic'() {
         when:
-        def result = readAndConvert('classes/InstanceOf',true)
+        def result = readAndConvert('classes/InstanceOf',false)
 
         then:
         !result.assertFails
