@@ -8,7 +8,6 @@ import org.grooscript.util.Util
 import org.grooscript.util.GsConsole
 import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.control.CompilerConfiguration
-import org.codehaus.groovy.tools.RootLoader
 import org.codehaus.groovy.control.CompilationUnit
 
 /**
@@ -1212,7 +1211,8 @@ class GsConverter {
         } else {
 
             //Execute setter if available
-            if (expression.leftExpression instanceof PropertyExpression && expression.operation.text == '=' &&
+            if (expression.leftExpression instanceof PropertyExpression &&
+                    (expression.operation.text in ['=','+=','-=']) &&
                 !(expression.leftExpression instanceof AttributeExpression)) {
                     //(expression.leftExpression instanceof PropertyExpression && !expression.leftExpression instanceof AttributeExpression)) {
 
@@ -1224,6 +1224,13 @@ class GsConverter {
                 //addScript(pe.propertyAsString)
                 upgradedExpresion(pe.property)
                 addScript(',')
+                if (expression.operation.text == '+=') {
+                    processPropertyExpression(expression.leftExpression)
+                    addScript(' + ')
+                } else if (expression.operation.text == '-=') {
+                    processPropertyExpression(expression.leftExpression)
+                    addScript(' - ')
+                }
                 upgradedExpresion(expression.rightExpression)
                 addScript(')')
 
@@ -1340,6 +1347,24 @@ class GsConverter {
         addScript ')'
     }
 
+    def private processObjectExpressionFromProperty(PropertyExpression expression) {
+        if (expression.objectExpression instanceof ClassExpression) {
+            addScript(translateClassName(expression.objectExpression.type.name))
+        } else {
+            "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
+        }
+    }
+
+    def private processPropertyExpressionFromProperty(PropertyExpression expression) {
+        if (expression.property instanceof GStringExpression) {
+            "process${expression.property.class.simpleName}"(expression.property)
+        } else {
+            addScript('"')
+            "process${expression.property.class.simpleName}"(expression.property,false)
+            addScript('"')
+        }
+    }
+
     def private processPropertyExpression(PropertyExpression expression) {
 
         //println 'Pe->'+expression.objectExpression
@@ -1362,24 +1387,29 @@ class GsConverter {
         } else {
 
             //println 'Property-'+expression.objectExpression
-            if (expression.objectExpression instanceof VariableExpression) {
-                if (expression.objectExpression.name == 'this') {
+            //if (expression.objectExpression instanceof VariableExpression) {
+            //    if (expression.objectExpression.name == 'this') {
                     //dontAddMoreThis = true
-                }
-            }
+            //    }
+            //}
 
-            if (expression.objectExpression instanceof ClassExpression) {
-                addScript(translateClassName(expression.objectExpression.type.name))
+            if (!(expression instanceof AttributeExpression)) {
+
+                addScript('gSgetProperty(')
+
+                processObjectExpressionFromProperty(expression)
+
+                addScript(',')
+
+                processPropertyExpressionFromProperty(expression)
+
+                addScript(')')
             } else {
-                "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
-            }
-            if (expression.property instanceof GStringExpression) {
+
+                processObjectExpressionFromProperty(expression)
                 addScript('[')
-                "process${expression.property.class.simpleName}"(expression.property)
+                processPropertyExpressionFromProperty(expression)
                 addScript(']')
-            } else {
-                addScript('.')
-                "process${expression.property.class.simpleName}"(expression.property,false)
             }
         }
 
@@ -1433,7 +1463,7 @@ class GsConverter {
             //upgradedExpresion(expression.rightExpression)
             //addScript(')')
             addPar = true
-
+        //Or maybe we have a getter
         } else if (expression.methodAsString.size()>3 && expression.methodAsString.startsWith('get') &&
                 expression.methodAsString[3].toUpperCase() == expression.methodAsString[3] &&
                 expression.arguments && expression.arguments instanceof ArgumentListExpression &&
@@ -1467,13 +1497,57 @@ class GsConverter {
     }
 
     def private processPostfixExpression(PostfixExpression expression) {
-        "process${expression.expression.class.simpleName}"(expression.expression)
-        addScript(expression.operation.text)
+
+        if (expression.expression instanceof PropertyExpression) {
+
+            /*
+            def int number = expression.operation.type
+            def text = expression.operation.text
+            if (expression.operation.text=='++') {
+                number = 210
+                text = '+='
+            } else if (expression.operation.text=='--') {
+                text = '-='
+                number = 211
+            }
+            def op = new Token(number,text,expression.operation.startLine,expression.operation.startColumn)
+            def binary = new BinaryExpression(expression.expression,op,new ConstantExpression(1))
+            processBinaryExpression(binary)
+            */
+
+            //Only in mind ++ and --
+            def plus = true
+            if (expression.operation.text=='--') {
+                plus = false
+            }
+            addScript('gSplusplus(')
+            processObjectExpressionFromProperty(expression.expression)
+            addScript(',')
+            processPropertyExpressionFromProperty(expression.expression)
+            addScript(",${plus},false)")
+        } else {
+
+            "process${expression.expression.class.simpleName}"(expression.expression)
+            addScript(expression.operation.text)
+
+        }
     }
 
     def private processPrefixExpression(PrefixExpression expression) {
-        addScript(expression.operation.text)
-        "process${expression.expression.class.simpleName}"(expression.expression)
+        if (expression.expression instanceof PropertyExpression) {
+            def plus = true
+            if (expression.operation.text=='--') {
+                plus = false
+            }
+            addScript('gSplusplus(')
+            processObjectExpressionFromProperty(expression.expression)
+            addScript(',')
+            processPropertyExpressionFromProperty(expression.expression)
+            addScript(",${plus},true)")
+        } else {
+            addScript(expression.operation.text)
+            "process${expression.expression.class.simpleName}"(expression.expression)
+        }
     }
 
     def private processReturnStatement(ReturnStatement statement) {
@@ -1941,7 +2015,12 @@ class GsConverter {
 
     def private processClassExpression(ClassExpression expression) {
         //println 'ClassExpression-'+ expression.text
-        addScript(expression.text)
+        //addScript(translateClassName(expression.text))
+        if (expression.text.startsWith('java.lang')) {
+            addScript(expression.text)
+        } else {
+            addScript(translateClassName(expression.text))
+        }
     }
 
     def private processThrowStatement(ThrowStatement statement) {

@@ -46,6 +46,10 @@ class B {
         b = value
         this.number = 5*value
     }
+
+    def putValueToB(value) {
+        b = value
+    }
 }
 
 b = new B(5)
@@ -57,4 +61,6 @@ b.setB(6)
 assert b.b == 6
 assert b.number == 30
 
-//assert a.getValue() == 8
+b.putValueToB(9)
+assert b.b == 9
+assert b.number == 30

@@ -1089,6 +1089,8 @@ function gSsetProperty(item,nameProperty,value) {
 
     if (nameProperty=='setProperty') {
         item[nameProperty] = value;
+    } else if (nameProperty=='getProperty') {
+        item[nameProperty] = value;
     } else {
 
         if (item['setProperty']=='undefined' || item['setProperty']==null || !(typeof item['setProperty'] === "function")) {
@@ -1104,6 +1106,7 @@ function gSsetProperty(item,nameProperty,value) {
             item.setProperty(nameProperty,value)
         }
     }
+    //return value;
 }
 
 //Calling a setMethod
@@ -1127,10 +1130,49 @@ function gSgetMethod(item,methodName) {
         var nameProperty = methodName.charAt(3).toLowerCase() + methodName.slice(4);
         var res = function () { return item[nameProperty];}
         return res;
+
     } else {
         return item[methodName];
     }
 
 }
 
+//Get a property of a class
+function gSgetProperty(item,nameProperty) {
 
+    //console.log('uh');
+
+    if (item['getProperty']=='undefined' || item['getProperty']==null || !(typeof item['getProperty'] === "function")) {
+
+        var nameFunction = 'get' + nameProperty.charAt(0).toUpperCase() + nameProperty.slice(1);
+        //console.log('Name func->'+nameFunction);
+        if (item[nameFunction]=='undefined' || item[nameFunction]==null || !(typeof item[nameFunction] === "function")) {
+            return item[nameProperty];
+        } else {
+            //console.log('Got it! Name func->'+nameFunction);
+            return item[nameFunction]();
+        }
+    } else {
+        //console.log('ah');
+        return item.getProperty(nameProperty)
+    }
+
+}
+
+//Control property changes with ++,--
+function gSplusplus(item,nameProperty,plus,before) {
+    var value = gSgetProperty(item,nameProperty);
+    var newValue = value;
+    if (plus) {
+        gSsetProperty(item,nameProperty,value + 1);
+        newValue++;
+    } else {
+        gSsetProperty(item,nameProperty,value - 1)
+        newValue--;
+    }
+    if (before) {
+        return newValue;
+    } else {
+        return value;
+    }
+}

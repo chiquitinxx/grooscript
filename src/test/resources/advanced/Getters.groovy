@@ -29,3 +29,27 @@ c.metaClass.getProperty = { name ->
 }
 
 assert c.getProperty('value') == 5
+
+class D {
+    def d
+    def times = 0
+
+    def getD() {
+        times++
+        return d
+    }
+
+    def tellMeDValue() {
+        d
+    }
+}
+
+def d = new D()
+d.d = 5
+
+assert d.times == 0
+assert d.d == 5
+assert d.times == 1
+
+assert d.tellMeDValue() == 5
+assert d.times == 1
