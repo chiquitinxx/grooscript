@@ -570,7 +570,7 @@ class GsConverter {
         //If no constructor with 1 parameter, we create 1 that get a map, for put value on properties
         boolean has1parameterConstructor = false
         //boolean has0parameterConstructor = false
-        node?.declaredConstructors?.each { //println 'declaredConstructor->'+it;
+        node?.declaredConstructors?.each { MethodNode it->
             def numberArguments = it.parameters?.size()
             if (numberArguments==1) {
                 has1parameterConstructor = true
@@ -1007,9 +1007,9 @@ class GsConverter {
      * Process a statement, adding ; at the end
      * @param statement
      */
-    def private void processStatement(statement) {
+    def private void processStatement(Statement statement) {
 
-        //println "statement (${statement.class.simpleName})->"+statement
+        //println "statement (${statement.class.simpleName})->"+statement+' - '+statement.text
 
         "process${statement.class.simpleName}"(statement)
 
@@ -1109,19 +1109,23 @@ class GsConverter {
 
     def private processVariableExpression(VariableExpression expression) {
 
-        //println "name:${v.name} - class:${classVariableNames} - scope:${variableScoping.peek()} - decl:${declaringVariable}"
+        //println "name:${expression.name} - scope:${variableScoping.peek()}"
         //if (!variableScoping.peek().contains(v.name) && !declaringVariable &&!dontAddMoreThis && variableScoping.size()>1) {
         if (variableScoping.peek().contains(expression.name) && !(actualScopeContains(expression.name))) {
             addScript('gSobject.'+expression.name)
         } else if (variableStaticScoping.peek().contains(expression.name) && !(actualScopeContains(expression.name))) {
             addScript(translateClassName(classNameStack.peek())+'.'+expression.name)
         } else {
-            if (processingClosure && !expression.isThisExpression()
-                    && !allActualScopeContains(expression.name) && !variableScopingContains(expression.name)) {
-                addScript('this.'+expression.name)
-            } else {
-                addScript(expression.name)
-            }
+            //No need this stuff anymore
+            //if (processingClosure && !expression.isThisExpression()
+            //        && !allActualScopeContains(expression.name) && !variableScopingContains(expression.name)) {
+            //    println 'Adding this->'+expression.name
+            //    //addScript('this.'+expression.name)
+            //    addScript(expression.name)
+            //} else {
+            //    addScript(expression.name)
+            //}
+            addScript(expression.name)
         }
     }
 
@@ -1142,11 +1146,11 @@ class GsConverter {
             addScript(", ")
             "process${expression.rightExpression.getTo().class.simpleName}"(expression.rightExpression.getTo())
             addScript(')')
-        //Adding items
+        //LeftShift function
         } else if (expression.operation.text=='<<') {
             //We call add function
             upgradedExpresion(expression.leftExpression)
-            addScript('.add(')
+            addScript('.leftShift(')
             upgradedExpresion(expression.rightExpression)
             addScript(')')
         //Regular Expression exact match all
@@ -1315,11 +1319,16 @@ class GsConverter {
 
     def private processConstructorCallExpression(ConstructorCallExpression expression) {
 
-        //println 'ConstructorCallExpression->'+expression.type.name
+        //println 'ConstructorCallExpression->'+expression.type.name + ' super? '+expression?.isSuperCall()
         //Super expression in constructor is allowed
         if (expression?.isSuperCall()) {
-
-            addScript("this.${superNameStack.peek()}${expression.arguments.expressions.size()}")
+            def name = superNameStack.peek()
+            println 'name->'+name
+            if (name == 'java.lang.Object') {
+                addScript('this.gSconstructor')
+            } else {
+                addScript("this.${name}${expression.arguments.expressions.size()}")
+            }
         } else if (expression.type.name=='java.util.Date') {
             addScript('gSdate')
         } else if (expression.type.name=='groovy.util.Expando') {
@@ -1336,15 +1345,24 @@ class GsConverter {
         "process${expression.arguments.class.simpleName}"(expression.arguments)
     }
 
-    def private processArgumentListExpression(ArgumentListExpression expression) {
-        addScript '('
+    def private processArgumentListExpression(ArgumentListExpression expression,boolean withParenthesis) {
+        if (withParenthesis) {
+            addScript '('
+        }
         int count = expression?.expressions?.size()
         expression.expressions?.each {
             "process${it.class.simpleName}"(it)
             count--
             if (count) addScript ', '
         }
-        addScript ')'
+        if (withParenthesis) {
+            addScript ')'
+        }
+
+    }
+
+    def private processArgumentListExpression(ArgumentListExpression expression) {
+        processArgumentListExpression(expression,true)
     }
 
     def private processObjectExpressionFromProperty(PropertyExpression expression) {
@@ -1372,10 +1390,16 @@ class GsConverter {
         //If metaClass property we ignore it, javascript permits add directly properties and methods
         if (expression.property instanceof ConstantExpression && expression.property.value == 'metaClass') {
             if (expression.objectExpression instanceof VariableExpression) {
-                //I had to add variable = ... cause gSmetaClass changing object and sometimes variable don't change
-                addScript("(${expression.objectExpression.name} = gSmetaClass(")
-                "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
-                addScript('))')
+
+                if (expression.objectExpression.name=='this') {
+                    addScript('this')
+                } else {
+
+                    //I had to add variable = ... cause gSmetaClass changing object and sometimes variable don't change
+                    addScript("(${expression.objectExpression.name} = gSmetaClass(")
+                    "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
+                    addScript('))')
+                }
             } else {
                 addScript('gSmetaClass(')
                 "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
@@ -1425,7 +1449,7 @@ class GsConverter {
             }
         }
 
-        def addPar = false
+        def addParameters = true
 
         //Change println for javascript function
         if (expression.methodAsString == 'println' || expression.methodAsString == 'print') {
@@ -1449,6 +1473,39 @@ class GsConverter {
             addScript(".gSwith")
         } else if (expression.objectExpression instanceof ClassExpression && expression.objectExpression.type.name=='java.lang.Math') {
             addScript("Math.${expression.methodAsString}")
+        //Adding methodMissing Support
+
+        } else {
+
+
+            //println 'Method->'+expression.methodAsString+' - '+expression.arguments.class.simpleName
+            addParameters = false
+
+            addScript('gSmethodCall(')
+            //Object
+            if (expression.objectExpression instanceof VariableExpression &&
+                    expression.objectExpression.name == 'this' &&
+                    variableScoping.peek()?.contains(expression.methodAsString)) {
+                //Remove this and put gSobject for variable scoping
+                addScript("gSobject")
+            } else {
+                "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
+            }
+
+            addScript(',"')
+            //MethodName
+
+            addScript(expression.methodAsString)
+
+            addScript('",gSlist([')
+            //Parameters
+            "process${expression.arguments.class.simpleName}"(expression.arguments,false)
+
+            addScript(']))')
+        }
+
+
+        /*
         //Let's see if we have a setter
         } else if (expression.methodAsString.size()>3 && expression.methodAsString.startsWith('set') &&
                 expression.methodAsString[3].toUpperCase() == expression.methodAsString[3] &&
@@ -1493,6 +1550,11 @@ class GsConverter {
         if (addPar) {
             addScript(')')
         }
+        */
+        if (addParameters) {
+            "process${expression.arguments.class.simpleName}"(expression.arguments)
+        }
+
         //dontAddMoreThis = false
     }
 
@@ -1907,13 +1969,18 @@ class GsConverter {
         addScript('}')
     }
 
-    def private processTupleExpression(TupleExpression expression) {
+    def private processTupleExpression(TupleExpression expression, withParenthesis = true) {
         //println 'Tuple->'+expression.text
         //expression.expressions.each { println '-'+it}
-        addScript('(gSmap()')
+        if (withParenthesis) {
+            addScript('(')
+        }
+        addScript('gSmap()')
         expression.expressions.each {
             "process${it.class.simpleName}"(it)
-            addScript(')')
+            if (withParenthesis) {
+                addScript(')')
+            }
         }
     }
 

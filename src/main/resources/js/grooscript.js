@@ -20,7 +20,7 @@ var gSconsole = "";
 function gSprintln(value) {
     //console.log(value);
     if (gSconsole != "") {
-        gSconsole = gSconsole + "\n"
+        gSconsole = gSconsole + "\n";
     }
     gSconsole = gSconsole + value
 };
@@ -32,10 +32,30 @@ gsBaseClass = {
     //The with function, with is a reserved word in JavaScript
     gSwith : function(closure) { closure.apply(this,closure.arguments); },
     //gSclass : []
+    getProperties : function() {
+        var result = gSlist([]);
+        for (ob in this) {
+            if (typeof this[ob] !== "function" && ob!='gSclass') {
+                result.add(ob);
+            }
+        }
+        return result;
+    },
+    gSconstructor : function() {
+        return this;
+    }
 }
 
 function gSexpando() {
     var object = inherit(gsBaseClass);
+    return object;
+}
+
+function ExpandoMetaClass() {
+    var object = inherit(gsBaseClass);
+    object.initialize = function() {
+        return this;
+    }
     return object;
 }
 
@@ -65,10 +85,13 @@ function gSmap() {
         return this;
     }
     object.put = function(key,value) {
-        return this.add(key,value)
+        return this.add(key,value);
+    }
+    object.leftShift = function(key,value) {
+        return this.add(key,value);
     }
     object.putAt = function(key,value) {
-        this.put(key,value)
+        this.put(key,value);
     }
     object.size = function() {
         var number = 0;
@@ -305,6 +328,10 @@ function gSlist(value) {
     object.add = function(element) {
         this[this.length]=element;
         return this;
+    }
+
+    object.leftShift = function(element) {
+        return this.add(element);
     }
 
     object.contains = function(object) {
@@ -955,7 +982,8 @@ function gSmetaClass(item) {
 function gSpassMapToObject(source,destination) {
     for (prop in source) {
         if (typeof source[prop] === "function") continue;
-        destination[prop] = source[prop];
+        //destination[prop] = source[prop];
+        gSsetProperty(destination,prop,source[prop]);
     }
 }
 
@@ -1140,7 +1168,7 @@ function gSgetMethod(item,methodName) {
 //Get a property of a class
 function gSgetProperty(item,nameProperty) {
 
-    //console.log('uh');
+    //console.log('item->'+item+' property->'+nameProperty);
 
     if (item['getProperty']=='undefined' || item['getProperty']==null || !(typeof item['getProperty'] === "function")) {
 
@@ -1174,5 +1202,38 @@ function gSplusplus(item,nameProperty,plus,before) {
         return newValue;
     } else {
         return value;
+    }
+}
+
+//Control all method calls
+function gSmethodCall(item,methodName,params) {
+
+    if (item[methodName]=='undefined' || item[methodName]==null || !(typeof item[methodName] === "function")) {
+
+        //console.log('Not Going! '+item[methodName]);
+        //var nameProperty = methodName.charAt(3).toLowerCase() + methodName.slice(4);
+        //var res = function () { return item[nameProperty];}
+        //return res;
+        var properties = item.getProperties();
+        if (methodName.startsWith('get') || methodName.startsWith('set')) {
+            var varName = methodName.charAt(3).toLowerCase() + methodName.slice(4);
+            if (properties.contains(varName)) {
+                if (methodName.startsWith('get')) {
+                    return gSgetProperty(item,varName);
+                } else {
+                    return gSsetProperty(item,varName,params[0]);
+                }
+
+            }
+        }
+
+        if (item['methodMissing']) {
+           return item['methodMissing'](methodName,params);
+        }
+
+    } else {
+        //console.log('Going!');
+        var f = item[methodName];
+        return f.apply(item,params);
     }
 }

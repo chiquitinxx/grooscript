@@ -54,3 +54,29 @@ assert mix.setters == 3
 mix.b << 1
 assert mix.getters == 5
 assert mix.setters == 3
+
+class Mix2 {
+    def data
+    def setterProperty = 0
+    def setterData = 0
+
+    def void setProperty(String name,Object value) {
+        setterProperty++
+        this."${name}" = value
+    }
+
+    def setData(value) {
+        setterData++
+        data = value
+    }
+
+    def putValue(value) {
+        data = value
+    }
+}
+
+def mix2 = new Mix2()
+mix2.putValue(5)
+assert mix2.data == 5
+assert mix2.setterProperty == 0
+assert mix2.setterData == 0

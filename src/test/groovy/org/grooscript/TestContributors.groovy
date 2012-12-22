@@ -2,6 +2,7 @@ package org.grooscript
 
 import spock.lang.Specification
 import org.grooscript.test.TestJs
+import spock.lang.Unroll
 
 /**
  * First test for converts groovy code to javascript code
@@ -35,20 +36,22 @@ class TestContributors extends Specification {
         !result.assertFails
     }
 
+    @Unroll('Testing MrHaki #file')
     def 'test MrHaki' () {
         expect:
-        def result = readAndConvert(file,false)//file=='contribution/MrHakiInject')
+        def result = readAndConvert(file,false)//file=='contribution/MrHakiGetSetProperties')
         //println 'Console->'+result.gSconsole
         !result.assertFails
 
         where:
-        file                                |_
-        'contribution/MrHakiClosureReturn'  |_
-        'contribution/MrHakiFirstLast'      |_
-        'contribution/MrHakiSum'            |_
-        'contribution/MrHakiLooping'        |_
-        'contribution/MrHakiInject'         |_
-        'contribution/MrHakiGrep'           |_
+        file                                    |_
+        'contribution/MrHakiClosureReturn'      |_
+        'contribution/MrHakiFirstLast'          |_
+        'contribution/MrHakiSum'                |_
+        'contribution/MrHakiLooping'            |_
+        'contribution/MrHakiInject'             |_
+        'contribution/MrHakiGrep'               |_
+        'contribution/MrHakiGetSetProperties'   |_
 
     }
 
@@ -72,6 +75,7 @@ class TestContributors extends Specification {
 
     }
 
+    @Unroll('Testing anonymous web #file')
     def 'test anonymous contributions in web' () {
         expect:
         def result = readAndConvert(file,false)
