@@ -12,7 +12,7 @@ version = '0.2'
 //mainClassName = 'org.yila.gscript'
 
 def appName = 'GrooScript'
-def webDir = '../workspace/grooscript_web'
+def webDir = '../grooscript_web'
 def webDirJar = "$webDir/lib"
 def webDirExamples = "$webDir/scripts/examples/"
 def webDirJs = "$webDir/web-app/js/"
@@ -109,7 +109,7 @@ task copyToGscriptWeb(dependsOn: build) << {
 		from "build/libs"			
 		include "**/*.jar"
 		rename { 
-			return "grooscript-0.1.jar"
+			return "grooscript-0.2.jar"
 		}
 	}
 	

@@ -199,7 +199,16 @@ class TestAdvanced extends Specification {
 
     def 'test missing method'() {
         when:
-        def result = readAndConvert('advanced/MethodMissing',true)
+        def result = readAndConvert('advanced/MethodMissing',false)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+    }
+
+    def 'more string features'() {
+        when:
+        def result = readAndConvert('advanced/StringSecrets',true)
 
         then:
         //println 'Console->'+result.gSconsole

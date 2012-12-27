@@ -1175,7 +1175,11 @@ function gSgetProperty(item,nameProperty) {
         var nameFunction = 'get' + nameProperty.charAt(0).toUpperCase() + nameProperty.slice(1);
         //console.log('Name func->'+nameFunction);
         if (item[nameFunction]=='undefined' || item[nameFunction]==null || !(typeof item[nameFunction] === "function")) {
-            return item[nameProperty];
+            if (typeof item[nameProperty] === "function" && nameProperty == 'size') {
+                return item[nameProperty]();
+            } else {
+                return item[nameProperty];
+            }
         } else {
             //console.log('Got it! Name func->'+nameFunction);
             return item[nameFunction]();
@@ -1208,12 +1212,22 @@ function gSplusplus(item,nameProperty,plus,before) {
 //Control all method calls
 function gSmethodCall(item,methodName,params) {
 
+    //console.log('Going!->'+methodName);
+
+    if (typeof(item)=='string' && methodName=='split') {
+        return item.tokenize(params[0]);
+    }
+    if (typeof(item)=='string' && methodName=='length') {
+        return item.length;
+    }
+
     if (item[methodName]=='undefined' || item[methodName]==null || !(typeof item[methodName] === "function")) {
 
-        //console.log('Not Going! '+item[methodName]);
+        //console.log('Not Going! '+methodName+ ' - '+item);
         //var nameProperty = methodName.charAt(3).toLowerCase() + methodName.slice(4);
         //var res = function () { return item[nameProperty];}
         //return res;
+
         var properties = item.getProperties();
         if (methodName.startsWith('get') || methodName.startsWith('set')) {
             var varName = methodName.charAt(3).toLowerCase() + methodName.slice(4);
@@ -1232,7 +1246,6 @@ function gSmethodCall(item,methodName,params) {
         }
 
     } else {
-        //console.log('Going!');
         var f = item[methodName];
         return f.apply(item,params);
     }

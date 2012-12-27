@@ -1270,6 +1270,10 @@ class GsConverter {
         if (expression.value instanceof String) {
             def String value = ''
             expression.value.eachLine { if (it) value += it }
+            //println 'Before->'+value
+            //value = value.replaceAll('"','\\\\u0022')
+            value = value.replaceAll('"','\\\\"')
+            //println 'After->'+value
             addScript('"'+value+'"')
         } else {
             addScript(expression.value)
@@ -2122,6 +2126,10 @@ class GsConverter {
         //addScript(expression.propertyAsString)
         //upgradedExpresion(expression.property)
     }
+
+    //def private processCastExpression(CastExpression expression) {
+        //Nothing to do, not allowed
+    //}
 
     def methodMissing(String name, Object args) {
         def message
