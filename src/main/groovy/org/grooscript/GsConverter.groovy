@@ -109,6 +109,7 @@ class GsConverter {
      */
     def toJs(String script,String classPath) {
         def result
+        //println 'Classpath->'+classPath
         //Script not empty plz!
         def phase = 0
         if (script) {
@@ -146,6 +147,7 @@ class GsConverter {
                     list = ast.buildFromString(CompilePhase.SEMANTIC_ANALYSIS,script) */
                     //println 'cp->'+ classPath
                     list = getAstFromText(script,classPath)
+                    //println 'list->'+ list
 
                 } else {
                     list = new AstBuilder().buildFromString(CompilePhase.SEMANTIC_ANALYSIS,script)
@@ -154,7 +156,7 @@ class GsConverter {
                 phase++
                 result = processAstListToJs(list)
             } catch (e) {
-
+                //println 'Exception in conversion ->'+e.message
                 if (phase==0) {
                     throw new Exception("Compiler ERROR on Script -"+e.message)
                 } else {
@@ -177,22 +179,35 @@ class GsConverter {
         GroovyClassLoader classLoader = new GroovyClassLoader()
         classLoader.addClasspath(classpath)
         GroovyCodeSource codeSource = new GroovyCodeSource(text, scriptClassName + ".groovy", "/groovy/script")
-        CompilationUnit cu = new CompilationUnit(CompilerConfiguration.DEFAULT, codeSource.codeSource, classLoader)
+        CompilerConfiguration conf = CompilerConfiguration.DEFAULT
+        conf.setClasspath(classpath)
+        CompilationUnit cu = new CompilationUnit(conf, codeSource.codeSource, classLoader)
         cu.addSource(codeSource.getName(), text);
         cu.compile(CompilePhase.SEMANTIC_ANALYSIS.phaseNumber)
         // collect all the ASTNodes into the result, possibly ignoring the script body if desired
         def list = cu.ast.modules.inject([]) {List acc, ModuleNode node ->
-
-            if (node.statementBlock)
+            //node.statementBlock
+            //println ' Acc node->'+node+ ' - '+ node.getStatementBlock().getStatements().size()
+            if (node.statementBlock) {
+            //if (node.statementBlock && node.statementBlock.statements?.size()>0) {
                 acc.add(node.statementBlock)
-            /* We dont add dependencies in conversion
-            node.classes?.each {
-                println 'uh->'+it.name
-                if (!(it.name == scriptClassName)) {
-                    println 'add->'+it.name
-                    acc << it
+
+                node.classes?.each { ClassNode cl ->
+                    //println 'Name-'+cl.name
+                    //println 'isPrimaryClassNode-'+cl.isPrimaryClassNode()
+                    //println 'isScript-'+cl.isScript()
+                    //println 'isScriptBody-'+cl.isScriptBody()
+                    //println 'isResolved-'+cl.isResolved()
+                    //println 'isDerivedFromGroovyObject-'+cl.isDerivedFromGroovyObject()
+                    //println 'isRedirectNode-'+cl.isRedirectNode()
+                    //println 'isSyntheticPublic-'+cl.isSyntheticPublic()
+                    //println 'getGenericsTypes-'+cl.getGenericsTypes()
+                    if (!(cl.name == scriptClassName) && cl.isPrimaryClassNode()) {
+                        //println 'add->'+cl.name
+                        acc << cl
+                    }
                 }
-            }*/
+            }
             acc
         }
         return list
@@ -208,7 +223,7 @@ class GsConverter {
         indent = 0
         resultScript = ''
         if (list && list.size()>0) {
-            //println 'Size('+list.size+')->'+list
+            //println '-----------------Size('+list.size+')->'+list
             variableScoping.clear()
             variableScoping.push([])
             variableStaticScoping.clear()
@@ -220,7 +235,7 @@ class GsConverter {
             //We process blocks at the end
             def listBlocks = []
             list.each { it ->
-                //println 'it->'+it
+                //println '------------------------------------it->'+it
                 if (it instanceof BlockStatement) {
                     //scriptScope = true
                     listBlocks << it
@@ -914,7 +929,7 @@ class GsConverter {
                 println 'BlockEmpty->'+block.text
                 //println 'Empty->'+block.getStatementLabel()
             } else {
-                //println 'Block->'+block.text
+                //println '------------------------------Block->'+block.text
                 block.getStatements()?.each { it ->
                     //println 'Block Statement-> size '+ block.getStatements().size() + ' number '+number+ ' it->'+it
                     //println 'it-> '+ it.text

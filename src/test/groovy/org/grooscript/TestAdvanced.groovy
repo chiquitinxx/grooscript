@@ -141,23 +141,32 @@ class TestAdvanced extends Specification {
 
     def 'check dependency resolution'() {
 
-        //def path = 'src/test/resources'
-        def path = 'script'
-        def File jsFile = new File("${path}/${DEPENDENCY}.js")
-        if (jsFile.exists()) {
-            jsFile.delete()
-        }
+        //def path = 'src/test/resources/dep/need'
 
         when:
         //This fails always on gradle
-        GrooScript.setOwnClassPath('script/src')
-        GrooScript.convert("${path}/${DEPENDENCY}.groovy",path)
+        GrooScript.setOwnClassPath('need')
+        def String result = GrooScript.convert("class A {};def need = new Need()")
 
         then:
-        jsFile.exists()
-        jsFile.isFile()
-        jsFile.text == 'var robot = Need();\n'
+        result
+        result.startsWith('function A()')
+        result.endsWith('var need = Need();\n')
     }
+
+    /*
+    def 'check dependency resolution alone'() {
+
+        when:
+        //This fails always on gradle
+        GrooScript.setOwnClassPath('need')
+        def String result = GrooScript.convert("class B { def Need c}")
+
+        then:
+        result
+        result.startsWith('function A()')
+        result.endsWith('var need = Need();\n')
+    }*/
 
     def 'mastering scope'() {
         when:

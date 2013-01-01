@@ -6,7 +6,9 @@ package org.grooscript
 class GrooScript {
 
     def private static GsConverter converter
-    def private static String ownClassPath
+    def static String ownClassPath
+    def static debug = false
+    def private static HEAD = '[GrooScript]'
 
     /**
      * Get a GsConverter singleton
@@ -27,7 +29,7 @@ class GrooScript {
      */
     def static convert(String text) {
         if (text) {
-            return getConverter().toJs(text)
+            return getConverter().toJs(text,ownClassPath)
         } else {
             throw new Exception("Nothing to Convert.")
         }
@@ -43,7 +45,13 @@ class GrooScript {
     def static convert(String source, String destination) {
         if (source && destination) {
             File fSource = new File(source)
+            if (debug) {
+                println "${HEAD} Source file: ${fSource.absolutePath}"
+            }
             File fDestination = new File(destination)
+            if (debug) {
+                println "${HEAD} Destination file: ${fDestination.absolutePath}"
+            }
 
             if (fSource.exists() && fDestination.exists() && fDestination.isDirectory()) {
                 if (!fSource.isDirectory()) {
@@ -74,18 +82,29 @@ class GrooScript {
     }
 
     def private static fileConvert(File source,File destination) {
-        if (source.isFile() && source.name.endsWith('.groovy')) {
-            //println 'Name file->'+source.name
-            def name = source.name.split(/\./)[0]
-            def jsResult = getConverter().toJs(source.text,ownClassPath)
+        if (debug) {
+            println "${HEAD}    Converting..."
+        }
+        try {
+            if (source.isFile() && source.name.endsWith('.groovy')) {
+                //println 'Name file->'+source.name
+                def name = source.name.split(/\./)[0]
+                def jsResult = getConverter().toJs(source.text,ownClassPath)
 
-            //println 'Result file->'+destination.path+System.getProperty('file.separator')+name+'.js'
-            def newFile = new File(destination.path+System.getProperty('file.separator')+name+'.js')
-            if (newFile.exists()) {
-                newFile.delete()
+                //println 'Result file->'+destination.path+System.getProperty('file.separator')+name+'.js'
+                def newFile = new File(destination.path+System.getProperty('file.separator')+name+'.js')
+                if (newFile.exists()) {
+                    newFile.delete()
+                }
+                newFile.write(jsResult)
+                if (debug) {
+                    println "${HEAD}    Result -> ${jsResult.size()}"
+                }
+                println 'Converted file: '+newFile.name
             }
-            newFile.write(jsResult)
-            println 'Converted file: '+newFile.name
+        } catch (e) {
+            println "${HEAD} Convert Exception: "+e.message
+            throw e
         }
     }
 
