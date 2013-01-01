@@ -1076,9 +1076,9 @@ class GsConverter {
     }
 
     def private processDeclarationExpression(DeclarationExpression expression) {
-        //println 'l->'+e.leftExpression
-        //println 'r->'+e.rightExpression
-        //println 'v->'+e.variableExpression
+        //println 'l->'+expression.leftExpression
+        //println 'r->'+expression.rightExpression
+        //println 'v->'+expression.variableExpression
 
         //actualScope.add(expression.variableExpression.name)
         addToActualScope(expression.variableExpression.name)
@@ -1124,16 +1124,17 @@ class GsConverter {
 
     def private processVariableExpression(VariableExpression expression) {
 
-        //println "name:${expression.name} - scope:${variableScoping.peek()}"
+        //println "name:${expression.name} - scope:${variableScoping.peek()} - isThis - ${expression.isThisExpression()}"
         //if (!variableScoping.peek().contains(v.name) && !declaringVariable &&!dontAddMoreThis && variableScoping.size()>1) {
         if (variableScoping.peek().contains(expression.name) && !(actualScopeContains(expression.name))) {
             addScript('gSobject.'+expression.name)
         } else if (variableStaticScoping.peek().contains(expression.name) && !(actualScopeContains(expression.name))) {
             addScript(translateClassName(classNameStack.peek())+'.'+expression.name)
         } else {
-            //No need this stuff anymore
-            //if (processingClosure && !expression.isThisExpression()
-            //        && !allActualScopeContains(expression.name) && !variableScopingContains(expression.name)) {
+            if (processingClosure && !expression.isThisExpression()
+                    && !allActualScopeContains(expression.name) && !variableScopingContains(expression.name)) {
+                addScript('this.')
+            }
             //    println 'Adding this->'+expression.name
             //    //addScript('this.'+expression.name)
             //    addScript(expression.name)
@@ -1164,6 +1165,7 @@ class GsConverter {
         //LeftShift function
         } else if (expression.operation.text=='<<') {
             //We call add function
+            //println 'le->'+ expression.leftExpression
             upgradedExpresion(expression.leftExpression)
             addScript('.leftShift(')
             upgradedExpresion(expression.rightExpression)
@@ -1254,7 +1256,13 @@ class GsConverter {
                 addScript(')')
 
             } else {
-
+                //println ' other->'+expression.text
+                //If we are assigning a variable, and don't exist in scope, we add to it
+                if (expression.operation.text=='=' && expression.leftExpression instanceof VariableExpression
+                    && !allActualScopeContains(expression.leftExpression.name) &&
+                        !variableScopingContains(expression.leftExpression.name)) {
+                    addToActualScope(expression.leftExpression.name)
+                }
                 //Left
                 upgradedExpresion(expression.leftExpression)
                 //Operator

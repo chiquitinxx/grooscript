@@ -215,6 +215,15 @@ class TestAdvanced extends Specification {
         !result.assertFails
     }
 
+    def 'web example'() {
+        when:
+        def result = readAndConvert('advanced/WebExample',false)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+    }
+
     def 'more string features'() {
         when:
         def result = readAndConvert('advanced/StringSecrets',true)
