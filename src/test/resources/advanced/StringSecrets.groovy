@@ -23,3 +23,62 @@ assert long_palindromes == ['rotator', 'reviver']
 //Javascript stuff
 //assert "%22" == "\""
 assert "hello".length() == 5
+
+assert 'hello' in ['bye','hello','hey']
+assert 1 in 0..2
+
+def a = ''
+assert !a
+
+a = '\n'
+assert a
+
+a = '\nHello\nBye\n'
+assert a == '''
+Hello
+Bye
+'''
+
+assert [1,2,3,4].join('-') == '1-2-3-4'
+assert ['a','b','c'].join() == 'abc'
+
+aaa = '"bread","apple","egg"'
+items = aaa.split(',')
+assert items[1] == '"apple"'
+
+def multiline = '''\
+Groovy is closely related to Java,
+so it is quite easy to make a transition.
+'''
+
+multiline.eachLine {
+    if (it =~ /Groovy/) {
+        assert it == 'Groovy is closely related to Java,'
+    }
+}
+
+multiline.eachLine { line, count ->
+    if (count == 0) {
+        assert line == 'Groovy is closely related to Java,'
+    } else {
+        assert line == 'so it is quite easy to make a transition.'
+    }
+}
+
+assert multiline.readLines().size() == 2
+
+assert 'Groovy      ' == "Groovy".padRight(12)
+assert '      Groovy' == /Groovy/.padLeft(12)
+
+assert 'Groovy * * *' == "Groovy".padRight(12, ' *')
+assert 'Groovy Groovy Groovy' == 'Groovy'.padLeft(20, 'Groovy ')
+
+assert 'groovy ruby groovy'.count('groovy') == 2
+assert '123'.isNumber()
+assert '123 '.isNumber()
+assert ' 123'.isNumber()
+assert '123.2'.isNumber()
+assert !'123 4'.isNumber()
+assert !'12h3'.isNumber()
+assert !''.isNumber()
+assert !' '.isNumber()

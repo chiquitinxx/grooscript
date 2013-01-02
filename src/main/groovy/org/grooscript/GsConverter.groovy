@@ -1208,6 +1208,13 @@ class GsConverter {
                 addScript(', ')
                 upgradedExpresion(expression.rightExpression)
                 addScript(')')
+        //in
+        } else if (expression.operation.text=='in') {
+            addScript('gSin(')
+            upgradedExpresion(expression.leftExpression)
+            addScript(', ')
+            upgradedExpresion(expression.rightExpression)
+            addScript(')')
         //Spaceship operator <=>
         } else if (expression.operation.text=='<=>') {
             addScript('gSspaceShip(')
@@ -1269,6 +1276,7 @@ class GsConverter {
                 //println 'Operator->'+expression.operation.text
                 addScript(' '+expression.operation.text+' ')
                 //Right
+                //println 'Right->'+expression.rightExpression
                 upgradedExpresion(expression.rightExpression)
                 if (expression.operation.text=='[') {
                     addScript(']')
@@ -1291,8 +1299,15 @@ class GsConverter {
     def private processConstantExpression(ConstantExpression expression) {
         //println 'ConstantExpression->'+expression.text
         if (expression.value instanceof String) {
+            //println 'Value->'+expression.value+'<'
             def String value = ''
-            expression.value.eachLine { if (it) value += it }
+            if (expression.value.startsWith('\n')) {
+                value = '\\n'
+            }
+            def list = []
+            expression.value.eachLine { if (it) list << it  }
+            value += list.join('\\n')
+            //expression.value.eachLine { if (it) value += it }
             //println 'Before->'+value
             //value = value.replaceAll('"','\\\\u0022')
             value = value.replaceAll('"','\\\\"')

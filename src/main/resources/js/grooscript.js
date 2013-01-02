@@ -637,6 +637,22 @@ function gSlist(value) {
         }
     }
 
+    object.gSjoin = function() {
+        var separator = '';
+        if (arguments.length == 1) {
+            separator = arguments[0];
+        }
+        var i, result;
+        result = '';
+        for (i=0;i<this.length;i++) {
+            result = result + this[i];
+            if ((i+1)<this.length) {
+                result = result + separator;
+            }
+        }
+        return result;
+    }
+
     object.sort = function() {
         var modify = true;
         if (arguments.length > 0 && arguments[0] == false) {
@@ -962,6 +978,64 @@ String.prototype.multiply = function(value) {
     }
 }
 
+String.prototype.eachLine = function(closure) {
+    var items = this.split('\n');
+    var i;
+    for (i=0;i<items.length;i++) {
+        var item = items[i];
+        //Closure with 2 arguments, line and count
+        if (closure.length == 2) {
+            closure(item,i);
+        } else {
+            closure(item);
+        }
+    }
+}
+
+String.prototype.readLines = function() {
+    var items = this.split('\n');
+    return gSlist(items);
+}
+
+String.prototype.padRight = function(number) {
+    var sep = ' ';
+    if (arguments.length==2) {
+        sep = arguments[1];
+    }
+    var item = this;
+    while (item.length<number) {
+        item = item + sep;
+    }
+    return item;
+}
+
+String.prototype.padLeft = function(number) {
+    var sep = ' ';
+    if (arguments.length==2) {
+        sep = arguments[1];
+    }
+    var item = this;
+    while (item.length<number) {
+        item = sep + item;
+    }
+    return item;
+}
+
+String.prototype.isNumber = function() {
+    if (this.trim() == '') {
+        return false;
+    } else {
+        var res = Number(this);
+        //console.log('res->'+res+' is '+ isNaN(res));
+        if (isNaN(res)) {
+            return false;
+        } else {
+            return true;
+        }
+
+    }
+}
+
 /////////////////////////////////////////////////////////////////
 // Misc Functions
 /////////////////////////////////////////////////////////////////
@@ -1036,12 +1110,17 @@ function gSrandom() {
 
 function gSbool(item) {
     //console.log('item->'+item+' - '+item.isEmpty+' - '+(item.isEmpty === "function"));
+    //console.log('type->'+typeof(item));
     if (item!=null && item!='undefined' && item.isEmpty!=null) {
         //console.log('bool yeah->'+!item.isEmpty());
         return !item.isEmpty();
     } else {
         if (typeof(item)=='number' && item==0) {
             return false;
+        } else if (typeof(item)=='string' && item=='') {
+            return false;
+        } else if (typeof(item)=='string' && item!='') {
+            return true;
         }
         return item;
     }
@@ -1111,6 +1190,18 @@ function gSmultiply(a,b) {
         return a.multiply(b);
      }
 }
+
+function gSin(item,group) {
+    if (group!=null && group !='undefined' && (typeof group.contains === "function")) {
+        return group.contains(item);
+    } else {
+        return false
+    }
+}
+
+/////////////////////////////////////////////////////////////////
+// Beans functions
+/////////////////////////////////////////////////////////////////
 
 //Set a property of a class
 function gSsetProperty(item,nameProperty,value) {
@@ -1219,6 +1310,13 @@ function gSmethodCall(item,methodName,params) {
     }
     if (typeof(item)=='string' && methodName=='length') {
         return item.length;
+    }
+    if ((item instanceof Array) && methodName=='join') {
+        if (params.size()>0) {
+            return item.gSjoin(params[0]);
+        } else {
+            return item.gSjoin();
+        }
     }
 
     if (item[methodName]=='undefined' || item[methodName]==null || !(typeof item[methodName] === "function")) {
