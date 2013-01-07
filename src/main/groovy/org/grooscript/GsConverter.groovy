@@ -1236,6 +1236,20 @@ class GsConverter {
             addScript(', ')
             upgradedExpresion(expression.rightExpression)
             addScript(')')
+        //Plus
+        } else if (expression.operation.text=='+') {
+            addScript('gSplus(')
+            upgradedExpresion(expression.leftExpression)
+            addScript(', ')
+            upgradedExpresion(expression.rightExpression)
+            addScript(')')
+        //Minus
+        } else if (expression.operation.text=='-') {
+            addScript('gSminus(')
+            upgradedExpresion(expression.leftExpression)
+            addScript(', ')
+            upgradedExpresion(expression.rightExpression)
+            addScript(')')
         } else {
 
             //Execute setter if available

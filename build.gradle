@@ -31,7 +31,7 @@ repositories {
 }
 
 dependencies {
-	groovy group: 'org.codehaus.groovy', name: 'groovy', version: '2.0.5'
+	groovy group: 'org.codehaus.groovy', name: 'groovy', version: '2.0.6'
 	//missing spock for groovy 2
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 	//testCompile 'junit:junit:4.10'
@@ -116,7 +116,7 @@ task copyToGscriptWeb(dependsOn: build) << {
 	println "Copying $appName jsFiles to $webDirJs ..."
 	copy {
 		into "$webDirJs"
-		from "src/main/resources/js"			
+		from "src/main/resources/META-INF/resources"
 		include "grooscript.js"
 		//exclude "test.js"
 	}

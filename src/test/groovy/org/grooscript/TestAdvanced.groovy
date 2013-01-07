@@ -14,9 +14,14 @@ class TestAdvanced extends Specification {
     def converter = new GsConverter()
     def static DEPENDENCY =  'Dependency'
 
-    def readAndConvert(nameOfFile,consoleOutput) {
+    def readAndConvert(nameOfFile,consoleOutput,options = [:]) {
 
         def file = TestJs.getGroovyTestScript(nameOfFile)
+        if (options) {
+            options.each { key, value ->
+                converter."$key" = value
+            }
+        }
 
         def jsScript = converter.toJs(file.text)
 
@@ -226,10 +231,18 @@ class TestAdvanced extends Specification {
 
     def 'more string features'() {
         when:
-        def result = readAndConvert('advanced/StringSecrets',true)
+        def result = readAndConvert('advanced/StringSecrets',false)
 
         then:
         //println 'Console->'+result.gSconsole
+        !result.assertFails
+    }
+
+    def 'object comparation'() {
+        when:
+        def result = readAndConvert('advanced/Comparable',true,[addClassNames:true])
+
+        then:
         !result.assertFails
     }
 

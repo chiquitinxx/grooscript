@@ -760,6 +760,37 @@ function gSdate() {
     object.year = object.getFullYear();
     object.month = object.getMonth();
     object.date = object.getDay();
+    object.plus = function(other) {
+        if (typeof other == 'number') {
+            var a = gSdate(this.time+(other*1440000));
+            return a;
+        } else {
+            return this + other;
+        }
+    }
+    object.minus = function(other) {
+        if (typeof other == 'number') {
+            var a = gSdate(this.time-(other*1440000));
+            return a;
+        } else {
+            return this + other;
+        }
+    }
+    object.format = function(rule) {
+        //TODO
+        var exit = '';
+        if (rule) {
+            exit = rule;
+            exit = exit.replaceAll('yyyy',this.getFullYear());
+            exit = exit.replaceAll('MM',gSfillZerosLeft(this.getMonth()+1,2));
+            exit = exit.replaceAll('dd',gSfillZerosLeft(this.getUTCDate(),2));
+            exit = exit.replaceAll('HH',gSfillZerosLeft(this.getHours(),2));
+            exit = exit.replaceAll('mm',gSfillZerosLeft(this.getMinutes(),2));
+            exit = exit.replaceAll('ss',gSfillZerosLeft(this.getSeconds(),2));
+            exit = exit.replaceAll('yy',gSlastChars(this.getFullYear(),2));
+        }
+        return exit;
+    }
 
     return object;
 }
@@ -768,6 +799,21 @@ function gSdate() {
 function gSrangeFromList(list,begin,end) {
     return list.slice(begin,end+1)
 }
+
+function gSfillZerosLeft(item,size) {
+    var value = item + '';
+    while (value.length<size) {
+        value = '0'+value;
+    }
+    return value;
+}
+
+function gSlastChars(item,number) {
+    var value = item + '';
+    value = value.substring(value.length-number);
+    return value;
+}
+
 
 /////////////////////////////////////////////////////////////////
 //gSexactMatch
@@ -1183,12 +1229,33 @@ function gSmultiply(a,b) {
           if (b==null || b=='undefined' || b.multiply=='undefined' || b.multiply==null || !(typeof b.multiply === "function")) {
             return a*b;
           } else {
-            return a.multiply(b);
+            return b.multiply(a);
           }
 
      } else {
         return a.multiply(b);
      }
+}
+
+function gSplus(a,b) {
+    if (a==null || a=='undefined' || a.plus=='undefined' || a.plus==null || !(typeof a.plus === "function")) {
+        if (b==null || b=='undefined' || b.plus=='undefined' || b.plus==null || !(typeof b.plus === "function")) {
+            return a+b;
+        } else {
+            return b.plus(a);
+        }
+
+    } else {
+        return a.plus(b);
+    }
+}
+
+function gSminus(a,b) {
+    if (a==null || a=='undefined' || a.minus=='undefined' || a.minus==null || !(typeof a.minus === "function")) {
+        return a-b;
+    } else {
+        return a.minus(b);
+    }
 }
 
 function gSin(item,group) {
