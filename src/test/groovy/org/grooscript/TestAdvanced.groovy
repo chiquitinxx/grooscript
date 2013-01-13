@@ -240,10 +240,20 @@ class TestAdvanced extends Specification {
 
     def 'object comparation'() {
         when:
-        def result = readAndConvert('advanced/Comparable',true,[addClassNames:true])
+        def result = readAndConvert('advanced/Comparable',false,[addClassNames:true])
 
         then:
         !result.assertFails
     }
+
+    def 'more list and maps features'() {
+        when:
+        def result = readAndConvert('advanced/ListMapsAdvanced',true)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+    }
+
 
 }

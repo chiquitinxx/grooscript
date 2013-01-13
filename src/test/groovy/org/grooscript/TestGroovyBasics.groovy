@@ -162,4 +162,12 @@ class TestGroovyBasics extends Specification {
         !result.assertFails
     }
 
+    def 'sets'() {
+        when:
+        def result = readAndConvert('sets',false)
+
+        then:
+        !result.assertFails
+    }
+
 }

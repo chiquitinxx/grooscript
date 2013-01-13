@@ -33,3 +33,6 @@ def odd = [1,2,3].findAll{ item ->
 assert odd.size() == 2
 assert odd[0] == 1
 assert odd[1] == 3
+
+assert [1,2] + [3,5] == [1,2,3,5]
+assert [1,2,3,4,5] - [3,5] == [1,2,4]

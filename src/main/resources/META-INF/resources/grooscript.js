@@ -76,8 +76,126 @@ function inherit(p) {
 }
 
 /////////////////////////////////////////////////////////////////
+// gSset
+/////////////////////////////////////////////////////////////////
+function gSset(value) {
+    var object; // = inherit(Array.prototype);
+
+    if (arguments.length==0) {
+        object = gSlist([]);
+    } else {
+        object = value;
+    }
+
+    object.gSisSet = true;
+
+    object.gSwith = function(closure) {
+        gSinterceptClosureCall(closure, this);
+    }
+
+    object.add = function(item) {
+        if (!(this.contains(item))) {
+            this[this.length]=item;
+            return this;
+        } else {
+            return false;
+        }
+    }
+
+    object.addAll = function(elements) {
+        if (elements instanceof Array) {
+            var i, fails = false;
+
+            //Check if items not in set
+            for (i=0;!fails && i<elements.length;i++) {
+                if (this.contains(elements[i])) {
+                    fails = true;
+                }
+            }
+            if (fails) {
+                return false;
+            } else {
+                //All ok, we add items to the set
+                for (i=0;i<elements.length;i++) {
+                    this.add(elements[i]);
+                }
+
+            }
+
+        }
+        return this;
+    }
+
+
+    object.equals = function(other) {
+        if (!(other instanceof Array) || other.length!=this.length || !(other.gSisSet)) {
+            return false;
+        } else {
+            var i;
+            var result = true;
+            for (i=0;i<this.length && result;i++) {
+                if (!(other.contains(this[i]))) {
+                    result = false;
+                }
+            }
+            return result;
+        }
+    }
+
+    object.toList = function() {
+        var i,list = [];
+        for (i=0;i<this.length;i++) {
+            list[i] = this[i];
+        }
+        return gSlist(list);
+    }
+
+    object.plus = function(other) {
+        var result = gSset();
+        result.addAll(this);
+        if (other instanceof Array) {
+            var i;
+            for (i=0;i<other.length;i++) {
+                if (!(result.contains(other[i]))) {
+                    result.add(other[i]);
+                }
+            }
+        }
+        return result;
+    }
+
+    object.minus = function(other) {
+        var result = gSset();
+        result.addAll(this);
+        if (other instanceof Array) {
+            var i;
+            for (i=0;i<other.length;i++) {
+                if (result.contains(other[i])) {
+                    result.remove(other[i]);
+                }
+            }
+        }
+        return result;
+    }
+
+    object.remove = function(value) {
+        var index = this.indexOf(value);
+        if (index>=0) {
+            this.splice(index,1);
+        }
+        return this;
+    }
+
+    return object;
+}
+
+/////////////////////////////////////////////////////////////////
 // gSmap
 /////////////////////////////////////////////////////////////////
+function isgSmapProperty(name) {
+    return name=='gSclass' || name == 'gSdefaultValue';
+}
+
 function gSmap() {
     var object = inherit(gsBaseClass);
     object.add = function(key,value) {
@@ -96,7 +214,7 @@ function gSmap() {
     object.size = function() {
         var number = 0;
         for (ob in this) {
-            if (typeof this[ob] !== "function" && ob!='gSclass') {
+            if (typeof this[ob] !== "function" && !isgSmapProperty(ob)) {
                 number++;
             }
         }
@@ -107,7 +225,7 @@ function gSmap() {
     }
     object.each = function(closure) {
         for (ob in this) {
-            if (typeof this[ob] !== "function" && ob!='gSclass') {
+            if (typeof this[ob] !== "function" && !isgSmapProperty(ob)) {
                 var f = arguments[0];
                 //Nice, number of arguments in length property
                 if (f.length==1) {
@@ -120,9 +238,28 @@ function gSmap() {
         }
     }
 
+    object.count = function(closure) {
+        var number = 0;
+        for (ob in this) {
+            if (typeof this[ob] !== "function" && !isgSmapProperty(ob)) {
+                if (closure.length==1) {
+                    if (closure({key:ob, value:this[ob]})) {
+                        number++;
+                    }
+                }
+                if (closure.length==2) {
+                    if (closure(ob,this[ob])) {
+                        number++;
+                    }
+                }
+            }
+        }
+        return number;
+    }
+
     object.any = function(closure) {
         for (ob in this) {
-            if (typeof this[ob] !== "function" && ob!='gSclass') {
+            if (typeof this[ob] !== "function" && !isgSmapProperty(ob)) {
                 var f = arguments[0];
                 if (f.length==1) {
                     if (closure({key:ob, value:this[ob]})) {
@@ -141,7 +278,7 @@ function gSmap() {
 
     object.every = function(closure) {
         for (ob in this) {
-            if (typeof this[ob] !== "function" && ob!='gSclass') {
+            if (typeof this[ob] !== "function" && !isgSmapProperty(ob)) {
                 var f = arguments[0];
                 if (f.length==1) {
                     if (!closure({key:ob, value:this[ob]})) {
@@ -160,7 +297,7 @@ function gSmap() {
 
     object.find = function(closure) {
         for (ob in this) {
-            if (typeof this[ob] !== "function" && ob!='gSclass') {
+            if (typeof this[ob] !== "function" && !isgSmapProperty(ob)) {
                 var f = arguments[0];
                 if (f.length==1) {
                     var entry = {key:ob, value:this[ob]};
@@ -181,7 +318,7 @@ function gSmap() {
     object.findAll = function(closure) {
         var result = gSmap();
         for (ob in this) {
-            if (typeof this[ob] !== "function" && ob!='gSclass') {
+            if (typeof this[ob] !== "function" && !isgSmapProperty(ob)) {
                 var f = arguments[0];
                 if (f.length==1) {
                     var entry = {key:ob, value:this[ob]};
@@ -206,7 +343,7 @@ function gSmap() {
     object.collect = function(closure) {
         var result = gSlist([]);
         for (ob in this) {
-            if (typeof this[ob] !== "function" && ob!='gSclass') {
+            if (typeof this[ob] !== "function" && !isgSmapProperty(ob)) {
                 var f = arguments[0];
                 if (f.length==1) {
                     result.add(closure({key:ob, value:this[ob]}));
@@ -233,7 +370,7 @@ function gSmap() {
     object.containsValue = function(value) {
         var gotIt = false;
         for (ob in this) {
-            if (typeof this[ob] !== "function" && ob!='gSclass') {
+            if (typeof this[ob] !== "function" && !isgSmapProperty(ob)) {
                 if (gSequals(this[ob],value)) {
                     gotIt = true;
                     break;
@@ -260,15 +397,9 @@ function gSmap() {
 
     object.equals = function(otherMap) {
 
-        /*if (otherMap==null || otherMap=='undefined' || otherMap.toString==null ||  otherMap.toString== 'undefined' || !(typeof otherMap.toString === "function")) {
-            return false;
-        } else {
-            return this.toString() == otherMap.toString();
-        }
-        */
         var result = true;
         for (ob in this) {
-            if (typeof this[ob] !== "function" && ob!='gSclass') {
+            if (typeof this[ob] !== "function" && !isgSmapProperty(ob)) {
                 if (!gSequals(this[ob],otherMap[ob])) {
                     result = false;
                 }
@@ -280,10 +411,81 @@ function gSmap() {
     object.values = function() {
         var result = gSlist([]);
         for (ob in this) {
-            if (typeof this[ob] !== "function" && ob!='gSclass') {
+            if (typeof this[ob] !== "function" && !isgSmapProperty(ob)) {
                 result.add(this[ob]);
             }
         }
+        return result;
+    }
+
+    object.gSdefaultValue = null;
+
+    object.withDefault = function(closure) {
+        this.gSdefaultValue = closure;
+        return this;
+    }
+
+    object.inject = function(initial,closure) {
+        for (ob in this) {
+            if (typeof this[ob] !== "function" && !isgSmapProperty(ob)) {
+                if (closure.length==2) {
+                    var entry = {key:ob, value:this[ob]};
+                    initial = closure(initial,entry);
+                }
+                if (closure.length==3) {
+                    initial = closure(initial,ob,this[ob]);
+                }
+            }
+        }
+        //console.log('initial->'+initial);
+        return initial;
+    }
+
+    object.putAll = function (items) {
+        var i;
+        for (i=0;i<items.length;i++) {
+            var item = items[i];
+            this.add(item.key,item.value);
+        }
+        return this;
+    }
+
+    object.plus = function(other) {
+        var result = this.clone();
+        if (other instanceof Array) {
+            result.putAll(other);
+        } else {
+            for (ob in other) {
+                if (typeof other[ob] !== "function" && !isgSmapProperty(ob)) {
+                    result.add(ob,other[ob]);
+                }
+            }
+        }
+        //console.log('->'+result);
+        return result;
+    }
+
+    object.clone = function() {
+        var result = gSmap();
+        for (ob in this) {
+            if (typeof this[ob] !== "function" && !isgSmapProperty(ob)) {
+                result.add(ob,this[ob]);
+            }
+        }
+
+        return result;
+    }
+
+    object.minus = function(other) {
+        var result = this.clone();
+        for (ob in other) {
+            if (typeof other[ob] !== "function" && !isgSmapProperty(ob)) {
+                if (result[ob]!=null && result[ob]!=undefined && gSequals(result[ob],other[ob])) {
+                    delete result[ob];
+                }
+            }
+        }
+
         return result;
     }
 
@@ -328,6 +530,36 @@ function gSlist(value) {
     object.add = function(element) {
         this[this.length]=element;
         return this;
+    }
+
+    object.addAll = function(elements) {
+        if (elements instanceof Array) {
+            var i;
+
+            for (i=0;i<elements.length;i++) {
+                this.add(elements[i]);
+            }
+
+        }
+        return this;
+    }
+
+    object.clone = function() {
+        var result = gSlist([]);
+        result.addAll(this);
+        return result;
+    }
+
+    object.plus = function(other) {
+        var result = this.clone();
+        result.addAll(other);
+        return result;
+    }
+
+    object.minus = function(other) {
+        var result = this.clone();
+        result.removeAll(other);
+        return result;
     }
 
     object.leftShift = function(element) {
@@ -376,7 +608,8 @@ function gSlist(value) {
     }
 
     object.values = function() {
-        var result = []
+        var result = [];
+        var i;
         for (i=0;i<this.length;i++) {
             result[i]=this[i];
         }
@@ -447,11 +680,15 @@ function gSlist(value) {
     }
 
     object.first = function() {
-            return this[0];
+        return this[0];
+    }
+
+    object.head = function() {
+        return this[0];
     }
 
     object.last = function() {
-            return this[this.length-1];
+        return this[this.length-1];
     }
 
     object.sum = function() {
@@ -552,20 +789,6 @@ function gSlist(value) {
         return result;
     }
 
-    /*
-    object.recorre = function() {
-        for (element in this) {
-            if (typeof this[element] === "function") continue;
-            console.log('El->'+this[element]);
-        }
-    }
-    */
-    //object.equals = function(other) {
-    //    return true;
-    //}
-    //Array.prototype.equals = function(other) {
-    //    return true;
-    //}
     object.toString = function() {
 
         if (this.length>0) {
@@ -702,7 +925,68 @@ function gSlist(value) {
             //console.log('Not Modify-'+copy);
             return gSlist(copy);
         }
+    }
 
+    object.reverse = function() {
+        var result;
+        if (arguments.length == 1 && arguments[0]==true) {
+            var i,count=0;
+            for (i=this.length-1;i>count;i--) {
+                var temp = this[count];
+                this[count++] = this[i];
+                this[i] = temp;
+            }
+            return this;
+        } else {
+            result = [];
+            var i,count=0;
+            for (i=this.length-1;i>=0;i--) {
+                result[count++] = this[i];
+            }
+            return gSlist(result);
+        }
+    }
+
+    object.take = function(number) {
+        var result = [];
+        var i;
+        for (i=0;i<number;i++) {
+            if (i<this.length) {
+                result[i] = this[i];
+            }
+        }
+
+        return gSlist(result);
+    }
+
+    object.takeWhile =  function(closure) {
+        var result = [];
+        var i,exit=false;
+        for (i=0;!exit && i<this.length;i++) {
+            if (closure(this[i])) {
+                result[i] = this[i];
+            } else {
+                exit = true;
+            }
+        }
+
+        return gSlist(result);
+    }
+
+    object.multiply = function(number) {
+        if (number==0) {
+            return gSlist([]);
+        } else {
+            var i, result = gSlist([]);
+            for (i=0;i<number;i++) {
+                var j;
+                for (j=0;j<this.length;j++) {
+                    result.add(this[j]);
+                }
+            }
+            //console.log('list multiply->'+result);
+            return result;
+        }
     }
 
     return object;
@@ -1254,6 +1538,7 @@ function gSminus(a,b) {
     if (a==null || a=='undefined' || a.minus=='undefined' || a.minus==null || !(typeof a.minus === "function")) {
         return a-b;
     } else {
+        //console.log('a.minus(b)'+a+' '+b);
         return a.minus(b);
     }
 }
@@ -1336,7 +1621,15 @@ function gSgetProperty(item,nameProperty) {
             if (typeof item[nameProperty] === "function" && nameProperty == 'size') {
                 return item[nameProperty]();
             } else {
-                return item[nameProperty];
+                //console.log('property------'+nameProperty+' = '+item[nameProperty]);
+                if (item[nameProperty]!=undefined) {
+                    return item[nameProperty];
+                } else {
+                    if (item['gSdefaultValue']!=undefined && (typeof item['gSdefaultValue'] === "function")) {
+                        item[nameProperty] = item['gSdefaultValue']();
+                    }
+                    return item[nameProperty];
+                }
             }
         } else {
             //console.log('Got it! Name func->'+nameFunction);
@@ -1393,9 +1686,9 @@ function gSmethodCall(item,methodName,params) {
         //var res = function () { return item[nameProperty];}
         //return res;
 
-        var properties = item.getProperties();
         if (methodName.startsWith('get') || methodName.startsWith('set')) {
             var varName = methodName.charAt(3).toLowerCase() + methodName.slice(4);
+            var properties = item.getProperties();
             if (properties.contains(varName)) {
                 if (methodName.startsWith('get')) {
                     return gSgetProperty(item,varName);
@@ -1408,6 +1701,9 @@ function gSmethodCall(item,methodName,params) {
 
         if (item['methodMissing']) {
            return item['methodMissing'](methodName,params);
+        } else {
+            //Not exist the method, throw exception
+            throw 'gSmethodCall Method '+ methodName + ' not exist in '+item;
         }
 
     } else {

@@ -193,15 +193,6 @@ class GsConverter {
                 acc.add(node.statementBlock)
 
                 node.classes?.each { ClassNode cl ->
-                    //println 'Name-'+cl.name
-                    //println 'isPrimaryClassNode-'+cl.isPrimaryClassNode()
-                    //println 'isScript-'+cl.isScript()
-                    //println 'isScriptBody-'+cl.isScriptBody()
-                    //println 'isResolved-'+cl.isResolved()
-                    //println 'isDerivedFromGroovyObject-'+cl.isDerivedFromGroovyObject()
-                    //println 'isRedirectNode-'+cl.isRedirectNode()
-                    //println 'isSyntheticPublic-'+cl.isSyntheticPublic()
-                    //println 'getGenericsTypes-'+cl.getGenericsTypes()
                     if (!(cl.name == scriptClassName) && cl.isPrimaryClassNode()) {
                         //println 'add->'+cl.name
                         acc << cl
@@ -843,76 +834,7 @@ class GsConverter {
         }
 
         processBasicFunction("gSobject.$name",method,isConstructor)
-        /*
-        addScript("gSobject.$name = function(")
 
-        boolean first = true
-        actualScope = []
-        method.parameters?.each { param ->
-            if (!first) {
-                addScript(', ')
-            }
-            actualScope.add(param.name)
-            addScript(param.name)
-            first = false
-        }
-        addScript(') {')
-
-        indent++
-        addLine()
-
-        //println 'Method '+name+' Code:'+method.code
-        if (method.code instanceof BlockStatement) {
-            processBlockStament(method.code,true)
-        } else {
-            GsConsole.error("Method Code not supported (${method.code.class.simpleName})")
-        }
-        */
-
-        /*
-        print " $node.name("
-        visitParameters(node.parameters)
-        print ")"
-        if (node.exceptions) {
-            boolean first = true
-            print ' throws '
-            node.exceptions.each {
-                if (!first) {
-                    print ', '
-                }
-                first = false
-                visitType it
-            }
-        }
-        print " {"
-        printLineBreak()
-
-        indented {
-            node?.code?.visit(this)
-        }
-        printLineBreak()
-        print '}'
-        printDoubleBreak()
-        */
-
-        //Delete method variable names
-        //actualScope = []
-
-        //method.parameters?.each { param ->
-        //    methodVariableNames.remove(param.name)
-        //}
-
-        /*
-        indent--
-        if (isConstructor) {
-            addScript('return this;')
-            addLine()
-        } else {
-            removeTabScript()
-        }
-        addScript('}')
-        addLine()
-        */
     }
 
     /**
@@ -1379,7 +1301,7 @@ class GsConverter {
         //Super expression in constructor is allowed
         if (expression?.isSuperCall()) {
             def name = superNameStack.peek()
-            println 'name->'+name
+            //println 'processNotExpression name->'+name
             if (name == 'java.lang.Object') {
                 addScript('this.gSconstructor')
             } else {
@@ -1391,7 +1313,13 @@ class GsConverter {
             addScript('gSexpando')
         } else if (expression.type.name=='java.util.Random') {
             addScript('gSrandom')
+        } else if (expression.type.name=='java.util.HashSet') {
+            addScript('gSset')
         } else {
+            //println 'processConstructorCallExpression->'+ expression.type.name
+            if (expression.type.name.startsWith('java.util.') || expression.type.name.startsWith('groovy.util.')) {
+                throw new Exception('Not support type '+expression.type.name)
+            }
             //Constructor have name with number of params on it
             //addScript("gsCreate${expression.type.name}().${expression.type.name}${expression.arguments.expressions.size()}")
             def name = translateClassName(expression.type.name)
@@ -2179,9 +2107,15 @@ class GsConverter {
         //upgradedExpresion(expression.property)
     }
 
-    //def private processCastExpression(CastExpression expression) {
-        //Nothing to do, not allowed
-    //}
+    def private processCastExpression(CastExpression expression) {
+        if (expression.type.nameWithoutPackage == 'Set' && expression.expression instanceof ListExpression) {
+            addScript('gSset(')
+            "process${expression.expression.class.simpleName}"(expression.expression)
+            addScript(')')
+        } else {
+            throw new Exception('Casting not supported for '+expression.type.name)
+        }
+    }
 
     def methodMissing(String name, Object args) {
         def message
