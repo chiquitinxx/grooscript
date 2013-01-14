@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////
 // assert and println conversions
 /////////////////////////////////////////////////////////////////
+//Will be true if any assert fails
 var gSfails = false;
 
 function gSassert(value) {
@@ -15,14 +16,23 @@ function gSassert(value) {
     }
 };
 
+//Where all output is stored
 var gSconsole = "";
+//If true and console is available, all output will go through console
+var gSconsoleOutput = false;
+//If true and console is available, some methods will show info on console
+var gSconsoleInfo = false;
 
+//Function that used for print and println in groovy
 function gSprintln(value) {
-    //console.log(value);
-    if (gSconsole != "") {
-        gSconsole = gSconsole + "\n";
+    if (gSconsoleOutput && console) {
+        console.log(value);
+    } else {
+        if (gSconsole != "") {
+            gSconsole = gSconsole + "\n";
+        }
+        gSconsole = gSconsole + value
     }
-    gSconsole = gSconsole + value
 };
 
 /////////////////////////////////////////////////////////////////
@@ -76,7 +86,7 @@ function inherit(p) {
 }
 
 /////////////////////////////////////////////////////////////////
-// gSset
+// gSset - as Set and HashSet from groovy
 /////////////////////////////////////////////////////////////////
 function gSset(value) {
     var object; // = inherit(Array.prototype);
@@ -190,7 +200,7 @@ function gSset(value) {
 }
 
 /////////////////////////////////////////////////////////////////
-// gSmap
+// gSmap - [:] from groovy
 /////////////////////////////////////////////////////////////////
 function isgSmapProperty(name) {
     return name=='gSclass' || name == 'gSdefaultValue';
@@ -493,7 +503,7 @@ function gSmap() {
 }
 
 /////////////////////////////////////////////////////////////////
-//gsList
+//gsList - [] from groovy
 /////////////////////////////////////////////////////////////////
 function gSlist(value) {
     var object = inherit(Array.prototype);
@@ -993,7 +1003,7 @@ function gSlist(value) {
 }
 
 /////////////////////////////////////////////////////////////////
-//gSrange
+//gSrange - [x..y] from groovy
 //Only works with numbers atm
 /////////////////////////////////////////////////////////////////
 function gSrange(begin,end,inclusive) {
@@ -1028,7 +1038,7 @@ function gSrange(begin,end,inclusive) {
 }
 
 /////////////////////////////////////////////////////////////////
-//gSdate
+//gSdate - Date() object from groovy / java
 /////////////////////////////////////////////////////////////////
 function gSdate() {
 
@@ -1100,7 +1110,7 @@ function gSlastChars(item,number) {
 
 
 /////////////////////////////////////////////////////////////////
-//gSexactMatch
+//gSexactMatch - For regular expressions
 /////////////////////////////////////////////////////////////////
 function gSexactMatch(text,regExp) {
     var mock = text;
@@ -1129,7 +1139,7 @@ function gSmatch(text,regExp) {
 
 
 /////////////////////////////////////////////////////////////////
-//gSregExp
+//gSregExp - For regular expressions
 /////////////////////////////////////////////////////////////////
 function gSregExp(text,ppattern) {
 
@@ -1193,7 +1203,7 @@ function gSpattern(pattern) {
 }
 
 /////////////////////////////////////////////////////////////////
-// Regular Expresions
+// Regular Expresions - For regular expressions
 /////////////////////////////////////////////////////////////////
 function gSmatcher(item,regExpression) {
 
@@ -1391,17 +1401,6 @@ function gSpassMapToObject(source,destination) {
     }
 }
 
-/*
-function gSControlParameters(params) {
-    gSprintln('Going!'+params+' '+params[0]);
-    //if (params.length > 1) {
-        gSprintln('1-'+(params instanceof Array)+ ' 2-'+params.arguments+' 3-'+params.length);
-        if ((params instanceof Array) && params[1]==null && params[0].size()==params.length) {
-            gSprintln('YEAH!');
-        }
-    //}
-}
-*/
 function gSequals(value1, value2) {
     //console.log('going eq:'+value1+ ' = '+value2+' -> '+value1.equals);
     if (value1==null || value1=='undefined' || value1.equals=='undefined' || value1.equals==null || !(typeof value1.equals === "function")) {
@@ -1508,6 +1507,7 @@ function gSelvis(booleanExpression,trueExpression,falseExpression) {
     }
 }
 
+// * operator
 function gSmultiply(a,b) {
      if (a==null || a=='undefined' || a.multiply=='undefined' || a.multiply==null || !(typeof a.multiply === "function")) {
           if (b==null || b=='undefined' || b.multiply=='undefined' || b.multiply==null || !(typeof b.multiply === "function")) {
@@ -1521,6 +1521,7 @@ function gSmultiply(a,b) {
      }
 }
 
+// + operator
 function gSplus(a,b) {
     if (a==null || a=='undefined' || a.plus=='undefined' || a.plus==null || !(typeof a.plus === "function")) {
         if (b==null || b=='undefined' || b.plus=='undefined' || b.plus==null || !(typeof b.plus === "function")) {
@@ -1534,6 +1535,7 @@ function gSplus(a,b) {
     }
 }
 
+// - operator
 function gSminus(a,b) {
     if (a==null || a=='undefined' || a.minus=='undefined' || a.minus==null || !(typeof a.minus === "function")) {
         return a-b;
@@ -1543,6 +1545,7 @@ function gSminus(a,b) {
     }
 }
 
+// in operator
 function gSin(item,group) {
     if (group!=null && group !='undefined' && (typeof group.contains === "function")) {
         return group.contains(item);
@@ -1552,7 +1555,7 @@ function gSin(item,group) {
 }
 
 /////////////////////////////////////////////////////////////////
-// Beans functions
+// Beans functions - From groovy beans
 /////////////////////////////////////////////////////////////////
 
 //Set a property of a class
@@ -1664,6 +1667,9 @@ function gSplusplus(item,nameProperty,plus,before) {
 function gSmethodCall(item,methodName,params) {
 
     //console.log('Going!->'+methodName);
+    if (gSconsoleInfo && console) {
+        console.log('[INFO] gSmethodCall ('+item+').'+methodName+ ' params:'+params);
+    }
 
     if (typeof(item)=='string' && methodName=='split') {
         return item.tokenize(params[0]);

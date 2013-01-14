@@ -67,11 +67,6 @@ class GsConverter {
     }
 
     def private initFunctionNames() {
-        //def clos = new GroovyShell().evaluate('{ gscript ->\n'+Util.getNameFunctionsText()+'\n return gscript}')
-        //this.with clos
-
-        //def clos = new GroovyShell().evaluate('{ it ->\n'+Util.getNameFunctionsText()+'\n return}')
-        //this.with clos
         assertFunction = 'gSassert'
         printlnFunction = 'gSprintln'
     }
@@ -127,24 +122,6 @@ class GsConverter {
 
                 if (classPath && classPath.trim()!='') {
 
-                    //def loaderUrls = this.class.classLoader.rootLoader.URLs
-                    //def files = loaderUrls.collect { new URI(it.toString()).path - '/'}
-                    //def all = files.join(File.pathSeparator)
-                    //if (all.indexOf(classPath)<0) {
-                    //    all+= File.pathSeparator + classPath
-                    //}
-
-                    //Add classpath to groovyClassLoader classpath for compile groovy source
-                    //CompilerConfiguration config = new CompilerConfiguration()
-                    //config.setClasspath(all)
-
-                    //def GroovyClassLoader gcl =  new GroovyClassLoader(this.class.getClassLoader())//GroovyClassLoader.getSystemClassLoader(),config,true)
-                    //gcl.addClasspath(classPath)
-
-                    /*def clz = gcl.loadClass("org.codehaus.groovy.ast.builder.AstBuilder")
-                    ast =  (AstBuilder)clz.newInstance()
-
-                    list = ast.buildFromString(CompilePhase.SEMANTIC_ANALYSIS,script) */
                     //println 'cp->'+ classPath
                     list = getAstFromText(script,classPath)
                     //println 'list->'+ list
@@ -596,16 +573,7 @@ class GsConverter {
             addLine()
         }
 
-        //Add with function
         addLine()
-        //addScript("gSobject.gSwith = function(closure) { closure.apply(this,closure.arguments); };")
-        //addLine()
-
-        //if (!has0parameterConstructor) {
-        //    addScript("object.${node.name}0 = function() { };")
-        //    addLine()
-        //}
-
         indent --
         //addScript("this.gSobject=gSobject;return gSobject;")
         addScript("return gSobject;")
@@ -771,32 +739,6 @@ class GsConverter {
         addScript("$name = function(")
 
         putFunctionParametersAndBody(method,isConstructor,true)
-
-        /*
-        addScript("$name = function(")
-
-        boolean first = true
-        actualScope = []
-        method.parameters?.each { param ->
-            if (!first) {
-                addScript(', ')
-            }
-            actualScope.add(param.name)
-            addScript(param.name)
-            first = false
-        }
-        addScript(') {')
-
-        indent++
-        addLine()
-
-        //println 'Method '+name+' Code:'+method.code
-        if (method.code instanceof BlockStatement) {
-            processBlockStament(method.code,true)
-        } else {
-            GsConsole.error("Method Code not supported (${method.code.class.simpleName})")
-        }
-        */
 
         indent--
         if (isConstructor) {
@@ -1057,12 +999,6 @@ class GsConverter {
                     && !allActualScopeContains(expression.name) && !variableScopingContains(expression.name)) {
                 addScript('this.')
             }
-            //    println 'Adding this->'+expression.name
-            //    //addScript('this.'+expression.name)
-            //    addScript(expression.name)
-            //} else {
-            //    addScript(expression.name)
-            //}
             addScript(expression.name)
         }
     }
@@ -1394,13 +1330,6 @@ class GsConverter {
             addScript('.gSclass')
         } else {
 
-            //println 'Property-'+expression.objectExpression
-            //if (expression.objectExpression instanceof VariableExpression) {
-            //    if (expression.objectExpression.name == 'this') {
-                    //dontAddMoreThis = true
-            //    }
-            //}
-
             if (!(expression instanceof AttributeExpression)) {
 
                 addScript('gSgetProperty(')
@@ -1421,17 +1350,15 @@ class GsConverter {
             }
         }
 
-        //dontAddMoreThis = false
-
     }
 
     def private processMethodCallExpression(MethodCallExpression expression) {
         //println "MCE ${expression.objectExpression} - ${expression.methodAsString}"
-        if (expression.objectExpression instanceof VariableExpression) {
-            if (expression.objectExpression.name == 'this') {
-                //dontAddMoreThis = true
-            }
-        }
+        //if (expression.objectExpression instanceof VariableExpression) {
+        //    if (expression.objectExpression.name == 'this') {
+        //        //dontAddMoreThis = true
+        //    }
+        //}
 
         def addParameters = true
 
@@ -1488,53 +1415,6 @@ class GsConverter {
             addScript(']))')
         }
 
-
-        /*
-        //Let's see if we have a setter
-        } else if (expression.methodAsString.size()>3 && expression.methodAsString.startsWith('set') &&
-                expression.methodAsString[3].toUpperCase() == expression.methodAsString[3] &&
-                expression.arguments) {
-
-            addScript('gSsetMethod(')
-            upgradedExpresion(expression.objectExpression)
-            addScript(',')
-            upgradedExpresion(expression.method)
-            //addScript(expression.methodAsString)
-            addScript(',')
-            //upgradedExpresion(expression.rightExpression)
-            //addScript(')')
-            addPar = true
-        //Or maybe we have a getter
-        } else if (expression.methodAsString.size()>3 && expression.methodAsString.startsWith('get') &&
-                expression.methodAsString[3].toUpperCase() == expression.methodAsString[3] &&
-                expression.arguments && expression.arguments instanceof ArgumentListExpression &&
-                expression.arguments.expressions?.size() == 0) {
-            //println '-->'+expression.arguments.expressions?.size()
-            addScript('gSgetMethod(')
-            upgradedExpresion(expression.objectExpression)
-            addScript(',')
-            upgradedExpresion(expression.method)
-            addScript(')')
-
-        } else {
-            //A lot of times come with this
-            //println 'Maybe this->'+expression.objectExpression
-            if (expression.objectExpression instanceof VariableExpression &&
-                    expression.objectExpression.name == 'this' &&
-                    variableScoping.peek()?.contains(expression.methodAsString)) {
-                //Remove this and put gSobject for variable scoping
-                addScript("gSobject.${expression.methodAsString}")
-            } else {
-                "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
-                addScript(".${expression.methodAsString}")
-            }
-        }
-        "process${expression.arguments.class.simpleName}"(expression.arguments)
-
-        if (addPar) {
-            addScript(')')
-        }
-        */
         if (addParameters) {
             "process${expression.arguments.class.simpleName}"(expression.arguments)
         }
@@ -1545,21 +1425,6 @@ class GsConverter {
     def private processPostfixExpression(PostfixExpression expression) {
 
         if (expression.expression instanceof PropertyExpression) {
-
-            /*
-            def int number = expression.operation.type
-            def text = expression.operation.text
-            if (expression.operation.text=='++') {
-                number = 210
-                text = '+='
-            } else if (expression.operation.text=='--') {
-                text = '-='
-                number = 211
-            }
-            def op = new Token(number,text,expression.operation.startLine,expression.operation.startColumn)
-            def binary = new BinaryExpression(expression.expression,op,new ConstantExpression(1))
-            processBinaryExpression(binary)
-            */
 
             //Only in mind ++ and --
             def plus = true
@@ -1614,58 +1479,6 @@ class GsConverter {
         processingClosure = true
         putFunctionParametersAndBody(expression,false,addItDefault)
         processingClosure = false
-
-        /*
-
-        boolean first = true
-        actualScope = []
-
-        //Parameters with default values if not shown
-        def initalValues = [:]
-        //If no parameters, we add it by defaul
-        if (!expression.parameters || expression.parameters.size()==0) {
-            addScript('it')
-            actualScope.add('it')
-        } else {
-            expression.parameters?.each { param ->
-
-                println 'pe->'+param.toString()
-                //if (param instanceof ListExpression) {
-                //    def le = (ListExpression)it
-                //    println 'Argument->'+le.toString()
-                //    println 'Exp->'+le.type
-                //}
-
-                if (param.getInitialExpression()) {
-                    //println 'Initial->'+param.getInitialExpression()
-                    initalValues.putAt(param.name,param.getInitialExpression())
-                }
-                if (!first) {
-                    addScript(', ')
-                }
-                actualScope.add(param.name)
-                addScript(param.name)
-                first = false
-            }
-        }
-        addScript(') {')
-        indent++
-        addLine()
-
-        //At start we add initialization of default values
-        initalValues.each { key,value ->
-            addScript("if (${key} === undefined) ${key} = ")
-            "process${value.class.simpleName}"(value)
-            addScript(';')
-            addLine()
-        }
-        //println 'Closure '+expression+' Code:'+expression.code
-        if (expression.code instanceof BlockStatement) {
-            processBlockStament(expression.code,true)
-        } else {
-            GsConsole.error("Closure Code not supported (${c.code.class.simpleName})")
-        }
-        */
 
         indent--
         //actualScope = []
@@ -1760,12 +1573,6 @@ class GsConverter {
             addScript('.each(function(')
             "process${statement.variable.class.simpleName}"(statement.variable)
 
-            /*
-            gSrange(5, 9).each(function(element) {
-                console.log('it element->'+element);
-                log += element;
-            })
-            */
         } else {
             addScript 'for ('
             //println 'collectionExpression-'+ statement?.collectionExpression.text

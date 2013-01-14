@@ -3,7 +3,9 @@ GrooScript
 
 Converts your Groovy code to JavaScript(Groovy 2.0 to Javascript ECMAScript 5).
 
-For run JavaScript need grooscript.js
+Not a full groovy to javascript conversion. Better groovy support means lost pretty print in javascript conversion.
+
+Converted code, needs grooscript.js to run. grooscript.js inside the jar in META-INF/resources for servlet 3.0 support.
 
 Working version 0.2
 
@@ -32,12 +34,12 @@ No delegate. No ExpandoMetaClass. No libraries out of groovy-core.
 
 Groovy ast transformations as @Cannonical, @ToString, ... not supported.
 
-Better groovy support means lost pretty print in javascript conversion.
-
 Variable assignment not allowed inside boolean expressions as ternary (?:).
 
 ---
 
 Twitter: @jfrancoleza
+
+Email: grooscript@gmail.com
 
 Website URL (can try conversions there): http://www.grooscript.org

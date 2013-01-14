@@ -22,6 +22,9 @@ def webExamples = [:]
 webExamples.putAt 'MysticTable',"${examplesDir}advanced/MysticTable.groovy"
 webExamples.putAt 'ExpandoTree',"${examplesDir}advanced/Tree.groovy"
 webExamples.putAt 'Random',"${examplesDir}advanced/RandomWorld.groovy"
+webExamples.putAt 'MethodMissing',"${examplesDir}advanced/MethodMissing.groovy"
+webExamples.putAt 'SortingLists',"${examplesDir}advanced/Sorting.groovy"
+webExamples.putAt 'Strings',"${examplesDir}advanced/StringSecrets.groovy"
 
 repositories {
     mavenCentral()
@@ -109,7 +112,7 @@ task copyToGscriptWeb(dependsOn: build) << {
 		from "build/libs"			
 		include "**/*.jar"
 		rename { 
-			return "grooscript-0.2.jar"
+			return "grooscript-${version}.jar"
 		}
 	}
 	

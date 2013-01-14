@@ -248,7 +248,7 @@ class TestAdvanced extends Specification {
 
     def 'more list and maps features'() {
         when:
-        def result = readAndConvert('advanced/ListMapsAdvanced',true)
+        def result = readAndConvert('advanced/ListMapsAdvanced',false)
 
         then:
         //println 'Console->'+result.gSconsole
