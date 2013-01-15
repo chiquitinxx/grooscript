@@ -1,5 +1,5 @@
-GrooScript
-==========
+GrooScript 0.2
+==============
 
 Converts your Groovy code to JavaScript(Groovy 2.0 to Javascript ECMAScript 5).
 
@@ -7,13 +7,11 @@ Not a full groovy to javascript conversion. Better groovy support means lost pre
 
 Converted code, needs grooscript.js to run. grooscript.js inside the jar in META-INF/resources for servlet 3.0 support.
 
-Working version 0.2
-
-In sonar maven repository:
+No dependencies, Gradle as build system. In sonar maven repository:
 
 https://oss.sonatype.org/content/groups/public/
 
-org.grooscript:grooscript:0.1
+org.grooscript:grooscript:0.2
 
 Please all feedback welcome, thanks!
 
