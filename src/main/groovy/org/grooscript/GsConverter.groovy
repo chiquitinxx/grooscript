@@ -541,8 +541,18 @@ class GsConverter {
                 } else if (!it.isStatic()) {
                     processMethodNode(it,false)
                 } else {
-                    addScript("gSobject.${it.name} = function() { return ${translateClassName(node.name)}.${it.name}(")
-                    //addScript(it.parameters?.join(','))
+                    //We put the number of params as x? name variables
+                    def numberParams = 0
+                    if (it.parameters && it.parameters.size()>0) {
+                        numberParams = it.parameters.size()
+                    }
+                    def params = []
+                    numberParams.times { number ->
+                        params << 'x'+number
+                    }
+
+                    addScript("gSobject.${it.name} = function(${params.join(',')}) { return ${translateClassName(node.name)}.${it.name}(")
+                    addScript(params.join(','))
                     addScript("); }")
                     addLine()
                 }

@@ -255,5 +255,14 @@ class TestAdvanced extends Specification {
         !result.assertFails
     }
 
+    def 'Get properties and methods of classes'() {
+        when:
+        def result = readAndConvert('advanced/PropertiesAndMethods',true)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+    }
+
 
 }

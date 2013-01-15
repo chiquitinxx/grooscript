@@ -51,6 +51,28 @@ gsBaseClass = {
         }
         return result;
     },
+    getMethods : function() {
+        var result = gSlist([]);
+        for (ob in this) {
+            if (typeof this[ob] === "function") {
+                var item = {
+                    name: ob
+                };
+                result.add(item);
+            }
+        }
+        return result;
+    },
+    invokeMethod: function(name,values) {
+        var i,newArgs = [];
+        if (values!=null && values!=undefined) {
+            for (i=0;i<values.length;i++) {
+                newArgs[i] = values[i];
+            }
+        }
+        var f = this[name];
+        return f.apply(this,newArgs);
+    },
     gSconstructor : function() {
         return this;
     }
@@ -1664,22 +1686,22 @@ function gSplusplus(item,nameProperty,plus,before) {
 }
 
 //Control all method calls
-function gSmethodCall(item,methodName,params) {
+function gSmethodCall(item,methodName,values) {
 
     //console.log('Going!->'+methodName);
     if (gSconsoleInfo && console) {
-        console.log('[INFO] gSmethodCall ('+item+').'+methodName+ ' params:'+params);
+        console.log('[INFO] gSmethodCall ('+item+').'+methodName+ ' params:'+values);
     }
 
     if (typeof(item)=='string' && methodName=='split') {
-        return item.tokenize(params[0]);
+        return item.tokenize(values[0]);
     }
     if (typeof(item)=='string' && methodName=='length') {
         return item.length;
     }
     if ((item instanceof Array) && methodName=='join') {
-        if (params.size()>0) {
-            return item.gSjoin(params[0]);
+        if (values.size()>0) {
+            return item.gSjoin(values[0]);
         } else {
             return item.gSjoin();
         }
@@ -1699,14 +1721,14 @@ function gSmethodCall(item,methodName,params) {
                 if (methodName.startsWith('get')) {
                     return gSgetProperty(item,varName);
                 } else {
-                    return gSsetProperty(item,varName,params[0]);
+                    return gSsetProperty(item,varName,values[0]);
                 }
 
             }
         }
 
         if (item['methodMissing']) {
-           return item['methodMissing'](methodName,params);
+           return item['methodMissing'](methodName,values);
         } else {
             //Not exist the method, throw exception
             throw 'gSmethodCall Method '+ methodName + ' not exist in '+item;
@@ -1714,6 +1736,6 @@ function gSmethodCall(item,methodName,params) {
 
     } else {
         var f = item[methodName];
-        return f.apply(item,params);
+        return f.apply(item,values);
     }
 }
