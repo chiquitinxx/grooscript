@@ -264,5 +264,13 @@ class TestAdvanced extends Specification {
         !result.assertFails
     }
 
+    def 'Get tuple from object'() {
+        when:
+        def result = readAndConvert('advanced/GetTupleFromObject',false)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+    }
 
 }

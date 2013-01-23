@@ -570,6 +570,10 @@ function gSlist(value) {
         }
     }
 
+    object.getAt = function(pos) {
+        return this[pos];
+    }
+
     object.gSwith = function(closure) {
         //closure.apply(this,closure.arguments);
         gSinterceptClosureCall(closure, this);
@@ -1345,7 +1349,7 @@ String.prototype.reverse = function() {
 
 String.prototype.tokenize = function() {
     var str = " ";
-    if (arguments.length==1) {
+    if (arguments.length==1 && arguments[0]!=null && arguments[0]!=undefined) {
         str = arguments[0];
     }
     var list = this.split(str);

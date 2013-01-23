@@ -952,22 +952,41 @@ class GsConverter {
     def private processDeclarationExpression(DeclarationExpression expression) {
         //println 'l->'+expression.leftExpression
         //println 'r->'+expression.rightExpression
-        //println 'v->'+expression.variableExpression
+        //println 'v->'+expression.getVariableExpression()
 
-        //actualScope.add(expression.variableExpression.name)
-        addToActualScope(expression.variableExpression.name)
-        //variableScoping.add(expression.variableExpression.name)
-
-        addScript('var ')
-        processVariableExpression(expression.variableExpression)
-
-
-
-        if (!(expression.rightExpression instanceof EmptyExpression)) {
-            addScript(' = ')
-            "process${expression.rightExpression.class.simpleName}"(expression.rightExpression)
+        if (expression.isMultipleAssignmentDeclaration()) {
+            TupleExpression tuple = (TupleExpression)(expression.getLeftExpression())
+            def number = 0;
+            tuple.expressions.each { Expression expr ->
+                //println '->'+expr
+                if (expr instanceof VariableExpression && expr.name!='_') {
+                    addScript('var ')
+                    processVariableExpression(expr)
+                    addScript(' = ')
+                    "process${expression.rightExpression.class.simpleName}"(expression.rightExpression)
+                    addScript(".getAt(${number})")
+                    if (number<tuple.expressions.size()) {
+                        addScript(';')
+                    }
+                }
+                number++
+            }
         } else {
-            addScript(' = null')
+
+            //actualScope.add(expression.variableExpression.name)
+            addToActualScope(expression.variableExpression.name)
+            //variableScoping.add(expression.variableExpression.name)
+
+            addScript('var ')
+            processVariableExpression(expression.variableExpression)
+
+            if (!(expression.rightExpression instanceof EmptyExpression)) {
+                addScript(' = ')
+                "process${expression.rightExpression.class.simpleName}"(expression.rightExpression)
+            } else {
+                addScript(' = null')
+            }
+
         }
     }
 
