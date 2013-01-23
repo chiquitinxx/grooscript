@@ -3,8 +3,6 @@ var fs = require('fs');
 // file is included here:
 eval(fs.readFileSync('grooscript.js')+'');
 
-var a = gSlist([]);
-
 console.log('Ready to Test!');
 
 /////////////////////////////////////////////////////////// Tests here

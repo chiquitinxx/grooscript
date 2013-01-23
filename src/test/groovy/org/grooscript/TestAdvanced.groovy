@@ -257,7 +257,7 @@ class TestAdvanced extends Specification {
 
     def 'Get properties and methods of classes'() {
         when:
-        def result = readAndConvert('advanced/PropertiesAndMethods',true)
+        def result = readAndConvert('advanced/PropertiesAndMethods',false)
 
         then:
         //println 'Console->'+result.gSconsole

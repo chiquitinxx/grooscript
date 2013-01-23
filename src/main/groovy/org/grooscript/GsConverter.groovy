@@ -467,7 +467,7 @@ class GsConverter {
             //We add to this class scope variables of fathers
             variableScoping.peek().addAll(inheritedVariables[node.superClass.name])
         } else {
-            addScript('var gSobject = inherit(gsBaseClass);')
+            addScript("var gSobject = inherit(gsBaseClass,'${translateClassName(node.name)}');")
         }
         addLine()
         //ignoring generics and interfaces and extends atm
@@ -1394,8 +1394,14 @@ class GsConverter {
             addScript(".gSwith")
         } else if (expression.objectExpression instanceof ClassExpression && expression.objectExpression.type.name=='java.lang.Math') {
             addScript("Math.${expression.methodAsString}")
-        //Adding methodMissing Support
-
+        //Adding class.forName
+        } else if (expression.objectExpression instanceof ClassExpression && expression.objectExpression.type.name=='java.lang.Class' &&
+                expression.methodAsString=='forName') {
+            addScript('gSclassForName(')
+            //println '->'+expression.arguments[0]
+            "process${expression.arguments.class.simpleName}"(expression.arguments,false)
+            addScript(')')
+            addParameters = false
         } else {
 
 
@@ -1415,7 +1421,6 @@ class GsConverter {
 
             addScript(',"')
             //MethodName
-
             addScript(expression.methodAsString)
 
             addScript('",gSlist([')

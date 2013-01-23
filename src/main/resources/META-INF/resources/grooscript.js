@@ -79,22 +79,46 @@ gsBaseClass = {
 }
 
 function gSexpando() {
-    var object = inherit(gsBaseClass);
+    var object = inherit(gsBaseClass,'Expando');
     return object;
 }
 
 function ExpandoMetaClass() {
-    var object = inherit(gsBaseClass);
+    var object = inherit(gsBaseClass,'ExpandoMetaClass');
     object.initialize = function() {
         return this;
     }
     return object;
 }
 
-function inherit(p) {
+function gSexpandWithMetaclass(item,objectName) {
+    if (gSglobalMetaClass!=undefined && gSglobalMetaClass[objectName]!=null && gSglobalMetaClass[objectName]!=undefined) {
+        var obj,map = gSglobalMetaClass[objectName];
+        for (obj in map) {
+
+            //Static methods
+            var staticMap = map.getStatic();
+            if (staticMap!=null && staticMap!=undefined) {
+                var objStatic
+                for (objStatic in staticMap) {
+                    if (objStatic!='gSparent') {
+                        //console.log('Adding static->'+objStatic);
+                        item[obj] = staticMap[objStatic];
+                    }
+                }
+            }
+            //Non static methods and properties
+            item[obj] = map[obj];
+        }
+    }
+    return item;
+}
+
+function inherit(p,objectName) {
     if (p == null) throw TypeError();
-    if (Object.create)
-        return Object.create(p);
+    if (Object.create) {
+        return gSexpandWithMetaclass(Object.create(p),objectName);
+    }
     var t = typeof p;
 
     // If Object.create() is defined... // then just use it.
@@ -104,7 +128,7 @@ function inherit(p) {
 
     function f() {};
     f.prototype = p;
-    return new f();
+    return gSexpandWithMetaclass(new f(),objectName);
 }
 
 /////////////////////////////////////////////////////////////////
@@ -229,7 +253,7 @@ function isgSmapProperty(name) {
 }
 
 function gSmap() {
-    var object = inherit(gsBaseClass);
+    var object = inherit(gsBaseClass,'LinkedHashMap');
     object.add = function(key,value) {
         this[key] = value;
         return this;
@@ -528,7 +552,7 @@ function gSmap() {
 //gsList - [] from groovy
 /////////////////////////////////////////////////////////////////
 function gSlist(value) {
-    var object = inherit(Array.prototype);
+    var object = inherit(Array.prototype,'ArrayList');
     object = value;
 
     object.get = function(pos) {
@@ -1194,7 +1218,7 @@ function gSregExp(text,ppattern) {
             i = i + 1;
             data = patt.exec(text);
         }
-        object = inherit(gSlist(list));
+        object = inherit(gSlist(list),'RegExp');
     }
 
     object.pattern = patt;
@@ -1219,7 +1243,7 @@ function gSregExp(text,ppattern) {
 //Pattern
 /////////////////////////////////////////////////////////////////
 function gSpattern(pattern) {
-    var object = inherit(gsBaseClass);
+    var object = inherit(gsBaseClass,'Pattern');
     object.value = pattern;
     return object;
 }
@@ -1229,7 +1253,7 @@ function gSpattern(pattern) {
 /////////////////////////////////////////////////////////////////
 function gSmatcher(item,regExpression) {
 
-    var object = inherit(gsBaseClass);
+    var object = inherit(gsBaseClass,'Matcher');
 
     object.data = item;
     object.regExp = regExpression;
@@ -1401,9 +1425,44 @@ String.prototype.isNumber = function() {
 /////////////////////////////////////////////////////////////////
 // Misc Functions
 /////////////////////////////////////////////////////////////////
+function gSclassForName(name) {
+    var result = null;
+    try {
+        var pos = name.indexOf(".");
+        while (pos>=0) {
+            name = name.substring(pos+1);
+            pos = name.indexOf(".");
+        }
+        //console.log('Evaluating->'+name);
+        result = eval(name);
+    } catch (err) {
+        result = null;
+    }
+
+    return result;
+}
+
+function gSstaticMethods(item) {
+    this.gSparent = item;
+}
+
+var gSglobalMetaClass = {};
 function gSmetaClass(item) {
     var type = typeof item;
     //console.log('typeof before-'+typeof item);
+    //If type is a function, it's metaClass from a Class
+    if (type === "function") {
+        if (!gSglobalMetaClass[item.name]) {
+            gSglobalMetaClass[item.name] = {
+                gSstatic: new gSstaticMethods(item),
+                getStatic : function() {
+                    return this.gSstatic;
+                }
+            };
+        }
+        item = gSglobalMetaClass[item.name];
+    }
+
     if (type == "string") {
         item = new String(item);
     }
@@ -1447,7 +1506,7 @@ function gSinterceptClosureCall(func, param) {
 }
 
 function gSrandom() {
-    var object = inherit(gsBaseClass);
+    var object = inherit(gsBaseClass,'Random');
     object.nextInt = function(number) {
         var ran = Math.ceil(Math.random()*number);
         return ran - 1;
@@ -1587,6 +1646,10 @@ function gSsetProperty(item,nameProperty,value) {
         item[nameProperty] = value;
     } else if (nameProperty=='getProperty') {
         item[nameProperty] = value;
+    } else if (item!=null && item instanceof gSstaticMethods) {
+        //console.log('Setting static!');
+        item[nameProperty] = value;
+        item.gSparent[nameProperty] = value;
     } else {
 
         if (item['setProperty']=='undefined' || item['setProperty']==null || !(typeof item['setProperty'] === "function")) {
@@ -1594,6 +1657,7 @@ function gSsetProperty(item,nameProperty,value) {
             var nameFunction = 'set' + nameProperty.charAt(0).toUpperCase() + nameProperty.slice(1);
 
             if (item[nameFunction]=='undefined' || item[nameFunction]==null || !(typeof item[nameFunction] === "function")) {
+                //console.log('Setting->'+item+' - '+nameProperty+' - '+value);
                 item[nameProperty] = value;
             } else {
                 item[nameFunction](value);
@@ -1727,11 +1791,17 @@ function gSmethodCall(item,methodName,values) {
             }
         }
 
-        if (item['methodMissing']) {
-           return item['methodMissing'](methodName,values);
+        //Check newInstance
+        if (methodName=='newInstance') {
+            return item();
         } else {
-            //Not exist the method, throw exception
-            throw 'gSmethodCall Method '+ methodName + ' not exist in '+item;
+
+            if (item['methodMissing']) {
+               return item['methodMissing'](methodName,values);
+            } else {
+                //Not exist the method, throw exception
+                throw 'gSmethodCall Method '+ methodName + ' not exist in '+item;
+            }
         }
 
     } else {
