@@ -273,4 +273,14 @@ class TestAdvanced extends Specification {
         !result.assertFails
     }
 
+    def 'test method pointer'() {
+        when:
+        def result = readAndConvert('advanced/MethodPointer',false)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+
+    }
+
 }

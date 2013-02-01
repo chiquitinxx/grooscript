@@ -17,6 +17,10 @@ def webDirJar = "$webDir/lib"
 def webDirExamples = "$webDir/scripts/examples/"
 def webDirJs = "$webDir/web-app/js/"
 
+def demoDir = '../monkfish'
+def demoDirJar = "$demoDir/lib"
+def demoDirJs = "$demoDir/web-app/js/"
+
 def examplesDir = 'src/test/resources/'
 def webExamples = [:]
 webExamples.putAt 'MysticTable',"${examplesDir}advanced/MysticTable.groovy"
@@ -136,4 +140,25 @@ task copyToGscriptWeb(dependsOn: build) << {
 			}
 		}
 	}
+}
+
+//Copy jar and  js file to Demo
+task copyToDemo(dependsOn: build) << {
+	println "Copying $appName jar to $demoDirJar ..."
+	copy {
+		into "$demoDirJar"
+		from "build/libs"			
+		include "**/*.jar"
+		rename { 
+			return "grooscript-${version}.jar"
+		}
+	}
+	
+	println "Copying $appName jsFiles to $demoDirJs ..."
+	copy {
+		into "$demoDirJs"
+		from "src/main/resources/META-INF/resources"
+		include "grooscript.js"
+	}
+
 }

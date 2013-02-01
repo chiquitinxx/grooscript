@@ -39,6 +39,9 @@ class GsConverter {
     //Where code of native functions stored, as a map
     def nativeFunctions
 
+    //Adds a console info if activated
+    def consoleInfo = false
+
     //Control switch inside switch
     def switchCount = 0
     def addClosureSwitchInitialization = false
@@ -218,7 +221,13 @@ class GsConverter {
             }
             //Process list of classes
             if (classList) {
+                if (consoleInfo) {
+                    println 'Processing class list...'
+                }
                 processClassList(classList)
+                if (consoleInfo) {
+                    println 'Done class list.'
+                }
             }
             //Process blocks after
             listBlocks?.each { it->
@@ -276,10 +285,18 @@ class GsConverter {
         }
         //Finally process classes in order
         finalList.each { String nameClass ->
+            if (consoleInfo) {
+                println '  Processing class '+nameClass
+            }
+
             //println 'Class->'+nameClass
             processClassNode(list.find { ClassNode it ->
                 return it.name == nameClass
             })
+
+            if (consoleInfo) {
+                println '  Processing class done.'
+            }
         }
         //Expandos - Nothing to do!
         extraClasses.each { String nameClass ->
@@ -804,14 +821,15 @@ class GsConverter {
                 //println 'Empty->'+block.getStatementLabel()
             } else {
                 //println '------------------------------Block->'+block.text
-                block.getStatements()?.each { it ->
+                block.getStatements()?.each { statement ->
                     //println 'Block Statement-> size '+ block.getStatements().size() + ' number '+number+ ' it->'+it
+                    //println 'is block-> '+ (it instanceof BlockStatement)
                     //println 'it-> '+ it.text
                     def position
                     returnScoping.push(false)
-                    if (addReturn && ((number++)==block.getStatements().size()) && !(it instanceof ReturnStatement)
-                            && !(it instanceof IfStatement) && !(it instanceof WhileStatement)
-                            && !(it.expression && it.expression instanceof DeclarationExpression)) {
+                    if (addReturn && ((number++)==block.getStatements().size()) && !(statement instanceof ReturnStatement)
+                            && !(statement instanceof IfStatement) && !(statement instanceof WhileStatement)
+                            && !(statement.expression && statement.expression instanceof DeclarationExpression)) {
                         //println 'Saving statemen->'+it
                         //println 'Saving return - '+ variableScoping.peek()
                         //this statement can be a complex statement with a return
@@ -820,7 +838,7 @@ class GsConverter {
                         //We use actualScoping for getting return statement in this scope
                         //variableScoping.peek().remove(gSgotResultStatement)
                     }
-                    processStatement(it)
+                    processStatement(statement)
                     if (addReturn && position) {
                         if (!returnScoping.peek()) {
                             //No return statement, then we want add return
@@ -944,7 +962,7 @@ class GsConverter {
     }
 
     def private processExpressionStatement(ExpressionStatement statement) {
-        //println '->'+statement
+        //println 'begin->'+statement
         Expression e = statement.expression
         "process${e.class.simpleName}"(e)
     }
@@ -1957,6 +1975,16 @@ class GsConverter {
             throw new Exception('Casting not supported for '+expression.type.name)
         }
     }
+    def private processMethodPointerExpression(MethodPointerExpression expression) {
+        //println 'Exp-'+expression.expression
+        //println 'dynamic-'+expression.dynamic
+        //println 'methodName-'+expression.methodName
+        "process${expression.expression.class.simpleName}"(expression.expression)
+        addScript('[')
+        "process${expression.methodName.class.simpleName}"(expression.methodName)
+        addScript(']')
+    }
+
 
     def methodMissing(String name, Object args) {
         def message
