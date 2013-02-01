@@ -80,6 +80,10 @@ gsBaseClass = {
 
 function gSexpando() {
     var object = inherit(gsBaseClass,'Expando');
+
+    object.constructorWithMap = function(map) { gSpassMapToObject(map,this); return this;};
+    if (arguments.length==1) {object.constructorWithMap(arguments[0]); }
+
     return object;
 }
 
