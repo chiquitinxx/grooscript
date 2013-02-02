@@ -14,11 +14,17 @@ class TestContributors extends Specification {
 
     def converter = new GsConverter()
 
-    def readAndConvert(nameOfFile,consoleOutput) {
+    def readAndConvert(nameOfFile,consoleOutput,String textSearch=null,String textReplace=null) {
 
         def file = TestJs.getGroovyTestScript(nameOfFile)
 
-        def jsScript = converter.toJs(file.text)
+        def String jsScript = converter.toJs(file.text)
+
+        if (textSearch && jsScript.indexOf(textSearch)>=0) {
+            //jsScript.replaceAll('/'+textSearch+'/',textReplace)
+            jsScript = jsScript.substring(0,jsScript.indexOf(textSearch)) +
+                    textReplace + jsScript.substring(jsScript.indexOf(textSearch)+textSearch.size())
+        }
 
         if (consoleOutput) {
             println 'jsScript->\n'+jsScript
@@ -89,6 +95,17 @@ class TestContributors extends Specification {
         'contribution/Anonymous1'  | 'fizzbuzz\n91'
         'contribution/Anonymous2'  | 'fizZbuzZ\n16'
 
+    }
+
+    def 'coming bugs comming from monkfish'() {
+        when:
+        def result = readAndConvert('contribution/MonkFish',true,
+                'gSobject.value = 0;',
+                'gSobject.value = 0;gSobject.two = function() {return 2;};')
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
     }
 
 }

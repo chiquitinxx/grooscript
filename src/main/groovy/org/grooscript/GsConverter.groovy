@@ -57,6 +57,9 @@ class GsConverter {
     //Conversion Options
     def addClassNames = false
 
+    //Constant names for javascript out
+    def static final GS_OBJECT = 'gSobject'
+
     //When true, we dont add this no variables
     //TODO remove this variable properly
     //def dontAddMoreThis
@@ -322,7 +325,7 @@ class GsConverter {
     def private addConditionConstructorExecution(numberArguments,paramList) {
 
         addScript("if (arguments.length==${numberArguments}) {")
-        addScript("gSobject.${translateClassName(classNameStack.peek())}${numberArguments}")
+        addScript("${GS_OBJECT}.${translateClassName(classNameStack.peek())}${numberArguments}")
 
         addScript '('
         def count = 0
@@ -362,12 +365,12 @@ class GsConverter {
         node?.properties?.each { it->
             println 'Property->'+it; println 'initialExpresion->'+it.initialExpression
             if (it.initialExpression) {
-                addScript("gSobject.${it.name} = ")
+                addScript("${GS_OBJECT}.${it.name} = ")
                 "process${it.initialExpression.class.simpleName}"(it.initialExpression)
                 addScript(';')
                 addLine()
             } else {
-                addScript("gSobject.${it.name} = null;")
+                addScript("${GS_OBJECT}.${it.name} = null;")
                 addLine()
             }
 
@@ -401,7 +404,7 @@ class GsConverter {
 
     def private addPropertyToClass(fieldOrProperty,isStatic) {
 
-        def previous = 'gSobject'
+        def previous = GS_OBJECT
         if (isStatic) {
             previous = ''
         }
@@ -419,9 +422,9 @@ class GsConverter {
 
     def private addPropertyStaticToClass(String name) {
 
-        addScript("gSobject.__defineGetter__('${name}', function(){ return ${translateClassName(classNameStack.peek())}.${name}; });")
+        addScript("${GS_OBJECT}.__defineGetter__('${name}', function(){ return ${translateClassName(classNameStack.peek())}.${name}; });")
         addLine()
-        addScript("gSobject.__defineSetter__('${name}', function(gSval){ ${translateClassName(classNameStack.peek())}.${name} = gSval; });")
+        addScript("${GS_OBJECT}.__defineSetter__('${name}', function(gSval){ ${translateClassName(classNameStack.peek())}.${name} = gSval; });")
         addLine()
     }
 
@@ -478,13 +481,12 @@ class GsConverter {
         //Allowed inheritance
         if (node.superClass.name != 'java.lang.Object') {
             //println 'Allowed!'+ node.superClass.class.name
-            //addScript("var gSobject = gsCreate${translateClassName(node.superClass.name)}();")
-            addScript("var gSobject = ${translateClassName(node.superClass.name)}();")
+            addScript("var ${GS_OBJECT} = ${translateClassName(node.superClass.name)}();")
 
             //We add to this class scope variables of fathers
             variableScoping.peek().addAll(inheritedVariables[node.superClass.name])
         } else {
-            addScript("var gSobject = inherit(gsBaseClass,'${translateClassName(node.name)}');")
+            addScript("var ${GS_OBJECT} = inherit(gsBaseClass,'${translateClassName(node.name)}');")
         }
         addLine()
         //ignoring generics and interfaces and extends atm
@@ -533,19 +535,20 @@ class GsConverter {
         //Methods
         node?.methods?.each { MethodNode it -> //println 'method->'+it;
 
-            if (!haveAnnotationNonConvert(it.annotations)) {
+            //Even if not converting, we add name to scope
+            //if (!haveAnnotationNonConvert(it.annotations)) {
                 //Add too method names to variable scoping
                 if (!it.isStatic()) {
                     variableScoping.peek().add(it.name)
                 }
-            }
+            //}
         }
         node?.methods?.each { MethodNode it -> //println 'method->'+it;
 
             if (!haveAnnotationNonConvert(it.annotations)) {
                 //Process the methods
                 if (haveAnnotationNative(it.annotations)) {
-                    addScript("gSobject.${it.name} = function(")
+                    addScript("${GS_OBJECT}.${it.name} = function(")
                     processFunctionOrMethodParameters(it,false,false)
                     //addScript(") {")
                     addScript(nativeFunctions[it.name])
@@ -568,7 +571,7 @@ class GsConverter {
                         params << 'x'+number
                     }
 
-                    addScript("gSobject.${it.name} = function(${params.join(',')}) { return ${translateClassName(node.name)}.${it.name}(")
+                    addScript("${GS_OBJECT}.${it.name} = function(${params.join(',')}) { return ${translateClassName(node.name)}.${it.name}(")
                     addScript(params.join(','))
                     addScript("); }")
                     addLine()
@@ -594,16 +597,15 @@ class GsConverter {
 
         }
         if (!has1parameterConstructor) {
-            addScript("gSobject.${translateClassName(node.name)}1 = function(map) { gSpassMapToObject(map,this); return this;};")
+            addScript("${GS_OBJECT}.${translateClassName(node.name)}1 = function(map) { gSpassMapToObject(map,this); return this;};")
             addLine()
-            addScript("if (arguments.length==1) {gSobject.${translateClassName(node.name)}1(arguments[0]); }")
+            addScript("if (arguments.length==1) {${GS_OBJECT}.${translateClassName(node.name)}1(arguments[0]); }")
             addLine()
         }
 
         addLine()
         indent --
-        //addScript("this.gSobject=gSobject;return gSobject;")
-        addScript("return gSobject;")
+        addScript("return ${GS_OBJECT};")
         addLine()
         addScript('};')
         addLine()
@@ -639,25 +641,25 @@ class GsConverter {
     def addClassNames(actualClassName,superClassName) {
 
         if (superClassName) {
-            addScript('var temp = gSobject.gSclass;')
+            addScript("var temp = ${GS_OBJECT}.gSclass;")
             addLine()
-            addScript('gSobject.gSclass = [];')
+            addScript("${GS_OBJECT}.gSclass = [];")
             addLine()
-            addScript("gSobject.gSclass.superclass = temp;")
+            addScript("${GS_OBJECT}.gSclass.superclass = temp;")
             addLine()
         } else {
-            addScript('gSobject.gSclass = [];')
+            addScript("${GS_OBJECT}.gSclass = [];")
             addLine()
-            addScript('gSobject.gSclass.superclass = [];')
+            addScript("${GS_OBJECT}.gSclass.superclass = [];")
             addLine()
-            addScript('gSobject.gSclass.superclass.name= "java.lang.Object";')
+            addScript("${GS_OBJECT}.gSclass.superclass.name= 'java.lang.Object';")
             addLine()
-            addScript('gSobject.gSclass.superclass.simpleName= "Object";')
+            addScript("${GS_OBJECT}.gSclass.superclass.simpleName= 'Object';")
             addLine()
         }
-        addScript("gSobject.gSclass.name = '${actualClassName}';")
+        addScript("${GS_OBJECT}.gSclass.name = '${actualClassName}';")
         addLine()
-        addScript("gSobject.gSclass.simpleName = '${translateClassName(actualClassName)}';")
+        addScript("${GS_OBJECT}.gSclass.simpleName = '${translateClassName(actualClassName)}';")
         addLine()
 
     }
@@ -802,7 +804,7 @@ class GsConverter {
             //println 'Fucking name-'+name
         }
 
-        processBasicFunction("gSobject.$name",method,isConstructor)
+        processBasicFunction("${GS_OBJECT}.$name",method,isConstructor)
 
     }
 
@@ -1038,7 +1040,7 @@ class GsConverter {
         //println "name:${expression.name} - scope:${variableScoping.peek()} - isThis - ${expression.isThisExpression()}"
         //if (!variableScoping.peek().contains(v.name) && !declaringVariable &&!dontAddMoreThis && variableScoping.size()>1) {
         if (variableScoping.peek().contains(expression.name) && !(actualScopeContains(expression.name))) {
-            addScript('gSobject.'+expression.name)
+            addScript("${GS_OBJECT}."+expression.name)
         } else if (variableStaticScoping.peek().contains(expression.name) && !(actualScopeContains(expression.name))) {
             addScript(translateClassName(classNameStack.peek())+'.'+expression.name)
         } else {
@@ -1378,10 +1380,15 @@ class GsConverter {
         } else {
 
             if (!(expression instanceof AttributeExpression)) {
-
+                //println 'attr->'+expression.objectExpression
                 addScript('gSgetProperty(')
 
-                processObjectExpressionFromProperty(expression)
+                if (expression.objectExpression instanceof VariableExpression &&
+                        expression.objectExpression.name=='this') {
+                    addScript("gSthisOrObject(this,${GS_OBJECT})")
+                } else {
+                    processObjectExpressionFromProperty(expression)
+                }
 
                 addScript(',')
 
@@ -1450,8 +1457,8 @@ class GsConverter {
             if (expression.objectExpression instanceof VariableExpression &&
                     expression.objectExpression.name == 'this' &&
                     variableScoping.peek()?.contains(expression.methodAsString)) {
-                //Remove this and put gSobject for variable scoping
-                addScript("gSobject")
+                //Remove this and put ${GS_OBJECT} for variable scoping
+                addScript(GS_OBJECT)
             } else {
                 "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
             }
@@ -1857,7 +1864,7 @@ class GsConverter {
         addLine()
 
         //Allowed inheritance
-        //addScript('var gSobject = inherit(gsBaseClass);')
+        //addScript('var ${GS_OBJECT} = inherit(gsBaseClass);')
 
         //addLine()
         //ignoring generics and interfaces and extends atm
@@ -1899,7 +1906,7 @@ class GsConverter {
         //addLine()
 
         indent --
-        //addScript("return gSobject;")
+        //addScript("return ${GS_OBJECT};")
         addLine()
         addScript('}')
         addLine()

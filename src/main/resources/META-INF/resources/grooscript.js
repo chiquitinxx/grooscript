@@ -283,6 +283,11 @@ function gSmap() {
     object.isEmpty = function() {
         return (this.size() == 0);
     }
+    object.remove = function(key) {
+        if (this[key]) {
+            delete this[key];
+        }
+    }
     object.each = function(closure) {
         for (ob in this) {
             if (typeof this[ob] !== "function" && !isgSmapProperty(ob)) {
@@ -1640,6 +1645,17 @@ function gSin(item,group) {
         return group.contains(item);
     } else {
         return false
+    }
+}
+
+//For some special cases where access a property with this."${name}"
+//This can be a closure
+function gSthisOrObject(thisItem,objectItem) {
+    //this can only be used for our objects, our object must have gSwith function
+    if (thisItem['gSwith']==undefined && objectItem!=null && objectItem!=undefined) {
+        return objectItem;
+    } else {
+        return thisItem;
     }
 }
 

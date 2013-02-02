@@ -47,7 +47,7 @@ class TestAdvancedClass extends Specification {
 
     def 'add methods and properties to classes'() {
         when:
-        def result = readAndConvert('classes/AddingStuff',true)
+        def result = readAndConvert('classes/AddingStuff',false)
 
         then:
         !result.assertFails
