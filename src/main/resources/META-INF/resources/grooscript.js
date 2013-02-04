@@ -1726,6 +1726,13 @@ function gSgetProperty(item,nameProperty) {
 
     //console.log('item->'+item+' property->'+nameProperty);
 
+    //It's a get with safe operator as item?.data
+    if (arguments.length == 3) {
+        if (item == null || item == undefined) {
+            return null;
+        }
+    }
+
     if (item['getProperty']=='undefined' || item['getProperty']==null || !(typeof item['getProperty'] === "function")) {
 
         var nameFunction = 'get' + nameProperty.charAt(0).toUpperCase() + nameProperty.slice(1);

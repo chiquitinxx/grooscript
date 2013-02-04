@@ -283,4 +283,14 @@ class TestAdvanced extends Specification {
 
     }
 
+    def 'test safe navigation'() {
+        when:
+        def result = readAndConvert('advanced/SafeNavigation',false)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+
+    }
+
 }

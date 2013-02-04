@@ -1380,7 +1380,7 @@ class GsConverter {
         } else {
 
             if (!(expression instanceof AttributeExpression)) {
-                //println 'attr->'+expression.objectExpression
+                //println 'expr->'+expression
                 addScript('gSgetProperty(')
 
                 if (expression.objectExpression instanceof VariableExpression &&
@@ -1393,6 +1393,11 @@ class GsConverter {
                 addScript(',')
 
                 processPropertyExpressionFromProperty(expression)
+
+                //If is a safe expresion as item?.data, we add one more parameter
+                if (expression.isSafe()) {
+                    addScript(',true')
+                }
 
                 addScript(')')
             } else {
