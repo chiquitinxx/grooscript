@@ -426,7 +426,7 @@ function gSmap() {
     }
 
     object.containsKey = function(key) {
-        if (this[key]=='undefined' || this[key]==null) {
+        if (this[key]==undefined || this[key]==null) {
             return false;
         } else {
             return true;
@@ -569,7 +569,7 @@ function gSlist(value) {
         //Maybe comes a second parameter with default value
         if (arguments.length==2) {
             //console.log('uh->'+this[pos]);
-            if (this[pos]==null || this[pos]=='undefined') {
+            if (this[pos]==null || this[pos]==undefined) {
                 return arguments[1];
             } else {
                 return this[pos];
@@ -1058,7 +1058,26 @@ function gSlist(value) {
         }
     }
 
+    object.flatten = function() {
+        var result = gSlist([]);
+        gSflatten(result,this);
+
+        return result;
+    }
+
     return object;
+}
+
+function gSflatten (result, list) {
+    list.each(function (it) {
+        if (it instanceof Array) {
+            if (it.length>0) {
+                gSflatten(result,it);
+            }
+        } else {
+            result.add(it);
+        }
+    });
 }
 
 /////////////////////////////////////////////////////////////////
@@ -1215,13 +1234,13 @@ function gSregExp(text,ppattern) {
     //var object;
     var data = patt.exec(text);//text.match(patt);
     //console.log('data->'+data);
-    if (data==null || data=='undefined') {
+    if (data==null || data==undefined) {
         return null;
     } else {
         var list = [];
         var i = 0;
 
-        while (data!=null && data!='undefined') {
+        while (data!=null && data!=undefined) {
             //console.log('adding data->'+data);
             if (data instanceof Array && data.length>1) {
                 list[i] = gSlist(data);
@@ -1326,7 +1345,7 @@ String.prototype.endsWith = function(value) {
 String.prototype.count = function(value) {
     var reg = new RegExp(value,'g');
     var result = this.match(reg);
-    if (result!=null && result!='undefined') {
+    if (result!=null && result!=undefined) {
         return result.length;
     } else {
         return 0;
@@ -1497,9 +1516,9 @@ function gSpassMapToObject(source,destination) {
 
 function gSequals(value1, value2) {
     //console.log('going eq:'+value1+ ' = '+value2+' -> '+value1.equals);
-    if (value1==null || value1=='undefined' || value1.equals=='undefined' || value1.equals==null || !(typeof value1.equals === "function")) {
+    if (value1==null || value1==undefined || value1.equals==undefined || value1.equals==null || !(typeof value1.equals === "function")) {
         //console.log(' 1 ');
-        if (value2!=null && value2!='undefined' && value2.equals!='undefined' && value2.equals!=null && (typeof value2.equals === "function")) {
+        if (value2!=null && value2!=undefined && value2.equals!=undefined && value2.equals!=null && (typeof value2.equals === "function")) {
             return value2.equals(value1);
         } else {
             return value1==value2;
@@ -1534,7 +1553,7 @@ function gSrandom() {
 function gSbool(item) {
     //console.log('item->'+item+' - '+item.isEmpty+' - '+(item.isEmpty === "function"));
     //console.log('type->'+typeof(item));
-    if (item!=null && item!='undefined' && item.isEmpty!=null) {
+    if (item!=null && item!=undefined && item.isEmpty!=null) {
         //console.log('bool yeah->'+!item.isEmpty());
         return !item.isEmpty();
     } else {
@@ -1581,7 +1600,7 @@ function gSinstanceOf(item,name) {
         return typeof(item)=='number';
     } else if (item.gSclass) {
         classItem = item.gSclass;
-        while (classItem!=null && classItem!='undefined' && !gotIt) {
+        while (classItem!=null && classItem!=undefined && !gotIt) {
             if (classItem.name == name || classItem.simpleName == name) {
                 gotIt = true;
             } else {
@@ -1603,8 +1622,8 @@ function gSelvis(booleanExpression,trueExpression,falseExpression) {
 
 // * operator
 function gSmultiply(a,b) {
-     if (a==null || a=='undefined' || a.multiply=='undefined' || a.multiply==null || !(typeof a.multiply === "function")) {
-          if (b==null || b=='undefined' || b.multiply=='undefined' || b.multiply==null || !(typeof b.multiply === "function")) {
+     if (a==null || a==undefined || a.multiply==undefined || a.multiply==null || !(typeof a.multiply === "function")) {
+          if (b==null || b==undefined || b.multiply==undefined || b.multiply==null || !(typeof b.multiply === "function")) {
             return a*b;
           } else {
             return b.multiply(a);
@@ -1617,8 +1636,8 @@ function gSmultiply(a,b) {
 
 // + operator
 function gSplus(a,b) {
-    if (a==null || a=='undefined' || a.plus=='undefined' || a.plus==null || !(typeof a.plus === "function")) {
-        if (b==null || b=='undefined' || b.plus=='undefined' || b.plus==null || !(typeof b.plus === "function")) {
+    if (a==null || a==undefined || a.plus==undefined || a.plus==null || !(typeof a.plus === "function")) {
+        if (b==null || b==undefined || b.plus==undefined || b.plus==null || !(typeof b.plus === "function")) {
             return a+b;
         } else {
             return b.plus(a);
@@ -1631,7 +1650,7 @@ function gSplus(a,b) {
 
 // - operator
 function gSminus(a,b) {
-    if (a==null || a=='undefined' || a.minus=='undefined' || a.minus==null || !(typeof a.minus === "function")) {
+    if (a==null || a==undefined || a.minus==undefined || a.minus==null || !(typeof a.minus === "function")) {
         return a-b;
     } else {
         //console.log('a.minus(b)'+a+' '+b);
@@ -1641,7 +1660,7 @@ function gSminus(a,b) {
 
 // in operator
 function gSin(item,group) {
-    if (group!=null && group !='undefined' && (typeof group.contains === "function")) {
+    if (group!=null && group !=undefined && (typeof group.contains === "function")) {
         return group.contains(item);
     } else {
         return false
@@ -1676,11 +1695,11 @@ function gSsetProperty(item,nameProperty,value) {
         item.gSparent[nameProperty] = value;
     } else {
 
-        if (item['setProperty']=='undefined' || item['setProperty']==null || !(typeof item['setProperty'] === "function")) {
+        if (item['setProperty']==undefined || item['setProperty']==null || !(typeof item['setProperty'] === "function")) {
 
             var nameFunction = 'set' + nameProperty.charAt(0).toUpperCase() + nameProperty.slice(1);
 
-            if (item[nameFunction]=='undefined' || item[nameFunction]==null || !(typeof item[nameFunction] === "function")) {
+            if (item[nameFunction]==undefined || item[nameFunction]==null || !(typeof item[nameFunction] === "function")) {
                 //console.log('Setting->'+item+' - '+nameProperty+' - '+value);
                 item[nameProperty] = value;
             } else {
@@ -1696,7 +1715,7 @@ function gSsetProperty(item,nameProperty,value) {
 //Calling a setMethod
 function gSsetMethod(item,methodName,value) {
 
-    if (item[methodName]=='undefined' || item[methodName]==null || !(typeof item[methodName] === "function")) {
+    if (item[methodName]==undefined || item[methodName]==null || !(typeof item[methodName] === "function")) {
 
         var nameProperty = methodName.charAt(3).toLowerCase() + methodName.slice(4);
         item[nameProperty] = value;
@@ -1709,7 +1728,7 @@ function gSsetMethod(item,methodName,value) {
 //Calling a getMethod
 function gSgetMethod(item,methodName) {
 
-    if (item[methodName]=='undefined' || item[methodName]==null || !(typeof item[methodName] === "function")) {
+    if (item[methodName]==undefined || item[methodName]==null || !(typeof item[methodName] === "function")) {
 
         var nameProperty = methodName.charAt(3).toLowerCase() + methodName.slice(4);
         var res = function () { return item[nameProperty];}
@@ -1733,11 +1752,11 @@ function gSgetProperty(item,nameProperty) {
         }
     }
 
-    if (item['getProperty']=='undefined' || item['getProperty']==null || !(typeof item['getProperty'] === "function")) {
+    if (item['getProperty']==undefined || item['getProperty']==null || !(typeof item['getProperty'] === "function")) {
 
         var nameFunction = 'get' + nameProperty.charAt(0).toUpperCase() + nameProperty.slice(1);
         //console.log('Name func->'+nameFunction);
-        if (item[nameFunction]=='undefined' || item[nameFunction]==null || !(typeof item[nameFunction] === "function")) {
+        if (item[nameFunction]==undefined || item[nameFunction]==null || !(typeof item[nameFunction] === "function")) {
             if (typeof item[nameProperty] === "function" && nameProperty == 'size') {
                 return item[nameProperty]();
             } else {
@@ -1802,7 +1821,7 @@ function gSmethodCall(item,methodName,values) {
         }
     }
 
-    if (item[methodName]=='undefined' || item[methodName]==null || !(typeof item[methodName] === "function")) {
+    if (item[methodName]==undefined || item[methodName]==null || !(typeof item[methodName] === "function")) {
 
         //console.log('Not Going! '+methodName+ ' - '+item);
         //var nameProperty = methodName.charAt(3).toLowerCase() + methodName.slice(4);
@@ -1830,6 +1849,14 @@ function gSmethodCall(item,methodName,values) {
             if (item['methodMissing']) {
                return item['methodMissing'](methodName,values);
             } else {
+                //Lets check if in any category we have the static method
+                if (gScategories.length > 0) {
+                    var whereExecutes = gScategorySearching(methodName);
+                    if (whereExecutes!=null) {
+                        return whereExecutes[methodName](item);
+                    }
+                }
+
                 //Not exist the method, throw exception
                 throw 'gSmethodCall Method '+ methodName + ' not exist in '+item;
             }
@@ -1839,4 +1866,27 @@ function gSmethodCall(item,methodName,values) {
         var f = item[methodName];
         return f.apply(item,values);
     }
+}
+
+////////////////////////////////////////////////////////////
+// Categories
+////////////////////////////////////////////////////////////
+var gScategories = [];
+function gScategoryUse(item,closure) {
+    gScategories[gScategories.length] = item;
+    closure();
+    gScategories.splice(gScategories.length - 1, 1);
+}
+
+function gScategorySearching(methodName) {
+    var result = null;
+    var i;
+    for (i = gScategories.length-1;i>=0 && result==null;i--) {
+        var name = gScategories[i];
+        if (eval(name)[methodName]) {
+            //return eval(name)[methodName](object);
+            result = eval(name);
+        }
+    }
+    return result;
 }

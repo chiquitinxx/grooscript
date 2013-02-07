@@ -826,12 +826,18 @@ class GsConverter {
                 block.getStatements()?.each { statement ->
                     //println 'Block Statement-> size '+ block.getStatements().size() + ' number '+number+ ' it->'+it
                     //println 'is block-> '+ (it instanceof BlockStatement)
-                    //println 'it-> '+ it.text
+                    //println 'statement-> '+ statement.text
                     def position
                     returnScoping.push(false)
                     if (addReturn && ((number++)==block.getStatements().size()) && !(statement instanceof ReturnStatement)
                             && !(statement instanceof IfStatement) && !(statement instanceof WhileStatement)
-                            && !(statement.expression && statement.expression instanceof DeclarationExpression)) {
+                            && !(statement instanceof AssertStatement) && !(statement instanceof BreakStatement)
+                            && !(statement instanceof CaseStatement) && !(statement instanceof CatchStatement)
+                            && !(statement instanceof ContinueStatement) && !(statement instanceof DoWhileStatement)
+                            && !(statement instanceof ForStatement) && !(statement instanceof SwitchStatement)
+                            && !(statement instanceof ThrowStatement) && !(statement instanceof TryCatchStatement)
+                            && !(statement.metaClass.expression && statement.expression instanceof DeclarationExpression)) {
+
                         //println 'Saving statemen->'+it
                         //println 'Saving return - '+ variableScoping.peek()
                         //this statement can be a complex statement with a return
@@ -919,7 +925,6 @@ class GsConverter {
     def private void processStatement(Statement statement) {
 
         //println "statement (${statement.class.simpleName})->"+statement+' - '+statement.text
-
         "process${statement.class.simpleName}"(statement)
 
         //Adds ;
@@ -927,6 +932,7 @@ class GsConverter {
             resultScript += ';'
         }
         addLine()
+        //println 'end statement'
     }
 
     def private processAssertStatement(AssertStatement statement) {
@@ -1437,10 +1443,12 @@ class GsConverter {
             "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
             addScript(')')
             addScript(".${expression.methodAsString}")
+        //With
         } else if (expression.methodAsString == 'with' && expression.arguments instanceof ArgumentListExpression &&
                 expression.arguments.getExpression(0) && expression.arguments.getExpression(0) instanceof ClosureExpression) {
             "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
             addScript(".gSwith")
+        //Using Math library
         } else if (expression.objectExpression instanceof ClassExpression && expression.objectExpression.type.name=='java.lang.Math') {
             addScript("Math.${expression.methodAsString}")
         //Adding class.forName
@@ -1451,6 +1459,20 @@ class GsConverter {
             "process${expression.arguments.class.simpleName}"(expression.arguments,false)
             addScript(')')
             addParameters = false
+        //this.use {} Categories
+        } else if (expression.objectExpression instanceof VariableExpression &&
+                expression.objectExpression.name=='this' && expression.methodAsString == 'use') {
+            //println 'Category going!'
+            ArgumentListExpression args = expression.arguments
+            //println 'cat size()->'+args.expressions.size()
+            //println '0->'+ args.expressions[0].type.name
+
+            addParameters = false
+            addScript('gScategoryUse("')
+            addScript(translateClassName(args.expressions[0].type.name))
+            addScript('",')
+            "process${args.expressions[1].class.simpleName}"(args.expressions[1])
+            addScript(')')
         } else {
 
 

@@ -99,13 +99,23 @@ class TestContributors extends Specification {
 
     def 'coming bugs comming from monkfish'() {
         when:
-        def result = readAndConvert('contribution/MonkFish',true,
+        def result = readAndConvert('contribution/MonkFish',false,
                 'gSobject.value = 0;',
                 'gSobject.value = 0;gSobject.two = function() {return 2;};')
 
         then:
         //println 'Console->'+result.gSconsole
         !result.assertFails
+    }
+
+    def 'testing more web' () {
+        when:
+        def result = readAndConvert('contribution/Anonymous3',false)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+
     }
 
 }

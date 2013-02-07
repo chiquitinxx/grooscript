@@ -53,5 +53,13 @@ class TestAdvancedClass extends Specification {
         !result.assertFails
     }
 
+    def 'who knows categories'() {
+        when:
+        def result = readAndConvert('classes/Categories',true)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+    }
 
 }

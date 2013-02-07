@@ -7,7 +7,7 @@ apply plugin: 'signing'
 group = 'org.grooscript'
 version = '0.2'
 
-//sourceCompatibility = 1.7
+sourceCompatibility = 1.7
 
 //mainClassName = 'org.yila.gscript'
 
@@ -38,11 +38,9 @@ repositories {
 }
 
 dependencies {
-	groovy group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.1.0'
+	compile group: 'org.codehaus.groovy', name: 'groovy', version: '2.1.0'
 	//groovy group: 'org.codehaus.groovy', name: 'groovy', version: '2.0.6'
-	//missing spock for groovy 2
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
-	//testCompile 'junit:junit:4.10'
 	//testCompile fileTree(dir: 'lib', include: '*.jar')
 }
 
