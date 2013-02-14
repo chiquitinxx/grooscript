@@ -6,7 +6,7 @@ package org.grooscript
 class GrooScript {
 
     def private static GsConverter converter
-    def static String ownClassPath
+    def static ownClassPath
     def static debug = false
     def private static HEAD = '[GrooScript]'
 
@@ -74,10 +74,10 @@ class GrooScript {
 
     /**
      * Set the dir where all your groovy starts, the mainSource ( src/main/groovy, src/groovy, ..)
-     * @param dir
+     * @param dir String or List
      * @return
      */
-    def static setOwnClassPath(String dir) {
+    def static setOwnClassPath(dir) {
         ownClassPath = dir
     }
 
@@ -99,8 +99,8 @@ class GrooScript {
                 newFile.write(jsResult)
                 if (debug) {
                     println "${HEAD}    Result -> ${jsResult.size()}"
+                    println '***** Converted file: '+newFile.name + ' *****'
                 }
-                println 'Converted file: '+newFile.name
             }
         } catch (e) {
             println "${HEAD} Convert Exception: "+e.message

@@ -106,9 +106,12 @@ class GsConverter {
      * @param String classPath to add to classpath
      * @return String script in javascript
      */
-    def toJs(String script,String classPath) {
+    def toJs(String script,Object classPath) {
         def result
-        //println 'Classpath->'+classPath
+        //Classpath must be a String or a list
+        if (classPath && !(classPath instanceof String || classPath instanceof Collection)) {
+            throw new Exception('The classpath must be a String or a List')
+        }
         //Script not empty plz!
         def phase = 0
         if (script) {
@@ -124,14 +127,15 @@ class GsConverter {
                 //    println '->'+it
                 //}
 
-                if (classPath && classPath.trim()!='') {
+                if (classPath) {
 
                     //println 'cp->'+ classPath
                     list = getAstFromText(script,classPath)
                     //println 'list->'+ list
 
                 } else {
-                    list = new AstBuilder().buildFromString(CompilePhase.SEMANTIC_ANALYSIS,script)
+                    //list = new AstBuilder().buildFromString(CompilePhase.SEMANTIC_ANALYSIS,script)
+                    list = getAstFromText(script,null)
                 }
 
                 phase++
@@ -154,7 +158,7 @@ class GsConverter {
      * @param classpath
      * @return
      */
-    def getAstFromText(text,classpath) {
+    def getAstFromText(text,Object classpath) {
 
         //By default, convertDependencies = true
         //All the imports in a file are added to the source to be compiled, if not added, compiler fails
@@ -169,10 +173,25 @@ class GsConverter {
 
         def scriptClassName = "script" + System.currentTimeMillis()
         GroovyClassLoader classLoader = new GroovyClassLoader()
-        classLoader.addClasspath(classpath)
+        //Add classpath to classloader
+        if (classpath) {
+            if (classpath instanceof Collection) {
+                classpath.each {
+                    classLoader.addClasspath(it)
+                }
+            } else {
+                classLoader.addClasspath(classpath)
+            }
+        }
         GroovyCodeSource codeSource = new GroovyCodeSource(text, scriptClassName + ".groovy", "/groovy/script")
         CompilerConfiguration conf = CompilerConfiguration.DEFAULT
-        conf.setClasspath(classpath)
+        //Add classpath to configuration
+        if (classpath && classpath instanceof String) {
+            conf.setClasspath(classpath)
+        }
+        if (classpath && classpath instanceof Collection) {
+            conf.setClasspathList(classpath)
+        }
         CompilationUnit cu = new CompilationUnit(conf, codeSource.codeSource, classLoader)
         cu.addSource(codeSource.getName(), text);
         cu.compile(CompilePhase.SEMANTIC_ANALYSIS.phaseNumber)

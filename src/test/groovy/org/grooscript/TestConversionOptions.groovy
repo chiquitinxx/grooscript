@@ -8,6 +8,12 @@ import spock.lang.Specification
  */
 class TestConversionOptions extends Specification {
 
+    //Reset options of GrooScript
+    def setup() {
+        GrooScript.setOwnClassPath(null)
+        GrooScript.setConversionProperty('convertDependencies',true)
+    }
+
     def 'check dependency resolution'() {
 
         when:
@@ -45,6 +51,15 @@ class TestConversionOptions extends Specification {
         then: 'Need class not converted'
         result
         !result.contains('function Need()')
+    }
 
+    def 'can set classpath as List'() {
+        when: 'we set classpath as list'
+        GrooScript.setOwnClassPath(['need'])
+        def String result = GrooScript.convert("class B { def Need c}")
+
+        then: 'not fails and Need converted'
+        result
+        result.contains('function Need()')
     }
 }
