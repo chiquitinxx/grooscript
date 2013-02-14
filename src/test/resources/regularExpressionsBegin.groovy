@@ -25,3 +25,7 @@ assert found == 'rain Spain plain '
 assert "griffon" =~ /gr*/
 //This dont work :/ always return true that javascript object
 //assert !("gradle" =~ /sup*/)
+
+def matcher = 'class A{ class B {}}' =~ /\bclass\s+(\w+)\s*\{/
+//println matcher
+assert matcher.size() == 2

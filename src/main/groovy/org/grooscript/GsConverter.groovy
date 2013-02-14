@@ -36,7 +36,7 @@ class GsConverter {
     //def methodVariableNames
     //def scriptScope
 
-    //Where code of native functions stored, as a map
+    //Where code of native functions stored, as a map. Used for GsNative annotation
     def nativeFunctions
 
     //Adds a console info if activated
@@ -46,9 +46,6 @@ class GsConverter {
     def switchCount = 0
     def addClosureSwitchInitialization = false
 
-    //Control no infinite calls of set propertyes
-    def insideSetProperty = false
-
     //We get this function names from unused_functions.groovy
     //Not now, changed, maybe in future can use a file for define that
     def assertFunction
@@ -56,6 +53,7 @@ class GsConverter {
 
     //Conversion Options
     def addClassNames = false
+    def convertDependencies = true
 
     //Constant names for javascript out
     def static final GS_OBJECT = 'gSobject'
@@ -158,6 +156,17 @@ class GsConverter {
      */
     def getAstFromText(text,classpath) {
 
+        //By default, convertDependencies = true
+        //All the imports in a file are added to the source to be compiled, if not added, compiler fails
+        def classesToConvert = []
+        if (!convertDependencies) {
+            def matcher = text =~ /\bclass\s+(\w+)\s*\{/
+            matcher.each {
+                //println 'Matcher1->'+it[1]
+                classesToConvert << it[1]
+            }
+        }
+
         def scriptClassName = "script" + System.currentTimeMillis()
         GroovyClassLoader classLoader = new GroovyClassLoader()
         classLoader.addClasspath(classpath)
@@ -176,9 +185,28 @@ class GsConverter {
                 acc.add(node.statementBlock)
 
                 node.classes?.each { ClassNode cl ->
+
+                    /*
+                    println 'add->'+cl.name
+                    cl.metaClass.methods.each { MetaMethod method ->
+                        if (method.name.startsWith('is')) {
+                            if (method.name != 'isDerivedFrom') {
+                                println ' '+method.name+ ' = '+cl."${method.name}"()
+                            }
+                        }
+                    }*/
+
                     if (!(cl.name == scriptClassName) && cl.isPrimaryClassNode()) {
                         //println 'add->'+cl.name
-                        acc << cl
+
+                        //If we dont want to convert dependencies in the result
+                        if (!convertDependencies) {
+                            if (classesToConvert.contains(cl.name)) {
+                                acc << cl
+                            }
+                        } else {
+                            acc << cl
+                        }
                     }
                 }
             }

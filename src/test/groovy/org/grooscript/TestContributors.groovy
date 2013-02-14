@@ -97,7 +97,7 @@ class TestContributors extends Specification {
 
     }
 
-    def 'coming bugs comming from monkfish'() {
+    def 'bugs coming from monkfish'() {
         when:
         def result = readAndConvert('contribution/MonkFish',false,
                 'gSobject.value = 0;',

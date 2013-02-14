@@ -12,9 +12,8 @@ import spock.lang.Specification
 class TestAdvanced extends Specification {
 
     def converter = new GsConverter()
-    def static DEPENDENCY =  'Dependency'
 
-    def readAndConvert(nameOfFile,consoleOutput,options = [:]) {
+    def readAndConvert(nameOfFile,jsResultOnConsole,options = [:]) {
 
         def file = TestJs.getGroovyTestScript(nameOfFile)
         if (options) {
@@ -23,9 +22,10 @@ class TestAdvanced extends Specification {
             }
         }
 
-        def jsScript = converter.toJs(file.text)
+        def jsScript
+        jsScript = converter.toJs(file.text)
 
-        if (consoleOutput) {
+        if (jsResultOnConsole) {
             println 'jsScript->\n'+jsScript
         }
 
@@ -142,36 +142,6 @@ class TestAdvanced extends Specification {
         !result.assertFails
 
     }
-
-
-    def 'check dependency resolution'() {
-
-        //def path = 'src/test/resources/dep/need'
-
-        when:
-        //This fails always on gradle
-        GrooScript.setOwnClassPath('need')
-        def String result = GrooScript.convert("class A {};def need = new Need()")
-
-        then:
-        result
-        result.startsWith('function A()')
-        result.endsWith('var need = Need();\n')
-    }
-
-    /*
-    def 'check dependency resolution alone'() {
-
-        when:
-        //This fails always on gradle
-        GrooScript.setOwnClassPath('need')
-        def String result = GrooScript.convert("class B { def Need c}")
-
-        then:
-        result
-        result.startsWith('function A()')
-        result.endsWith('var need = Need();\n')
-    }*/
 
     def 'mastering scope'() {
         when:

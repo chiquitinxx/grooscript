@@ -55,7 +55,7 @@ class TestAdvancedClass extends Specification {
 
     def 'who knows categories'() {
         when:
-        def result = readAndConvert('classes/Categories',true)
+        def result = readAndConvert('classes/Categories',false)
 
         then:
         //println 'Console->'+result.gSconsole
