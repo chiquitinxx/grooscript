@@ -1273,19 +1273,27 @@ class GsConverter {
     def private processConstantExpression(ConstantExpression expression) {
         //println 'ConstantExpression->'+expression.text
         if (expression.value instanceof String) {
-            //println 'Value->'+expression.value+'<'
+            //println 'Value->'+expression.value+'<'+expression.value.endsWith('\n')
             def String value = ''
             if (expression.value.startsWith('\n')) {
                 value = '\\n'
             }
+            //if (expression.value.size()>0 && expression.value.endsWith('\n') && !value.endsWith('\n')) {
+            //    value += '\\n'
+            //}
             def list = []
-            expression.value.eachLine { if (it) list << it  }
+            expression.value.eachLine {
+                if (it) list << it
+            }
             value += list.join('\\n')
             //expression.value.eachLine { if (it) value += it }
             //println 'Before->'+value
             //value = value.replaceAll('"','\\\\u0022')
             value = value.replaceAll('"','\\\\"')
-            //println 'After->'+value
+            //println 'After->'+value+'<'+value.endsWith('\n')
+            if (expression.value.endsWith('\n') && !value.endsWith('\n')) {
+                value += '\\n'
+            }
             addScript('"'+value+'"')
         } else {
             addScript(expression.value)
@@ -2056,6 +2064,7 @@ class GsConverter {
             throw new Exception('Casting not supported for '+expression.type.name)
         }
     }
+
     def private processMethodPointerExpression(MethodPointerExpression expression) {
         //println 'Exp-'+expression.expression
         //println 'dynamic-'+expression.dynamic
@@ -2066,6 +2075,17 @@ class GsConverter {
         addScript(']')
     }
 
+    def private processSpreadExpression(SpreadExpression expression) {
+        //println 'exp-'+expression
+        addScript('new GSspread(')
+        "process${expression.expression.class.simpleName}"(expression.expression)
+        addScript(')')
+    }
+
+    def private processSpreadMapExpression(SpreadMapExpression expression) {
+        //println 'Map exp-'+expression.text
+        addScript('"gSspreadMap"')
+    }
 
     def methodMissing(String name, Object args) {
         def message

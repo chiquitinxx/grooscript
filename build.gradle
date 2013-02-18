@@ -5,7 +5,7 @@ apply plugin: 'signing'
 
 //name = 'grooscript'
 group = 'org.grooscript'
-version = '0.2.1'
+version = '0.2.2'
 
 sourceCompatibility = 1.7
 
@@ -38,7 +38,8 @@ repositories {
 }
 
 dependencies {
-	compile group: 'org.codehaus.groovy', name: 'groovy', version: '2.0.6'
+	compile group: 'org.codehaus.groovy', name: 'groovy', version: '2.0.7'	
+	compile group: 'org.codehaus.gpars', name: 'gpars', version: '1.0.0'
 	//groovy group: 'org.codehaus.groovy', name: 'groovy', version: '2.0.6'
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 	//testCompile fileTree(dir: 'lib', include: '*.jar')
@@ -69,7 +70,7 @@ signing {
 uploadArchives {
     repositories {
         mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signPom(deployment) }
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
  
             repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
               authentication(userName: sonatypeUsername, password: sonatypePassword)

@@ -259,7 +259,17 @@ function isgSmapProperty(name) {
 function gSmap() {
     var object = inherit(gsBaseClass,'LinkedHashMap');
     object.add = function(key,value) {
-        this[key] = value;
+        if (key=="gSspreadMap") {
+            //We insert items of the map, from spread operator
+            var ob;
+            for (ob in value) {
+                if (typeof value[ob] !== "function" && !isgSmapProperty(ob)) {
+                    this[ob] = value[ob];
+                }
+            }
+        } else {
+            this[key] = value;
+        }
         return this;
     }
     object.put = function(key,value) {
@@ -272,7 +282,7 @@ function gSmap() {
         this.put(key,value);
     }
     object.size = function() {
-        var number = 0;
+        var number = 0,ob;
         for (ob in this) {
             if (typeof this[ob] !== "function" && !isgSmapProperty(ob)) {
                 number++;
@@ -562,7 +572,26 @@ function gSmap() {
 /////////////////////////////////////////////////////////////////
 function gSlist(value) {
     var object = inherit(Array.prototype,'ArrayList');
-    object = value;
+    //console.log('gSlist->'+(value instanceof Array)+' - '+value);
+    var data = [];
+
+    if (value && value.length>0) {
+        var i;
+        for (i=0;i<value.length;i++) {
+            if (value[i] instanceof GSspread) {
+                var values = value[i].values;
+                if (values.length>0) {
+                    var j;
+                    for (j=0;j<values.length;j++) {
+                        data[data.length]=values[j];
+                    }
+                }
+            } else {
+                data[data.length]=value[i];
+            }
+        }
+    }
+    object = data;
 
     object.get = function(pos) {
 
@@ -1149,7 +1178,7 @@ function gSdate() {
         }
     }
     object.format = function(rule) {
-        //TODO
+        //TODO complete
         var exit = '';
         if (rule) {
             exit = rule;
@@ -1162,6 +1191,39 @@ function gSdate() {
             exit = exit.replaceAll('yy',gSlastChars(this.getFullYear(),2));
         }
         return exit;
+    }
+    object.parse = function(rule,text) {
+        //TODO complete
+        var pos = rule.indexOf('yyyy');
+        if (pos>=0) {
+            this.setFullYear(text.substr(pos,4));
+        } else {
+            pos = rule.indexOf('yy');
+            if (pos>=0) {
+                this.setFullYear(text.substr(pos,2));
+            }
+        }
+        pos = rule.indexOf('MM');
+        if (pos>=0) {
+            this.setMonth(text.substr(pos,2)-1);
+        }
+        pos = rule.indexOf('dd');
+        if (pos>=0) {
+            this.setUTCDate(text.substr(pos,2));
+        }
+        pos = rule.indexOf('HH');
+        if (pos>=0) {
+            this.setHours(text.substr(pos,2));
+        }
+        pos = rule.indexOf('mm');
+        if (pos>=0) {
+            this.setMinutes(text.substr(pos,2));
+        }
+        pos = rule.indexOf('ss');
+        if (pos>=0) {
+            this.setSeconds(text.substr(pos,2));
+        }
+        return this;
     }
 
     return object;
@@ -1396,8 +1458,16 @@ String.prototype.multiply = function(value) {
     }
 }
 
+function gSgetItemsMultiline(text) {
+    var items = text.split('\n');
+    if (items.length>1 && items[items.length-1]=='') {
+        items.splice(items.length-1,1);
+    }
+    return items;
+}
+
 String.prototype.eachLine = function(closure) {
-    var items = this.split('\n');
+    var items = gSgetItemsMultiline(this);
     var i;
     for (i=0;i<items.length;i++) {
         var item = items[i];
@@ -1411,7 +1481,7 @@ String.prototype.eachLine = function(closure) {
 }
 
 String.prototype.readLines = function() {
-    var items = this.split('\n');
+    var items = gSgetItemsMultiline(this);
     return gSlist(items);
 }
 
@@ -1678,6 +1748,16 @@ function gSthisOrObject(thisItem,objectItem) {
     }
 }
 
+
+// spread operator (*)
+function GSspread(item) {
+    if (item!=null && item!=undefined) {
+        if (item instanceof Array) {
+            this.values = item;
+        }
+    }
+}
+
 /////////////////////////////////////////////////////////////////
 // Beans functions - From groovy beans
 /////////////////////////////////////////////////////////////////
@@ -1820,6 +1900,9 @@ function gSmethodCall(item,methodName,values) {
             return item.gSjoin();
         }
     }
+    /*if (typeof(item)=='number' && methodName=='times') {
+        return (item).times(values[0]);
+    }*/
 
     if (item[methodName]==undefined || item[methodName]==null || !(typeof item[methodName] === "function")) {
 

@@ -1,5 +1,5 @@
-GrooScript 0.2
-==============
+GrooScript 0.2.2
+================
 
 Converts your Groovy code to JavaScript(Groovy 2.0 to Javascript ECMAScript 5).
 
@@ -11,7 +11,7 @@ No dependencies, Gradle as build system. In sonar maven repository:
 
 https://oss.sonatype.org/content/groups/public/
 
-org.grooscript:grooscript:0.2
+org.grooscript:grooscript:0.2.2
 
 Please all feedback welcome, thanks!
 
