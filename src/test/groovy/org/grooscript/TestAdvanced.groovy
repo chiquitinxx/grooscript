@@ -263,4 +263,24 @@ class TestAdvanced extends Specification {
 
     }
 
+    def 'list ninja'() {
+        when:
+        def result = readAndConvert('advanced/ListNinja',true)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+
+    }
+
+    def 'maybe dsls'() {
+        when:
+        def result = readAndConvert('advanced/TryDsls',true)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+
+    }
+
 }

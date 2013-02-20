@@ -1487,7 +1487,20 @@ class GsConverter {
             addScript(printlnFunction)
         //Remove call method call from closures
         } else if (expression.methodAsString == 'call') {
-            "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
+            //println 'Calling!->'+expression.objectExpression
+            //if (f.delegate!=undefined) { f()} else { f.apply(f.delegate,);}
+
+            if (expression.objectExpression instanceof VariableExpression) {
+                addParameters = false
+                def nameFunc = expression.objectExpression.text
+                addScript("(${nameFunc}.delegate!=undefined?${nameFunc}.apply(${nameFunc}.delegate,[")
+                "process${expression.arguments.class.simpleName}"(expression.arguments,false)
+                addScript("]):${nameFunc}")
+                "process${expression.arguments.class.simpleName}"(expression.arguments)
+                addScript(")")
+            } else {
+                "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
+            }
         //Dont use dot(.) in super calls
         } else if (expression.objectExpression instanceof VariableExpression &&
                 expression.objectExpression.name=='super') {
@@ -1552,6 +1565,15 @@ class GsConverter {
                 item << '"'+translateClassName(expr.type.name)+'"'
             }.join(',')
             addScript('])')
+        //Spread method call [1,2,3]*.toString()
+        } else if (expression.isSpreadSafe()) {
+            //println 'spreadsafe!'
+            addParameters = false
+            "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
+            //addScript(".collect(function(it) { return it.${expression.methodAsString}")
+            addScript(".collect(function(it) { return gSmethodCall(it,'${expression.methodAsString}',gSlist([")
+            "process${expression.arguments.class.simpleName}"(expression.arguments,false)
+            addScript(']));})')
         } else {
 
 
@@ -1700,7 +1722,7 @@ class GsConverter {
 
     def private processListExpression(ListExpression expression) {
         addScript('gSlist([')
-        //println 'List->'+l.expressions
+        //println 'List->'+expression
         //l.each { println it}
         def first = true
         expression?.expressions?.each { it ->

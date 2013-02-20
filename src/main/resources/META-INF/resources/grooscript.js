@@ -258,6 +258,14 @@ function isgSmapProperty(name) {
 
 function gSmap() {
     var object = inherit(gsBaseClass,'LinkedHashMap');
+
+    object.gSclass = {};
+    object.gSclass.name = 'java.util.LinkedHashMap';
+    object.gSclass.simpleName = 'LinkedHashMap';
+    object.gSclass.superclass = {};
+    object.gSclass.superclass.name = 'java.util.HashMap';
+    object.gSclass.superclass.simpleName = 'HashMap';
+
     object.add = function(key,value) {
         if (key=="gSspreadMap") {
             //We insert items of the map, from spread operator
@@ -752,13 +760,57 @@ function gSlist(value) {
 
     object.collect = function(closure) {
         //this.forEach(closure)
+        var result = gSlist([]);
         var i;
         for (i=0;i<this.length;i++) {
             //if (typeof this[i] === "function") continue;
-            this[i] = closure(this[i]);
+            result[i] = closure(this[i]);
         }
 
-        return this;
+        return result;
+    }
+
+    object.collectMany = function(closure) {
+        //this.forEach(closure)
+        var result = gSlist([]);
+        var i;
+        for (i=0;i<this.length;i++) {
+            //if (typeof this[i] === "function") continue;
+            result.addAll(closure(this[i]));
+        }
+
+        return result;
+    }
+
+    object.takeWhile = function(closure) {
+        //this.forEach(closure)
+        var result = gSlist([]);
+        var i;
+        for (i=0;i<this.length;i++) {
+            if (closure(this[i])) {
+                result[i] = this[i];
+            } else {
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    object.dropWhile = function(closure) {
+        //this.forEach(closure)
+        var result = gSlist([]);
+        var i,j=0, insert = false;
+        for (i=0;i<this.length;i++) {
+            if (!closure(this[i])) {
+                insert=true;
+            }
+            if (insert) {
+                result[j++] = this[i];
+            }
+        }
+
+        return result;
     }
 
     object.findAll = function(closure) {
@@ -1388,6 +1440,13 @@ Number.prototype.step = function(number,jump,closure) {
     }
 }
 
+Number.prototype.multiply = function(number) {
+    return this * number;
+}
+
+Number.prototype.power = function(number) {
+    return Math.pow(this,number);
+}
 
 /////////////////////////////////////////////////////////////////
 //String functions
@@ -1677,6 +1736,8 @@ function gSinstanceOf(item,name) {
                 classItem = classItem.superclass;
             }
         }
+    } else if (typeof item === "function" && name == 'Closure') {
+        gotIt = true;
     }
     return gotIt;
 }
