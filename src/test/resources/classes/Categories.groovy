@@ -10,28 +10,14 @@ class Speak {
         text.toUpperCase() + '!'
     }
 
+    static String salute(String text,String who) {  // Method argument is String, so we can add shout() to String object.
+       "${who}: ${text}"
+    }
+
 }
 
 use (Speak) {
     //println '->'+"Pay attention".shout()
     assert 'PAY ATTENTION!' == "Pay attention".shout()
+    assert 'Mario: Hello' == "Hello".salute('Mario')
 }
-
-/*
-// Or we can use the @Category annotation.
-@Category(String)
-class StreetTalk {
-    String hiphop() {
-        "Yo, yo, here we go. ${this}"
-    }
-    String xTimes(number) {
-        this * number
-    }
-}
-
-
-use(StreetTalk) {
-    assert 'Yo, yo, here we go. Groovy is fun!' == 'Groovy is fun!'.hiphop()
-    assert 'Groovy is fun!Groovy is fun!' == 'Groovy is fun!'.xTimes(2)
-}
-*/

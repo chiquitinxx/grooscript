@@ -62,4 +62,13 @@ class TestAdvancedClass extends Specification {
         !result.assertFails
     }
 
+    def 'mixins to the hell'() {
+        when:
+        def result = readAndConvert('classes/Mixins',false)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+    }
+
 }

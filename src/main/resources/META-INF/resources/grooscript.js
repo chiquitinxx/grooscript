@@ -1586,9 +1586,9 @@ function gSpassMapToObject(source,destination) {
 
 function gSequals(value1, value2) {
     //console.log('going eq:'+value1+ ' = '+value2+' -> '+value1.equals);
-    if (value1==null || value1==undefined || value1.equals==undefined || value1.equals==null || !(typeof value1.equals === "function")) {
+    if (!gShasFunc(value1,'equals')) {
         //console.log(' 1 ');
-        if (value2!=null && value2!=undefined && value2.equals!=undefined && value2.equals!=null && (typeof value2.equals === "function")) {
+        if (gShasFunc(value2,'equals')) {
             return value2.equals(value1);
         } else {
             return value1==value2;
@@ -1692,22 +1692,22 @@ function gSelvis(booleanExpression,trueExpression,falseExpression) {
 
 // * operator
 function gSmultiply(a,b) {
-     if (a==null || a==undefined || a.multiply==undefined || a.multiply==null || !(typeof a.multiply === "function")) {
-          if (b==null || b==undefined || b.multiply==undefined || b.multiply==null || !(typeof b.multiply === "function")) {
+    if (!gShasFunc(a,'multiply')) {
+         if (!gShasFunc(b,'multiply')) {
             return a*b;
-          } else {
+         } else {
             return b.multiply(a);
-          }
+         }
 
-     } else {
-        return a.multiply(b);
-     }
+    } else {
+       return a.multiply(b);
+    }
 }
 
 // + operator
 function gSplus(a,b) {
-    if (a==null || a==undefined || a.plus==undefined || a.plus==null || !(typeof a.plus === "function")) {
-        if (b==null || b==undefined || b.plus==undefined || b.plus==null || !(typeof b.plus === "function")) {
+    if (!gShasFunc(a,'plus')) {
+        if (!gShasFunc(b,'plus')) {
             return a+b;
         } else {
             return b.plus(a);
@@ -1720,7 +1720,7 @@ function gSplus(a,b) {
 
 // - operator
 function gSminus(a,b) {
-    if (a==null || a==undefined || a.minus==undefined || a.minus==null || !(typeof a.minus === "function")) {
+    if (!gShasFunc(a,'minus')) {
         return a-b;
     } else {
         //console.log('a.minus(b)'+a+' '+b);
@@ -1761,6 +1761,15 @@ function GSspread(item) {
 /////////////////////////////////////////////////////////////////
 // Beans functions - From groovy beans
 /////////////////////////////////////////////////////////////////
+//If an object has a function by name
+function gShasFunc(item,name) {
+    if (item == null || item == undefined ||
+        item[name]==undefined || item[name]==null || !(typeof item[name] === "function")) {
+        return false;
+    } else {
+        return true;
+    }
+}
 
 //Set a property of a class
 function gSsetProperty(item,nameProperty,value) {
@@ -1775,7 +1784,7 @@ function gSsetProperty(item,nameProperty,value) {
         item.gSparent[nameProperty] = value;
     } else {
 
-        if (item['setProperty']==undefined || item['setProperty']==null || !(typeof item['setProperty'] === "function")) {
+        if (!gShasFunc(item,'setProperty')) {
 
             var nameFunction = 'set' + nameProperty.charAt(0).toUpperCase() + nameProperty.slice(1);
 
@@ -1795,7 +1804,7 @@ function gSsetProperty(item,nameProperty,value) {
 //Calling a setMethod
 function gSsetMethod(item,methodName,value) {
 
-    if (item[methodName]==undefined || item[methodName]==null || !(typeof item[methodName] === "function")) {
+    if (!gShasFunc(item,methodName)) {
 
         var nameProperty = methodName.charAt(3).toLowerCase() + methodName.slice(4);
         item[nameProperty] = value;
@@ -1808,7 +1817,7 @@ function gSsetMethod(item,methodName,value) {
 //Calling a getMethod
 function gSgetMethod(item,methodName) {
 
-    if (item[methodName]==undefined || item[methodName]==null || !(typeof item[methodName] === "function")) {
+    if (!gShasFunc(item,methodName)) {
 
         var nameProperty = methodName.charAt(3).toLowerCase() + methodName.slice(4);
         var res = function () { return item[nameProperty];}
@@ -1832,11 +1841,11 @@ function gSgetProperty(item,nameProperty) {
         }
     }
 
-    if (item['getProperty']==undefined || item['getProperty']==null || !(typeof item['getProperty'] === "function")) {
+    if (!gShasFunc(item,'getProperty')) {
 
         var nameFunction = 'get' + nameProperty.charAt(0).toUpperCase() + nameProperty.slice(1);
         //console.log('Name func->'+nameFunction);
-        if (item[nameFunction]==undefined || item[nameFunction]==null || !(typeof item[nameFunction] === "function")) {
+        if (!gShasFunc(item,nameFunction)) {
             if (typeof item[nameProperty] === "function" && nameProperty == 'size') {
                 return item[nameProperty]();
             } else {
@@ -1883,6 +1892,7 @@ function gSplusplus(item,nameProperty,plus,before) {
 function gSmethodCall(item,methodName,values) {
 
     //console.log('Going!->'+methodName);
+    //console.log('Values!->'+values);
     if (gSconsoleInfo && console) {
         console.log('[INFO] gSmethodCall ('+item+').'+methodName+ ' params:'+values);
     }
@@ -1904,7 +1914,7 @@ function gSmethodCall(item,methodName,values) {
         return (item).times(values[0]);
     }*/
 
-    if (item[methodName]==undefined || item[methodName]==null || !(typeof item[methodName] === "function")) {
+    if (!gShasFunc(item,methodName)) {
 
         //console.log('Not Going! '+methodName+ ' - '+item);
         //var nameProperty = methodName.charAt(3).toLowerCase() + methodName.slice(4);
@@ -1936,7 +1946,23 @@ function gSmethodCall(item,methodName,values) {
                 if (gScategories.length > 0) {
                     var whereExecutes = gScategorySearching(methodName);
                     if (whereExecutes!=null) {
-                        return whereExecutes[methodName](item);
+                        return whereExecutes[methodName].apply(item,gSjoinParameters(item,values));
+                    }
+                }
+                //Lets check in mixins classes
+                if (gSmixins.length>0) {
+                    var whereExecutes = gSmixinSearching(item,methodName);
+                    if (whereExecutes!=null) {
+                        //console.log('Where!'+whereExecutes[methodName]+' - '+item);
+                        return whereExecutes[methodName].apply(item,gSjoinParameters(item,values));
+                    }
+                }
+                //Lets check in mixins objects
+                if (gSmixinsObjects.length>0) {
+                    var whereExecutes = gSmixinObjectsSearching(item,methodName);
+                    if (whereExecutes!=null) {
+                        //console.log('Where!'+whereExecutes[methodName]+' - '+item);
+                        return whereExecutes[methodName].apply(item,gSjoinParameters(item,values));
                     }
                 }
 
@@ -1949,6 +1975,14 @@ function gSmethodCall(item,methodName,values) {
         var f = item[methodName];
         return f.apply(item,values);
     }
+}
+
+function gSjoinParameters(item,items) {
+    var listParameters = [item],i;
+    for (i=0;i<items.size();i++) {
+        listParameters[listParameters.length] = items[i];
+    }
+    return listParameters;
 }
 
 ////////////////////////////////////////////////////////////
@@ -1971,5 +2005,107 @@ function gScategorySearching(methodName) {
             result = eval(name);
         }
     }
+    return result;
+}
+////////////////////////////////////////////////////////////
+// Mixins
+////////////////////////////////////////////////////////////
+var gSmixins = [];
+var gSmixinsObjects = [];
+function gSmixinClass(item,classes) {
+
+    //First check in that class has mixins
+    var gotIt = false;
+    if (gSmixins.length > 0) {
+        var i;
+        for (i=0;i<gSmixins.length && !gotIt;i++) {
+            if (gSmixins[i].name==item) {
+                var j;
+                for (j=0;j<classes.length;j++) {
+                    gSmixins[i].items[gSmixins[i].items.length]=classes[j];
+                }
+                gotIt = true;
+            }
+        }
+    }
+    if (!gotIt) {
+        gSmixins[gSmixins.length] = { name:item, items:classes};
+    }
+}
+
+function gSmixinObject(item,classes) {
+
+    var gotIt = false;
+    if (gSmixinsObjects.length > 0) {
+        var i;
+        for (i=0;i<gSmixinsObjects.length && !gotIt;i++) {
+            if (gSmixinsObjects[i].item==item) {
+                var j;
+                for (j=0;j<classes.length;j++) {
+                    gSmixinsObjects[i].items[gSmixinsObjects[i].items.length]=classes[j];
+                }
+                gotIt = true;
+            }
+        }
+    }
+    if (!gotIt) {
+        gSmixinsObjects[gSmixinsObjects.length] = { item:item, items:classes};
+    }
+    //TODO make any kinda cleanup if gSmixinsObjects growing
+}
+
+function gSmixinSearching(item,methodName) {
+    var result = null;
+    var className = null;
+    if (typeof(item) == 'string') {
+        className = 'String'
+    }
+    if (typeof(item) == 'object' && item.gSclass!=undefined && item.gSclass.simpleName!=undefined) {
+        className = item.gSclass.simpleName
+    }
+    if (className!=null) {
+        var i,ourMixin=null;
+        for (i = gSmixins.length-1;i>=0 && ourMixin==null;i--) {
+            var data = gSmixins[i];
+            if (data.name == className) {
+                ourMixin = data.items;
+            }
+        }
+        if (ourMixin!=null) {
+            var i;
+            for (i=0;i<ourMixin.length && result==null;i++) {
+                if (eval(ourMixin[i])[methodName]) {
+                    //return eval(name)[methodName](object);
+                    result = eval(ourMixin[i]);
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+function gSmixinObjectsSearching(item,methodName) {
+
+    //console.log('gSmixinObjectsSearching->'+item);
+    var result = null;
+
+    var i,ourMixin=null;
+    for (i = gSmixinsObjects.length-1;i>=0 && ourMixin==null;i--) {
+        var data = gSmixinsObjects[i];
+        if (data.item == item) {
+            ourMixin = data.items;
+        }
+    }
+    if (ourMixin!=null) {
+        var i;
+        for (i=0;i<ourMixin.length && result==null;i++) {
+            if (eval(ourMixin[i])[methodName]) {
+                //return eval(name)[methodName](object);
+                result = eval(ourMixin[i]);
+            }
+        }
+    }
+
     return result;
 }

@@ -1528,6 +1528,30 @@ class GsConverter {
             addScript('",')
             "process${args.expressions[1].class.simpleName}"(args.expressions[1])
             addScript(')')
+        //Mixin Classes
+        } else if (expression.objectExpression instanceof ClassExpression && expression.methodAsString == 'mixin') {
+            //println 'Mixin!'
+            addParameters = false
+            addScript("gSmixinClass('${translateClassName(expression.objectExpression.type.name)}',")
+            addScript('[')
+            ArgumentListExpression args = expression.arguments
+            addScript args.expressions.inject ([]) { item,expr->
+                item << '"'+translateClassName(expr.type.name)+'"'
+            }.join(',')
+            addScript('])')
+        //Mixin Objects
+        } else if (expression.objectExpression instanceof PropertyExpression &&
+                expression.objectExpression.property instanceof ConstantExpression &&
+                expression.objectExpression.property.text == 'metaClass' &&
+                expression.methodAsString == 'mixin') {
+            addParameters = false
+            addScript("gSmixinObject(${expression.objectExpression.objectExpression.text},")
+            addScript('[')
+            ArgumentListExpression args = expression.arguments
+            addScript args.expressions.inject ([]) { item,expr->
+                item << '"'+translateClassName(expr.type.name)+'"'
+            }.join(',')
+            addScript('])')
         } else {
 
 
