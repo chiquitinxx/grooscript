@@ -265,7 +265,7 @@ class TestAdvanced extends Specification {
 
     def 'list ninja'() {
         when:
-        def result = readAndConvert('advanced/ListNinja',true)
+        def result = readAndConvert('advanced/ListNinja',false)
 
         then:
         //println 'Console->'+result.gSconsole
@@ -275,7 +275,7 @@ class TestAdvanced extends Specification {
 
     def 'maybe dsls'() {
         when:
-        def result = readAndConvert('advanced/TryDsls',true)
+        def result = readAndConvert('advanced/TryDsls',false)
 
         then:
         //println 'Console->'+result.gSconsole

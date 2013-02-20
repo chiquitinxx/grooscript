@@ -43,14 +43,15 @@ def builder = new HtlmDsl()
 def putDiv = false
 
 def result = builder.build {
+    def five = 5
     html {
         if (putDiv) {
             div (id:'hola') {
 
             }
         }
-        span (id:'adios')
+        span (id:'adios',number:five)
     }
 }
 
-assert result == '<html><span id=\'adios\'></span></html>'
+assert result == '<html><span id=\'adios\' number=\'5\'></span></html>'

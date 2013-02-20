@@ -639,15 +639,24 @@ function gSlist(value) {
     }
 
     object.addAll = function(elements) {
-        if (elements instanceof Array) {
-            var i;
+        if (arguments.length == 1) {
+            if (elements instanceof Array) {
+                var i;
 
-            for (i=0;i<elements.length;i++) {
-                this.add(elements[i]);
+                for (i=0;i<elements.length;i++) {
+                    this.add(elements[i]);
+                }
             }
-
+        } else {
+            //Two parameters index and collection
+            var index = arguments[0];
+            var data = arguments[1],i;
+            for (i=0;i<data.length;i++) {
+                this.splice(index+i,0,data[i]);
+            }
         }
-        return this;
+        return true;
+        //return this;
     }
 
     object.clone = function() {
@@ -695,6 +704,14 @@ function gSlist(value) {
         return this;
     }
 
+    object.reverseEach = function(closure) {
+        var i;
+        for (i=this.length-1;i>=0;i--) {
+            gSinterceptClosureCall(closure, this[i]);
+        }
+        return this;
+    }
+
     object.eachWithIndex = function(closure,index) {
         for (index=0;index<this.length;index++) {
             //if (typeof this[index] === "function") continue;
@@ -738,7 +755,7 @@ function gSlist(value) {
     //Maybe too much complex, not much inspired
     object.removeAll = function(data) {
         if (data instanceof Array) {
-            var result = []
+            var result = [];
             this.forEach(function(v, i, a) {
                 if (data.contains(v)) {
                     result.push(i);
@@ -754,7 +771,16 @@ function gSlist(value) {
                     decremental=decremental+1;
                 })
             }
+        } else if (typeof data === "function") {
+            var i;
+            for (i=this.length-1;i>=0;i--) {
+                if (data(this[i])) {
+                    this.remove(i);
+                }
+            }
+
         }
+
         return this;
     }
 
@@ -1143,6 +1169,24 @@ function gSlist(value) {
         var result = gSlist([]);
         gSflatten(result,this);
 
+        return result;
+    }
+
+    object.collate = function(number) {
+        var step = number,times = 0;
+        if (arguments.length == 2) {
+            step = arguments[1];
+        }
+        var result = gSlist([]);
+        while (step * times < this.length) {
+            var items = gSlist([]);
+            var pos = step * times;
+            while (pos<this.length && items.size()<number) {
+                items.add(this[pos++]);
+            }
+            result.add(items);
+            times++;
+        }
         return result;
     }
 
