@@ -1474,6 +1474,7 @@ class GsConverter {
 
     def private processMethodCallExpression(MethodCallExpression expression) {
         //println "MCE ${expression.objectExpression} - ${expression.methodAsString}"
+        //println variableScoping.size()
         //if (expression.objectExpression instanceof VariableExpression) {
         //    if (expression.objectExpression.name == 'this') {
         //        //dontAddMoreThis = true

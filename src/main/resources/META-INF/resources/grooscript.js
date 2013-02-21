@@ -147,6 +147,10 @@ function gSset(value) {
         object = value;
     }
 
+    object.gSclass = {};
+    object.gSclass.name = 'java.util.HashSet';
+    object.gSclass.simpleName = 'HashSet';
+
     object.gSisSet = true;
 
     object.gSwith = function(closure) {
@@ -600,6 +604,10 @@ function gSlist(value) {
         }
     }
     object = data;
+
+    object.gSclass = {};
+    object.gSclass.name = 'java.util.ArrayList';
+    object.gSclass.simpleName = 'ArrayList';
 
     object.get = function(pos) {
 
@@ -1252,6 +1260,10 @@ function gSdate() {
         object = new Date();
     }
 
+    object.gSclass = {};
+    object.gSclass.name = 'java.util.Date';
+    object.gSclass.simpleName = 'Date';
+
     object.time = object.getTime();
 
     object.year = object.getFullYear();
@@ -1411,6 +1423,10 @@ function gSregExp(text,ppattern) {
         object = inherit(gSlist(list),'RegExp');
     }
 
+    object.gSclass = {};
+    object.gSclass.name = 'java.util.regex.Matcher';
+    object.gSclass.simpleName = 'Matcher';
+
     object.pattern = patt;
     object.text = text;
 
@@ -1434,16 +1450,25 @@ function gSregExp(text,ppattern) {
 /////////////////////////////////////////////////////////////////
 function gSpattern(pattern) {
     var object = inherit(gsBaseClass,'Pattern');
+
+    object.gSclass = {};
+    object.gSclass.name = 'java.util.regex.Pattern';
+    object.gSclass.simpleName = 'Pattern';
+
     object.value = pattern;
     return object;
 }
 
 /////////////////////////////////////////////////////////////////
-// Regular Expresions - For regular expressions
+// Regular Expresions
 /////////////////////////////////////////////////////////////////
 function gSmatcher(item,regExpression) {
 
     var object = inherit(gsBaseClass,'Matcher');
+
+    object.gSclass = {};
+    object.gSclass.name = 'java.util.regex.Matcher';
+    object.gSclass.simpleName = 'Matcher';
 
     object.data = item;
     object.regExp = regExpression;
@@ -2069,6 +2094,12 @@ function gSmethodCall(item,methodName,values) {
                         //console.log('Where!'+whereExecutes[methodName]+' - '+item);
                         return whereExecutes[methodName].apply(item,gSjoinParameters(item,values));
                     }
+                }
+
+                //Maybe there is a function in the script with the name of the method
+                //In Node.js 'this.xxFunction()' in the main context fails
+                if (typeof eval(methodName)==='function') {
+                    return eval(methodName).apply(this,values);
                 }
 
                 //Not exist the method, throw exception

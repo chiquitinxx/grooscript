@@ -41,7 +41,9 @@ class TestGroovyBasics extends Specification {
             println 'jsScript->\n'+jsScript
         }
 
-        return TestJs.jsEval(jsScript)
+        def result = TestJs.jsEval(jsScript)
+
+        return result
     }
 
     def 'test Web Main example' () {
@@ -65,7 +67,7 @@ class TestGroovyBasics extends Specification {
 
     }
 
-    def 'inital class'() {
+    def 'initial class'() {
         when:
         def result = readAndConvert('initialClass',false)
 
@@ -167,6 +169,15 @@ class TestGroovyBasics extends Specification {
         def result = readAndConvert('sets',false)
 
         then:
+        !result.assertFails
+    }
+
+    def 'functions and closures'() {
+        when:
+        def result = readAndConvert('functions',false)
+
+        then:
+        //println result
         !result.assertFails
     }
 
