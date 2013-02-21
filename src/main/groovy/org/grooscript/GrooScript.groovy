@@ -1,5 +1,7 @@
 package org.grooscript
 
+import org.grooscript.daemon.ConversionDaemon
+
 /**
  * JFL 09/11/12
  */
@@ -119,5 +121,26 @@ class GrooScript {
         } catch (e) {
             throw new Exception("Error setting conversion property ${name} to ${value}.")
         }
+    }
+
+    /**
+     * Starts a daemon that check all time if files change, and try convert them
+     * 1stTime runs, convert all sourceList
+     *
+     * @param sourceList A list of folders and files to be converted
+     * @param destinationFolder Folder where save .js files
+     * @param options Map of conversion options [classpath:['xxx/groovy','xxx.jar'], addClassNames: true, ...]
+     * @param doAfter A closure to launch each time daemons ends check and convert files. Recieve a list of files modified
+     */
+    def static startConversionDaemon(sourceList,destinationFolder,options = null,doAfter = null) {
+        def daemon = new ConversionDaemon()
+        daemon.sourceList = sourceList
+        daemon.destinationFolder = destinationFolder
+        daemon.options = options
+        if (doAfter) {
+            daemon.doAfter = doAfter
+        }
+
+        daemon.start()
     }
 }

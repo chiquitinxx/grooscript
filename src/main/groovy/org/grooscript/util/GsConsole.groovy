@@ -6,6 +6,10 @@ package org.grooscript.util
 class GsConsole {
 
     def static error(message) {
-        println "ERROR ${message}"
+        println "[Grooscript] ERROR - ${message}"
+    }
+
+    def static message(message) {
+        println "[Grooscript] MSG - ${message}"
     }
 }
