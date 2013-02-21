@@ -21,3 +21,4 @@ assert Item.c() == 3
 assert Class.forName("classes.Item").newInstance().class.name == 'classes.Item'
 
 
+

@@ -135,6 +135,31 @@ function inherit(p,objectName) {
     return gSexpandWithMetaclass(new f(),objectName);
 }
 
+function gScreateClassNames(item,items) {
+    var number = items.length, i, container;
+    for (i=0;i<number;i++) {
+        if (i==0) {
+            container = {};
+            item.gSclass = container;
+        }
+        container.name = items[i];
+        container.simpleName = gSgetSimpleName(items[i]);
+        if (i < number) {
+            container.superclass = {};
+            container = container.superclass;
+        }
+    }
+}
+
+function gSgetSimpleName(name) {
+    var pos = name.indexOf(".");
+    while (pos>=0) {
+        name = name.substring(pos+1);
+        pos = name.indexOf(".");
+    }
+    return name;
+}
+
 /////////////////////////////////////////////////////////////////
 // gSset - as Set and HashSet from groovy
 /////////////////////////////////////////////////////////////////
@@ -147,9 +172,7 @@ function gSset(value) {
         object = value;
     }
 
-    object.gSclass = {};
-    object.gSclass.name = 'java.util.HashSet';
-    object.gSclass.simpleName = 'HashSet';
+    gScreateClassNames(object,['java.util.HashSet']);
 
     object.gSisSet = true;
 
@@ -263,12 +286,7 @@ function isgSmapProperty(name) {
 function gSmap() {
     var object = inherit(gsBaseClass,'LinkedHashMap');
 
-    object.gSclass = {};
-    object.gSclass.name = 'java.util.LinkedHashMap';
-    object.gSclass.simpleName = 'LinkedHashMap';
-    object.gSclass.superclass = {};
-    object.gSclass.superclass.name = 'java.util.HashMap';
-    object.gSclass.superclass.simpleName = 'HashMap';
+    gScreateClassNames(object,['java.util.LinkedHashMap','java.util.HashMap']);
 
     object.add = function(key,value) {
         if (key=="gSspreadMap") {
@@ -583,7 +601,7 @@ function gSmap() {
 //gsList - [] from groovy
 /////////////////////////////////////////////////////////////////
 function gSlist(value) {
-    var object = inherit(Array.prototype,'ArrayList');
+    //var object = inherit(Array.prototype,'ArrayList');
     //console.log('gSlist->'+(value instanceof Array)+' - '+value);
     var data = [];
 
@@ -603,11 +621,9 @@ function gSlist(value) {
             }
         }
     }
-    object = data;
+    var object = data;
 
-    object.gSclass = {};
-    object.gSclass.name = 'java.util.ArrayList';
-    object.gSclass.simpleName = 'ArrayList';
+    gScreateClassNames(object,['java.util.ArrayList']);
 
     object.get = function(pos) {
 
@@ -1260,9 +1276,7 @@ function gSdate() {
         object = new Date();
     }
 
-    object.gSclass = {};
-    object.gSclass.name = 'java.util.Date';
-    object.gSclass.simpleName = 'Date';
+    gScreateClassNames(object,['java.util.Date']);
 
     object.time = object.getTime();
 
@@ -1423,9 +1437,7 @@ function gSregExp(text,ppattern) {
         object = inherit(gSlist(list),'RegExp');
     }
 
-    object.gSclass = {};
-    object.gSclass.name = 'java.util.regex.Matcher';
-    object.gSclass.simpleName = 'Matcher';
+    gScreateClassNames(object,['java.util.regex.Matcher']);
 
     object.pattern = patt;
     object.text = text;
@@ -1451,9 +1463,7 @@ function gSregExp(text,ppattern) {
 function gSpattern(pattern) {
     var object = inherit(gsBaseClass,'Pattern');
 
-    object.gSclass = {};
-    object.gSclass.name = 'java.util.regex.Pattern';
-    object.gSclass.simpleName = 'Pattern';
+    gScreateClassNames(object,['java.util.regex.Pattern']);
 
     object.value = pattern;
     return object;
@@ -1466,9 +1476,7 @@ function gSmatcher(item,regExpression) {
 
     var object = inherit(gsBaseClass,'Matcher');
 
-    object.gSclass = {};
-    object.gSclass.name = 'java.util.regex.Matcher';
-    object.gSclass.simpleName = 'Matcher';
+    gScreateClassNames(object,['java.util.regex.Matcher']);
 
     object.data = item;
     object.regExp = regExpression;
@@ -1680,8 +1688,15 @@ var gSglobalMetaClass = {};
 function gSmetaClass(item) {
     var type = typeof item;
     //console.log('typeof before-'+typeof item);
+    //console.log('typeof '+ item.name);
+
+    if (type == "string") {
+        item = new String(item);
+    } else if (type == "number") {
+        item = new Number(item);
     //If type is a function, it's metaClass from a Class
-    if (type === "function") {
+    } else if (type === "function") {
+        //console.log('Item.name->'+item.name);
         if (!gSglobalMetaClass[item.name]) {
             gSglobalMetaClass[item.name] = {
                 gSstatic: new gSstaticMethods(item),
@@ -1693,12 +1708,6 @@ function gSmetaClass(item) {
         item = gSglobalMetaClass[item.name];
     }
 
-    if (type == "string") {
-        item = new String(item);
-    }
-    if (type == "number") {
-        item = new Number(item);
-    }
     //console.log('typeof after-'+typeof item);
 
     return item;
@@ -1792,9 +1801,9 @@ function gSinstanceOf(item,name) {
     var classItem;
     var gotIt = false;
 
-    if (name=="java.lang.String")  {
+    if (name=="String")  {
         return typeof(item)=='string';
-    } else if (name=="java.lang.Number") {
+    } else if (name=="Number") {
         return typeof(item)=='number';
     } else if (item.gSclass) {
         classItem = item.gSclass;
@@ -2098,9 +2107,10 @@ function gSmethodCall(item,methodName,values) {
 
                 //Maybe there is a function in the script with the name of the method
                 //In Node.js 'this.xxFunction()' in the main context fails
+                /*
                 if (typeof eval(methodName)==='function') {
                     return eval(methodName).apply(this,values);
-                }
+                }*/
 
                 //Not exist the method, throw exception
                 throw 'gSmethodCall Method '+ methodName + ' not exist in '+item;
@@ -2244,4 +2254,41 @@ function gSmixinObjectsSearching(item,methodName) {
     }
 
     return result;
+}
+
+////////////////////////////////////////////////////////////
+// StringBuffer - very basic support, for add with <<
+////////////////////////////////////////////////////////////
+function gSstringBuffer() {
+
+    var object = inherit(gsBaseClass,'StringBuffer');
+    object.value = '';
+
+    if (arguments.length==1 && typeof arguments[0] === 'string') {
+        object.value = arguments[0];
+    }
+
+    object.toString = function() {
+        return this.value;
+    }
+
+    object.leftShift = function(value) {
+        return this.append(value);
+    }
+
+    object.plus = function(value) {
+        return this.append(value);
+    }
+
+    object.size = function() {
+        return this.value.length;
+    }
+
+    object.append = function(value) {
+        this.value = this.value + value;
+        return this;
+    }
+
+
+    return object;
 }

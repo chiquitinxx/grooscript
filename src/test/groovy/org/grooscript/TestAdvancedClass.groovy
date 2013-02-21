@@ -71,4 +71,14 @@ class TestAdvancedClass extends Specification {
         !result.assertFails
     }
 
+    def 'string buffer'() {
+        when:
+        def result = readAndConvert('classes/StringBufferClass',false)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        result.gSconsole == 'hello!'
+        !result.assertFails
+    }
+
 }

@@ -44,4 +44,15 @@ class TestConversionFails extends Specification {
         e.message.startsWith 'Compiler ERROR on Script'
     }
 
+    def 'access metaClass of groovy and java types not allowed'() {
+        when:
+        converter.toJs("String.metaClass.grita = {\n" +
+                "    return delegate+'!'\n" +
+                "}")
+
+        then:
+        Exception e = thrown()
+        e.message.startsWith 'Compiler END ERROR on Script -Not allowed access metaClass'
+    }
+
  }

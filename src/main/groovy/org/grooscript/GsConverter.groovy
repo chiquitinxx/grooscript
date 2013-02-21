@@ -1361,9 +1361,11 @@ class GsConverter {
             addScript('gSrandom')
         } else if (expression.type.name=='java.util.HashSet') {
             addScript('gSset')
+        } else if (expression.type.name=='java.lang.StringBuffer') {
+            addScript('gSstringBuffer')
         } else {
             //println 'processConstructorCallExpression->'+ expression.type.name
-            if (expression.type.name.startsWith('java.util.') || expression.type.name.startsWith('groovy.util.')) {
+            if (expression.type.name.startsWith('java.') || expression.type.name.startsWith('groovy.util.')) {
                 throw new Exception('Not support type '+expression.type.name)
             }
             //Constructor have name with number of params on it
@@ -1416,6 +1418,7 @@ class GsConverter {
     def private processPropertyExpression(PropertyExpression expression) {
 
         //println 'Pe->'+expression.objectExpression
+        //println 'Pro->'+expression.property
 
         //If metaClass property we ignore it, javascript permits add directly properties and methods
         if (expression.property instanceof ConstantExpression && expression.property.value == 'metaClass') {
@@ -1431,6 +1434,11 @@ class GsConverter {
                     addScript('))')
                 }
             } else {
+                if (expression.objectExpression instanceof ClassExpression &&
+                    (expression.objectExpression.type.name.startsWith('java.') ||
+                     expression.objectExpression.type.name.startsWith('groovy.'))) {
+                    throw new Exception("Not allowed access metaClass of Groovy or Java types (${expression.objectExpression.type.name})")
+                }
                 addScript('gSmetaClass(')
                 "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
                 addScript(')')
@@ -2062,11 +2070,11 @@ class GsConverter {
     def private processClassExpression(ClassExpression expression) {
         //println 'ClassExpression-'+ expression.text
         //addScript(translateClassName(expression.text))
-        if (expression.text.startsWith('java.lang')) {
-            addScript(expression.text)
-        } else {
+        //if (expression.text.startsWith('java.lang')) {
+            //addScript(expression.text)
+        //} else {
             addScript(translateClassName(expression.text))
-        }
+        //}
     }
 
     def private processThrowStatement(ThrowStatement statement) {
