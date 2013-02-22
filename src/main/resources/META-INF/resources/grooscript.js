@@ -55,10 +55,15 @@ gsBaseClass = {
         var result = gSlist([]);
         for (ob in this) {
             if (typeof this[ob] === "function") {
-                var item = {
-                    name: ob
-                };
-                result.add(item);
+
+                if (ob!='getStatic' && ob!='gSwith' && ob!='getProperties' && ob!='getMethods' && ob!='gSconstructor' &&
+                    //TODO We don't know if a function is constructor, atm if function name starts with uppercase, it is
+                    ob[0]!=ob[0].toUpperCase()) {
+                    var item = {
+                        name: ob
+                    };
+                    result.add(item);
+                }
             }
         }
         return result;
@@ -2112,6 +2117,12 @@ function gSmethodCall(item,methodName,values) {
                     return eval(methodName).apply(this,values);
                 }*/
 
+                //Lets check in delegate
+                if (gSactualDelegate!=null &&
+                    (gSactualDelegate[methodName]!=undefined || gSactualDelegate['methodMissing']!=undefined)) {
+                    return gSmethodCall(gSactualDelegate,methodName,values);
+                }
+
                 //Not exist the method, throw exception
                 throw 'gSmethodCall Method '+ methodName + ' not exist in '+item;
             }
@@ -2291,4 +2302,17 @@ function gSstringBuffer() {
 
 
     return object;
+}
+
+////////////////////////////////////////////////////////////
+// Delegate
+////////////////////////////////////////////////////////////
+var gSactualDelegate = null;
+function gSapplyDelegate(func,delegate,params) {
+    var oldDelegate = gSactualDelegate;
+    //console.log('setting delegate');
+    gSactualDelegate = delegate;
+    func.apply(delegate,params);
+    //console.log('desetting delegate');
+    gSactualDelegate = oldDelegate;
 }

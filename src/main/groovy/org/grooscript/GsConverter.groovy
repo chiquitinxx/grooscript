@@ -1126,10 +1126,11 @@ class GsConverter {
         } else if (expression.operation.text=='<<') {
             //We call add function
             //println 'le->'+ expression.leftExpression
+            addScript('gSmethodCall(')
             upgradedExpresion(expression.leftExpression)
-            addScript('.leftShift(')
+            addScript(',"leftShift", gSlist([')
             upgradedExpresion(expression.rightExpression)
-            addScript(')')
+            addScript(']))')
         //Regular Expression exact match all
         } else if (expression.operation.text=='==~') {
             addScript('gSexactMatch(')
@@ -1502,7 +1503,8 @@ class GsConverter {
             if (expression.objectExpression instanceof VariableExpression) {
                 addParameters = false
                 def nameFunc = expression.objectExpression.text
-                addScript("(${nameFunc}.delegate!=undefined?${nameFunc}.apply(${nameFunc}.delegate,[")
+                //addScript("(${nameFunc}.delegate!=undefined?${nameFunc}.apply(${nameFunc}.delegate,[")
+                addScript("(${nameFunc}.delegate!=undefined?gSapplyDelegate(${nameFunc},${nameFunc}.delegate,[")
                 "process${expression.arguments.class.simpleName}"(expression.arguments,false)
                 addScript("]):${nameFunc}")
                 "process${expression.arguments.class.simpleName}"(expression.arguments)
@@ -1600,11 +1602,12 @@ class GsConverter {
                 "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
             }
 
-            addScript(',"')
+            addScript(',')
             //MethodName
-            addScript(expression.methodAsString)
+            //addScript(expression.methodAsString)
+            "process${expression.method.class.simpleName}"(expression.method)
 
-            addScript('",gSlist([')
+            addScript(',gSlist([')
             //Parameters
             "process${expression.arguments.class.simpleName}"(expression.arguments,false)
 
