@@ -292,4 +292,14 @@ class TestAdvanced extends Specification {
 
     }
 
+    def 'multiple conditions'() {
+        when:
+        def result = readAndConvert('advanced/MultipleConditions',false)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+
+    }
+
 }

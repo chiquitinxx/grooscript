@@ -47,6 +47,12 @@ def result = Tests.doTest()
 assert result.size() == 2
 assert result.findAll { it.fail == true}.size() == 1
 
+class Components {
+    def static salute(String who) {
+        return "Hello ${who}!"
+    }
+}
+
 
 class LittleDsl {
 
@@ -65,7 +71,7 @@ class LittleDsl {
 
     def methodMissing(String name,args) {
         text << "<${name}>"
-        if (args.last() instanceof Closure) {
+        if (args && args.last() instanceof Closure) {
             def clo = args.last()
             //clo.delegate = this
             clo()
@@ -84,9 +90,16 @@ def text = LittleDsl.build {
                 li { add "(${i++}) Name: ${item.name} Fail:${item.fail}"}
             }
         }
+        use (Components) {
+            p { add "Jorge".salute()}
+        }
     }
 }
 
-assert text == '<ul><li>(0) Name: failTest Fail:true</li><li>(1) Name: okTest Fail:false</li></ul>'
+assert text == '<ul><li>(0) Name: failTest Fail:true</li><li>(1) Name: okTest Fail:false</li></ul><p>Hello Jorge!</p>'
+
+def name = "Groovy"
+name.metaClass.mixin Components
+assert name.salute() == "Hello Groovy!"
 
 

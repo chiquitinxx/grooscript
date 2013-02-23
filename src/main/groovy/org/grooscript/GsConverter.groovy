@@ -994,11 +994,29 @@ class GsConverter {
         addScript(')')
     }
 
+    def private handExpressionInBoolean(expression) {
+        if (expression instanceof VariableExpression || expression instanceof PropertyExpression ||
+                (expression instanceof NotExpression &&
+                        expression.expression &&
+                        (expression.expression instanceof VariableExpression || expression.expression instanceof PropertyExpression))) {
+            if (expression instanceof NotExpression) {
+                addScript('!gSbool(')
+                "process${expression.expression.class.simpleName}"(expression.expression)
+            } else {
+                addScript('gSbool(')
+                "process${expression.class.simpleName}"(expression)
+            }
+            addScript(')')
+        } else {
+            "process${expression.class.simpleName}"(expression)
+        }
+    }
+
     def private processBooleanExpression(BooleanExpression expression) {
         //println 'BooleanExpression->'+expression
         //println 'BooleanExpression Inside->'+expression.expression
 
-        //Groovy truth is a bit different, empty collections return false, we fix that here
+        /*
         if (expression.expression instanceof VariableExpression || expression.expression instanceof PropertyExpression ||
             (expression.expression instanceof NotExpression &&
                     expression.expression.expression &&
@@ -1013,7 +1031,10 @@ class GsConverter {
             addScript(')')
         } else {
             "process${expression.expression.class.simpleName}"(expression.expression)
-        }
+        }*/
+
+        //Groovy truth is a bit different, empty collections return false, we fix that here
+        handExpressionInBoolean(expression.expression)
     }
 
     def private processExpressionStatement(ExpressionStatement statement) {
@@ -1245,14 +1266,28 @@ class GsConverter {
                         !variableScopingContains(expression.leftExpression.name)) {
                     addToActualScope(expression.leftExpression.name)
                 }
+
+                //If is a boolean operation, we have to apply groovyTruth
                 //Left
-                upgradedExpresion(expression.leftExpression)
+                if (expression.operation.text in ['&&','||']) {
+                    addScript '('
+                    handExpressionInBoolean(expression.leftExpression)
+                    addScript ')'
+                } else {
+                    upgradedExpresion(expression.leftExpression)
+                }
                 //Operator
                 //println 'Operator->'+expression.operation.text
                 addScript(' '+expression.operation.text+' ')
                 //Right
                 //println 'Right->'+expression.rightExpression
-                upgradedExpresion(expression.rightExpression)
+                if (expression.operation.text in ['&&','||']) {
+                    addScript '('
+                    handExpressionInBoolean(expression.rightExpression)
+                    addScript ')'
+                } else {
+                    upgradedExpresion(expression.rightExpression)
+                }
                 if (expression.operation.text=='[') {
                     addScript(']')
                 }

@@ -85,7 +85,7 @@ class ConversionDaemon {
         final def exit = new DataflowVariable()
         def listConverteds = []
 
-        final op = operator(inputs: [works], outputs: [exit], maxForks: 4) { absolutePath ->
+        final op = operator(inputs: [works], outputs: [exit], maxForks: 3) { absolutePath ->
 
             try {
                 convertFile(absolutePath)

@@ -3,7 +3,6 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
-//name = 'grooscript'
 group = 'org.grooscript'
 version = '0.2.2'
 
@@ -14,21 +13,11 @@ sourceCompatibility = 1.7
 def appName = 'GrooScript'
 def webDir = '../grooscript_web'
 def webDirJar = "$webDir/lib"
-def webDirExamples = "$webDir/scripts/examples/"
 def webDirJs = "$webDir/web-app/js/"
 
 def demoDir = '../monkfish'
 def demoDirJar = "$demoDir/lib"
 def demoDirJs = "$demoDir/web-app/js/"
-
-def examplesDir = 'src/test/resources/'
-def webExamples = [:]
-webExamples.putAt 'MysticTable',"${examplesDir}advanced/MysticTable.groovy"
-webExamples.putAt 'ExpandoTree',"${examplesDir}advanced/Tree.groovy"
-webExamples.putAt 'Random',"${examplesDir}advanced/RandomWorld.groovy"
-webExamples.putAt 'MethodMissing',"${examplesDir}advanced/MethodMissing.groovy"
-webExamples.putAt 'SortingLists',"${examplesDir}advanced/Sorting.groovy"
-webExamples.putAt 'Strings',"${examplesDir}advanced/StringSecrets.groovy"
 
 repositories {
     mavenCentral()
@@ -38,15 +27,13 @@ repositories {
 }
 
 dependencies {
-	compile group: 'org.codehaus.groovy', name: 'groovy', version: '2.0.7'	
+	compile group: 'org.codehaus.groovy', name: 'groovy', version: '2.1.1'
 	compile group: 'org.codehaus.gpars', name: 'gpars', version: '1.0.0'
-	//groovy group: 'org.codehaus.groovy', name: 'groovy', version: '2.0.6'
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
-	//testCompile fileTree(dir: 'lib', include: '*.jar')
 }
 
 //Sonar repository stuff
-
+/*
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from 'build/docs/javadoc'
@@ -106,6 +93,7 @@ uploadArchives {
         }
     }
 }
+*/
 //End Sonar
 
 //Copy jar, js file, and examples to web directory, defined at start
@@ -129,16 +117,6 @@ task copyToGscriptWeb(dependsOn: build) << {
 	}
 
     
-	println "Copying $appName examples to $webDirExamples ..."
-	webExamples.each { key, value ->
-		copy {
-			into "$webDirExamples"
-			from "$value"			
-			rename { 
-				return "${key}.groovy"
-			}
-		}
-	}
 }
 
 //Copy jar and  js file to Demo
@@ -159,5 +137,4 @@ task copyToDemo(dependsOn: build) << {
 		from "src/main/resources/META-INF/resources"
 		include "grooscript.js"
 	}
-
 }

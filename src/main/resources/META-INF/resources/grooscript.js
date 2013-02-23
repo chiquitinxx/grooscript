@@ -2083,44 +2083,49 @@ function gSmethodCall(item,methodName,values) {
             return item();
         } else {
 
+            //Lets check if in any category we have the static method
+            if (gScategories.length > 0) {
+                var whereExecutes = gScategorySearching(methodName);
+                if (whereExecutes!=null) {
+                    return whereExecutes[methodName].apply(item,gSjoinParameters(item,values));
+                }
+            }
+            //Lets check in mixins classes
+            if (gSmixins.length>0) {
+                var whereExecutes = gSmixinSearching(item,methodName);
+                if (whereExecutes!=null) {
+                    //console.log('Where!'+whereExecutes[methodName]+' - '+item);
+                    return whereExecutes[methodName].apply(item,gSjoinParameters(item,values));
+                }
+            }
+            //Lets check in mixins objects
+            if (gSmixinsObjects.length>0) {
+                var whereExecutes = gSmixinObjectsSearching(item,methodName);
+                if (whereExecutes!=null) {
+                    //console.log('Where!'+whereExecutes[methodName]+' - '+item);
+                    return whereExecutes[methodName].apply(item,gSjoinParameters(item,values));
+                }
+            }
+
+            //Lets check in delegate
+            if (gSactualDelegate!=null && gSactualDelegate[methodName]!=undefined) {
+                return gSactualDelegate[methodName].apply(item,values);
+            }
+            if (gSactualDelegate!=null && item['methodMissing']==undefined
+                    && gSactualDelegate['methodMissing']!=undefined) {
+                return gSmethodCall(gSactualDelegate,methodName,values);
+            }
+
             if (item['methodMissing']) {
+
                return item['methodMissing'](methodName,values);
+
             } else {
-                //Lets check if in any category we have the static method
-                if (gScategories.length > 0) {
-                    var whereExecutes = gScategorySearching(methodName);
-                    if (whereExecutes!=null) {
-                        return whereExecutes[methodName].apply(item,gSjoinParameters(item,values));
-                    }
-                }
-                //Lets check in mixins classes
-                if (gSmixins.length>0) {
-                    var whereExecutes = gSmixinSearching(item,methodName);
-                    if (whereExecutes!=null) {
-                        //console.log('Where!'+whereExecutes[methodName]+' - '+item);
-                        return whereExecutes[methodName].apply(item,gSjoinParameters(item,values));
-                    }
-                }
-                //Lets check in mixins objects
-                if (gSmixinsObjects.length>0) {
-                    var whereExecutes = gSmixinObjectsSearching(item,methodName);
-                    if (whereExecutes!=null) {
-                        //console.log('Where!'+whereExecutes[methodName]+' - '+item);
-                        return whereExecutes[methodName].apply(item,gSjoinParameters(item,values));
-                    }
-                }
 
                 //Maybe there is a function in the script with the name of the method
                 //In Node.js 'this.xxFunction()' in the main context fails
-                /*
                 if (typeof eval(methodName)==='function') {
                     return eval(methodName).apply(this,values);
-                }*/
-
-                //Lets check in delegate
-                if (gSactualDelegate!=null &&
-                    (gSactualDelegate[methodName]!=undefined || gSactualDelegate['methodMissing']!=undefined)) {
-                    return gSmethodCall(gSactualDelegate,methodName,values);
                 }
 
                 //Not exist the method, throw exception
