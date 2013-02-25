@@ -220,7 +220,9 @@ class GsConverter {
 
                         //If we dont want to convert dependencies in the result
                         if (!convertDependencies) {
-                            if (classesToConvert.contains(cl.name)) {
+                            //println 'List->'+classesToConvert
+                            //println 'Name->'+cl.name
+                            if (classesToConvert.contains(translateClassName(cl.name))) {
                                 acc << cl
                             }
                         } else {
