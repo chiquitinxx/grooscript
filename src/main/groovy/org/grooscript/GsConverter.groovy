@@ -499,17 +499,27 @@ class GsConverter {
         return exit
     }
 
-    def private processClassNode(ClassNode node) {
+    def private putGsNativeMethod(String name,MethodNode method) {
+
+        //addScript("${GS_OBJECT}.${method.name} = function(")
+        addScript("${name} = function(")
+        actualScope.push([])
+        processFunctionOrMethodParameters(method,false,false)
+        actualScope.pop()
+        addScript(nativeFunctions[method.name])
+        addLine()
+        indent--
+        removeTabScript()
+        addScript('}')
+        addLine()
+    }
+
+    def private processClassNode(ClassNode node) { //Starting class conversion
 
         //Exit if dont have to convert
         if (haveAnnotationNonConvert(node.annotations)) {
             return 0
         }
-
-        //Starting class conversion
-
-        //Ignoring modifiers
-        //visitModifiers(node.modifiers)
 
         //println "class-> $node.name"
         addLine()
@@ -538,10 +548,6 @@ class GsConverter {
             addScript("var ${GS_OBJECT} = inherit(gsBaseClass,'${translateClassName(node.name)}');")
         }
         addLine()
-        //ignoring generics and interfaces and extends atm
-        //visitGenerics node?.genericsTypes
-        //node.interfaces?.each {
-        //visitType node.superClass
 
         //Add class name and super name
         if (addClassNames) {
@@ -573,7 +579,6 @@ class GsConverter {
                 }
             }
             //println 'Field->'+field.name+' owner:'+field.owner+' t:'+node.name + ' p:'+node.syntheticPublic
-
         }
 
         //Save variables from this class for use in 'son' classes
@@ -596,17 +601,8 @@ class GsConverter {
 
             if (!haveAnnotationNonConvert(it.annotations)) {
                 //Process the methods
-                if (haveAnnotationNative(it.annotations)) {
-                    addScript("${GS_OBJECT}.${it.name} = function(")
-                    processFunctionOrMethodParameters(it,false,false)
-                    //addScript(") {")
-                    addScript(nativeFunctions[it.name])
-                    addLine()
-                    indent--
-                    removeTabScript()
-                    addScript('}')
-                    addLine()
-
+                if (haveAnnotationNative(it.annotations) && !it.isStatic()) {
+                    putGsNativeMethod("${GS_OBJECT}.${it.name}",it)
                 } else if (!it.isStatic()) {
                     processMethodNode(it,false)
                 } else {
@@ -664,10 +660,15 @@ class GsConverter {
             if (!haveAnnotationNonConvert(method.annotations)) {
                 if (method.isStatic()) {
                     //println 'Static!'
-                    processBasicFunction("${translateClassName(node.name)}.${method.name}",method,false)
+                    if (haveAnnotationNative(method.annotations)) {
+                        putGsNativeMethod("${translateClassName(node.name)}.${method.name}",method)
+                    } else {
+                        processBasicFunction("${translateClassName(node.name)}.${method.name}",method,false)
+                    }
                 }
             }
         }
+
         //Static properties
         node?.properties?.each { it-> //println 'Property->'+it; println 'initialExpresion->'+it.initialExpression
             if (it.isStatic()) {

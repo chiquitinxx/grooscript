@@ -15,9 +15,11 @@ def webDir = '../grooscript_web'
 def webDirJar = "$webDir/lib"
 def webDirJs = "$webDir/web-app/js/"
 
+/*
 def demoDir = '../monkfish'
 def demoDirJar = "$demoDir/lib"
 def demoDirJs = "$demoDir/web-app/js/"
+*/
 
 repositories {
     mavenCentral()
@@ -27,7 +29,7 @@ repositories {
 }
 
 dependencies {
-	compile group: 'org.codehaus.groovy', name: 'groovy', version: '2.1.1'
+	compile group: 'org.codehaus.groovy', name: 'groovy', version: '2.0.7'
 	compile group: 'org.codehaus.gpars', name: 'gpars', version: '1.0.0'
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 }
@@ -119,13 +121,14 @@ task copyToGscriptWeb(dependsOn: build) << {
     
 }
 
+/*
 //Copy jar and  js file to Demo
 task copyToDemo(dependsOn: build) << {
 	println "Copying $appName jar to $demoDirJar ..."
 	copy {
 		into "$demoDirJar"
 		from "build/libs"			
-		include "**/*.jar"
+		include "**|*.jar" //TODO change | to / if no commented
 		rename { 
 			return "grooscript-${version}.jar"
 		}
@@ -138,3 +141,4 @@ task copyToDemo(dependsOn: build) << {
 		include "grooscript.js"
 	}
 }
+*/

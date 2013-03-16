@@ -7,12 +7,15 @@ import org.grooscript.GsConverter
 import org.grooscript.util.GsConsole
 import static groovyx.gpars.GParsPool.withPool
 import static groovyx.gpars.dataflow.Dataflow.operator
+import static groovyx.gpars.dataflow.Dataflow.task
 
 /**
  * User: jorgefrancoleza
  * Date: 21/02/13
  */
 class ConversionDaemon {
+
+    def static final REST_TIME = 500
 
     def sourceList
     def destinationFolder
@@ -21,25 +24,40 @@ class ConversionDaemon {
 
     def dates = [:]
 
+    def continueExecution = false
+    def actualTask
+
     /**
      * Start the daemon
      * @return
      */
     def start() {
         if (sourceList && destinationFolder) {
-            Thread.start {
-                while (true) {
+            continueExecution = true
+            actualTask = task {
+                while (continueExecution) {
                     def list = work()
                     if (doAfter) {
                         doAfter(list)
                     }
-                    sleep(500)
+                    sleep(REST_TIME)
                 }
-                GsConsole.message('Daemon Terminated.')
             }
             GsConsole.message('Daemon Started.')
         } else {
             GsConsole.error('Daemon need sourceList and destinationFolder to run.')
+        }
+    }
+
+    /**
+     * Stop the daemon if active
+     * @return
+     */
+    def stop() {
+        if (actualTask) {
+            continueExecution = false
+            actualTask.join()
+            GsConsole.message('Daemon Terminated.')
         }
     }
 

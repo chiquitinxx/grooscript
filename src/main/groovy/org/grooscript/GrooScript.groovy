@@ -123,6 +123,9 @@ class GrooScript {
         }
     }
 
+    //Only a deamon can be active
+    def static ConversionDaemon daemon
+
     /**
      * Starts a daemon that check all time if files change, and try convert them
      * 1stTime runs, convert all sourceList
@@ -133,7 +136,10 @@ class GrooScript {
      * @param doAfter A closure to launch each time daemons ends check and convert files. Recieve a list of files modified
      */
     def static startConversionDaemon(sourceList,destinationFolder,options = null,doAfter = null) {
-        def daemon = new ConversionDaemon()
+        if (daemon) {
+            stopConversionDaemon()
+        }
+        daemon = new ConversionDaemon()
         daemon.sourceList = sourceList
         daemon.destinationFolder = destinationFolder
         daemon.options = options
@@ -142,5 +148,14 @@ class GrooScript {
         }
 
         daemon.start()
+    }
+
+    /**
+     * Stop the conversion daemon if active, waits until execution stopped
+     */
+    def static stopConversionDaemon() {
+        if (daemon) {
+            daemon.stop()
+        }
     }
 }
