@@ -42,7 +42,7 @@ page.open('file:///Users/jorgefrancoleza/desarrollo/grooscript/src/test/phantomj
 
                 return gSresult;
             });
-            console.log('Evaluate finished. Number of tests: '+result.number);
+            console.log('Number of tests: '+result.number);
             if (result.number > 0) {
                 var i;
                 for (i=0;i<result.tests.length;i++) {

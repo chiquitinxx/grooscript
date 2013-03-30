@@ -241,7 +241,7 @@ class GsConverter {
      * @param list
      * @return
      */
-    def private processAstListToJs(list) {
+    def processAstListToJs(list) {
         def result
         indent = 0
         resultScript = ''
