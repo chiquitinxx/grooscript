@@ -2175,6 +2175,10 @@ class GsConverter {
         addScript('"gSspreadMap"')
     }
 
+    def processEmptyExpression(EmptyExpression expression) {
+        //Nothing to do
+    }
+
     def methodMissing(String name, Object args) {
         def message
         if (name?.startsWith('process')) {

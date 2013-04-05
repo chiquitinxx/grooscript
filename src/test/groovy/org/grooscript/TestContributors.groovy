@@ -134,4 +134,13 @@ class TestContributors extends Specification {
         !result.assertFails
     }
 
+    def 'twitter code found scoping closures'() {
+        when:
+        def result = readAndConvert('contribution/Twitter1',false)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+    }
+
 }

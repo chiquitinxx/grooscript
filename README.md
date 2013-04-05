@@ -1,4 +1,4 @@
-GrooScript 0.2.2
+GrooScript 0.2.3
 ================
 
 Converts your Groovy code to JavaScript(Groovy 2.x to Javascript ECMAScript 5).
