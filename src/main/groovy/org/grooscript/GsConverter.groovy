@@ -1,6 +1,5 @@
 package org.grooscript
 
-import org.codehaus.groovy.ast.builder.AstBuilder
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.ast.stmt.*
 import org.codehaus.groovy.ast.expr.*
@@ -302,7 +301,7 @@ class GsConverter {
         while ((finalList.size()+extraClasses.size()+enumClasses.size())<list.size()) {
 
             list.each { ClassNode it ->
-                //println 'it->'+it.name+' super - '+it.superClass.name+
+                //println 'it->'+it.name+' super - '+it.superClass.name
                 if (it.superClass.name=='java.lang.Object')  {
                     if (!finalList.contains(it.name)) {
                         //println 'Adding '+it.name
@@ -313,20 +312,20 @@ class GsConverter {
                     if (it.superClass.name=='groovy.lang.Script') {
                         extraClasses.add(it.name)
                     } else {
-
                         //If father in the list, we can add it
                         if (finalList.contains(it.superClass.name)) {
                             //println 'Adding 2 '+it.name
                             finalList.add(it.name)
                         } else {
-
                             //Looking for superclass, only accepts superclass a class in same script
-                            if (it.superClass.name.indexOf('.')>=0) {
+                            //if (it.superClass.name.indexOf('.')>=0) {
+                            if (it.superClass.name.startsWith('java.') ||
+                                it.superClass.name.startsWith('groovy.')) {
                                 if (it.superClass.name=='java.lang.Enum') {
                                     //processEnum(it)
                                     enumClasses.add(it.name)
                                 } else {
-                                    throw new Exception('Inheritance not Allowed on '+it.superClass.class.name)
+                                    throw new Exception('Inheritance not Allowed on '+it.name)
                                 }
                             }
                         }
@@ -340,12 +339,9 @@ class GsConverter {
             if (consoleInfo) {
                 println '  Processing class '+nameClass
             }
-
-            //println 'Class->'+nameClass
             processClassNode(list.find { ClassNode it ->
                 return it.name == nameClass
             })
-
             if (consoleInfo) {
                 println '  Processing class done.'
             }
@@ -534,21 +530,17 @@ class GsConverter {
 
         indent ++
         addLine()
-
         superNameStack.push(node.superClass.name)
-
         //Allowed inheritance
         if (node.superClass.name != 'java.lang.Object') {
             //println 'Allowed!'+ node.superClass.class.name
             addScript("var ${GS_OBJECT} = ${translateClassName(node.superClass.name)}();")
-
             //We add to this class scope variables of fathers
             variableScoping.peek().addAll(inheritedVariables[node.superClass.name])
         } else {
             addScript("var ${GS_OBJECT} = inherit(gsBaseClass,'${translateClassName(node.name)}');")
         }
         addLine()
-
         //Add class name and super name
         if (addClassNames) {
             addClassNames(node.name, (node.superClass.name != 'java.lang.Object'?node.superClass.name:null))

@@ -47,7 +47,7 @@ class TestAst extends Specification {
 
     def 'test GsNative' () {
         when:
-        def result = readAndConvert('asts/Native',false)
+        def result = readAndConvert('asts/native',false)
 
         then:
         !result.assertFails

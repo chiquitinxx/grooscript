@@ -5,9 +5,6 @@ import org.grooscript.test.TestJs
 import spock.lang.Unroll
 
 /**
- * First test for converts groovy code to javascript code
- * Following GroovyInAction Book
- * Chap 2. Groovy basics
  * JFL 27/08/12
  */
 class TestContributors extends Specification {
@@ -117,6 +114,15 @@ class TestContributors extends Specification {
         //println 'Console->'+result.gSconsole
         !result.assertFails
 
+    }
+
+    def 'testing mario extends'() {
+        when:
+        def result = readAndConvert('contribution/MarioGarcia2',false)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
     }
 
 }
