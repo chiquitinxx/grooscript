@@ -125,4 +125,13 @@ class TestContributors extends Specification {
         !result.assertFails
     }
 
+    def 'testing mario maps'() {
+        when:
+        def result = readAndConvert('contribution/MarioGarcia3',false)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+    }
+
 }
