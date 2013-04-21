@@ -1,5 +1,6 @@
 package org.grooscript
 
+import org.grooscript.test.ConversionMixin
 import org.grooscript.test.TestJs
 import spock.lang.Specification
 
@@ -9,9 +10,8 @@ import spock.lang.Specification
  * Chap 2. Groovy basics
  * JFL 27/08/12
  */
+@Mixin([ConversionMixin])
 class TestGroovyBasics extends Specification {
-
-    def converter = new GsConverter()
 
     def 'assert function'() {
 
@@ -31,24 +31,9 @@ class TestGroovyBasics extends Specification {
         result.assertFails
     }
 
-    def readAndConvert(nameOfFile,consoleOutput) {
-
-        def file = TestJs.getGroovyTestScript(nameOfFile)
-
-        def jsScript = converter.toJs(file.text)
-
-        if (consoleOutput) {
-            println 'jsScript->\n'+jsScript
-        }
-
-        def result = TestJs.jsEval(jsScript)
-
-        return result
-    }
-
     def 'test Web Main example' () {
         when:
-        def result = readAndConvert('webMainExample',false)
+        def result = readAndConvert('webMainExample')
 
         then:
         !result.assertFails
@@ -57,7 +42,7 @@ class TestGroovyBasics extends Specification {
     def 'variables and expressions'() {
 
         when:
-        def result = readAndConvert('variablesAndExpressions',false)
+        def result = readAndConvert('variablesAndExpressions')
 
         then:
         !result.assertFails
@@ -69,7 +54,7 @@ class TestGroovyBasics extends Specification {
 
     def 'initial class'() {
         when:
-        def result = readAndConvert('initialClass',false)
+        def result = readAndConvert('initialClass')
 
         then:
         !result.assertFails
@@ -77,7 +62,7 @@ class TestGroovyBasics extends Specification {
 
     def 'starting class stuff'() {
         when:
-        def result = readAndConvert('startingClass',false)
+        def result = readAndConvert('startingClass')
 
         then:
         !result.assertFails
@@ -86,7 +71,7 @@ class TestGroovyBasics extends Specification {
 
     def 'starting closure stuff'() {
         when:
-        def result = readAndConvert('startingClosuresWithClasses',false)
+        def result = readAndConvert('startingClosuresWithClasses')
 
         then:
         !result.assertFails
@@ -94,7 +79,7 @@ class TestGroovyBasics extends Specification {
 
     def 'starting converting lists'() {
         when:
-        def result = readAndConvert('startingWorkOnLists',false)
+        def result = readAndConvert('startingWorkOnLists')
 
         then:
         !result.assertFails
@@ -102,7 +87,7 @@ class TestGroovyBasics extends Specification {
 
     def 'list functions'() {
         when:
-        def result = readAndConvert('listFunctions',false)
+        def result = readAndConvert('listFunctions')
 
         then:
         !result.assertFails
@@ -110,7 +95,7 @@ class TestGroovyBasics extends Specification {
 
     def 'some inheritance class'() {
         when:
-        def result = readAndConvert('someInheritance',false)
+        def result = readAndConvert('someInheritance')
 
         then:
         !result.assertFails
@@ -118,7 +103,7 @@ class TestGroovyBasics extends Specification {
 
     def 'maps and more closures'() {
         when:
-        def result = readAndConvert('mappingAndClosuring',false)
+        def result = readAndConvert('mappingAndClosuring')
 
         then:
         !result.assertFails
@@ -126,7 +111,7 @@ class TestGroovyBasics extends Specification {
 
     def 'control structures'() {
         when:
-        def result = readAndConvert('controlStructures',false)
+        def result = readAndConvert('controlStructures')
 
         then:
         !result.assertFails
@@ -134,7 +119,7 @@ class TestGroovyBasics extends Specification {
 
     def 'regular expressions'() {
         when:
-        def result = readAndConvert('regularExpressionsBegin',false)
+        def result = readAndConvert('regularExpressionsBegin')
 
         then:
         !result.assertFails
@@ -142,7 +127,7 @@ class TestGroovyBasics extends Specification {
 
     def 'working with strings'() {
         when:
-        def result = readAndConvert('workingWithStrings',false)
+        def result = readAndConvert('workingWithStrings')
 
         then:
         !result.assertFails
@@ -150,7 +135,7 @@ class TestGroovyBasics extends Specification {
 
     def 'working with enums'() {
         when:
-        def result = readAndConvert('enums',false)
+        def result = readAndConvert('enums')
 
         then:
         !result.assertFails
@@ -158,7 +143,7 @@ class TestGroovyBasics extends Specification {
 
     def 'static stuff in classes'() {
         when:
-        def result = readAndConvert('staticRealm',false)
+        def result = readAndConvert('staticRealm')
 
         then:
         !result.assertFails
@@ -166,7 +151,7 @@ class TestGroovyBasics extends Specification {
 
     def 'sets'() {
         when:
-        def result = readAndConvert('sets',false)
+        def result = readAndConvert('sets')
 
         then:
         !result.assertFails
@@ -174,7 +159,7 @@ class TestGroovyBasics extends Specification {
 
     def 'functions and closures'() {
         when:
-        def result = readAndConvert('functions',false)
+        def result = readAndConvert('functions')
 
         then:
         //println result

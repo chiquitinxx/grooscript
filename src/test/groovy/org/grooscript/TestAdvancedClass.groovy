@@ -1,6 +1,6 @@
 package org.grooscript
 
-import org.grooscript.test.TestJs
+import org.grooscript.test.ConversionMixin
 import spock.lang.Specification
 
 /**
@@ -9,29 +9,12 @@ import spock.lang.Specification
  * Chap 2. Groovy basics
  * JFL 27/08/12
  */
+@Mixin([ConversionMixin])
 class TestAdvancedClass extends Specification {
-
-    def converter = new GsConverter()
-
-    def readAndConvert(nameOfFile,consoleOutput) {
-
-        def file = TestJs.getGroovyTestScript(nameOfFile)
-
-        //Added this conversion option
-        converter.addClassNames = true
-
-        def jsScript = converter.toJs(file.text)
-
-        if (consoleOutput) {
-            println 'jsScript->\n'+jsScript
-        }
-
-        return TestJs.jsEval(jsScript)
-    }
 
     def 'test class names' () {
         when:
-        def result = readAndConvert('classes/Names',false)
+        def result = readAndConvert('classes/Names',false,[addClassNames:true])
 
         then:
         !result.assertFails
@@ -39,7 +22,7 @@ class TestAdvancedClass extends Specification {
 
     def 'test instanceof basic'() {
         when:
-        def result = readAndConvert('classes/InstanceOf',false)
+        def result = readAndConvert('classes/InstanceOf',false,[addClassNames:true])
 
         then:
         !result.assertFails
@@ -47,7 +30,7 @@ class TestAdvancedClass extends Specification {
 
     def 'add methods and properties to classes'() {
         when:
-        def result = readAndConvert('classes/AddingStuff',false)
+        def result = readAndConvert('classes/AddingStuff',false,[addClassNames:true])
 
         then:
         !result.assertFails
@@ -55,7 +38,7 @@ class TestAdvancedClass extends Specification {
 
     def 'who knows categories'() {
         when:
-        def result = readAndConvert('classes/Categories',false)
+        def result = readAndConvert('classes/Categories')
 
         then:
         //println 'Console->'+result.gSconsole
@@ -64,7 +47,7 @@ class TestAdvancedClass extends Specification {
 
     def 'mixins to the hell'() {
         when:
-        def result = readAndConvert('classes/Mixins',false)
+        def result = readAndConvert('classes/Mixins',false,[addClassNames:true])
 
         then:
         //println 'Console->'+result.gSconsole
@@ -73,7 +56,7 @@ class TestAdvancedClass extends Specification {
 
     def 'string buffer'() {
         when:
-        def result = readAndConvert('classes/StringBufferClass',false)
+        def result = readAndConvert('classes/StringBufferClass')
 
         then:
         //println 'Console->'+result.gSconsole

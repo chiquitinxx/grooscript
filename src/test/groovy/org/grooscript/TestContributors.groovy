@@ -1,5 +1,6 @@
 package org.grooscript
 
+import org.grooscript.test.ConversionMixin
 import spock.lang.Specification
 import org.grooscript.test.TestJs
 import spock.lang.Unroll
@@ -10,33 +11,12 @@ import spock.lang.Unroll
  * Chap 2. Groovy basics
  * JFL 27/08/12
  */
+@Mixin([ConversionMixin])
 class TestContributors extends Specification {
-
-    def converter = new GsConverter()
-
-    def readAndConvert(nameOfFile,consoleOutput,String textSearch=null,String textReplace=null) {
-
-        def file = TestJs.getGroovyTestScript(nameOfFile)
-
-        def String jsScript = converter.toJs(file.text)
-
-        if (textSearch && jsScript.indexOf(textSearch)>=0) {
-            //jsScript.replaceAll('/'+textSearch+'/',textReplace)
-            jsScript = jsScript.substring(0,jsScript.indexOf(textSearch)) +
-                    textReplace + jsScript.substring(jsScript.indexOf(textSearch)+textSearch.size())
-        }
-
-        if (consoleOutput) {
-            println 'jsScript->\n'+jsScript
-        }
-
-        return TestJs.jsEval(jsScript)
-    }
-
 
     def 'test jochen' () {
         when:
-        def result = readAndConvert('contribution/JochenTheodorou',false)
+        def result = readAndConvert('contribution/JochenTheodorou')
 
         then:
         !result.assertFails
@@ -64,7 +44,7 @@ class TestContributors extends Specification {
 
     def 'test alex anderson' () {
         when:
-        def result = readAndConvert('contribution/AlexAnderson',false)
+        def result = readAndConvert('contribution/AlexAnderson')
 
         then:
         //println 'Console->'+result.gSconsole
@@ -74,7 +54,7 @@ class TestContributors extends Specification {
 
     def 'test mario garcia' () {
         when:
-        def result = readAndConvert('contribution/MarioGarcia',false)
+        def result = readAndConvert('contribution/MarioGarcia')
 
         then:
         //println 'Console->'+result.gSconsole
@@ -85,7 +65,7 @@ class TestContributors extends Specification {
     @Unroll('Testing anonymous web #file')
     def 'test anonymous contributions in web' () {
         expect:
-        def result = readAndConvert(file,false)
+        def result = readAndConvert(file)
         !result.assertFails
         result.gSconsole.contains(text)
         //println result.gSconsole
@@ -100,7 +80,7 @@ class TestContributors extends Specification {
 
     def 'bugs coming from monkfish'() {
         when:
-        def result = readAndConvert('contribution/MonkFish',false,
+        def result = readAndConvert('contribution/MonkFish',false,null,
                 'gSobject.value = 0;',
                 'gSobject.value = 0;gSobject.two = function() {return 2;};')
 
@@ -111,7 +91,7 @@ class TestContributors extends Specification {
 
     def 'testing more web' () {
         when:
-        def result = readAndConvert('contribution/Anonymous3',false)
+        def result = readAndConvert('contribution/Anonymous3')
 
         then:
         //println 'Console->'+result.gSconsole

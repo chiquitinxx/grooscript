@@ -1,6 +1,6 @@
 package org.grooscript
 
-import org.grooscript.test.TestJs
+import org.grooscript.test.ConversionMixin
 import spock.lang.Specification
 
 /**
@@ -9,33 +9,12 @@ import spock.lang.Specification
  * Chap 2. Groovy basics
  * JFL 27/08/12
  */
+@Mixin([ConversionMixin])
 class TestAdvanced extends Specification {
-
-    def converter = new GsConverter()
-
-    def readAndConvert(nameOfFile,jsResultOnConsole,options = [:]) {
-
-        def file = TestJs.getGroovyTestScript(nameOfFile)
-        if (options) {
-            options.each { key, value ->
-                converter."$key" = value
-            }
-        }
-
-        def jsScript
-        jsScript = converter.toJs(file.text)
-
-        if (jsResultOnConsole) {
-            println 'jsScript->\n'+jsScript
-        }
-
-        return TestJs.jsEval(jsScript)
-    }
-
 
     def 'test tree object' () {
         when:
-        def result = readAndConvert('advanced/Tree',false)
+        def result = readAndConvert('advanced/Tree')
 
         then:
         !result.assertFails
@@ -43,7 +22,7 @@ class TestAdvanced extends Specification {
 
     def 'expando world' () {
         when:
-        def result = readAndConvert('advanced/ExpandoWorld',false)
+        def result = readAndConvert('advanced/ExpandoWorld')
 
         then:
         !result.assertFails
@@ -51,7 +30,7 @@ class TestAdvanced extends Specification {
 
     def 'mystic table' () {
         when:
-        def result = readAndConvert('advanced/MysticTable',false)
+        def result = readAndConvert('advanced/MysticTable')
 
         then:
         !result.assertFails
@@ -59,7 +38,7 @@ class TestAdvanced extends Specification {
 
     def 'summer function callings' () {
         when:
-        def result = readAndConvert('advanced/summer',false)
+        def result = readAndConvert('advanced/summer')
 
         then:
         !result.assertFails
@@ -67,7 +46,7 @@ class TestAdvanced extends Specification {
 
     def 'regular expressions' () {
         when:
-		def result = readAndConvert('advanced/RegularExpressions',false)
+		def result = readAndConvert('advanced/RegularExpressions')
 
         then:
         //println 'Console->'+result.gSconsole
@@ -76,7 +55,7 @@ class TestAdvanced extends Specification {
 
     def 'random world' () {
         when:
-        def result = readAndConvert('advanced/RandomWorld',false)
+        def result = readAndConvert('advanced/RandomWorld')
 
         then:
         //println 'Console->'+result.gSconsole
@@ -85,7 +64,7 @@ class TestAdvanced extends Specification {
 
     def 'test Robot'() {
         when:
-        def result = readAndConvert('advanced/SampleRobot',false)
+        def result = readAndConvert('advanced/SampleRobot')
 
         then:
         //println 'Console->'+result.gSconsole
@@ -117,7 +96,7 @@ class TestAdvanced extends Specification {
 
     def 'closuring and maps again' () {
         when:
-        def result = readAndConvert('advanced/ClosuringRevisited',false)
+        def result = readAndConvert('advanced/ClosuringRevisited')
 
         then:
         //println 'Console->'+result.gSconsole
@@ -126,7 +105,7 @@ class TestAdvanced extends Specification {
 
     def 'sorting lists' () {
         when:
-        def result = readAndConvert('advanced/Sorting',false)
+        def result = readAndConvert('advanced/Sorting')
 
         then:
         //println 'Console->'+result.gSconsole
@@ -136,7 +115,7 @@ class TestAdvanced extends Specification {
 
     def 'features 0.1' () {
         when:
-        def result = readAndConvert('features/ZeroOne',false)
+        def result = readAndConvert('features/ZeroOne')
 
         then:
         !result.assertFails
@@ -145,7 +124,7 @@ class TestAdvanced extends Specification {
 
     def 'mastering scope'() {
         when:
-        def result = readAndConvert('advanced/MasterScoping',false)
+        def result = readAndConvert('advanced/MasterScoping')
 
         then:
         //println 'Console->'+result.gSconsole
@@ -154,7 +133,7 @@ class TestAdvanced extends Specification {
 
     def 'test setters'() {
         when:
-        def result = readAndConvert('advanced/Setters',false)
+        def result = readAndConvert('advanced/Setters')
 
         then:
         //println 'Console->'+result.gSconsole
@@ -164,7 +143,7 @@ class TestAdvanced extends Specification {
 
     def 'test getters'() {
         when:
-        def result = readAndConvert('advanced/Getters',false)
+        def result = readAndConvert('advanced/Getters')
 
         then:
         //println 'Console->'+result.gSconsole
@@ -174,7 +153,7 @@ class TestAdvanced extends Specification {
 
     def 'test getter and setters'() {
         when:
-        def result = readAndConvert('advanced/GettersAndSetters',false)
+        def result = readAndConvert('advanced/GettersAndSetters')
 
         then:
         //println 'Console->'+result.gSconsole
@@ -183,7 +162,7 @@ class TestAdvanced extends Specification {
 
     def 'test missing method'() {
         when:
-        def result = readAndConvert('advanced/MethodMissing',false)
+        def result = readAndConvert('advanced/MethodMissing')
 
         then:
         //println 'Console->'+result.gSconsole
@@ -192,7 +171,7 @@ class TestAdvanced extends Specification {
 
     def 'web example'() {
         when:
-        def result = readAndConvert('advanced/WebExample',false)
+        def result = readAndConvert('advanced/WebExample')
 
         then:
         //println 'Console->'+result.gSconsole
@@ -201,7 +180,7 @@ class TestAdvanced extends Specification {
 
     def 'advanced web example'() {
         when:
-        def result = readAndConvert('advanced/AdvancedWebExample',false)
+        def result = readAndConvert('advanced/AdvancedWebExample')
 
         then:
         //println 'Console->'+result.gSconsole
@@ -210,7 +189,7 @@ class TestAdvanced extends Specification {
 
     def 'more string features'() {
         when:
-        def result = readAndConvert('advanced/StringSecrets',false)
+        def result = readAndConvert('advanced/StringSecrets')
 
         then:
         //println 'Console->'+result.gSconsole
@@ -227,7 +206,7 @@ class TestAdvanced extends Specification {
 
     def 'more list and maps features'() {
         when:
-        def result = readAndConvert('advanced/ListMapsAdvanced',false)
+        def result = readAndConvert('advanced/ListMapsAdvanced')
 
         then:
         //println 'Console->'+result.gSconsole
@@ -236,7 +215,7 @@ class TestAdvanced extends Specification {
 
     def 'Get properties and methods of classes'() {
         when:
-        def result = readAndConvert('advanced/PropertiesAndMethods',false)
+        def result = readAndConvert('advanced/PropertiesAndMethods')
 
         then:
         //println 'Console->'+result.gSconsole
@@ -245,7 +224,7 @@ class TestAdvanced extends Specification {
 
     def 'Get tuple from object'() {
         when:
-        def result = readAndConvert('advanced/GetTupleFromObject',false)
+        def result = readAndConvert('advanced/GetTupleFromObject')
 
         then:
         //println 'Console->'+result.gSconsole
@@ -254,7 +233,7 @@ class TestAdvanced extends Specification {
 
     def 'test method pointer'() {
         when:
-        def result = readAndConvert('advanced/MethodPointer',false)
+        def result = readAndConvert('advanced/MethodPointer')
 
         then:
         //println 'Console->'+result.gSconsole
@@ -264,7 +243,7 @@ class TestAdvanced extends Specification {
 
     def 'test safe navigation'() {
         when:
-        def result = readAndConvert('advanced/SafeNavigation',false)
+        def result = readAndConvert('advanced/SafeNavigation')
 
         then:
         //println 'Console->'+result.gSconsole
@@ -274,7 +253,7 @@ class TestAdvanced extends Specification {
 
     def 'list ninja'() {
         when:
-        def result = readAndConvert('advanced/ListNinja',false)
+        def result = readAndConvert('advanced/ListNinja')
 
         then:
         //println 'Console->'+result.gSconsole
@@ -284,7 +263,7 @@ class TestAdvanced extends Specification {
 
     def 'maybe dsls'() {
         when:
-        def result = readAndConvert('advanced/TryDsls',false)
+        def result = readAndConvert('advanced/TryDsls')
 
         then:
         //println 'Console->'+result.gSconsole
@@ -294,7 +273,7 @@ class TestAdvanced extends Specification {
 
     def 'multiple conditions'() {
         when:
-        def result = readAndConvert('advanced/MultipleConditions',false)
+        def result = readAndConvert('advanced/MultipleConditions')
 
         then:
         //println 'Console->'+result.gSconsole
