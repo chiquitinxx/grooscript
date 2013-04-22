@@ -6,9 +6,10 @@ import org.grooscript.asts.PhantomJsTest
  */
 
 class A {
-    @PhantomJsTest(url='http://www.elpais.es')
+    @PhantomJsTest(url='http://groovy.codehaus.org')
     void testCountLinks() {
-        assert $('a').size() == 5,"Number of links in page is ${$('a').size()}"
+        assert $('a').length > 50,"Number of links in page is ${$('a').length}"
+        assert $("title").text()=='Groovy - Home',"Yeah!"
     }
 }
 

@@ -7,6 +7,7 @@ import org.grooscript.daemon.ConversionDaemon
  */
 class GrooScript {
 
+    def static final String JS_TEMP_FILE = '/tmp/gSTempFile.js'
     def private static GsConverter converter
     def static ownClassPath
     def static debug = false
