@@ -37,7 +37,7 @@ page.open('{{URL}}', function (status) {
             //console.log('Evaluating...');
             var result = page.evaluate(function() {
 
-                var gSresult = { number:0 , tests: []};
+                var gSresult = { number:0 , tests: [], console: ''};
                 function gSassert(value, text) {
 
                     var test = { result: value, text: value.toString()}
@@ -47,13 +47,27 @@ page.open('{{URL}}', function (status) {
                     gSresult.tests[gSresult.number++] = test;
                 };
 
-                gSconsoleOutput = true;
+                function gSprintln(value) {
+                    if (gSconsole != "") {
+                        gSconsole = gSconsole + "\\n";
+                    }
+                    gSconsole = gSconsole + 'Console:' + value
+                };
+
+                function grooKimbo(selector,other) {
+                    return gSlist(window.Kimbo(selector,other));
+                }
+                window.$ = grooKimbo;
+
+                //gSconsoleOutput = true;
 
                 //Begin grooscript code
 
                 {{GROOSCRIPT}}
 
                 //End  grooscript code
+
+                gSresult.console = gSconsole;
 
                 return gSresult;
             });
@@ -65,8 +79,12 @@ page.open('{{URL}}', function (status) {
                         ' Desc:'+result.tests[i].text);
                 }
             }
-
-            page.render('initial.png');
+            console.log(result.console);
+            //window.setTimeout(function () {
+            //    page.render('initial.png');
+            //    phantom.exit();
+            //}, 20000);
+            //page.render('initial.png');
             phantom.exit()
         } else {
             console.log('Fail in inject.');
@@ -104,7 +122,8 @@ page.open('{{URL}}', function (status) {
 
         String text = phantomJsText
         text = text.replace('{{URL}}',url)
-        text = text.replace('{{LIBRARY_PATH}}','../../main/resources/META-INF/resources')
+        //text = text.replace('{{LIBRARY_PATH}}','/Users/jorgefrancoleza/desarrollo/grooscript/src/main/resources/META-INF/resources')
+        text = text.replace('{{LIBRARY_PATH}}',node.getMember('jsPath').text)
         text = text.replace('{{GROOSCRIPT}}',jsTest)
         File fileJs = new File(GrooScript.JS_TEMP_FILE)
         fileJs.write(text)
@@ -112,7 +131,8 @@ page.open('{{URL}}', function (status) {
         method.setCode new AstBuilder().buildFromCode {
             println 'Starting PhantomJs test ...'
             try {
-                String command = "/Applications/phantomjs/bin/phantomjs /tmp/gSTempFile.js"
+                String command = "/Applications/phantomjs/bin/phantomjs ${org.grooscript.GrooScript.JS_TEMP_FILE}"
+                //String command = "${System.getenv('PHANTOMJS_HOME')}/phantomjs ${org.grooscript.GrooScript.JS_TEMP_FILE}"
                 def proc = command.execute()
                 proc.waitFor()
                 def exit = proc.in.text
@@ -120,6 +140,7 @@ page.open('{{URL}}', function (status) {
                     println 'Error executing command:'+command
                     println "return code: ${proc.exitValue()}"
                     println "stderr: ${proc.err.text}"
+                    assert false, 'Error launching PhantomJs'
                 } else {
                     //println "stdout: ${exit}"
                     if (exit.startsWith('Number of tests:')) {
@@ -128,6 +149,8 @@ page.open('{{URL}}', function (status) {
                             if (line) {
                                 if (line.contains('Result:FAIL')) {
                                     assert false,line.substring(line.indexOf(' Desc:')+6)
+                                } else if (line.startsWith('Console:')) {
+                                    println line.substring(8)
                                 } else {
                                     assert true,line.substring(line.indexOf(' Desc:')+6)
                                 }
@@ -135,6 +158,7 @@ page.open('{{URL}}', function (status) {
                         }
                     } else {
                         println 'Error executing tests.\n'+proc.in.text
+                        assert false, 'Error executing PhantomJs'
                     }
                 }
                 //println 'End PhantomJs test.'
@@ -146,9 +170,10 @@ page.open('{{URL}}', function (status) {
                     assert false,'Error executing PhantomJs: '+e.message
                 }
             } finally {
-                File file = new File('/tmp/gSTempFile.js')
-                if (file && file.exists())
+                File file = new File(org.grooscript.GrooScript.JS_TEMP_FILE)
+                if (file && file.exists()) {
                     file.delete()
+                }
             }
             return null
         }
