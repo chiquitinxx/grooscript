@@ -278,7 +278,15 @@ class TestAdvanced extends Specification {
         then:
         //println 'Console->'+result.gSconsole
         !result.assertFails
+    }
 
+    def 'method missing with this'() {
+        when:
+        def result = readAndConvert('advanced/MethodMissingTwo')
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
     }
 
 }
