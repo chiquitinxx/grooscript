@@ -4,7 +4,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 group = 'org.grooscript'
-version = '0.2.2'
+version = '0.2.3'
 
 sourceCompatibility = 1.7
 

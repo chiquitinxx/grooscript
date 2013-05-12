@@ -94,9 +94,7 @@ class GsConverter {
      * @return String script in javascript
      */
     def toJs(String script) {
-
         return toJs(script,null)
-
     }
 
     /**
@@ -127,11 +125,7 @@ class GsConverter {
                 //}
 
                 if (classPath) {
-
-                    //println 'cp->'+ classPath
                     list = getAstFromText(script,classPath)
-                    //println 'list->'+ list
-
                 } else {
                     //list = new AstBuilder().buildFromString(CompilePhase.SEMANTIC_ANALYSIS,script)
                     list = getAstFromText(script,null)
@@ -140,7 +134,7 @@ class GsConverter {
                 phase++
                 result = processAstListToJs(list)
             } catch (e) {
-                //println 'Exception in conversion ->'+e.message
+                GsConsole.error('Error getting AST from script: '+e.message)
                 if (phase==0) {
                     throw new Exception("Compiler ERROR on Script -"+e.message)
                 } else {
@@ -204,18 +198,7 @@ class GsConverter {
 
                 node.classes?.each { ClassNode cl ->
 
-                    /*
-                    println 'add->'+cl.name
-                    cl.metaClass.methods.each { MetaMethod method ->
-                        if (method.name.startsWith('is')) {
-                            if (method.name != 'isDerivedFrom') {
-                                println ' '+method.name+ ' = '+cl."${method.name}"()
-                            }
-                        }
-                    }*/
-
                     if (!(cl.name == scriptClassName) && cl.isPrimaryClassNode()) {
-                        //println 'add->'+cl.name
 
                         //If we dont want to convert dependencies in the result
                         if (!convertDependencies) {
@@ -226,6 +209,16 @@ class GsConverter {
                             }
                         } else {
                             acc << cl
+                        }
+                    } else {
+                        if (cl.name == scriptClassName && cl.methods) {
+                            //Lets take a look to script methods, and add methods in script
+                            cl.methods.each { MethodNode methodNode ->
+                                if (!(methodNode.name in ['main','run'])) {
+                                    //println '  add methodNode->'+methodNode
+                                    acc << methodNode
+                                }
+                            }
                         }
                     }
                 }
@@ -240,7 +233,7 @@ class GsConverter {
      * @param list
      * @return
      */
-    def private processAstListToJs(list) {
+    def processAstListToJs(list) {
         def result
         indent = 0
         resultScript = ''
@@ -252,6 +245,8 @@ class GsConverter {
             variableStaticScoping.push([])
             actualScope.clear()
             actualScope.push([])
+            //Store all methods here
+            def methodList = []
             //Store all classes here
             def classList = []
             //We process blocks at the end
@@ -266,6 +261,8 @@ class GsConverter {
                     //scriptScope = false
                     classList << it
                     //processClassNode(it)
+                } else if (it instanceof MethodNode) {
+                    methodList << it
                 } else {
                     GsConsole.error("AST Node not supported (${it.class.simpleName}).")
                 }
@@ -279,6 +276,14 @@ class GsConverter {
                 if (consoleInfo) {
                     println 'Done class list.'
                 }
+            }
+            //Process list of methods
+            methodList?.each { MethodNode methodNode ->
+                if (consoleInfo) {
+                    println 'Processing method '+methodNode.name
+                }
+                //processMethodNode(methodNode)
+                processBasicFunction("var ${methodNode.name}",methodNode,false)
             }
             //Process blocks after
             listBlocks?.each { it->

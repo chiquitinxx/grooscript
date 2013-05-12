@@ -8,6 +8,7 @@ import javax.script.Bindings
  * Test Java 6 JavaScriptEngine and tests reduction code
  * JFL 27/08/12
  */
+@Mixin([ConversionMixin])
 class TestJavaScriptEngine extends Specification {
 
     ScriptEngine engine
@@ -58,4 +59,12 @@ class TestJavaScriptEngine extends Specification {
         '1==2'  |true
     }
 
+    def 'speed javascript engine'() {
+        when:
+        def result = readAndConvert('TestSpeed')
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+    }
 }
