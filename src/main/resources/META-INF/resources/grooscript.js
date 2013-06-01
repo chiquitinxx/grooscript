@@ -2339,7 +2339,8 @@ function gSapplyDelegate(func,delegate,params) {
     var oldDelegate = gSactualDelegate;
     //console.log('setting delegate');
     gSactualDelegate = delegate;
-    func.apply(delegate,params);
+    var result = func.apply(delegate,params);
     //console.log('desetting delegate');
     gSactualDelegate = oldDelegate;
+    return result;
 }

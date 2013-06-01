@@ -123,4 +123,17 @@ class TestContributors extends Specification {
         !result.assertFails
     }
 
+    def 'myself'() {
+        when:
+        def result = readAndConvert(file,true)
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+
+        where:
+        file                       | _
+        'contribution/MySelf1'     | _
+    }
+
 }
