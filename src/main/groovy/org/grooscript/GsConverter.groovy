@@ -117,7 +117,7 @@ class GsConverter {
 
                 nativeFunctions = Util.getNativeFunctions(script)
 
-                //def AstBuilder ast
+                //def AstBuilder asts
                 def list
 
                 //System.getProperty("java.class.path", ".").tokenize(File.pathSeparator).each {
@@ -153,6 +153,11 @@ class GsConverter {
      */
     def getAstFromText(text,Object classpath) {
 
+        if (consoleInfo) {
+            println 'Converting string code to AST'
+            println ' Option convertDependencies: '+convertDependencies
+            println ' Classpath: '+classpath
+        }
         //By default, convertDependencies = true
         //All the imports in a file are added to the source to be compiled, if not added, compiler fails
         def classesToConvert = []
@@ -224,6 +229,9 @@ class GsConverter {
                 }
             }
             acc
+        }
+        if (consoleInfo) {
+            println 'Done converting string code to AST. Number of nodes: '+list.size()
         }
         return list
     }

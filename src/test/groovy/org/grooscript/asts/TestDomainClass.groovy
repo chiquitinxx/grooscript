@@ -60,6 +60,7 @@ class TestDomainClass extends Specification {
         result == 1
         AstItem.listItems.size() == 1
         AstItem.listItems[0]."${NAME}" == VALUE
+        AstItem.list() == AstItem.listItems
     }
 
     def 'test change listener executed'() {
