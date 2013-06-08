@@ -1,4 +1,4 @@
-package org.grooscript.ast
+package org.grooscript.asts
 
 import org.grooscript.test.TestJs
 import spock.lang.Specification
