@@ -118,18 +118,7 @@ class GsConverter {
                 nativeFunctions = Util.getNativeFunctions(script)
 
                 //def AstBuilder asts
-                def list
-
-                //System.getProperty("java.class.path", ".").tokenize(File.pathSeparator).each {
-                //    println '->'+it
-                //}
-
-                if (classPath) {
-                    list = getAstFromText(script,classPath)
-                } else {
-                    //list = new AstBuilder().buildFromString(CompilePhase.SEMANTIC_ANALYSIS,script)
-                    list = getAstFromText(script,null)
-                }
+                def list = getAstFromText(script,classPath)
 
                 phase++
                 result = processAstListToJs(list)
@@ -267,14 +256,17 @@ class GsConverter {
                     //processBlockStament(it,false)
                 } else if (it instanceof ClassNode) {
                     //scriptScope = false
-                    classList << it
+                    if (!it.isInterface()) {
+                        classList << it
+                    }
                     //processClassNode(it)
                 } else if (it instanceof MethodNode) {
                     methodList << it
                 } else {
-                    GsConsole.error("AST Node not supported (${it.class.simpleName}).")
+                    GsConsole.error("AST Node not supported (${it?.class?.simpleName}).")
                 }
             }
+
             //Process list of classes
             if (classList) {
                 if (consoleInfo) {
@@ -285,6 +277,7 @@ class GsConverter {
                     println 'Done class list.'
                 }
             }
+
             //Process list of methods
             methodList?.each { MethodNode methodNode ->
                 if (consoleInfo) {
@@ -293,6 +286,7 @@ class GsConverter {
                 //processMethodNode(methodNode)
                 processBasicFunction("var ${methodNode.name}",methodNode,false)
             }
+
             //Process blocks after
             listBlocks?.each { it->
                 processBlockStament(it,false)
@@ -317,7 +311,7 @@ class GsConverter {
                 //println 'it->'+it.name+' super - '+it.superClass.name
                 if (it.superClass.name=='java.lang.Object')  {
                     if (!finalList.contains(it.name)) {
-                        //println 'Adding '+it.name
+                        //println 'Adding '+it.name+' - '+it.isInterface()
                         finalList.add(it.name)
                     }
                 } else {
@@ -327,7 +321,7 @@ class GsConverter {
                     } else {
                         //If father in the list, we can add it
                         if (finalList.contains(it.superClass.name)) {
-                            //println 'Adding 2 '+it.name
+                            //println 'Adding 2 '+it.name+' - '+it.isInterface()
                             finalList.add(it.name)
                         } else {
                             //Looking for superclass, only accepts superclass a class in same script

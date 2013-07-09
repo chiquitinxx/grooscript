@@ -166,4 +166,12 @@ class TestGroovyBasics extends Specification {
         !result.assertFails
     }
 
+    def 'interfaces'() {
+        when: 'interface in code to convert'
+        def result = readAndConvert('interfaces',true)
+
+        then: 'is ignored'
+        !result.assertFails
+    }
+
 }
