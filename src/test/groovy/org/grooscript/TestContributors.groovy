@@ -88,7 +88,7 @@ class TestContributors extends Specification {
 
     def 'testing more web' () {
         when:
-        def result = readAndConvert('contribution/Anonymous3')
+        def result = readAndConvert('contribution/Anonymous3',false)
 
         then:
         //println 'Console->'+result.gSconsole

@@ -32,8 +32,6 @@ class GsConverter {
     def boolean processingClosure = false
 
     def inheritedVariables = [:]
-    //def methodVariableNames
-    //def scriptScope
 
     //Where code of native functions stored, as a map. Used for GsNative annotation
     def nativeFunctions
@@ -56,10 +54,6 @@ class GsConverter {
 
     //Constant names for javascript out
     def static final GS_OBJECT = 'gSobject'
-
-    //When true, we dont add this no variables
-    //TODO remove this variable properly
-    //def dontAddMoreThis
 
     /**
      * Constructor
@@ -1114,7 +1108,6 @@ class GsConverter {
     def private processVariableExpression(VariableExpression expression) {
 
         //println "name:${expression.name} - scope:${variableScoping.peek()} - isThis - ${expression.isThisExpression()}"
-        //if (!variableScoping.peek().contains(v.name) && !declaringVariable &&!dontAddMoreThis && variableScoping.size()>1) {
         if (variableScoping.peek().contains(expression.name) && !(actualScopeContains(expression.name))) {
             addScript("${GS_OBJECT}."+expression.name)
         } else if (variableStaticScoping.peek().contains(expression.name) && !(actualScopeContains(expression.name))) {
@@ -1519,14 +1512,8 @@ class GsConverter {
     }
 
     def private processMethodCallExpression(MethodCallExpression expression) {
-        //println "MCE ${expression.objectExpression} - ${expression.methodAsString}"
-        //println variableScoping.size()
-        //if (expression.objectExpression instanceof VariableExpression) {
-        //    if (expression.objectExpression.name == 'this') {
-        //        //dontAddMoreThis = true
-        //    }
-        //}
 
+        //println "MCE ${expression.objectExpression} - ${expression.methodAsString}"
         def addParameters = true
 
         //Change println for javascript function
@@ -2182,7 +2169,7 @@ class GsConverter {
         addScript('"gSspreadMap"')
     }
 
-    def processEmptyExpression(EmptyExpression expression) {
+    def private processEmptyExpression(EmptyExpression expression) {
         //Nothing to do
     }
 

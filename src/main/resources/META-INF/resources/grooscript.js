@@ -1874,7 +1874,11 @@ function gSmultiply(a,b) {
 function gSplus(a,b) {
     if (!gShasFunc(a,'plus')) {
         if (!gShasFunc(b,'plus')) {
-            return a+b;
+            if ((typeof a == 'number') && (typeof b == 'number') && ( a+b < 1)) {
+                return ((a*1000)+(b*1000))/1000;
+            } else {
+                return a+b;
+            }
         } else {
             return b.plus(a);
         }
