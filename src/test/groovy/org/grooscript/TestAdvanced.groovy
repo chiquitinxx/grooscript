@@ -289,4 +289,13 @@ class TestAdvanced extends Specification {
         !result.assertFails
     }
 
+    def 'curry and rcurry'() {
+        when:
+        def result = readAndConvert('advanced/Curry')
+
+        then:
+        //println 'Console->'+result.gSconsole
+        !result.assertFails
+    }
+
 }

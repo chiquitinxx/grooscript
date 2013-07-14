@@ -2348,3 +2348,24 @@ function gSapplyDelegate(func,delegate,params) {
     gSactualDelegate = oldDelegate;
     return result;
 }
+
+////////////////////////////////////////////////////////////
+// Functional
+////////////////////////////////////////////////////////////
+Function.prototype.curry = function (  ) {
+    var slice = Array.prototype.slice,
+        args = slice.apply(arguments),
+        that = this;
+    return function (  ) {
+        return that.apply(null, args.concat(slice.apply(arguments)));
+    };
+};
+
+Function.prototype.rcurry = function (  ) {
+    var slice = Array.prototype.slice,
+        args = slice.apply(arguments),
+        that = this;
+    return function (  ) {
+        return that.apply(null, (slice.apply(arguments)).concat(args));
+    };
+};
