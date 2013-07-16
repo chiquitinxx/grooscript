@@ -4,33 +4,22 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 group = 'org.grooscript'
-version = '0.2.4'
+version = '0.3-SNAPSHOT'
 
 sourceCompatibility = 1.7
-
-//mainClassName = 'org.yila.gscript'
 
 def appName = 'GrooScript'
 def webDir = '../grooscript_web'
 def webDirJar = "$webDir/lib"
 def webDirJs = "$webDir/web-app/js/"
 
-/*
-def demoDir = '../monkfish'
-def demoDirJar = "$demoDir/lib"
-def demoDirJs = "$demoDir/web-app/js/"
-*/
-
 repositories {
     mavenCentral()
-    //maven {
-    //    url "http://oss.sonatype.org/content/repositories/snapshots/"
-    //}
 }
 
 dependencies {
-	compile group: 'org.codehaus.groovy', name: 'groovy', version: '2.0.8'
-	compile group: 'org.codehaus.gpars', name: 'gpars', version: '1.0.0'
+    compile group: 'org.codehaus.groovy', name: 'groovy', version: '2.0.8'
+    compile group: 'org.codehaus.gpars', name: 'gpars', version: '1.0.0'
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 }
 
@@ -121,24 +110,3 @@ task copyToGscriptWeb(dependsOn: build) << {
     
 }
 
-/*
-//Copy jar and  js file to Demo
-task copyToDemo(dependsOn: build) << {
-	println "Copying $appName jar to $demoDirJar ..."
-	copy {
-		into "$demoDirJar"
-		from "build/libs"			
-		include "**|*.jar" //TODO change | to / if no commented
-		rename { 
-			return "grooscript-${version}.jar"
-		}
-	}
-	
-	println "Copying $appName jsFiles to $demoDirJs ..."
-	copy {
-		into "$demoDirJs"
-		from "src/main/resources/META-INF/resources"
-		include "grooscript.js"
-	}
-}
-*/
