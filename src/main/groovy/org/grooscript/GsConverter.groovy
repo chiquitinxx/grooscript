@@ -8,6 +8,7 @@ import org.grooscript.util.GsConsole
 import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.CompilationUnit
+import static org.codehaus.groovy.control.customizers.builder.CompilerCustomizationBuilder.withConfig
 
 /**
  * JFL 27/08/12
@@ -51,6 +52,7 @@ class GsConverter {
     //Conversion Options
     def addClassNames = false
     def convertDependencies = true
+    Closure customization = null
 
     //Constant names for javascript out
     def static final GS_OBJECT = 'gSobject'
@@ -165,7 +167,7 @@ class GsConverter {
             }
         }
         GroovyCodeSource codeSource = new GroovyCodeSource(text, scriptClassName + ".groovy", "/groovy/script")
-        CompilerConfiguration conf = CompilerConfiguration.DEFAULT
+        CompilerConfiguration conf = new CompilerConfiguration()
         //Add classpath to configuration
         if (classpath && classpath instanceof String) {
             conf.setClasspath(classpath)
@@ -173,9 +175,11 @@ class GsConverter {
         if (classpath && classpath instanceof Collection) {
             conf.setClasspathList(classpath)
         }
-        CompilationUnit cu = new CompilationUnit(conf, codeSource.codeSource, classLoader)
-        cu.addSource(codeSource.getName(), text);
-        cu.compile(CompilePhase.SEMANTIC_ANALYSIS.phaseNumber)
+        if (customization) {
+            withConfig(conf, customization)
+        }
+        CompilationUnit cu = compiledCode(conf, codeSource, classLoader, text)
+
         // collect all the ASTNodes into the result, possibly ignoring the script body if desired
         def list = cu.ast.modules.inject([]) {List acc, ModuleNode node ->
             //node.statementBlock
@@ -217,6 +221,22 @@ class GsConverter {
             println 'Done converting string code to AST. Number of nodes: '+list.size()
         }
         return list
+    }
+
+    private def compiledCode(conf, codeSource, classLoader, text) {
+        try {
+            def compilationUnit = new CompilationUnit(conf, codeSource.codeSource, classLoader)
+            compilationUnit.addSource(codeSource.getName(), text)
+            compilationUnit.compile(CompilePhase.INSTRUCTION_SELECTION.phaseNumber)
+        } catch (e) {
+            GsConsole.error 'Compilation error in INSTRUCTION_SELECTION phase'
+            throw e
+        }
+
+        def compilationUnitFinal = new CompilationUnit(conf, codeSource.codeSource, classLoader)
+        compilationUnitFinal.addSource(codeSource.getName(), text)
+        compilationUnitFinal.compile(CompilePhase.SEMANTIC_ANALYSIS.phaseNumber)
+        compilationUnitFinal
     }
 
     /**

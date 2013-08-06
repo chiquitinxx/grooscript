@@ -9,6 +9,7 @@ import spock.lang.Specification
 class TestConversionOptions extends Specification {
 
     def static final CONVERT_DEPENDENCIES_OPTION = 'convertDependencies'
+    def static final CUSTOMIZATION_OPTION = 'customization'
     def static final FILE_BASIC_NAME = 'BasicClass'
     def static final FILE_BASIC_GROOVY_SOURCE = "src/test/resources/classes/${FILE_BASIC_NAME}.groovy"
     def static final FILE_BASIC_JS_FOLDER = "need"
@@ -17,13 +18,21 @@ class TestConversionOptions extends Specification {
     //Reset options of GrooScript
     def setup() {
         GrooScript.setOwnClassPath(null)
-        GrooScript.setConversionProperty(CONVERT_DEPENDENCIES_OPTION,true)
+        GrooScript.setConversionProperty(CONVERT_DEPENDENCIES_OPTION, true)
+        GrooScript.setConversionProperty(CUSTOMIZATION_OPTION, null)
     }
 
     def cleanup() {
         def file = new File(FILE_BASIC_JS)
-        if (file && file.exists())
+        if (file && file.exists()) {
             file.delete()
+        }
+        GrooScript.clearAllOptions()
+        println GrooScript.options
+    }
+
+    def cleanupSpec() {
+
     }
 
     def 'check dependency resolution'() {
@@ -41,10 +50,8 @@ class TestConversionOptions extends Specification {
     def 'check dependency resolution alone'() {
 
         when:
-        //now not fails in gradle
         GrooScript.setOwnClassPath('need')
-        def String result = GrooScript.convert("class B { def Need c}")
-        //println result
+        String result = GrooScript.convert("class B { def Need c}")
 
         then:
         result
@@ -57,8 +64,7 @@ class TestConversionOptions extends Specification {
         when: 'we dont want dependencies classes in the javascript result, in this case Need class'
         GrooScript.setOwnClassPath('need')
         GrooScript.setConversionProperty(CONVERT_DEPENDENCIES_OPTION,false)
-        def String result = GrooScript.convert("class B { def Need c}")
-        //println result
+        String result = GrooScript.convert("class B { def Need c}")
 
         then: 'Need class not converted'
         result
@@ -68,7 +74,7 @@ class TestConversionOptions extends Specification {
     def 'can set classpath as List'() {
         when: 'we set classpath as list'
         GrooScript.setOwnClassPath(['need'])
-        def String result = GrooScript.convert("class B { def Need c}")
+        String result = GrooScript.convert("class B { def Need c}")
 
         then: 'not fails and Need converted'
         result
@@ -80,10 +86,22 @@ class TestConversionOptions extends Specification {
         GrooScript.setConversionProperty(CONVERT_DEPENDENCIES_OPTION,false)
         GrooScript.convert(FILE_BASIC_GROOVY_SOURCE,FILE_BASIC_JS_FOLDER)
         def file = new File(FILE_BASIC_JS)
-        //println 'Result:'+file.text
 
         then: 'Conversion returns data converted'
         file.text.startsWith("function ${FILE_BASIC_NAME}()")
+    }
 
+    def 'customization option'() {
+        given:
+        def customization = {
+            ast(groovy.transform.TypeChecked)
+        }
+
+        when:
+        GrooScript.setConversionProperty(CUSTOMIZATION_OPTION, customization)
+        GrooScript.convert('class A {  def say() { println aaaa }}')
+
+        then:
+        thrown(Exception)
     }
 }

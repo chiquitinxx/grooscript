@@ -7,19 +7,20 @@ import org.grooscript.daemon.ConversionDaemon
  */
 class GrooScript {
 
-    def static final String JS_TEMP_FILE = 'gSTempFile.js'
-    def private static GsConverter converter
+    static final String JS_TEMP_FILE = 'gSTempFile.js'
     def static ownClassPath
     def static debug = false
     def private static HEAD = '[GrooScript]'
+    def static options = [:]
 
     /**
-     * Get a GsConverter singleton
-     * @return
+     * Get a new GsConverter with options applied
+     * @return GsConverter
      */
-    def static GsConverter getConverter() {
-        if (!converter) {
-            converter = new GsConverter()
+    def static GsConverter getNewConverter() {
+        def converter = new GsConverter()
+        options.each { key, value ->
+            converter."${key}" = value
         }
         converter
     }
@@ -32,7 +33,7 @@ class GrooScript {
      */
     def static convert(String text) {
         if (text) {
-            return getConverter().toJs(text,ownClassPath)
+            return getNewConverter().toJs(text,ownClassPath)
         } else {
             throw new Exception("Nothing to Convert.")
         }
@@ -92,7 +93,7 @@ class GrooScript {
             if (source.isFile() && source.name.endsWith('.groovy')) {
                 //println 'Name file->'+source.name
                 def name = source.name.split(/\./)[0]
-                def jsResult = getConverter().toJs(source.text,ownClassPath)
+                def jsResult = getNewConverter().toJs(source.text,ownClassPath)
 
                 //println 'Result file->'+destination.path+System.getProperty('file.separator')+name+'.js'
                 def newFile = new File(destination.path+System.getProperty('file.separator')+name+'.js')
@@ -117,11 +118,16 @@ class GrooScript {
      * @param value
      */
     def static setConversionProperty(name,value) {
-        try {
-            getConverter()."$name" = value
-        } catch (e) {
-            throw new Exception("Error setting conversion property ${name} to ${value}.")
-        }
+        options."$name" = value
+    }
+
+    /**
+     * Resets all compiler options
+     * @return
+     */
+    def static clearAllOptions() {
+        options = [:]
+        ownClassPath = null
     }
 
     //Only a deamon can be active
