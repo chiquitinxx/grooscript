@@ -13,13 +13,14 @@ class TestDaemon extends Specification {
 
     static final TIME_DAEMON = 200
     static final FILE1_NAME = 'File1'
-    static final FILE1_PATH = "daemon/${FILE1_NAME}"
     static final FILE1_OUT = "${FILE1_NAME}.js"
     static final FOLDER_OUT = 'testOut'
+    static final SEP = System.getProperty('file.separator')
 
     def setup() {
         //Create temp output dir
         new File(FOLDER_OUT).mkdir()
+        new File(FOLDER_OUT+SEP+FILE1_NAME+'.groovy') << 'class File1 {}'
     }
 
     def cleanup() {
@@ -28,7 +29,7 @@ class TestDaemon extends Specification {
     }
 
     boolean existGeneratedFile(name) {
-        def file = new File("${FOLDER_OUT}${System.getProperty('file.separator')}${name}")
+        def file = new File("${FOLDER_OUT}${SEP}${name}")
         file && file.exists() && file.isFile()
     }
 
@@ -36,7 +37,7 @@ class TestDaemon extends Specification {
         GroovySpy(GsConsole, global: true)
 
         given:
-        GrooScript.startConversionDaemon([TestJs.getGroovyTestScript(FILE1_PATH).absolutePath],FOLDER_OUT)
+        GrooScript.startConversionDaemon([FOLDER_OUT] , FOLDER_OUT)
 
         when:
         Thread.sleep(TIME_DAEMON)
