@@ -41,7 +41,6 @@ class TestAdvancedClass extends Specification {
         def result = readAndConvert('classes/Categories')
 
         then:
-        //println 'Console->'+result.gSconsole
         !result.assertFails
     }
 
@@ -50,7 +49,6 @@ class TestAdvancedClass extends Specification {
         def result = readAndConvert('classes/Mixins',false,[addClassNames:true])
 
         then:
-        //println 'Console->'+result.gSconsole
         !result.assertFails
     }
 
@@ -59,8 +57,15 @@ class TestAdvancedClass extends Specification {
         def result = readAndConvert('classes/StringBufferClass')
 
         then:
-        //println 'Console->'+result.gSconsole
         result.gSconsole == 'hello!'
+        !result.assertFails
+    }
+
+    def 'abstract class usage'() {
+        when:
+        def result = readAndConvert('classes/Abstract', true)
+
+        then:
         !result.assertFails
     }
 

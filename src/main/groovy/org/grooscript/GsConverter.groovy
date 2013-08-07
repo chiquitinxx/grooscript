@@ -113,11 +113,22 @@ class GsConverter {
 
                 nativeFunctions = Util.getNativeFunctions(script)
 
+                if (consoleInfo) {
+                    GsConsole.message('Getting ast from code...')
+                }
                 //def AstBuilder asts
                 def list = getAstFromText(script,classPath)
 
+                if (consoleInfo) {
+                    GsConsole.message('Processing AST...')
+                }
+
                 phase++
                 result = processAstListToJs(list)
+
+                if (consoleInfo) {
+                    GsConsole.message('Code processed.')
+                }
             } catch (e) {
                 GsConsole.error('Error getting AST from script: '+e.message)
                 if (phase==0) {
@@ -139,9 +150,9 @@ class GsConverter {
     def getAstFromText(text,Object classpath) {
 
         if (consoleInfo) {
-            println 'Converting string code to AST'
-            println ' Option convertDependencies: '+convertDependencies
-            println ' Classpath: '+classpath
+            GsConsole.message('Converting string code to AST')
+            GsConsole.message(' Option convertDependencies: '+convertDependencies)
+            GsConsole.message(' Classpath: '+classpath)
         }
         //By default, convertDependencies = true
         //All the imports in a file are added to the source to be compiled, if not added, compiler fails
@@ -182,10 +193,8 @@ class GsConverter {
 
         // collect all the ASTNodes into the result, possibly ignoring the script body if desired
         def list = cu.ast.modules.inject([]) {List acc, ModuleNode node ->
-            //node.statementBlock
             //println ' Acc node->'+node+ ' - '+ node.getStatementBlock().getStatements().size()
             if (node.statementBlock) {
-            //if (node.statementBlock && node.statementBlock.statements?.size()>0) {
                 acc.add(node.statementBlock)
 
                 node.classes?.each { ClassNode cl ->
@@ -218,7 +227,7 @@ class GsConverter {
             acc
         }
         if (consoleInfo) {
-            println 'Done converting string code to AST. Number of nodes: '+list.size()
+            GsConsole.message('Done converting string code to AST. Number of nodes: '+list.size())
         }
         return list
     }
@@ -265,15 +274,11 @@ class GsConverter {
             list.each { it ->
                 //println '------------------------------------it->'+it
                 if (it instanceof BlockStatement) {
-                    //scriptScope = true
                     listBlocks << it
-                    //processBlockStament(it,false)
                 } else if (it instanceof ClassNode) {
-                    //scriptScope = false
                     if (!it.isInterface()) {
                         classList << it
                     }
-                    //processClassNode(it)
                 } else if (it instanceof MethodNode) {
                     methodList << it
                 } else {
@@ -284,18 +289,18 @@ class GsConverter {
             //Process list of classes
             if (classList) {
                 if (consoleInfo) {
-                    println 'Processing class list...'
+                    GsConsole.message('Processing class list...')
                 }
                 processClassList(classList)
                 if (consoleInfo) {
-                    println 'Done class list.'
+                    GsConsole.message('Done class list.')
                 }
             }
 
             //Process list of methods
             methodList?.each { MethodNode methodNode ->
                 if (consoleInfo) {
-                    println 'Processing method '+methodNode.name
+                    GsConsole.message('Processing method '+methodNode.name)
                 }
                 //processMethodNode(methodNode)
                 processBasicFunction("var ${methodNode.name}",methodNode,false)
@@ -308,7 +313,6 @@ class GsConverter {
 
             result = resultScript
         }
-        //println 'res->'+ result
         result
     }
 
@@ -339,11 +343,9 @@ class GsConverter {
                             finalList.add(it.name)
                         } else {
                             //Looking for superclass, only accepts superclass a class in same script
-                            //if (it.superClass.name.indexOf('.')>=0) {
                             if (it.superClass.name.startsWith('java.') ||
                                 it.superClass.name.startsWith('groovy.')) {
                                 if (it.superClass.name=='java.lang.Enum') {
-                                    //processEnum(it)
                                     enumClasses.add(it.name)
                                 } else {
                                     throw new Exception('Inheritance not Allowed on '+it.name)
@@ -358,13 +360,13 @@ class GsConverter {
         //Finally process classes in order
         finalList.each { String nameClass ->
             if (consoleInfo) {
-                println '  Processing class '+nameClass
+                GsConsole.message('  Processing class '+nameClass)
             }
             processClassNode(list.find { ClassNode it ->
                 return it.name == nameClass
             })
             if (consoleInfo) {
-                println '  Processing class done.'
+                GsConsole.message('  Processing class done.')
             }
         }
         //Expandos - Nothing to do!
@@ -397,7 +399,6 @@ class GsConverter {
         def count = 0
         paramList?.each { param ->
             //"process${param.class.simpleName}"(param)
-            //count--
             if (count>0) addScript ', '
             addScript("arguments[${count}]")
             count++
@@ -446,17 +447,10 @@ class GsConverter {
 
         //Methods
         node?.methods?.each {
-
-            //println 'method->'+it.name;
-
             if (it.name!='main' && it.name!='run') {
-
                 //Add too method names to variable scoping
                 variableScoping.peek().add(it.name)
-
                 processBasicFunction(it.name,it,false)
-
-                //processMethodNode(it,false)
             }
         }
 
@@ -538,7 +532,6 @@ class GsConverter {
             return 0
         }
 
-        //println "class-> $node.name"
         addLine()
 
         //Push name in stack
@@ -546,7 +539,6 @@ class GsConverter {
         variableScoping.push([])
         variableStaticScoping.push([])
 
-        //addScript("function gsCreate${translateClassName(node.name)}() {")
         addScript("function ${translateClassName(node.name)}() {")
 
         indent ++
@@ -567,9 +559,12 @@ class GsConverter {
             addClassNames(node.name, (node.superClass.name != 'java.lang.Object'?node.superClass.name:null))
         }
 
+        if (consoleInfo) {
+            GsConsole.message("   Processing class ${node.name}, step 1")
+        }
+
         //Adding initial values of properties
         node?.properties?.each { it-> //println 'Property->'+it; println 'initialExpresion->'+it.initialExpression
-
             if (!it.isStatic()) {
                 addPropertyToClass(it,false)
                 //We add variable names of the class
@@ -591,7 +586,10 @@ class GsConverter {
                     addPropertyStaticToClass(field.name)
                 }
             }
-            //println 'Field->'+field.name+' owner:'+field.owner+' t:'+node.name + ' p:'+node.syntheticPublic
+        }
+
+        if (consoleInfo) {
+            GsConsole.message("   Processing class ${node.name}, step 2")
         }
 
         //Save variables from this class for use in 'son' classes
@@ -601,18 +599,14 @@ class GsConverter {
 
         //Methods
         node?.methods?.each { MethodNode it -> //println 'method->'+it;
-
-            //Even if not converting, we add name to scope
-            //if (!haveAnnotationNonConvert(it.annotations)) {
-                //Add too method names to variable scoping
-                if (!it.isStatic()) {
-                    variableScoping.peek().add(it.name)
-                }
-            //}
+            //Add too method names to variable scoping
+            if (!it.isStatic() && !it.isAbstract()) {
+                variableScoping.peek().add(it.name)
+            }
         }
         node?.methods?.each { MethodNode it -> //println 'method->'+it;
 
-            if (!haveAnnotationNonConvert(it.annotations)) {
+            if (!haveAnnotationNonConvert(it.annotations) && !it.isAbstract()) {
                 //Process the methods
                 if (haveAnnotationNative(it.annotations) && !it.isStatic()) {
                     putGsNativeMethod("${GS_OBJECT}.${it.name}",it)
@@ -635,6 +629,10 @@ class GsConverter {
                     addLine()
                 }
             }
+        }
+
+        if (consoleInfo) {
+            GsConsole.message("   Processing class ${node.name}, step 3")
         }
 
         //Constructors
@@ -668,11 +666,14 @@ class GsConverter {
         addScript('};')
         addLine()
 
+        if (consoleInfo) {
+            GsConsole.message("   Processing class ${node.name}, step 4")
+        }
+
         //Static methods
         node?.methods?.each { MethodNode method ->
             if (!haveAnnotationNonConvert(method.annotations)) {
                 if (method.isStatic()) {
-                    //println 'Static!'
                     if (haveAnnotationNative(method.annotations)) {
                         putGsNativeMethod("${translateClassName(node.name)}.${method.name}",method)
                     } else {
@@ -699,6 +700,9 @@ class GsConverter {
         superNameStack.pop()
 
         //Finish class conversion
+        if (consoleInfo) {
+            GsConsole.message("   Processing class ${node.name}, Done.")
+        }
     }
 
     def addClassNames(actualClassName,superClassName) {
@@ -738,9 +742,7 @@ class GsConverter {
         //If no parameters, we add it by defaul
         if (addItInParameter && (!functionOrMethod.parameters || functionOrMethod.parameters.size()==0)) {
             addScript('it')
-            //actualScope.add('it')
             addToActualScope('it')
-            //variableScoping.peek().add('it')
         } else {
 
             functionOrMethod.parameters?.eachWithIndex { Parameter param, index ->
@@ -758,9 +760,7 @@ class GsConverter {
                 if (!first) {
                     addScript(', ')
                 }
-                //actualScope.add(param.name)
                 addToActualScope(param.name)
-                //variableScoping.peek().add(param.name)
                 addScript(param.name)
                 first = false
             }
@@ -808,9 +808,7 @@ class GsConverter {
 
     def private putFunctionParametersAndBody(functionOrMethod, boolean isConstructor, boolean addItDefault) {
 
-        //actualScope = []
         actualScope.push([])
-        //variableScoping.push([])
 
         processFunctionOrMethodParameters(functionOrMethod,isConstructor,addItDefault)
 
@@ -821,9 +819,7 @@ class GsConverter {
             GsConsole.error("FunctionOrMethod Code not supported (${functionOrMethod.code.class.simpleName})")
         }
 
-        //actualScope = []
         actualScope.pop()
-        //variableScoping.pop()
     }
 
     def private processBasicFunction(name, method, isConstructor) {
@@ -864,7 +860,6 @@ class GsConverter {
             //Add number of params to constructor name
             //BEWARE Atm only accepts constructor with different number or arguments
             name = translateClassName(classNameStack.peek()) + (method.parameters?method.parameters.size():'0')
-            //println 'Fucking name-'+name
         }
 
         processBasicFunction("${GS_OBJECT}.$name",method,isConstructor)
@@ -1029,32 +1024,11 @@ class GsConverter {
     }
 
     def private processBooleanExpression(BooleanExpression expression) {
-        //println 'BooleanExpression->'+expression
-        //println 'BooleanExpression Inside->'+expression.expression
-
-        /*
-        if (expression.expression instanceof VariableExpression || expression.expression instanceof PropertyExpression ||
-            (expression.expression instanceof NotExpression &&
-                    expression.expression.expression &&
-                    (expression.expression.expression instanceof VariableExpression || expression.expression.expression instanceof PropertyExpression))) {
-            if (expression.expression instanceof NotExpression) {
-                addScript('!gSbool(')
-                "process${expression.expression.expression.class.simpleName}"(expression.expression.expression)
-            } else {
-                addScript('gSbool(')
-                "process${expression.expression.class.simpleName}"(expression.expression)
-            }
-            addScript(')')
-        } else {
-            "process${expression.expression.class.simpleName}"(expression.expression)
-        }*/
-
         //Groovy truth is a bit different, empty collections return false, we fix that here
         handExpressionInBoolean(expression.expression)
     }
 
     def private processExpressionStatement(ExpressionStatement statement) {
-        //println 'begin->'+statement
         Expression e = statement.expression
         "process${e.class.simpleName}"(e)
     }
@@ -1805,7 +1779,6 @@ class GsConverter {
 
     def private processForStatement(ForStatement statement) {
 
-        //????
         if (statement?.variable != ForStatement.FOR_LOOP_DUMMY) {
             //println 'DUMMY!-'+statement.variable
             //We change this for in...  for a call lo closure each, that works fine in javascript
@@ -1928,15 +1901,12 @@ class GsConverter {
                 addScript("} else if (")
             }
             getSwitchExpression(it.expression,varName)
-            //println 'Exp->'+it?.expression
             addScript(') {')
             indent++
             addLine()
             "process${it?.code.class.simpleName}"(it?.code)
             indent--
             removeTabScript()
-
-            //"process${it.class.simpleName}"(it)
         }
         if (statement.defaultStatement) {
             addScript('} else {')
@@ -1948,26 +1918,6 @@ class GsConverter {
         }
 
         addScript('}')
-
-        /* changed javascript switch to if
-        addScript('switch (')
-        "process${statement.expression.class.simpleName}"(statement.expression)
-        addScript(') {')
-        indent++
-        addLine()
-        statement.caseStatements?.each { it ->
-            "process${it.class.simpleName}"(it)
-            //addScript('break;')
-        }
-        if (statement.defaultStatement) {
-            addScript('default :')
-            "process${statement.defaultStatement.class.simpleName}"(statement.defaultStatement)
-        }
-        indent--
-        removeTabScript()
-        addScript('}')
-        //addLine()
-        */
 
         switchCount--
     }
@@ -1981,14 +1931,12 @@ class GsConverter {
         "process${statement?.code.class.simpleName}"(statement?.code)
         indent--
         removeTabScript()
-        //addLine()
     }
 
     def private processBreakStatement(BreakStatement statement) {
         if (switchCount==0) {
             addScript('break')
         }
-        //addLine()
     }
 
     def private processWhileStatement(WhileStatement statement) {
@@ -2005,7 +1953,6 @@ class GsConverter {
 
     def private processTupleExpression(TupleExpression expression, withParenthesis = true) {
         //println 'Tuple->'+expression.text
-        //expression.expressions.each { println '-'+it}
         if (withParenthesis) {
             addScript('(')
         }
@@ -2027,11 +1974,9 @@ class GsConverter {
             "process${exp.valueExpression.class.simpleName}"(exp.valueExpression)
             addScript(')')
         }
-        //"process${expression.transformExpression().class.simpleName}"(expression.transformExpression())
     }
 
     def private processBitwiseNegationExpression(BitwiseNegationExpression expression) {
-        //addScript("gSpattern('/${expression.text}/')")
         addScript("/${expression.text}/")
     }
 
@@ -2046,9 +1991,6 @@ class GsConverter {
 
         indent ++
         addLine()
-
-        //Allowed inheritance
-        //addScript('var ${GS_OBJECT} = inherit(gsBaseClass);')
 
         //addLine()
         //ignoring generics and interfaces and extends atm
@@ -2071,11 +2013,7 @@ class GsConverter {
 
             if (!['values','next','previous','valueOf','$INIT','<clinit>'].contains(it.name)) {
 
-                //println 'Method->'+ it.name
                 variableScoping.peek().add(it.name)
-                //processMethodNode(it,false)
-                //processBasicFunction(it.name,it,false)
-
                 addScript("${it.name} : function(")
                 putFunctionParametersAndBody(it,false,true)
 
@@ -2087,41 +2025,17 @@ class GsConverter {
             }
         }
 
-        //addLine()
-
         indent --
-        //addScript("return ${GS_OBJECT};")
         addLine()
         addScript('}')
         addLine()
 
         //Remove variable class names from the list
         variableScoping.pop()
-
-        //Pop name in stack
-
     }
-
-    /*
-    def processFieldExpression(FieldExpression expression) {
-        //println '->'+expression.fieldName
-
-        FieldNode node = expression.field
-        println '->'+node.name
-    }
-
-    def processStaticMethodCallExpression(StaticMethodCallExpression expression) {
-        println 'StaticMethodCallExpression->'+expression.text
-    }*/
 
     def private processClassExpression(ClassExpression expression) {
-        //println 'ClassExpression-'+ expression.text
-        //addScript(translateClassName(expression.text))
-        //if (expression.text.startsWith('java.lang')) {
-            //addScript(expression.text)
-        //} else {
-            addScript(translateClassName(expression.text))
-        //}
+        addScript(translateClassName(expression.text))
     }
 
     def private processThrowStatement(ThrowStatement statement) {
@@ -2153,8 +2067,6 @@ class GsConverter {
 
     def private processAttributeExpression(AttributeExpression expression) {
         processPropertyExpression(expression)
-        //addScript(expression.propertyAsString)
-        //upgradedExpresion(expression.property)
     }
 
     def private processCastExpression(CastExpression expression) {
