@@ -1,7 +1,6 @@
 package org.grooscript.daemon
 
 import org.grooscript.GrooScript
-import org.grooscript.test.TestJs
 import org.grooscript.util.GsConsole
 import spock.lang.Specification
 
@@ -28,24 +27,43 @@ class TestDaemon extends Specification {
         new File(FOLDER_OUT).deleteDir()
     }
 
-    boolean existGeneratedFile(name) {
+    File generatedFile(name) {
         def file = new File("${FOLDER_OUT}${SEP}${name}")
-        file && file.exists() && file.isFile()
+        file && file.exists() && file.isFile() ? file : null
     }
 
     def 'test start and stop'() {
+
         GroovySpy(GsConsole, global: true)
 
         given:
         GrooScript.startConversionDaemon([FOLDER_OUT] , FOLDER_OUT)
 
         when:
-        Thread.sleep(TIME_DAEMON)
-        GrooScript.stopConversionDaemon()
+        waitAndStop()
 
         then:
         1 * GsConsole.message('Daemon Terminated.')
         0 * GsConsole.error(_)
-        existGeneratedFile(FILE1_OUT)
+        generatedFile(FILE1_OUT)
+    }
+
+    def 'test option customization with @DomainClass'() {
+        given:
+        GrooScript.startConversionDaemon([FOLDER_OUT] , FOLDER_OUT,
+                ['customization': {
+                    ast(org.grooscript.asts.DomainClass)
+                }])
+
+        when:
+        waitAndStop()
+
+        then: 'DomainClass ast applied to class'
+        generatedFile(FILE1_OUT).text.contains 'gSobject.save = function(onOk, onError) {'
+    }
+
+    private waitAndStop() {
+        Thread.sleep(TIME_DAEMON)
+        GrooScript.stopConversionDaemon()
     }
 }

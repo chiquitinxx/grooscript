@@ -139,17 +139,17 @@ class GrooScript {
      *
      * @param sourceList A list of folders and files to be converted
      * @param destinationFolder Folder where save .js files
-     * @param options Map of conversion options [classpath:['xxx/groovy','xxx.jar'], addClassNames: true, ...]
+     * @param conversionOptions Map of conversion options [classpath:['xxx/groovy','xxx.jar'], addClassNames: true, ...]
      * @param doAfter A closure to launch each time daemons ends check and convert files. Recieve a list of files modified
      */
-    def static startConversionDaemon(sourceList,destinationFolder,options = null,doAfter = null) {
+    def static startConversionDaemon(sourceList,destinationFolder,conversionOptions = null,doAfter = null) {
         if (daemon) {
             stopConversionDaemon()
         }
         daemon = new ConversionDaemon()
         daemon.sourceList = sourceList
         daemon.destinationFolder = destinationFolder
-        daemon.options = options
+        daemon.conversionOptions = conversionOptions
         if (doAfter) {
             daemon.doAfter = doAfter
         }

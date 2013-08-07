@@ -19,7 +19,7 @@ class ConversionDaemon {
 
     def sourceList
     def destinationFolder
-    def options = [:]
+    def conversionOptions = [:]
     def doAfter = null
 
     def dates = [:]
@@ -71,10 +71,10 @@ class ConversionDaemon {
             //Get a converter
             def converter = new GsConverter()
 
-            //Set the options
+            //Set the conversion options
             def classpath = null
-            if (options) {
-                options.each { String key,value ->
+            if (conversionOptions) {
+                conversionOptions.each { String key,value ->
                     if (key.toUpperCase().contains('CLASSPATH')) {
                         classpath = value
                     } else {
