@@ -4,52 +4,35 @@ import org.grooscript.test.ConversionMixin
 import spock.lang.Specification
 
 /**
- * First test for converts groovy code to javascript code
- * Following GroovyInAction Book
- * Chap 2. Groovy basics
+ * Class tests
  * JFL 27/08/12
  */
 @Mixin([ConversionMixin])
 class TestAdvancedClass extends Specification {
 
     def 'test class names' () {
-        when:
-        def result = readAndConvert('classes/Names',false,[addClassNames:true])
-
-        then:
-        !result.assertFails
+        expect:
+        !readAndConvert('classes/Names',false,[addClassNames:true]).assertFails
     }
 
     def 'test instanceof basic'() {
-        when:
-        def result = readAndConvert('classes/InstanceOf',false,[addClassNames:true])
-
-        then:
-        !result.assertFails
+        expect:
+        !readAndConvert('classes/InstanceOf',false,[addClassNames:true]).assertFails
     }
 
     def 'add methods and properties to classes'() {
-        when:
-        def result = readAndConvert('classes/AddingStuff',false,[addClassNames:true])
-
-        then:
-        !result.assertFails
+        expect:
+        !readAndConvert('classes/AddingStuff',false,[addClassNames:true]).assertFails
     }
 
     def 'who knows categories'() {
-        when:
-        def result = readAndConvert('classes/Categories')
-
-        then:
-        !result.assertFails
+        expect:
+        !readAndConvert('classes/Categories').assertFails
     }
 
     def 'mixins to the hell'() {
-        when:
-        def result = readAndConvert('classes/Mixins',false,[addClassNames:true])
-
-        then:
-        !result.assertFails
+        expect:
+        !readAndConvert('classes/Mixins',false,[addClassNames:true]).assertFails
     }
 
     def 'string buffer'() {
@@ -61,12 +44,8 @@ class TestAdvancedClass extends Specification {
         !result.assertFails
     }
 
-    def 'abstract class usage'() {
-        when:
-        def result = readAndConvert('classes/Abstract', true)
-
-        then:
-        !result.assertFails
+    def 'abstract class basic usage'() {
+        expect:
+        !readAndConvert('classes/Abstract').assertFails
     }
-
 }
