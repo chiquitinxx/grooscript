@@ -76,5 +76,4 @@ class TestDomainClass extends Specification {
         then:
         value == 30
     }
-
 }

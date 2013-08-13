@@ -60,11 +60,7 @@ class TestJavaScriptEngine extends Specification {
     }
 
     def 'speed javascript engine'() {
-        when:
-        def result = readAndConvert('TestSpeed')
-
-        then:
-        //println 'Console->'+result.gSconsole
-        !result.assertFails
+        expect:
+        !readAndConvert('TestSpeed').assertFails
     }
 }

@@ -1,12 +1,14 @@
 package org.grooscript
 
 import org.grooscript.daemon.ConversionDaemon
+import org.grooscript.util.GsConsole
 
 /**
  * JFL 09/11/12
  */
 class GrooScript {
 
+    static final String JS_EXTENSION = '.js'
     static final String JS_TEMP_FILE = 'gSTempFile.js'
     def static ownClassPath
     def static debug = false
@@ -163,6 +165,23 @@ class GrooScript {
     def static stopConversionDaemon() {
         if (daemon) {
             daemon.stop()
+        }
+    }
+
+    static void joinFiles(sourceDirectory, fileDestinationName) {
+        File source = new File(sourceDirectory)
+        if (source && source.isDirectory()) {
+            def newFile = new File(fileDestinationName)
+            if (newFile.exists()) {
+                newFile.delete()
+            }
+            source.eachFile { File file ->
+                if (file.isFile() && file.name.toLowerCase().endsWith(JS_EXTENSION)) {
+                    newFile.append(file.text + '\n')
+                }
+            }
+        } else {
+            GsConsole.error 'Source must be a directory'
         }
     }
 }

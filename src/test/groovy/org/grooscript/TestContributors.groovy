@@ -12,19 +12,14 @@ import spock.lang.Unroll
 class TestContributors extends Specification {
 
     def 'test jochen' () {
-        when:
-        def result = readAndConvert('contribution/JochenTheodorou')
-
-        then:
-        !result.assertFails
+        expect:
+        !readAndConvert('contribution/JochenTheodorou').assertFails
     }
 
     @Unroll('Testing MrHaki #file')
     def 'test MrHaki' () {
         expect:
-        def result = readAndConvert(file,false)//file=='contribution/MrHakiGetSetProperties')
-        //println 'Console->'+result.gSconsole
-        !result.assertFails
+        !readAndConvert(file).assertFails
 
         where:
         file                                    |_
@@ -40,23 +35,13 @@ class TestContributors extends Specification {
     }
 
     def 'test alex anderson' () {
-        when:
-        def result = readAndConvert('contribution/AlexAnderson')
-
-        then:
-        //println 'Console->'+result.gSconsole
-        !result.assertFails
-
+        expect:
+        !readAndConvert('contribution/AlexAnderson').assertFails
     }
 
     def 'test mario garcia' () {
-        when:
-        def result = readAndConvert('contribution/MarioGarcia')
-
-        then:
-        //println 'Console->'+result.gSconsole
-        !result.assertFails
-
+        expect:
+        !readAndConvert('contribution/MarioGarcia').assertFails
     }
 
     @Unroll('Testing anonymous web #file')
@@ -65,7 +50,6 @@ class TestContributors extends Specification {
         def result = readAndConvert(file)
         !result.assertFails
         result.gSconsole.contains(text)
-        //println result.gSconsole
 
         where:
         file                       | text
@@ -82,54 +66,32 @@ class TestContributors extends Specification {
                 'gSobject.value = 0;gSobject.two = function() {return 2;};')
 
         then:
-        //println 'Console->'+result.gSconsole
         !result.assertFails
     }
 
     def 'testing more web' () {
-        when:
-        def result = readAndConvert('contribution/Anonymous3',false)
-
-        then:
-        //println 'Console->'+result.gSconsole
-        !result.assertFails
-
+        expect:
+        !readAndConvert('contribution/Anonymous3').assertFails
     }
 
     def 'testing mario extends'() {
-        when:
-        def result = readAndConvert('contribution/MarioGarcia2',false)
-
-        then:
-        //println 'Console->'+result.gSconsole
-        !result.assertFails
+        expect:
+        !readAndConvert('contribution/MarioGarcia2').assertFails
     }
 
     def 'testing mario maps'() {
-        when:
-        def result = readAndConvert('contribution/MarioGarcia3',false)
-
-        then:
-        //println 'Console->'+result.gSconsole
-        !result.assertFails
+        expect:
+        !readAndConvert('contribution/MarioGarcia3').assertFails
     }
 
     def 'twitter code found scoping closures'() {
-        when:
-        def result = readAndConvert('contribution/Twitter1',false)
-
-        then:
-        //println 'Console->'+result.gSconsole
-        !result.assertFails
+        expect:
+        !readAndConvert('contribution/Twitter1').assertFails
     }
 
     def 'myself'() {
-        when:
-        def result = readAndConvert(file,true)
-
-        then:
-        //println 'Console->'+result.gSconsole
-        !result.assertFails
+        expect:
+        !readAndConvert(file).assertFails
 
         where:
         file                       | _

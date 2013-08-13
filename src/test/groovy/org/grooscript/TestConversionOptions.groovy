@@ -8,90 +8,87 @@ import spock.lang.Specification
  */
 class TestConversionOptions extends Specification {
 
-    def static final CONVERT_DEPENDENCIES_OPTION = 'convertDependencies'
-    def static final CUSTOMIZATION_OPTION = 'customization'
-    def static final FILE_BASIC_NAME = 'BasicClass'
-    def static final FILE_BASIC_GROOVY_SOURCE = "src/test/resources/classes/${FILE_BASIC_NAME}.groovy"
-    def static final FILE_BASIC_JS_FOLDER = "need"
-    def static final FILE_BASIC_JS = "${FILE_BASIC_JS_FOLDER}/${FILE_BASIC_NAME}.js"
-
-    //Reset options of GrooScript
-    def setup() {
-        GrooScript.setOwnClassPath(null)
-        GrooScript.setConversionProperty(CONVERT_DEPENDENCIES_OPTION, true)
-        GrooScript.setConversionProperty(CUSTOMIZATION_OPTION, null)
-    }
+    private static final CONVERT_DEPENDENCIES_OPTION = 'convertDependencies'
+    private static final CUSTOMIZATION_OPTION = 'customization'
+    private static final FILE_BASIC_NAME = 'BasicClass'
+    private static final FILE_BASIC_GROOVY_SOURCE = "src/test/resources/classes/${FILE_BASIC_NAME}.groovy"
+    private static final FOLDER_NEED_DEPENDENCY = "need"
+    private static final CLASS_NEED_DEPENDENCY = "Need"
+    private static final SEP = System.getProperty('file.separator')
+    private static final FILE_BASIC_JS = "${FOLDER_NEED_DEPENDENCY}${SEP}${FILE_BASIC_NAME}.js"
+    private static final SOURCE_DIR = 'source'
+    private static final DESTINATION_FILE = 'destination.js'
 
     def cleanup() {
-        def file = new File(FILE_BASIC_JS)
-        if (file && file.exists()) {
-            file.delete()
-        }
+        new File(FOLDER_NEED_DEPENDENCY).deleteDir()
+        new File(SOURCE_DIR).deleteDir()
+        new File(DESTINATION_FILE).delete()
         GrooScript.clearAllOptions()
-        println GrooScript.options
-    }
-
-    def cleanupSpec() {
-
     }
 
     def 'check dependency resolution'() {
 
-        when:
-        GrooScript.setOwnClassPath('need')
-        def String result = GrooScript.convert("class A {};def need = new Need()")
+        given:
+        setupNeedDirectory()
+        GrooScript.setOwnClassPath(FOLDER_NEED_DEPENDENCY)
+
+        when: 'convert a class with need dependency'
+        String result = GrooScript.convert("class A {};def need = new Need()")
 
         then:
-        result
         result.startsWith('function A()')
-        result.endsWith('var need = Need();\n')
+        result.endsWith("var need = ${CLASS_NEED_DEPENDENCY}();\n")
+
+        and: 'class need also converted'
+        result.contains("function ${CLASS_NEED_DEPENDENCY}()")
     }
 
-    def 'check dependency resolution alone'() {
+    def 'testing convert dependencies option'() {
 
-        when:
-        GrooScript.setOwnClassPath('need')
-        String result = GrooScript.convert("class B { def Need c}")
-
-        then:
-        result
-        result.startsWith('function B()')
-        result.contains('gSobject.c = null;\n')
-    }
-
-    def 'testing dependency conversions'() {
+        given:
+        setupNeedDirectory()
+        GrooScript.setOwnClassPath(FOLDER_NEED_DEPENDENCY)
 
         when: 'we dont want dependencies classes in the javascript result, in this case Need class'
-        GrooScript.setOwnClassPath('need')
+        GrooScript.setOwnClassPath(FOLDER_NEED_DEPENDENCY)
         GrooScript.setConversionProperty(CONVERT_DEPENDENCIES_OPTION,false)
-        String result = GrooScript.convert("class B { def Need c}")
+        String result = GrooScript.convert("class B { ${CLASS_NEED_DEPENDENCY} c}")
 
         then: 'Need class not converted'
-        result
+        result.startsWith('function B()')
         !result.contains('function Need()')
     }
 
     def 'can set classpath as List'() {
+
+        given:
+        setupNeedDirectory()
+
         when: 'we set classpath as list'
-        GrooScript.setOwnClassPath(['need'])
+        GrooScript.setOwnClassPath([FOLDER_NEED_DEPENDENCY])
         String result = GrooScript.convert("class B { def Need c}")
 
-        then: 'not fails and Need converted'
+        then: 'conversion done'
         result
         result.contains('function Need()')
     }
 
     def 'with conversion option convertDependencies=false on a file without dependencies'() {
+
+        given:
+        setupNeedDirectory()
+
         when: 'no dependencies to convert in a file in a package'
         GrooScript.setConversionProperty(CONVERT_DEPENDENCIES_OPTION,false)
-        GrooScript.convert(FILE_BASIC_GROOVY_SOURCE,FILE_BASIC_JS_FOLDER)
+        GrooScript.convert(FILE_BASIC_GROOVY_SOURCE,FOLDER_NEED_DEPENDENCY)
         def file = new File(FILE_BASIC_JS)
 
         then: 'Conversion returns data converted'
         file.text.startsWith("function ${FILE_BASIC_NAME}()")
     }
 
-    def 'customization option'() {
+    def 'customization option with an ast transformation'() {
+
         given:
         def customization = {
             ast(groovy.transform.TypeChecked)
@@ -103,5 +100,30 @@ class TestConversionOptions extends Specification {
 
         then:
         thrown(Exception)
+    }
+
+    def 'test join js files in one file'() {
+
+        given:
+        setupFilesWithNumbers(SOURCE_DIR, 5)
+
+        when:
+        GrooScript.joinFiles(SOURCE_DIR, DESTINATION_FILE)
+        File file = new File(DESTINATION_FILE)
+
+        then:
+        file.text == '0\n1\n2\n3\n4\n'
+    }
+
+    private setupNeedDirectory() {
+        new File(FOLDER_NEED_DEPENDENCY).mkdir()
+        new File(FOLDER_NEED_DEPENDENCY+SEP+CLASS_NEED_DEPENDENCY+'.groovy') << "class ${CLASS_NEED_DEPENDENCY} {}"
+    }
+
+    private setupFilesWithNumbers(name, number) {
+        new File(name).mkdir()
+        number.times {
+            new File(name+SEP+it+'.js') << it as String
+        }
     }
 }

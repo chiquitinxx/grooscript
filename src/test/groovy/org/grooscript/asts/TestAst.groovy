@@ -25,7 +25,6 @@ class TestAst extends Specification {
         return result
     }
 
-
     def 'test GsNotConvert' () {
         when:
         def result = readAndConvert('asts/NotConvert',false)
@@ -33,16 +32,11 @@ class TestAst extends Specification {
         then:
         !result.assertFails
         result.jsScript.indexOf('NotConvert')<0
-
     }
 
     def 'test simpleGsNative' () {
-        when:
-        def result = readAndConvert('asts/simpleNative',false)
-
-        then:
-        !result.assertFails
-
+        expect:
+        !readAndConvert('asts/simpleNative',false).assertFails
     }
 
     def 'test GsNative' () {
@@ -52,7 +46,5 @@ class TestAst extends Specification {
         then:
         !result.assertFails
         result.jsScript.indexOf('return true;')>0
-
     }
-
 }

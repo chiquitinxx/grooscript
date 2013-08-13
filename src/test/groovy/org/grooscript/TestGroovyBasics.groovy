@@ -32,11 +32,8 @@ class TestGroovyBasics extends Specification {
     }
 
     def 'test Web Main example' () {
-        when:
-        def result = readAndConvert('webMainExample')
-
-        then:
-        !result.assertFails
+        expect:
+        !readAndConvert('webMainExample').assertFails
     }
 
     def 'variables and expressions'() {
@@ -53,11 +50,8 @@ class TestGroovyBasics extends Specification {
     }
 
     def 'initial class'() {
-        when:
-        def result = readAndConvert('initialClass')
-
-        then:
-        !result.assertFails
+        expect:
+        !readAndConvert('initialClass').assertFails
     }
 
     def 'starting class stuff'() {
@@ -70,100 +64,63 @@ class TestGroovyBasics extends Specification {
     }
 
     def 'starting closure stuff'() {
-        when:
-        def result = readAndConvert('startingClosuresWithClasses')
-
-        then:
-        !result.assertFails
+        expect:
+        !readAndConvert('startingClosuresWithClasses').assertFails
     }
 
     def 'starting converting lists'() {
-        when:
-        def result = readAndConvert('startingWorkOnLists')
-
-        then:
-        !result.assertFails
+        expect:
+        !readAndConvert('startingWorkOnLists').assertFails
     }
 
     def 'list functions'() {
-        when:
-        def result = readAndConvert('listFunctions')
-
-        then:
-        !result.assertFails
+        expect:
+        !readAndConvert('listFunctions').assertFails
     }
 
     def 'some inheritance class'() {
-        when:
-        def result = readAndConvert('someInheritance')
-
-        then:
-        !result.assertFails
+        expect:
+        !readAndConvert('someInheritance').assertFails
     }
 
     def 'maps and more closures'() {
-        when:
-        def result = readAndConvert('mappingAndClosuring')
-
-        then:
-        !result.assertFails
+        expect:
+        !readAndConvert('mappingAndClosuring').assertFails
     }
 
     def 'control structures'() {
-        when:
-        def result = readAndConvert('controlStructures')
-
-        then:
-        !result.assertFails
+        expect:
+        !readAndConvert('controlStructures').assertFails
     }
 
     def 'regular expressions'() {
-        when:
-        def result = readAndConvert('regularExpressionsBegin')
-
-        then:
-        !result.assertFails
+        expect:
+        !readAndConvert('regularExpressionsBegin').assertFails
     }
 
     def 'working with strings'() {
-        when:
-        def result = readAndConvert('workingWithStrings')
-
-        then:
-        !result.assertFails
+        expect:
+        !readAndConvert('workingWithStrings').assertFails
     }
 
     def 'working with enums'() {
-        when:
-        def result = readAndConvert('enums')
-
-        then:
-        !result.assertFails
+        expect:
+        !readAndConvert('enums').assertFails
     }
 
     def 'static stuff in classes'() {
-        when:
-        def result = readAndConvert('staticRealm')
-
-        then:
-        !result.assertFails
+        expect:
+        !readAndConvert('staticRealm').assertFails
     }
 
     def 'sets'() {
-        when:
-        def result = readAndConvert('sets')
-
-        then:
-        !result.assertFails
+        expect:
+        !readAndConvert('sets').assertFails
     }
 
     def 'functions and closures'() {
-        when:
-        def result = readAndConvert('functions')
-
-        then:
-        //println result
-        !result.assertFails
+        expect:
+        !readAndConvert('functions').assertFails
     }
 
     def 'interfaces'() {
@@ -175,11 +132,8 @@ class TestGroovyBasics extends Specification {
     }
 
     def 'test arithmetic'() {
-        when:
-        def result = readAndConvert('arithmetic',true)
-
-        then:
-        !result.assertFails
+        expect:
+        !readAndConvert('arithmetic').assertFails
     }
 
 }
