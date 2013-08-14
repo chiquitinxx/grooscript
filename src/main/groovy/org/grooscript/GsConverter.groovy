@@ -25,10 +25,8 @@ class GsConverter {
     def Stack variableScoping = new Stack()
     def Stack variableStaticScoping = new Stack()
     def Stack returnScoping = new Stack()
-    //def actualScope = []
     //Use por function variable names
     def Stack actualScope = new Stack()
-    //def String gSgotResultStatement = 'gSgotResultStatement'
     def String superMethodBegin = 'super_'
     def boolean processingClosure = false
 
@@ -398,7 +396,6 @@ class GsConverter {
         addScript '('
         def count = 0
         paramList?.each { param ->
-            //"process${param.class.simpleName}"(param)
             if (count>0) addScript ', '
             addScript("arguments[${count}]")
             count++
@@ -433,7 +430,7 @@ class GsConverter {
             println 'Property->'+it; println 'initialExpresion->'+it.initialExpression
             if (it.initialExpression) {
                 addScript("${GS_OBJECT}.${it.name} = ")
-                "process${it.initialExpression.class.simpleName}"(it.initialExpression)
+                visitNode(it.initialExpression)
                 addScript(';')
                 addLine()
             } else {
@@ -471,7 +468,7 @@ class GsConverter {
 
         if (fieldOrProperty.initialExpression) {
             addScript("${previous}.${fieldOrProperty.name} = ")
-            "process${fieldOrProperty.initialExpression.class.simpleName}"(fieldOrProperty.initialExpression)
+            visitNode(fieldOrProperty.initialExpression)
             addScript(';')
             addLine()
         } else {
@@ -772,7 +769,7 @@ class GsConverter {
         //At start we add initialization of default values
         initalValues.each { key,value ->
             addScript("if (${key} === undefined) ${key} = ")
-            "process${value.class.simpleName}"(value)
+            visitNode(value)
             addScript(';')
             addLine()
         }
@@ -983,7 +980,7 @@ class GsConverter {
     def private void processStatement(Statement statement) {
 
         //println "statement (${statement.class.simpleName})->"+statement+' - '+statement.text
-        "process${statement.class.simpleName}"(statement)
+        visitNode(statement)
 
         //Adds ;
         if (resultScript) {
@@ -997,10 +994,10 @@ class GsConverter {
         Expression e = statement.booleanExpression
         addScript(assertFunction)
         addScript('(')
-        "process${e.class.simpleName}"(e)
+        visitNode(e)
         if (statement.getMessageExpression() && !(statement.messageExpression instanceof EmptyExpression)) {
             addScript(', ')
-            "process${statement.messageExpression.class.simpleName}"(statement.messageExpression)
+            visitNode(statement.messageExpression)
         }
         addScript(')')
     }
@@ -1012,14 +1009,14 @@ class GsConverter {
                         (expression.expression instanceof VariableExpression || expression.expression instanceof PropertyExpression))) {
             if (expression instanceof NotExpression) {
                 addScript('!gSbool(')
-                "process${expression.expression.class.simpleName}"(expression.expression)
+                visitNode(expression.expression)
             } else {
                 addScript('gSbool(')
-                "process${expression.class.simpleName}"(expression)
+                visitNode(expression)
             }
             addScript(')')
         } else {
-            "process${expression.class.simpleName}"(expression)
+            visitNode(expression)
         }
     }
 
@@ -1030,7 +1027,7 @@ class GsConverter {
 
     def private processExpressionStatement(ExpressionStatement statement) {
         Expression e = statement.expression
-        "process${e.class.simpleName}"(e)
+        visitNode(e)
     }
 
     def private processDeclarationExpression(DeclarationExpression expression) {
@@ -1047,7 +1044,7 @@ class GsConverter {
                     addScript('var ')
                     processVariableExpression(expr)
                     addScript(' = ')
-                    "process${expression.rightExpression.class.simpleName}"(expression.rightExpression)
+                    visitNode(expression.rightExpression)
                     addScript(".getAt(${number})")
                     if (number<tuple.expressions.size()) {
                         addScript(';')
@@ -1066,7 +1063,7 @@ class GsConverter {
 
             if (!(expression.rightExpression instanceof EmptyExpression)) {
                 addScript(' = ')
-                "process${expression.rightExpression.class.simpleName}"(expression.rightExpression)
+                visitNode(expression.rightExpression)
             } else {
                 addScript(' = null')
             }
@@ -1128,9 +1125,9 @@ class GsConverter {
             addScript('gSrangeFromList(')
             upgradedExpresion(expression.leftExpression)
             addScript(", ")
-            "process${expression.rightExpression.getFrom().class.simpleName}"(expression.rightExpression.getFrom())
+            visitNode(expression.rightExpression.getFrom())
             addScript(", ")
-            "process${expression.rightExpression.getTo().class.simpleName}"(expression.rightExpression.getTo())
+            visitNode(expression.rightExpression.getTo())
             addScript(')')
         //LeftShift function
         } else if (expression.operation.text=='<<') {
@@ -1289,7 +1286,7 @@ class GsConverter {
         if (expresion instanceof BinaryExpression) {
             addScript('(')
         }
-        "process${expresion.class.simpleName}"(expresion)
+        visitNode(expresion)
         if (expresion instanceof BinaryExpression) {
             addScript(')')
         }
@@ -1349,12 +1346,12 @@ class GsConverter {
                 addScript(' + ')
             }
             //addScript('"')
-            "process${exp.class.simpleName}"(exp)
+            visitNode(exp)
             //addScript('"')
 
             if (expression.getValues().size() > number) {
                 addScript(' + (')
-                "process${expression.getValue(number).class.simpleName}"(expression.getValue(number))
+                visitNode(expression.getValue(number))
                 addScript(')')
             }
             number++
@@ -1363,7 +1360,7 @@ class GsConverter {
 
     def private processNotExpression(NotExpression expression) {
         addScript('!')
-        "process${expression.expression.class.simpleName}"(expression.expression)
+        visitNode(expression.expression)
     }
 
     def private processConstructorCallExpression(ConstructorCallExpression expression) {
@@ -1399,7 +1396,7 @@ class GsConverter {
             //addScript("gsCreate${name}")
             addScript(name)
         }
-        "process${expression.arguments.class.simpleName}"(expression.arguments)
+        visitNode(expression.arguments)
     }
 
     def private processArgumentListExpression(ArgumentListExpression expression,boolean withParenthesis) {
@@ -1408,7 +1405,7 @@ class GsConverter {
         }
         int count = expression?.expressions?.size()
         expression.expressions?.each {
-            "process${it.class.simpleName}"(it)
+            visitNode(it)
             count--
             if (count) addScript ', '
         }
@@ -1426,13 +1423,13 @@ class GsConverter {
         if (expression.objectExpression instanceof ClassExpression) {
             addScript(translateClassName(expression.objectExpression.type.name))
         } else {
-            "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
+            visitNode(expression.objectExpression)
         }
     }
 
     def private processPropertyExpressionFromProperty(PropertyExpression expression) {
         if (expression.property instanceof GStringExpression) {
-            "process${expression.property.class.simpleName}"(expression.property)
+            visitNode(expression.property)
         } else {
             addScript('"')
             "process${expression.property.class.simpleName}"(expression.property,false)
@@ -1455,7 +1452,7 @@ class GsConverter {
 
                     //I had to add variable = ... cause gSmetaClass changing object and sometimes variable don't change
                     addScript("(${expression.objectExpression.name} = gSmetaClass(")
-                    "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
+                    visitNode(expression.objectExpression)
                     addScript('))')
                 }
             } else {
@@ -1465,11 +1462,11 @@ class GsConverter {
                     throw new Exception("Not allowed access metaClass of Groovy or Java types (${expression.objectExpression.type.name})")
                 }
                 addScript('gSmetaClass(')
-                "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
+                visitNode(expression.objectExpression)
                 addScript(')')
             }
         } else if (expression.property instanceof ConstantExpression && expression.property.value == 'class') {
-            "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
+            visitNode(expression.objectExpression)
             addScript('.gSclass')
         } else {
 
@@ -1516,19 +1513,17 @@ class GsConverter {
         //Remove call method call from closures
         } else if (expression.methodAsString == 'call') {
             //println 'Calling!->'+expression.objectExpression
-            //if (f.delegate!=undefined) { f()} else { f.apply(f.delegate,);}
 
             if (expression.objectExpression instanceof VariableExpression) {
                 addParameters = false
                 def nameFunc = expression.objectExpression.text
-                //addScript("(${nameFunc}.delegate!=undefined?${nameFunc}.apply(${nameFunc}.delegate,[")
                 addScript("(${nameFunc}.delegate!=undefined?gSapplyDelegate(${nameFunc},${nameFunc}.delegate,[")
-                "process${expression.arguments.class.simpleName}"(expression.arguments,false)
+                processArgumentListExpression(expression.arguments,false)
                 addScript("]):${nameFunc}")
-                "process${expression.arguments.class.simpleName}"(expression.arguments)
+                visitNode(expression.arguments)
                 addScript(")")
             } else {
-                "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
+                visitNode(expression.objectExpression)
             }
         //Dont use dot(.) in super calls
         } else if (expression.objectExpression instanceof VariableExpression &&
@@ -1537,13 +1532,13 @@ class GsConverter {
         //Function times, with a number, have to put (number) in javascript
         } else if (['times','upto','step'].contains(expression.methodAsString) && expression.objectExpression instanceof ConstantExpression) {
             addScript('(')
-            "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
+            visitNode(expression.objectExpression)
             addScript(')')
             addScript(".${expression.methodAsString}")
         //With
         } else if (expression.methodAsString == 'with' && expression.arguments instanceof ArgumentListExpression &&
                 expression.arguments.getExpression(0) && expression.arguments.getExpression(0) instanceof ClosureExpression) {
-            "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
+            visitNode(expression.objectExpression)
             addScript(".gSwith")
         //Using Math library
         } else if (expression.objectExpression instanceof ClassExpression && expression.objectExpression.type.name=='java.lang.Math') {
@@ -1553,7 +1548,7 @@ class GsConverter {
                 expression.methodAsString=='forName') {
             addScript('gSclassForName(')
             //println '->'+expression.arguments[0]
-            "process${expression.arguments.class.simpleName}"(expression.arguments,false)
+            processArgumentListExpression(expression.arguments,false)
             addScript(')')
             addParameters = false
         //this.use {} Categories
@@ -1568,7 +1563,7 @@ class GsConverter {
             addScript('gScategoryUse("')
             addScript(translateClassName(args.expressions[0].type.name))
             addScript('",')
-            "process${args.expressions[1].class.simpleName}"(args.expressions[1])
+            visitNode(args.expressions[1])
             addScript(')')
         //Mixin Classes
         } else if (expression.objectExpression instanceof ClassExpression && expression.methodAsString == 'mixin') {
@@ -1598,10 +1593,9 @@ class GsConverter {
         } else if (expression.isSpreadSafe()) {
             //println 'spreadsafe!'
             addParameters = false
-            "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
-            //addScript(".collect(function(it) { return it.${expression.methodAsString}")
+            visitNode(expression.objectExpression)
             addScript(".collect(function(it) { return gSmethodCall(it,'${expression.methodAsString}',gSlist([")
-            "process${expression.arguments.class.simpleName}"(expression.arguments,false)
+            processArgumentListExpression(expression.arguments,false)
             addScript(']));})')
         } else {
 
@@ -1617,13 +1611,12 @@ class GsConverter {
                 //Remove this and put ${GS_OBJECT} for variable scoping
                 addScript(GS_OBJECT)
             } else {
-                "process${expression.objectExpression.class.simpleName}"(expression.objectExpression)
+                visitNode(expression.objectExpression)
             }
 
             addScript(',')
             //MethodName
-            //addScript(expression.methodAsString)
-            "process${expression.method.class.simpleName}"(expression.method)
+            visitNode(expression.method)
 
             addScript(',gSlist([')
             //Parameters
@@ -1633,10 +1626,8 @@ class GsConverter {
         }
 
         if (addParameters) {
-            "process${expression.arguments.class.simpleName}"(expression.arguments)
+            visitNode(expression.arguments)
         }
-
-        //dontAddMoreThis = false
     }
 
     def private processPostfixExpression(PostfixExpression expression) {
@@ -1655,7 +1646,7 @@ class GsConverter {
             addScript(",${plus},false)")
         } else {
 
-            "process${expression.expression.class.simpleName}"(expression.expression)
+            visitNode(expression.expression)
             addScript(expression.operation.text)
 
         }
@@ -1674,7 +1665,7 @@ class GsConverter {
             addScript(",${plus},true)")
         } else {
             addScript(expression.operation.text)
-            "process${expression.expression.class.simpleName}"(expression.expression)
+            visitNode(expression.expression)
         }
     }
 
@@ -1682,7 +1673,7 @@ class GsConverter {
         //variableScoping.peek().add(gSgotResultStatement)
         returnScoping.add(true)
         addScript('return ')
-        "process${statement.expression.class.simpleName}"(statement.expression)
+        visitNode(statement.expression)
     }
 
     def private processClosureExpression(ClosureExpression expression) {
@@ -1706,7 +1697,7 @@ class GsConverter {
 
     def private processIfStatement(IfStatement statement) {
         addScript('if (')
-        "process${statement.booleanExpression.class.simpleName}"(statement.booleanExpression)
+        visitNode(statement.booleanExpression)
         addScript(') {')
         indent++
         addLine()
@@ -1714,7 +1705,7 @@ class GsConverter {
             processBlockStament(statement.ifBlock,false)
         } else {
             //println 'if2->'+ statement.ifBlock.text
-            "process${statement.ifBlock.class.simpleName}"(statement.ifBlock)
+            visitNode(statement.ifBlock)
             addLine()
         }
 
@@ -1730,7 +1721,7 @@ class GsConverter {
                 processBlockStament(statement.elseBlock,false)
             } else {
                 //println 'if2->'+ statement.ifBlock.text
-                "process${statement.elseBlock.class.simpleName}"(statement.elseBlock)
+                visitNode(statement.elseBlock)
                 addLine()
             }
             indent--
@@ -1743,9 +1734,9 @@ class GsConverter {
         addScript('gSmap()')
         expression.mapEntryExpressions?.each { ep ->
             addScript(".add(");
-            "process${ep.keyExpression.class.simpleName}"(ep.keyExpression)
+            visitNode(ep.keyExpression)
             addScript(",");
-            "process${ep.valueExpression.class.simpleName}"(ep.valueExpression)
+            visitNode(ep.valueExpression)
             addScript(")");
         }
     }
@@ -1761,7 +1752,7 @@ class GsConverter {
             } else {
                 first = false
             }
-            "process${it.class.simpleName}"(it)
+            visitNode(it)
         }
         addScript('])')
     }
@@ -1770,9 +1761,9 @@ class GsConverter {
         addScript('gSrange(')
 
         //println 'Is inclusive->'+r.isInclusive()
-        "process${expression.from.class.simpleName}"(expression.from)
+        visitNode(expression.from)
         addScript(", ")
-        "process${expression.to.class.simpleName}"(expression.to)
+        visitNode(expression.to)
         addScript(', '+expression.isInclusive())
         addScript(')')
     }
@@ -1785,20 +1776,20 @@ class GsConverter {
             //"process${statement.variable.class.simpleName}"(statement.variable)
             //addScript ' in '
 
-            "process${statement?.collectionExpression?.class.simpleName}"(statement?.collectionExpression)
+            visitNode(statement?.collectionExpression)
             addScript('.each(function(')
-            "process${statement.variable.class.simpleName}"(statement.variable)
+            visitNode(statement.variable)
 
         } else {
             addScript 'for ('
             //println 'collectionExpression-'+ statement?.collectionExpression.text
-            "process${statement?.collectionExpression?.class.simpleName}"(statement?.collectionExpression)
+            visitNode(statement?.collectionExpression)
         }
         addScript ') {'
         indent++
         addLine()
 
-        "process${statement?.loopBlock?.class.simpleName}"(statement?.loopBlock)
+        visitNode(statement?.loopBlock)
 
         indent--
         removeTabScript()
@@ -1816,7 +1807,7 @@ class GsConverter {
                 addScript(' ; ')
             }
             first = false
-            "process${it.class.simpleName}"(it)
+            visitNode(it)
         }
     }
 
@@ -1831,14 +1822,14 @@ class GsConverter {
         indent++
         addLine()
 
-        "process${statement?.tryStatement.class.simpleName}"(statement?.tryStatement)
+        visitNode(statement?.tryStatement)
 
         indent--
         removeTabScript()
         //Catch block
         addScript('} catch (')
         if (statement?.catchStatements[0]) {
-            "process${statement?.catchStatements[0].variable.class.simpleName}"(statement?.catchStatements[0].variable)
+            visitNode(statement?.catchStatements[0].variable)
         } else {
             addScript('e')
         }
@@ -1846,7 +1837,7 @@ class GsConverter {
         indent++
         addLine()
         //Only process first catch
-        "process${statement?.catchStatements[0]?.class.simpleName}"(statement?.catchStatements[0])
+        visitNode(statement?.catchStatements[0])
 
         indent--
         removeTabScript()
@@ -1860,24 +1851,23 @@ class GsConverter {
     def private processTernaryExpression(TernaryExpression expression) {
         //println 'Ternary->'+expression.text
         addScript('(')
-        "process${expression.booleanExpression.class.simpleName}"(expression.booleanExpression)
+        visitNode(expression.booleanExpression)
         addScript(' ? ')
-        "process${expression.trueExpression.class.simpleName}"(expression.trueExpression)
+        visitNode(expression.trueExpression)
         addScript(' : ')
-        "process${expression.falseExpression.class.simpleName}"(expression.falseExpression)
+        visitNode(expression.falseExpression)
         addScript(')')
     }
 
     def private getSwitchExpression(Expression expression,String varName) {
 
         if (expression instanceof ClosureExpression) {
-            def ClosureExpression clos = (ClosureExpression)expression
             addClosureSwitchInitialization = true
-            "process${expression.class.simpleName}"(expression,true)
+            processClosureExpression(expression,true)
             addScript('()')
         } else {
             addScript("${varName} === ")
-            "process${expression.class.simpleName}"(expression)
+            visitNode(expression)
         }
 
     }
@@ -1887,7 +1877,7 @@ class GsConverter {
         def varName = 'gSswitch' + switchCount++
 
         addScript('var '+varName+' = ')
-        "process${statement.expression.class.simpleName}"(statement.expression)
+        visitNode(statement.expression)
         addScript(';')
         addLine()
 
@@ -1904,7 +1894,7 @@ class GsConverter {
             addScript(') {')
             indent++
             addLine()
-            "process${it?.code.class.simpleName}"(it?.code)
+            visitNode(it?.code)
             indent--
             removeTabScript()
         }
@@ -1912,7 +1902,7 @@ class GsConverter {
             addScript('} else {')
             indent++
             addLine()
-            "process${statement.defaultStatement.class.simpleName}"(statement.defaultStatement)
+            visitNode(statement.defaultStatement)
             indent--
             removeTabScript()
         }
@@ -1924,11 +1914,11 @@ class GsConverter {
 
     def private processCaseStatement(CaseStatement statement) {
         addScript 'case '
-        "process${statement?.expression.class.simpleName}"(statement?.expression)
+        visitNode(statement?.expression)
         addScript ':'
         indent++
         addLine()
-        "process${statement?.code.class.simpleName}"(statement?.code)
+        visitNode(statement?.code)
         indent--
         removeTabScript()
     }
@@ -1941,11 +1931,11 @@ class GsConverter {
 
     def private processWhileStatement(WhileStatement statement) {
         addScript('while (')
-        "process${statement.booleanExpression.class.simpleName}"(statement.booleanExpression)
+        visitNode(statement.booleanExpression)
         addScript(') {')
         indent++
         addLine()
-        "process${statement.loopBlock.class.simpleName}"(statement.loopBlock)
+        visitNode(statement.loopBlock)
         indent--
         removeTabScript()
         addScript('}')
@@ -1958,7 +1948,7 @@ class GsConverter {
         }
         addScript('gSmap()')
         expression.expressions.each {
-            "process${it.class.simpleName}"(it)
+            visitNode(it)
             if (withParenthesis) {
                 addScript(')')
             }
@@ -1969,9 +1959,9 @@ class GsConverter {
         expression.mapEntryExpressions.eachWithIndex { MapEntryExpression exp,i ->
             //println 'key->'+ exp.keyExpression
             addScript('.add(')
-            "process${exp.keyExpression.class.simpleName}"(exp.keyExpression)
+            visitNode(exp.keyExpression)
             addScript(',')
-            "process${exp.valueExpression.class.simpleName}"(exp.valueExpression)
+            visitNode(exp.valueExpression)
             addScript(')')
         }
     }
@@ -2047,7 +2037,7 @@ class GsConverter {
 
         //println 'SMCE->'+expression.text
         addScript("${expression.ownerType.name}.${expression.method}")
-        "process${expression.arguments.class.simpleName}"(expression.arguments)
+        visitNode(expression.arguments)
     }
 
     def private processElvisOperatorExpression(ElvisOperatorExpression expression) {
@@ -2056,11 +2046,11 @@ class GsConverter {
         //println 'false->'+expression.falseExpression
 
         addScript('gSelvis(')
-        "process${expression.booleanExpression.class.simpleName}"(expression.booleanExpression)
+        visitNode(expression.booleanExpression)
         addScript(' , ')
-        "process${expression.trueExpression.class.simpleName}"(expression.trueExpression)
+        visitNode(expression.trueExpression)
         addScript(' , ')
-        "process${expression.falseExpression.class.simpleName}"(expression.falseExpression)
+        visitNode(expression.falseExpression)
         addScript(')')
 
     }
@@ -2072,7 +2062,7 @@ class GsConverter {
     def private processCastExpression(CastExpression expression) {
         if (expression.type.nameWithoutPackage == 'Set' && expression.expression instanceof ListExpression) {
             addScript('gSset(')
-            "process${expression.expression.class.simpleName}"(expression.expression)
+            visitNode(expression.expression)
             addScript(')')
         } else {
             throw new Exception('Casting not supported for '+expression.type.name)
@@ -2083,16 +2073,16 @@ class GsConverter {
         //println 'Exp-'+expression.expression
         //println 'dynamic-'+expression.dynamic
         //println 'methodName-'+expression.methodName
-        "process${expression.expression.class.simpleName}"(expression.expression)
+        visitNode(expression.expression)
         addScript('[')
-        "process${expression.methodName.class.simpleName}"(expression.methodName)
+        visitNode(expression.methodName)
         addScript(']')
     }
 
     def private processSpreadExpression(SpreadExpression expression) {
         //println 'exp-'+expression
         addScript('new GSspread(')
-        "process${expression.expression.class.simpleName}"(expression.expression)
+        visitNode(expression.expression)
         addScript(')')
     }
 
@@ -2105,16 +2095,7 @@ class GsConverter {
         //Nothing to do
     }
 
-    def methodMissing(String name, Object args) {
-        def message
-        if (name?.startsWith('process')) {
-            message = 'Conversion not supported for '+name.substring(7)
-        } else {
-            message = 'Error methodMissing '+name
-        }
-        GsConsole.error(message)
-        throw new Exception(message)
-
+    private void visitNode(expression) {
+        "process${expression.class.simpleName}"(expression)
     }
-
 }
