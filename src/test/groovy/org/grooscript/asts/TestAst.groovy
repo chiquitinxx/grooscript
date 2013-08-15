@@ -15,7 +15,6 @@ class TestAst extends Specification {
     def readAndConvert(nameOfFile,consoleOutput) {
 
         def file = TestJs.getGroovyTestScript(nameOfFile)
-
         def result = Util.fullProcessScript(file.text)
 
         if (consoleOutput) {

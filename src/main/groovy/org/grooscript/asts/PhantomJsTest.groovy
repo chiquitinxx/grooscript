@@ -16,5 +16,4 @@ import java.lang.annotation.Target
 @GroovyASTTransformationClass(['org.grooscript.asts.PhantomJsTestImpl'])
 public @interface PhantomJsTest {
     String url ();
-    String jsPath ();
 }

@@ -2,8 +2,11 @@ package org.grooscript.asts
 
 import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.ast.AnnotationNode
+import org.codehaus.groovy.ast.ClassHelper
+import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.MethodNode
 import org.codehaus.groovy.ast.builder.AstBuilder
+import org.codehaus.groovy.ast.expr.ConstantExpression
 import org.codehaus.groovy.ast.stmt.Statement
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
@@ -11,6 +14,8 @@ import org.codehaus.groovy.transform.ASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
 import org.grooscript.GrooScript
 import org.grooscript.GsConverter
+
+import java.lang.reflect.Modifier
 
 /**
  * User: jorgefrancoleza
@@ -31,7 +36,6 @@ page.open('{{URL}}', function (status) {
         console.log('Fail loading url.');
         phantom.exit(1);
     } else {
-        //page.libraryPath = '../../main/resources/META-INF/resources'
         page.libraryPath = '{{LIBRARY_PATH}}'
         if (page.injectJs('kimbo.min.js') && page.injectJs('grooscript.js')) {
             //console.log('Evaluating...');
@@ -51,7 +55,7 @@ page.open('{{URL}}', function (status) {
                     if (gSconsole != "") {
                         gSconsole = gSconsole + "\\n";
                     }
-                    gSconsole = gSconsole + 'Console:' + value
+                    gSconsole = gSconsole + 'Console: ' + value
                 };
 
                 function grooKimbo(selector,other) {
@@ -59,12 +63,8 @@ page.open('{{URL}}', function (status) {
                 }
                 window.$ = grooKimbo;
 
-                //gSconsoleOutput = true;
-
                 //Begin grooscript code
-
                 {{GROOSCRIPT}}
-
                 //End  grooscript code
 
                 gSresult.console = gSconsole;
@@ -80,11 +80,6 @@ page.open('{{URL}}', function (status) {
                 }
             }
             console.log(result.console);
-            //window.setTimeout(function () {
-            //    page.render('initial.png');
-            //    phantom.exit();
-            //}, 20000);
-            //page.render('initial.png');
             phantom.exit()
         } else {
             console.log('Fail in inject.');
@@ -100,39 +95,61 @@ page.open('{{URL}}', function (status) {
             return
         }
 
+        MethodNode method = (MethodNode) nodes[1]
+        Statement testCode = method.getCode()
+
+        def messageError
         AnnotationNode node = (AnnotationNode) nodes[0]
         String url = node.getMember('url').text
-        //println 'url->'+url
 
-        MethodNode method = (MethodNode) nodes[1]
-        def Statement testCode = method.getCode()
-
-        //println 'testCode->'+testCode
-
-        def GsConverter converter = new GsConverter()
-
-        def jsTest
-        try {
-            jsTest = converter.processAstListToJs([testCode])
-        } catch (e) {
-            println 'Error converting ->'+e.message
+        if (!url) {
+            messageError = 'url not defined, use @PhantomJsTest(url=\'http://grooscript.org\')'
+        } else {
+            method.getDeclaringClass().addProperty('phantomjsUrl', Modifier.STATIC, ClassHelper.STRING_TYPE,
+                    new ConstantExpression(url),null,null)
         }
+        if (!messageError) {
+            GsConverter converter = new GsConverter()
 
-        //println 'js code->'+jsTest
+            def jsTest
+            try {
+                jsTest = converter.processAstListToJs([testCode])
+            } catch (e) {
+                messageError = 'Error converting code ->'+e.message
+            }
 
-        String text = phantomJsText
-        text = text.replace('{{URL}}',url)
-        //text = text.replace('{{LIBRARY_PATH}}','/Users/jorgefrancoleza/desarrollo/grooscript/src/main/resources/META-INF/resources')
-        text = text.replace('{{LIBRARY_PATH}}',node.getMember('jsPath').text)
-        text = text.replace('{{GROOSCRIPT}}',jsTest)
-        File fileJs = new File(GrooScript.JS_TEMP_FILE)
-        fileJs.write(text)
+            if (!messageError) {
+                String text = phantomJsText
+                text = text.replace('{{GROOSCRIPT}}',jsTest)
+
+                //Save in a static variable content of the file
+                method.getDeclaringClass().addProperty('phantomjsScript', Modifier.STATIC, ClassHelper.STRING_TYPE,
+                        new ConstantExpression(text),null,null)
+            }
+        }
+        method.getDeclaringClass().addProperty('phantomjsError', Modifier.STATIC, ClassHelper.STRING_TYPE,
+                new ConstantExpression(messageError),null,null)
 
         method.setCode new AstBuilder().buildFromCode {
-            println 'Starting PhantomJs test ...'
+            if (phantomjsError) {
+                println 'PhantomJs Error: '+phantomjsError; return
+            }
+            if (!System.getProperty('JS_LIBRARIES_PATH')) {
+                println 'Need define property JS_LIBRARIES_PATH, folder with grooscript.js and kimbo.min.js'; return
+            }
+            if (!System.getProperty('PHANTOMJS_HOME')) {
+                println 'Need define property PHANTOMJS_HOME, PhantomJs folder'; return
+            }
+            println "Starting PhantomJs test in ${phantomjsUrl}..."
+            def nameFile = 'phantomjs.js'
             try {
-                String command = "/Applications/phantomjs/bin/phantomjs ${org.grooscript.GrooScript.JS_TEMP_FILE}"
-                //String command = "${System.getenv('PHANTOMJS_HOME')}/phantomjs ${org.grooscript.GrooScript.JS_TEMP_FILE}"
+                //Save the file
+                phantomjsScript = phantomjsScript.replace('{{LIBRARY_PATH}}', System.getProperty('JS_LIBRARIES_PATH'))
+                phantomjsScript = phantomjsScript.replace('{{URL}}', phantomjsUrl)
+                new File(nameFile).text = phantomjsScript
+
+                //Execute PhantomJs
+                String command = "${System.getProperty('PHANTOMJS_HOME')}/bin/phantomjs ${nameFile}"
                 def proc = command.execute()
                 proc.waitFor()
                 def exit = proc.in.text
@@ -170,11 +187,12 @@ page.open('{{URL}}', function (status) {
                     assert false,'Error executing PhantomJs: '+e.message
                 }
             } finally {
-                File file = new File(org.grooscript.GrooScript.JS_TEMP_FILE)
+                File file = new File(nameFile)
                 if (file && file.exists()) {
                     file.delete()
                 }
             }
+            println 'PhantomJs test finished.'
             return null
         }
     }
