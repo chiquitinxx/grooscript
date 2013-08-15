@@ -4,7 +4,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 group = 'org.grooscript'
-version = '0.3-SNAPSHOT'
+version = '0.3'
 
 sourceCompatibility = 1.7
 
@@ -23,8 +23,13 @@ dependencies {
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 }
 
+jar {
+    manifest {
+        attributes("Implementation-Title": "GrooScript", "Implementation-Version": version)
+    }
+}
+
 //Sonar repository stuff
-/*
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from 'build/docs/javadoc'
@@ -84,7 +89,6 @@ uploadArchives {
         }
     }
 }
-*/
 //End Sonar
 
 //Copy jar, js file, and examples to web directory, defined at start
