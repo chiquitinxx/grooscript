@@ -71,7 +71,7 @@ page.open('{{URL}}', function (status) {
 
                 return gSresult;
             });
-            console.log('Number of tests: '+result.number);
+            //console.log('Number of tests: '+result.number);
             if (result.number > 0) {
                 var i;
                 for (i=0;i<result.tests.length;i++) {
@@ -154,31 +154,23 @@ page.open('{{URL}}', function (status) {
                 proc.waitFor()
                 def exit = proc.in.text
                 if (!exit) {
-                    println 'Error executing command:'+command
+                    println 'Error executing command: '+command
                     println "return code: ${proc.exitValue()}"
                     println "stderr: ${proc.err.text}"
                     assert false, 'Error launching PhantomJs'
                 } else {
-                    //println "stdout: ${exit}"
-                    if (exit.startsWith('Number of tests:')) {
-                        exit.eachLine { String line->
-                            //println 'Line.>'+line
-                            if (line) {
-                                if (line.contains('Result:FAIL')) {
-                                    assert false,line.substring(line.indexOf(' Desc:')+6)
-                                } else if (line.startsWith('Console:')) {
-                                    println line.substring(8)
-                                } else {
-                                    assert true,line.substring(line.indexOf(' Desc:')+6)
-                                }
-                            }
+                    exit.eachLine { String line->
+                        if (line.contains('Result:FAIL')) {
+                            assert false,line.substring(line.indexOf(' Desc:')+6)
+                        } else if (line.startsWith('Console:')) {
+                            println line.substring(8)
+                        } else if (line.contains('Result:OK')) {
+                            assert true,line.substring(line.indexOf(' Desc:')+6)
+                        } else {
+                            println 'Unknown: '+line
                         }
-                    } else {
-                        println 'Error executing tests.\n'+proc.in.text
-                        assert false, 'Error executing PhantomJs'
                     }
                 }
-                //println 'End PhantomJs test.'
             } catch (e) {
                 println 'Error PhantomJs Test ->'+e.message
                 if (e.message && e.message.startsWith('Cannot run program')) {
