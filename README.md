@@ -7,7 +7,7 @@ Not a full groovy to javascript conversion. Better groovy support means lost pre
 
 Converted code, needs grooscript.js to run. grooscript.js inside the jar in META-INF/resources for servlet 3.0 support.
 
-Only GPars 1.0 dependencies in the project, Gradle as build system.
+Only GPars 1.0 dependencies in the project, Gradle as build system. Need Java 1.7 tu run tests.
 
 Please all feedback welcome, thanks!
 

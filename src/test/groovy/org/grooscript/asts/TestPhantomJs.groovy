@@ -25,14 +25,52 @@ class TestPhantomJs extends GroovyTestCase {
         }
     }
 
+    @PhantomJsTest(url='http://www.grails.org/')
+    void countLinksFailAssert() {
+        assert $('a').size() < 5,"Number of links in page is ${$('a').size()}"
+    }
+
+    void testErrorPhantomJsPath() {
+        System.properties.remove('PHANTOMJS_HOME')
+        try {
+            countLinks()
+            fail 'Error not thrown'
+        } catch (AssertionError e) {
+            assert e.message == 'Need define property PHANTOMJS_HOME, PhantomJs folder. Expression: false'
+        }
+    }
+
+    void testErrorJsLibraries() {
+        System.properties.remove('JS_LIBRARIES_PATH')
+        try {
+            countLinks()
+            fail 'Error not thrown'
+        } catch (AssertionError e) {
+            assert e.message ==
+                'Need define property JS_LIBRARIES_PATH, folder with grooscript.js and kimbo.min.js. Expression: false'
+        }
+    }
+
     void testPhantomJs() {
-        assert System.getProperty('PHANTOMJS_HOME') == PHANTOMJS_HOME
-        assert System.getProperty('JS_LIBRARIES_PATH') == JS_LIBRARIES_PATH
         countLinks()
     }
 
-    @PhantomJsTest(url='http://www.grails.org/')
+    void testPhantomJsFailAssert() {
+        try {
+            countLinksFailAssert()
+            fail 'Error not thrown'
+        } catch (AssertionError e) {
+            assert true
+        } catch (Exception e) {
+            fail 'Exception not assert error'
+        }
+    }
+
+    @PhantomJsTest(url='http://groovy.codehaus.org')
     void testDirectPhantomJs() {
-        assert $('a').size() > 50,"Number of links in page is ${$('a').size()}"
+        gSconsoleInfo = true
+        println $('#moto').text()
+        assert $('a').size > 50,"Number of links in page is ${$('a').size()}"
+        assert $('#moto').text().contains('A dynamic language'), "Id=Moto contains 'A dynamic language'"
     }
 }

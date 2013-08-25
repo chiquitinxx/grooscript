@@ -3,7 +3,6 @@ package org.grooscript.asts
 import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.ast.AnnotationNode
 import org.codehaus.groovy.ast.ClassHelper
-import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.MethodNode
 import org.codehaus.groovy.ast.builder.AstBuilder
 import org.codehaus.groovy.ast.expr.ConstantExpression
@@ -12,7 +11,6 @@ import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.transform.ASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
-import org.grooscript.GrooScript
 import org.grooscript.GsConverter
 
 import java.lang.reflect.Modifier
@@ -24,7 +22,7 @@ import java.lang.reflect.Modifier
 @GroovyASTTransformation(phase=CompilePhase.SEMANTIC_ANALYSIS)
 public class PhantomJsTestImpl implements ASTTransformation {
 
-    def phantomJsText = '''
+    static final phantomJsText = '''
 var page = require('webpage').create();
 
 page.onConsoleMessage = function(msg) {
@@ -43,7 +41,6 @@ page.open('{{URL}}', function (status) {
 
                 var gSresult = { number:0 , tests: [], console: ''};
                 function gSassert(value, text) {
-
                     var test = { result: value, text: value.toString()}
                     if (arguments.length == 2 && arguments[1]!=null && arguments[1]!=undefined) {
                         test.text = text;
@@ -59,7 +56,12 @@ page.open('{{URL}}', function (status) {
                 };
 
                 function grooKimbo(selector,other) {
-                    return gSlist(window.Kimbo(selector,other));
+                    //return gSlist(window.Kimbo(selector,other));
+                    var result = window.Kimbo(selector,other);
+                    result.size = function() {
+                        return this.length;
+                    }
+                    return result;
                 }
                 window.$ = grooKimbo;
 
@@ -105,7 +107,7 @@ page.open('{{URL}}', function (status) {
         if (!url) {
             messageError = 'url not defined, use @PhantomJsTest(url=\'http://grooscript.org\')'
         } else {
-            method.getDeclaringClass().addProperty('phantomjsUrl', Modifier.STATIC, ClassHelper.STRING_TYPE,
+            method.getDeclaringClass().addProperty("phantomjsUrl${method.name}", Modifier.STATIC, ClassHelper.STRING_TYPE,
                     new ConstantExpression(url),null,null)
         }
         if (!messageError) {
@@ -123,30 +125,38 @@ page.open('{{URL}}', function (status) {
                 text = text.replace('{{GROOSCRIPT}}',jsTest)
 
                 //Save in a static variable content of the file
-                method.getDeclaringClass().addProperty('phantomjsScript', Modifier.STATIC, ClassHelper.STRING_TYPE,
-                        new ConstantExpression(text),null,null)
+                method.getDeclaringClass().addProperty("phantomjsScript${method.name}", Modifier.STATIC,
+                        ClassHelper.STRING_TYPE,new ConstantExpression(text),null,null)
             }
         }
-        method.getDeclaringClass().addProperty('phantomjsError', Modifier.STATIC, ClassHelper.STRING_TYPE,
+        method.getDeclaringClass().addProperty("phantomjsError${method.name}", Modifier.STATIC, ClassHelper.STRING_TYPE,
                 new ConstantExpression(messageError),null,null)
 
         method.setCode new AstBuilder().buildFromCode {
-            if (phantomjsError) {
-                println 'PhantomJs Error: '+phantomjsError; return
+            def marker = new Throwable()
+            def methodName = org.codehaus.groovy.runtime.StackTraceUtils.sanitize(marker).stackTrace[0].methodName
+            def testUrl = this."phantomjsUrl${methodName}"
+            if (!methodName || !testUrl) {
+                assert false, "Fail getting test info. Method name: ${methodName} Url: ${testUrl}"
+            }
+            if (this."phantomjsError${methodName}") {
+                assert false, 'PhantomJs Error: '+this."phantomjsError${methodName}"
             }
             if (!System.getProperty('JS_LIBRARIES_PATH')) {
-                println 'Need define property JS_LIBRARIES_PATH, folder with grooscript.js and kimbo.min.js'; return
+                assert false, 'Need define property JS_LIBRARIES_PATH, folder with grooscript.js and kimbo.min.js'
             }
             if (!System.getProperty('PHANTOMJS_HOME')) {
-                println 'Need define property PHANTOMJS_HOME, PhantomJs folder'; return
+                assert false, 'Need define property PHANTOMJS_HOME, PhantomJs folder'
             }
-            println "Starting PhantomJs test in ${phantomjsUrl}..."
+            println "Starting PhantomJs test in ${testUrl}..."
             def nameFile = 'phantomjs.js'
             try {
                 //Save the file
-                phantomjsScript = phantomjsScript.replace('{{LIBRARY_PATH}}', System.getProperty('JS_LIBRARIES_PATH'))
-                phantomjsScript = phantomjsScript.replace('{{URL}}', phantomjsUrl)
-                new File(nameFile).text = phantomjsScript
+                def finalText = this."phantomjsScript${methodName}"
+                finalText = finalText.replace('{{LIBRARY_PATH}}', System.getProperty('JS_LIBRARIES_PATH'))
+                finalText = finalText.replace('{{URL}}', testUrl)
+
+                new File(nameFile).text = finalText
 
                 //Execute PhantomJs
                 String command = "${System.getProperty('PHANTOMJS_HOME')}/bin/phantomjs ${nameFile}"
@@ -167,10 +177,13 @@ page.open('{{URL}}', function (status) {
                         } else if (line.contains('Result:OK')) {
                             assert true,line.substring(line.indexOf(' Desc:')+6)
                         } else {
-                            println 'Unknown: '+line
+                            println line
                         }
                     }
                 }
+            } catch (AssertionError ae) {
+                println 'Assert error in PhantomJs test.'
+                throw ae
             } catch (e) {
                 println 'Error PhantomJs Test ->'+e.message
                 if (e.message && e.message.startsWith('Cannot run program')) {
