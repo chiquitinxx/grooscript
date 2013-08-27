@@ -10,8 +10,7 @@ import org.codehaus.groovy.transform.GroovyASTTransformationClass
  * JFL 10/11/12
  */
 @Retention(RetentionPolicy.SOURCE)
-@Target([ElementType.METHOD,ElementType.TYPE])
-//@GroovyASTTransformationClass(["Nativing"])
+@Target([ElementType.METHOD, ElementType.TYPE])
 @GroovyASTTransformationClass(['org.grooscript.asts.NotConvert'])
 public @interface GsNotConvert {
 }

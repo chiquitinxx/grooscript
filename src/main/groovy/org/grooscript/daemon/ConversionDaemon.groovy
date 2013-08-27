@@ -1,13 +1,15 @@
 package org.grooscript.daemon
 
+import static groovyx.gpars.GParsPool.withPool
+import static groovyx.gpars.dataflow.Dataflow.operator
+import static groovyx.gpars.dataflow.Dataflow.task
+
+import org.grooscript.util.GrooScriptException
 import groovyx.gpars.dataflow.DataflowQueue
 import groovyx.gpars.dataflow.DataflowVariable
 import groovyx.gpars.dataflow.operator.PoisonPill
 import org.grooscript.GsConverter
 import org.grooscript.util.GsConsole
-import static groovyx.gpars.GParsPool.withPool
-import static groovyx.gpars.dataflow.Dataflow.operator
-import static groovyx.gpars.dataflow.Dataflow.task
 
 /**
  * User: jorgefrancoleza
@@ -15,7 +17,7 @@ import static groovyx.gpars.dataflow.Dataflow.task
  */
 class ConversionDaemon {
 
-    def static final REST_TIME = 500
+    static final REST_TIME = 500
 
     def sourceList
     def destinationFolder
@@ -84,26 +86,26 @@ class ConversionDaemon {
             }
 
             //Do conversion
-            def jsResult = converter.toJs(source.text,classpath)
+            def jsResult = converter.toJs(source.text, classpath)
 
             //Save the js file
-            def newFile = new File(destinationFolder+System.getProperty('file.separator')+name+'.js')
+            def newFile = new File(destinationFolder + System.getProperty('file.separator') + name + '.js')
             if (newFile.exists()) {
                 newFile.delete()
             }
             newFile.write(jsResult)
         } else {
-            throw new Exception('Error in daemon with file '+absolutePath)
+            throw new GrooScriptException("Error in daemon with file $absolutePath")
         }
     }
 
     def work() {
 
-        final def works = new DataflowQueue()
-        final def exit = new DataflowVariable()
+        final DataflowQueue works = new DataflowQueue()
+        final DataflowVariable exit = new DataflowVariable()
         def listConverteds = []
 
-        final op = operator(inputs: [works], outputs: [exit], maxForks: 3) { absolutePath ->
+        final workOperator = operator(inputs: [works], outputs: [exit], maxForks: 3) { absolutePath ->
 
             try {
                 convertFile(absolutePath)
@@ -118,15 +120,31 @@ class ConversionDaemon {
         def checkFile = { File file ->
             def change
             if (dates."${file.absolutePath}") {
-                change = !(dates."${file.absolutePath}"==file.lastModified())
+                change = !(dates."${file.absolutePath}" == file.lastModified())
             } else {
                 change = true
             }
             if (change) {
-                //println '  File changed: '+file.absolutePath
                 //Send the work of convert the file
                 works << file.absolutePath
                 dates."${file.absolutePath}" = file.lastModified()
+            }
+        }
+
+        //Recursive by default
+        def checkPath = { File fileToCheck ->
+            if (fileToCheck.isDirectory()) {
+
+                fileToCheck.eachFile { File item ->
+                    if (item.isFile()) {
+                        checkFile(item)
+                    }
+                }
+                fileToCheck.eachDir { dir ->
+                    checkPath(dir)
+                }
+            } else {
+                checkFile(fileToCheck)
             }
         }
 
@@ -135,21 +153,9 @@ class ConversionDaemon {
             sourceList.eachParallel { name ->
                 def file = new File(name)
                 if (file && (file.isDirectory() || file.isFile())) {
-                    if (file.isDirectory()) {
-
-                        file.eachFile { File item ->
-                            if (item.isFile()) {
-                                checkFile(item)
-                            }
-                        }
-
-                    } else {
-                        checkFile(file)
-                    }
+                    checkPath(file)
                 } else {
-                    def message = 'Daemon Error in file/folder '+name
-                    GsConsole.error message
-                    throw new Exception(message)
+                    throw new GrooScriptException("Daemon Error in file/folder $name")
                 }
             }
         }
@@ -158,9 +164,9 @@ class ConversionDaemon {
         works << PoisonPill.instance
 
         //Wait flow ends
-        op.join()
+        workOperator.join()
 
-        //List of converted files
-        return listConverteds
+        //Return list of converted files
+        listConverteds
     }
 }

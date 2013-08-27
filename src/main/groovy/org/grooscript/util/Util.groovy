@@ -8,59 +8,45 @@ import org.grooscript.GsConverter
  */
 class Util {
 
-    //def static final FUNCTIONS_FILE = 'unused_functions.groovy'
+    static final USER_DIR = System.getProperty('user.dir')
+    static final SEP = System.getProperty('file.separator')
+    static final LINE_JUMP = '\n'
+    static final JS_EXTENSION = '.js'
+    static final GROOVY_EXTENSION = '.groovy'
 
     //Where Js stuff is
-    def static getJsPath() {
-        def s = System.getProperty('file.separator')
-        def path = System.getProperty('user.dir')+"${s}src${s}main${s}resources${s}META-INF${s}resources${s}"
+    static getJsPath() {
+        def path = "$USER_DIR${SEP}src${SEP}main${SEP}resources${SEP}META-INF${SEP}resources${SEP}"
         def file = new File(path)
         if (!file || !file.exists() || !file.isDirectory()) {
-            path = System.getProperty('user.dir')+"${s}web${s}scripts${s}"
+            path = "$USER_DIR${SEP}web${SEP}scripts${SEP}"
         }
         file = new File(path)
         if (!file || !file.exists() || !file.isDirectory()) {
-            path = System.getProperty('user.dir')+"${s}webapp${s}web${s}scripts${s}"
+            path = "$USER_DIR${SEP}webapp${SEP}web${SEP}scripts${SEP}"
         }
-        return path
+        path
     }
 
     //Location of groovy script examples
-    def static getGroovyTestPath() {
-        def s = System.getProperty('file.separator')
-        return System.getProperty('user.dir')+"${s}src${s}test${s}resources${s}"
+    static getGroovyTestPath() {
+        "$USER_DIR${SEP}src${SEP}test${SEP}resources${SEP}"
     }
-
-
-    /*
-    def static getNameFunctionsText() {
-        def result
-
-        File file = new File(getJsPath() + FUNCTIONS_FILE)
-        if (file && file.exists() && file.isFile()) {
-            result = file.text
-        }
-        result
-    }
-    */
 
     /**
      * Gets a Js file from js directory
      * @param name
      * @return
      */
-    def static getJsFile(String name) {
+    static getJsFile(String name) {
         def result
         if (name) {
             def finalName = name
-            if (!finalName.endsWith('.js')) {
-                finalName += '.js'
+            if (!finalName.endsWith(JS_EXTENSION)) {
+                finalName += JS_EXTENSION
             }
 
-            //println 'User->'+System.getProperty('user.dir')
-            //println 'JsPath->'+getJsPath()
-
-            File file = new File(getJsPath() +finalName)
+            File file = new File(getJsPath() + finalName)
             if (file && file.exists() && file.isFile()) {
                 result = file
             }
@@ -73,15 +59,15 @@ class Util {
      * @param name
      * @return
      */
-    def static getGroovyTestScriptFile(String name) {
+    static getGroovyTestScriptFile(String name) {
         def result
         if (name) {
             def finalName = name
-            if (!finalName.endsWith('.groovy')) {
-                finalName += '.groovy'
+            if (!finalName.endsWith(GROOVY_EXTENSION)) {
+                finalName += GROOVY_EXTENSION
             }
 
-            File file = new File(getGroovyTestPath() +finalName)
+            File file = new File(getGroovyTestPath() + finalName)
             if (file && file.exists() && file.isFile()) {
                 result = file
             }
@@ -93,9 +79,9 @@ class Util {
      * Full process a script
      * @param script code to process
      * @param jsFile grooscript.js file
-     * @return map with exception,jsScript,assertFails,...
+     * @return map with exception, jsScript, assertFails, ...
      */
-    def static fullProcessScript(String script,File jsFile) {
+    static fullProcessScript(String script, File jsFile) {
 
         def result = [:]
 
@@ -105,10 +91,10 @@ class Util {
             def converter = new GsConverter()
             jsScript = converter.toJs(script)
 
-            if (!jsFile) {
-                result = TestJs.jsEval(jsScript)
+            if (jsFile) {
+                result = TestJs.jsEvalWithFile(jsScript, jsFile)
             } else {
-                result = TestJs.jsEvalWithFile(jsScript,jsFile)
+                result = TestJs.jsEval(jsScript)
             }
 
         } catch (e) {
@@ -117,7 +103,7 @@ class Util {
 
         result.jsScript = jsScript
 
-        return result
+        result
     }
 
     /**
@@ -125,8 +111,8 @@ class Util {
      * @param script
      * @return map with exception,jsScript,assertFails,...
      */
-    def static fullProcessScript(String script) {
-        return fullProcessScript(script,null)
+    static fullProcessScript(String script) {
+        fullProcessScript(script, null)
     }
 
     /**
@@ -134,16 +120,12 @@ class Util {
      * @param text to be converted
      * @return map [name:code]
      */
-    def static getNativeFunctions(String text) {
+    static getNativeFunctions(String text) {
 
         def mapResult = [:]
 
-        //First lets remove comment lines (//)
-        //text = text.replaceAll(/(?m)\/\/.*$/,'')
+        def seg = text
 
-        def seg = text//text.replaceAll('\n','')
-
-        //def pat = /@GsNative(\s)+.+\w+\s*\(.*\)\s*\{(\s)*\/\*(\s)*$LINES\*\/\s*\}/
         def pat = /(?ms)@(GsNative|org\.grooscript\.GsNative).+\w+\s*\(.*\)\s*\{\s*(\/\*).*(\*\/\s*\})/
 
         seg.eachMatch(pat) { match ->
@@ -152,22 +134,17 @@ class Util {
 
             list.each { lines ->
 
-                if (lines && lines.trim().size()>4) {
+                if (lines && lines.trim().size() > 4) {
 
-                    //println 'lines->'+lines
+                    def line = lines.substring(lines.indexOf('/*') + 2, lines.indexOf('*/'))
+                    def function = (lines =~ /\w+\s*\(/)[0]
 
-                    def line = lines.substring(lines.indexOf('/*')+2,lines.indexOf('*/'))
-                    def function = (lines =~ /\w+\s*\(/)[0] /*.each { ma2 ->
-                        println 'Miniitem->'+ma2
-                    }*/
-                    function = function.substring(0,function.length()-1)
-                    mapResult.put(function.trim(),line.trim())
+                    function = function.substring(0,function.length() - 1)
+                    mapResult.put(function.trim(), line.trim())
                 }
             }
         }
 
-        //println 'MapResult->'+mapResult
-
-        return mapResult
+        mapResult
     }
 }

@@ -1,5 +1,7 @@
 package org.grooscript
 
+import static org.grooscript.util.Util.*
+import org.grooscript.util.GrooScriptException
 import org.grooscript.daemon.ConversionDaemon
 import org.grooscript.util.GsConsole
 
@@ -8,18 +10,15 @@ import org.grooscript.util.GsConsole
  */
 class GrooScript {
 
-    static final String JS_EXTENSION = '.js'
-    static final String JS_TEMP_FILE = 'gSTempFile.js'
-    def static ownClassPath
-    def static debug = false
-    def private static HEAD = '[GrooScript]'
-    def static options = [:]
+    static ownClassPath
+    static debug = false
+    static options = [:]
 
     /**
      * Get a new GsConverter with options applied
      * @return GsConverter
      */
-    def static GsConverter getNewConverter() {
+    static GsConverter getNewConverter() {
         def converter = new GsConverter()
         options.each { key, value ->
             converter."${key}" = value
@@ -33,12 +32,11 @@ class GrooScript {
      * @return String javascript result code
      * @throws Exception If conversion fails or text is null
      */
-    def static convert(String text) {
+    static convert(String text) {
         if (text) {
-            return getNewConverter().toJs(text,ownClassPath)
-        } else {
-            throw new Exception("Nothing to Convert.")
+            return getNewConverter().toJs(text, ownClassPath)
         }
+        throw new GrooScriptException('Nothing to Convert.')
     }
 
     /**
@@ -48,33 +46,33 @@ class GrooScript {
      * @param destination directory of .js files
      * @throws Exception something fails
      */
-    def static convert(String source, String destination) {
+    static convert(String source, String destination) {
         if (source && destination) {
             File fSource = new File(source)
             if (debug) {
-                println "${HEAD} Source file: ${fSource.absolutePath}"
+                GsConsole.debug("Source file: ${fSource.absolutePath}")
             }
             File fDestination = new File(destination)
             if (debug) {
-                println "${HEAD} Destination file: ${fDestination.absolutePath}"
+                GsConsole.debug("Destination file: ${fDestination.absolutePath}")
             }
 
             if (fSource.exists() && fDestination.exists() && fDestination.isDirectory()) {
-                if (!fSource.isDirectory()) {
-                    fileConvert(fSource,fDestination)
-                } else {
+                if (fSource.isDirectory()) {
                     fSource.eachFile { file ->
                         if (file.isFile()) {
-                            fileConvert(file,fDestination)
+                            fileConvert(file, fDestination)
                         }
                     }
+                } else {
+                    fileConvert(fSource, fDestination)
                 }
             } else {
-                throw new Exception("Source and destination must exist, and destination must be a directory.")
+                throw new GrooScriptException('Source and destination must exist, and destination must be a directory.')
             }
 
         } else {
-            throw new Exception("Have to define source and destination.")
+            throw new GrooScriptException('Have to define source and destination.')
         }
     }
 
@@ -83,34 +81,33 @@ class GrooScript {
      * @param dir String or List
      * @return
      */
-    def static setOwnClassPath(dir) {
+    static setOwnClassPath(dir) {
         ownClassPath = dir
     }
 
-    def private static fileConvert(File source,File destination) {
+    private static fileConvert(File source, File destination) {
         if (debug) {
-            println "${HEAD}    Converting..."
+            GsConsole.debug('    Converting...')
         }
         try {
-            if (source.isFile() && source.name.endsWith('.groovy')) {
+            if (source.isFile() && source.name.endsWith(GROOVY_EXTENSION)) {
                 //println 'Name file->'+source.name
                 def name = source.name.split(/\./)[0]
-                def jsResult = getNewConverter().toJs(source.text,ownClassPath)
+                def jsResult = getNewConverter().toJs(source.text, ownClassPath)
 
                 //println 'Result file->'+destination.path+System.getProperty('file.separator')+name+'.js'
-                def newFile = new File(destination.path+System.getProperty('file.separator')+name+'.js')
+                def newFile = new File("${destination.path}$SEP$name$JS_EXTENSION")
                 if (newFile.exists()) {
                     newFile.delete()
                 }
                 newFile.write(jsResult)
                 if (debug) {
-                    println "${HEAD}    Result -> ${jsResult.size()}"
-                    println '***** Converted file: '+newFile.name + ' *****'
+                    GsConsole.debug("    Result -> ${jsResult.size()}")
+                    GsConsole.debug("***** Converted file: ${newFile.name} *****")
                 }
             }
         } catch (e) {
-            println "${HEAD} Convert Exception: "+e.message
-            throw e
+            throw new GrooScriptException("Convert Exception: ${e.message}")
         }
     }
 
@@ -119,7 +116,7 @@ class GrooScript {
      * @param name
      * @param value
      */
-    def static setConversionProperty(name,value) {
+    static setConversionProperty(name, value) {
         options."$name" = value
     }
 
@@ -127,13 +124,13 @@ class GrooScript {
      * Resets all compiler options
      * @return
      */
-    def static clearAllOptions() {
+    static clearAllOptions() {
         options = [:]
         ownClassPath = null
     }
 
     //Only a deamon can be active
-    def static ConversionDaemon daemon
+    static ConversionDaemon daemon
 
     /**
      * Starts a daemon that check all time if files change, and try convert them
@@ -142,9 +139,9 @@ class GrooScript {
      * @param sourceList A list of folders and files to be converted
      * @param destinationFolder Folder where save .js files
      * @param conversionOptions Map of conversion options [classpath:['xxx/groovy','xxx.jar'], addClassNames: true, ...]
-     * @param doAfter A closure to launch each time daemons ends check and convert files. Recieve a list of files modified
+     * @param doAfter A closure to launch each time daemons ends and convert files. Param is a list of files modified
      */
-    def static startConversionDaemon(sourceList,destinationFolder,conversionOptions = null,doAfter = null) {
+    static startConversionDaemon(sourceList, destinationFolder, conversionOptions = null, doAfter = null) {
         if (daemon) {
             stopConversionDaemon()
         }
@@ -162,7 +159,7 @@ class GrooScript {
     /**
      * Stop the conversion daemon if active, waits until execution stopped
      */
-    def static stopConversionDaemon() {
+    static stopConversionDaemon() {
         if (daemon) {
             daemon.stop()
         }
@@ -177,7 +174,7 @@ class GrooScript {
             }
             source.eachFile { File file ->
                 if (file.isFile() && file.name.toLowerCase().endsWith(JS_EXTENSION)) {
-                    newFile.append(file.text + '\n')
+                    newFile.append(file.text + LINE_JUMP)
                 }
             }
         } else {

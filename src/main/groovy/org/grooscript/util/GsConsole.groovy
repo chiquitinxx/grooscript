@@ -3,13 +3,22 @@ package org.grooscript.util
 /**
  * JFL 27/08/12
  */
+@SuppressWarnings('Println')
 class GsConsole {
 
-    def static error(message) {
+    static error(message) {
         println "[Grooscript] ERROR - ${message}"
     }
 
-    def static message(message) {
+    static message(message) {
         println "[Grooscript] MSG - ${message}"
+    }
+
+    static exception(message) {
+        println "[Grooscript] EXCEPTION - ${message}"
+    }
+
+    static debug(message) {
+        println "[Grooscript - Debug] ${message}"
     }
 }

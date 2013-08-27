@@ -250,12 +250,10 @@ ruleset {
     PackageName 
     ParameterName 
     PropertyName 
-    VariableName 
     
     // rulesets/security.xml
     FileCreateTempFile 
     InsecureRandom 
-    JavaIoPackageAccess 
     NonFinalPublicField 
     NonFinalSubclassOfSensitiveInterface 
     ObjectFinalize 
@@ -295,7 +293,6 @@ ruleset {
     UnnecessaryFinalOnPrivateMethod 
     UnnecessaryFloatInstantiation 
     UnnecessaryGString 
-    UnnecessaryGetter 
     UnnecessaryIfStatement 
     UnnecessaryInstanceOfCheck 
     UnnecessaryInstantiationToGetClass 
@@ -308,12 +305,10 @@ ruleset {
     UnnecessaryOverridingMethod 
     UnnecessaryPackageReference 
     UnnecessaryParenthesesForMethodCallWithClosure 
-    UnnecessaryPublicModifier 
     UnnecessaryReturnKeyword 
     UnnecessarySelfAssignment 
     UnnecessarySemicolon 
     UnnecessaryStringInstantiation 
-    UnnecessarySubstring 
     UnnecessaryTernaryExpression 
     UnnecessaryTransientModifier 
     

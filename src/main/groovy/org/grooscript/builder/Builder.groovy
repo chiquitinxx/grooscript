@@ -35,12 +35,12 @@ class Builder {
                 html += " ${key}='${value}'"
             }
         }
-        html += ">"
+        html += '>'
         if (args) {
             if (args.size() == 1 && args[0] instanceof String) {
                 html += args[0]
             } else {
-                def lastArg = args[args.size() - 1]
+                def lastArg = args.last()
                 if (lastArg instanceof Closure) {
                     lastArg.delegate = this
                     lastArg()

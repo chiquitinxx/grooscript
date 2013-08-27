@@ -1,7 +1,9 @@
 package org.grooscript.test
 
+import static org.grooscript.util.Util.*
 import org.grooscript.GrooScript
 import org.grooscript.GsConverter
+import org.grooscript.util.GsConsole
 
 /**
  * User: jorgefrancoleza
@@ -20,7 +22,7 @@ class ConversionMixin {
      * @param textReplace replace searched text with this one
      * @return map with results [assertFails:(true or false),...]
      */
-    def readAndConvert(nameOfFile,jsResultOnConsole = false,options = [:],textSearch = null,textReplace = null) {
+    def readAndConvert(nameOfFile, jsResultOnConsole = false, options = [:], textSearch = null, textReplace = null) {
 
         def file = TestJs.getGroovyTestScript(nameOfFile)
         if (options) {
@@ -31,19 +33,19 @@ class ConversionMixin {
 
         String jsScript = converter.toJs(file.text)
 
-        if (textSearch && jsScript.indexOf(textSearch)>=0) {
-            jsScript = jsScript.substring(0,jsScript.indexOf(textSearch)) +
-                    textReplace + jsScript.substring(jsScript.indexOf(textSearch)+textSearch.size())
+        if (textSearch && jsScript.indexOf(textSearch) >= 0) {
+            jsScript = jsScript.substring(0, jsScript.indexOf(textSearch)) +
+                    textReplace + jsScript.substring(jsScript.indexOf(textSearch) + textSearch.size())
         }
 
         if (jsResultOnConsole) {
-            println 'jsScript Result->\n'+jsScript
+            GsConsole.message("jsScript Result->${LINE_JUMP}$jsScript")
         }
 
-        return TestJs.jsEval(jsScript)
+        TestJs.jsEval(jsScript)
     }
 
-    boolean checkBuilderCodeAssertsFails(String code,jsResultOnConsole = false,options = [:], classpath = null) {
+    boolean checkBuilderCodeAssertsFails(String code, jsResultOnConsole = false, options = [:], classpath = null) {
 
         if (options) {
             options.each { key, value ->
@@ -57,7 +59,7 @@ class ConversionMixin {
         jsScript = builderCode + jsScript
 
         if (jsResultOnConsole) {
-            println 'jsScript Result->\n'+jsScript
+            GsConsole.message("jsScript Result->${LINE_JUMP}$jsScript")
         }
 
         TestJs.jsEval(jsScript).assertFails

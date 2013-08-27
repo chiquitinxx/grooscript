@@ -1,9 +1,10 @@
 package org.grooscript.test
 
+import org.grooscript.util.GrooScriptException
+
 import javax.script.ScriptEngineManager
 import javax.script.ScriptEngine
 import javax.script.Bindings
-import org.grooscript.util.GsConsole
 import org.grooscript.util.Util
 
 /**
@@ -17,8 +18,8 @@ class TestJs {
      * @param map of start binding
      * @return map of bindings in result
      */
-    static jsEval(script,map) {
-        return jsEval(script,map,null)
+    static jsEval(script, map) {
+        jsEval(script, map, null)
     }
 
     /**
@@ -28,49 +29,42 @@ class TestJs {
      * @param jsFile grooscript.js can be null
      * @return map of bindings in result
      */
-    static jsEval(script,map,jsFile) {
+    static jsEval(script, map, jsFile) {
         def resultMap = [:]
 
-        //
-        //println 'Ruta->'+System.getProperty('user.dir')
         if (script) {
             try {
 
-                //def s = System.getProperty('path.separator')
-                //File file = new File(System.getProperty('user.dir')+"src${s}main${s}resources${s}js${s}unused_gscript.js")
-
                 def finalScript
-                if (!jsFile) {
-                    finalScript = addJsLibrarys(script)
-                } else {
+                if (jsFile) {
                     finalScript = jsFile.text + script
+                } else {
+                    finalScript = addJsLibrarys(script)
                 }
-                //println finalScript
 
                 //Load script manager
                 ScriptEngineManager factory = new ScriptEngineManager()
                 ScriptEngine engine = factory.getEngineByName('JavaScript')
                 if (!engine) {
-                    throw new Exception('Not engine available!')
+                    throw new GrooScriptException('Not engine available!')
                 }
                 Bindings bind = engine.createBindings()
                 //Set the bindings
                 if (map) {
-                    map.each {bind.putAt(it.key,it.value)}
+                    map.each { bind.putAt(it.key, it.value) }
                 }
                 //Run javascript script
-                engine.eval(finalScript,bind)
+                engine.eval(finalScript, bind)
                 //Put binding result to resultMap
                 if (bind) {
-                    bind.each {resultMap.putAt(it.key,it.value)}
+                    bind.each { resultMap.putAt(it.key, it.value) }
                 }
 
                 //Set assertFails var to the map
                 resultMap.assertFails = resultMap.gSfails
 
             } catch (e) {
-                GsConsole.error('TestJs.jsEval '+e.message)
-                throw new Exception('Fail in eval Js Script! - '+e.message)
+                throw new GrooScriptException("Fail in eval Js Script! - ${e.message}")
             }
         }
         resultMap
@@ -82,10 +76,7 @@ class TestJs {
         File file = Util.getJsFile('grooscript.js')
         //Add that file to javascript code
         result = file.text + result
-        //file = Util.getJsFile('grooscript.js')
-        //Add that file to javascript code
-        //result = file.text + result
-        return result
+        result
     }
 
     /**
@@ -94,7 +85,7 @@ class TestJs {
      * @return
      */
     static jsEval(script) {
-        jsEval(script,null)
+        jsEval(script, null)
     }
 
     /**
@@ -103,8 +94,8 @@ class TestJs {
      * @param jsFile grooscript.js file
      * @return
      */
-    static jsEvalWithFile(script,File jsFile) {
-        jsEval(script,null,jsFile)
+    static jsEvalWithFile(script, File jsFile) {
+        jsEval(script, null, jsFile)
     }
 
     static File getGroovyTestScript(String name) {
