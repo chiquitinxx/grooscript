@@ -133,13 +133,11 @@ public class DomainClassImpl implements ASTTransformation {
             }
         }[0])
 
-        //processOnServerError(data)
+        //processDataHandlerError(data)
         Parameter[] params = new Parameter[1]
         params[0] = new Parameter(new ClassNode(HashMap),'data')
-        theClass.addMethod('processOnServerError',Modifier.STATIC,null, params,
+        theClass.addMethod('processDataHandlerError',Modifier.STATIC,null, params,
                 ClassNode.EMPTY_ARRAY,new AstBuilder().buildFromCode {
-            //println 'Transactions->'+mapTransactions
-            //println 'Data(4)->'+data+' - '+data.number+' - '+data.number.class.name
             if (mapTransactions[data.number]) {
                 if (mapTransactions[data.number].onError) {
                     mapTransactions[data.number].onError.call()
@@ -148,10 +146,10 @@ public class DomainClassImpl implements ASTTransformation {
             }
         }[0])
 
-        //processOnServerOk(data)
+        //processDataHandlerSuccess(data)
         params = new Parameter[1]
         params[0] = new Parameter(new ClassNode(HashMap),'data')
-        theClass.addMethod('processOnServerOk',Modifier.STATIC,null, params,
+        theClass.addMethod('processDataHandlerSuccess',Modifier.STATIC,null, params,
                 ClassNode.EMPTY_ARRAY,new AstBuilder().buildFromCode {
             if (mapTransactions[data.number]) {
                 def item = mapTransactions[data.number].item
