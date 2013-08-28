@@ -7,7 +7,8 @@ import org.grooscript.asts.PhantomJsTest
 System.setProperty('PHANTOMJS_HOME','/Applications/phantomjs')
 System.setProperty('JS_LIBRARIES_PATH','../../../src/main/resources/META-INF/resources')
 
-@PhantomJsTest(url='http://www.grails.org')
+//@PhantomJsTest(url = 'http://www.grails.org', capture = 'grails.png')
+@PhantomJsTest(url = 'http://www.grails.org')
 void testCountLinks() {
     assert $('a').size() > 50,"Number of links in page is ${$('a').size()}"
     def title = $("title")

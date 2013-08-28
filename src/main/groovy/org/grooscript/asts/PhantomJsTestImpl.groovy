@@ -82,6 +82,7 @@ page.open('{{URL}}', function (status) {
                 }
             }
             console.log(result.console);
+            {{CAPTURE}}
             phantom.exit()
         } else {
             console.log('Fail in inject.');
@@ -103,6 +104,7 @@ page.open('{{URL}}', function (status) {
         def messageError
         AnnotationNode node = (AnnotationNode) nodes[0]
         String url = node.getMember('url').text
+        String capture = node.getMember('capture')?.text
 
         if (!url) {
             messageError = 'url not defined, use @PhantomJsTest(url=\'http://grooscript.org\')'
@@ -123,6 +125,12 @@ page.open('{{URL}}', function (status) {
             if (!messageError) {
                 String text = phantomJsText
                 text = text.replace('{{GROOSCRIPT}}',jsTest)
+
+                if (capture) {
+                    text = text.replace('{{CAPTURE}}',"console.log('Capturing...');page.render('$capture');\n")
+                } else {
+                    text = text.replace('{{CAPTURE}}','')
+                }
 
                 //Save in a static variable content of the file
                 method.getDeclaringClass().addProperty("phantomjsScript${method.name}", Modifier.STATIC,

@@ -14,7 +14,7 @@ class TestPhantomJs extends GroovyTestCase {
         System.setProperty('JS_LIBRARIES_PATH',JS_LIBRARIES_PATH)
     }
 
-    @PhantomJsTest(url='http://www.grails.org/')
+    @PhantomJsTest(url = 'http://www.grails.org/')
     void countLinks() {
         assert $('a').size() > 50,"Number of links in page is ${$('a').size()}"
         def title = $("title")
@@ -25,7 +25,7 @@ class TestPhantomJs extends GroovyTestCase {
         }
     }
 
-    @PhantomJsTest(url='http://www.grails.org/')
+    @PhantomJsTest(url = 'http://www.grails.org/')
     void countLinksFailAssert() {
         assert $('a').size() < 5,"Number of links in page is ${$('a').size()}"
     }
@@ -66,11 +66,27 @@ class TestPhantomJs extends GroovyTestCase {
         }
     }
 
-    @PhantomJsTest(url='http://groovy.codehaus.org')
+    @PhantomJsTest(url = 'http://groovy.codehaus.org')
     void testDirectPhantomJs() {
         gSconsoleInfo = true
         println $('#moto').text()
         assert $('a').size > 50,"Number of links in page is ${$('a').size()}"
         assert $('#moto').text().contains('A dynamic language'), "Id=Moto contains 'A dynamic language'"
+    }
+
+    @PhantomJsTest(url = 'http://groovy.codehaus.org', capture = 'groovy.png')
+    void captureImage() {
+        console.log('BYE')
+    }
+
+    void testCaptureImage() {
+        def file = new File('groovy.png')
+        try {
+            assert !file.exists()
+            captureImage()
+            assert file.exists() && file.isFile()
+        } finally {
+            file.delete()
+        }
     }
 }
