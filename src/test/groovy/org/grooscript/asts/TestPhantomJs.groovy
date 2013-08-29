@@ -30,24 +30,32 @@ class TestPhantomJs extends GroovyTestCase {
         assert $('a').size() < 5,"Number of links in page is ${$('a').size()}"
     }
 
+    void testWorksFindingJsFilesInUserHomeDir() {
+
+        System.properties.remove('JS_LIBRARIES_PATH')
+
+        def tempDirectory = new File(System.getProperty('user.home')+File.separator+'.grooscript')
+        if (tempDirectory.exists() && tempDirectory.isDirectory()) {
+            tempDirectory.deleteDir()
+        }
+
+        countLinks()
+
+        assert tempDirectory.exists() && tempDirectory.isDirectory()
+
+        countLinks()
+
+        tempDirectory.deleteDir()
+    }
+
     void testErrorPhantomJsPath() {
         System.properties.remove('PHANTOMJS_HOME')
         try {
             countLinks()
             fail 'Error not thrown'
         } catch (AssertionError e) {
-            assert e.message == 'Need define property PHANTOMJS_HOME, PhantomJs folder. Expression: false'
-        }
-    }
-
-    void testErrorJsLibraries() {
-        System.properties.remove('JS_LIBRARIES_PATH')
-        try {
-            countLinks()
-            fail 'Error not thrown'
-        } catch (AssertionError e) {
             assert e.message ==
-                'Need define property JS_LIBRARIES_PATH, folder with grooscript.js and kimbo.min.js. Expression: false'
+               'Need define PHANTOMJS_HOME as property or environment variable; the PhantomJs folder. Expression: false'
         }
     }
 

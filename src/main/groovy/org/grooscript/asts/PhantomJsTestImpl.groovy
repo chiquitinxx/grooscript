@@ -150,24 +150,54 @@ page.open('{{URL}}', function (status) {
             if (this."phantomjsError${methodName}") {
                 assert false, 'PhantomJs Error: '+this."phantomjsError${methodName}"
             }
+            def jsHome = System.getProperty('JS_LIBRARIES_PATH')
             if (!System.getProperty('JS_LIBRARIES_PATH')) {
-                assert false, 'Need define property JS_LIBRARIES_PATH, folder with grooscript.js and kimbo.min.js'
+
+                try {
+                    def userHome = System.getProperty('user.home')
+                    if (userHome) {
+                        def version = Class.forName('org.grooscript.GsConverter').package.implementationVersion
+
+                        def path = userHome + File.separator + '.grooscript' + (version ? File.separator + version : '')
+                        def folder = new File(path)
+                        if (folder.exists()) {
+                            println "Using js local files in $path"
+                        } else {
+                            folder.mkdirs()
+                            ['grooscript.js','kimbo.min.js'].each { fileName ->
+                                new File(path + File.separator + fileName).text =
+                                    this.class.classLoader.getResourceAsStream("META-INF/resources/${fileName}").text
+                            }
+                        }
+                        jsHome = path
+                    } else {
+                        println "Error looking for js files: missing System.getProperty('user.home')"
+                    }
+                } catch (e) {
+                    println "Error looking for js files: " + e.message
+                }
+                if (!jsHome) {
+                    assert false, 'Need define property JS_LIBRARIES_PATH, folder with grooscript.js and kimbo.min.js'
+                }
             }
-            if (!System.getProperty('PHANTOMJS_HOME')) {
-                assert false, 'Need define property PHANTOMJS_HOME, PhantomJs folder'
+            def phantomJsHome
+            if (!System.getProperty('PHANTOMJS_HOME') && !System.getenv('PHANTOMJS_HOME')) {
+                assert false, 'Need define PHANTOMJS_HOME as property or environment variable; the PhantomJs folder'
+            } else {
+                phantomJsHome = System.getProperty('PHANTOMJS_HOME') ?: System.getenv('PHANTOMJS_HOME')
             }
             println "Starting PhantomJs test in ${testUrl}..."
             def nameFile = 'phantomjs.js'
             try {
                 //Save the file
                 def finalText = this."phantomjsScript${methodName}"
-                finalText = finalText.replace('{{LIBRARY_PATH}}', System.getProperty('JS_LIBRARIES_PATH'))
+                finalText = finalText.replace('{{LIBRARY_PATH}}', jsHome)
                 finalText = finalText.replace('{{URL}}', testUrl)
 
                 new File(nameFile).text = finalText
 
                 //Execute PhantomJs
-                String command = "${System.getProperty('PHANTOMJS_HOME')}/bin/phantomjs ${nameFile}"
+                String command = "${phantomJsHome}/bin/phantomjs ${nameFile}"
                 def proc = command.execute()
                 proc.waitForOrKill(10000L)
                 def exit = proc.in.text
