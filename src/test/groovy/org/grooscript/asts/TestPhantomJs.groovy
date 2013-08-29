@@ -86,7 +86,25 @@ class TestPhantomJs extends GroovyTestCase {
             captureImage()
             assert file.exists() && file.isFile()
         } finally {
-            file.delete()
+            if (file.exists()) {
+                file.delete()
+            }
+        }
+    }
+
+    @PhantomJsTest(url = 'http://groovy.codehaus.org')
+    void failMethod() {
+        console.log(FAIL)
+    }
+
+    void testTimeout10Seconds() {
+        Date start = new Date()
+        try {
+            failMethod()
+            fail 'Not getting timeout error.'
+        } catch(AssertionError e) {
+            println 'Time in miliseconds: ' + (new Date().time - start.time)
+            assert true, 'Timeout Error'
         }
     }
 }

@@ -169,7 +169,7 @@ page.open('{{URL}}', function (status) {
                 //Execute PhantomJs
                 String command = "${System.getProperty('PHANTOMJS_HOME')}/bin/phantomjs ${nameFile}"
                 def proc = command.execute()
-                proc.waitFor()
+                proc.waitForOrKill(10000L)
                 def exit = proc.in.text
                 if (!exit) {
                     println 'Error executing command: '+command
