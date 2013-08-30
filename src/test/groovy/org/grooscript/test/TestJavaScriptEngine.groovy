@@ -63,4 +63,9 @@ class TestJavaScriptEngine extends Specification {
         expect:
         !readAndConvert('TestSpeed').assertFails
     }
+
+    def 'problems with reserved words'() {
+        expect:
+        !readAndConvert('ReservedWords').assertFails
+    }
 }

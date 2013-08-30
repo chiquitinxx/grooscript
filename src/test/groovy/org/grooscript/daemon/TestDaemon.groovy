@@ -59,7 +59,7 @@ class TestDaemon extends Specification {
         waitAndStop()
 
         then: 'DomainClass ast applied to class'
-        generatedFile(FILE1_OUT).text.contains 'gSobject.save = function(onOk, onError) {'
+        generatedFile(FILE1_OUT).text.contains "gSobject['save'] = function(onOk, onError) {"
     }
 
     private waitAndStop() {

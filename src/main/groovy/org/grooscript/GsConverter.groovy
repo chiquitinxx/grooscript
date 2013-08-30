@@ -859,7 +859,7 @@ class GsConverter {
             name = translateClassName(classNameStack.peek()) + (method.parameters?method.parameters.size():'0')
         }
 
-        processBasicFunction("${GS_OBJECT}.$name",method,isConstructor)
+        processBasicFunction("${GS_OBJECT}['$name']",method,isConstructor)
 
     }
 
