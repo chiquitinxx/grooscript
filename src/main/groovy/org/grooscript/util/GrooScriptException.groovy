@@ -7,7 +7,7 @@ package org.grooscript.util
 class GrooScriptException extends Exception {
 
     GrooScriptException(String message) {
-        Exception(message)
+        super(message)
         GsConsole.exception(message)
     }
 }

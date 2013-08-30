@@ -1,6 +1,7 @@
 package org.grooscript.test
 
 import org.grooscript.util.GrooScriptException
+import org.grooscript.util.GsConsole
 
 import javax.script.ScriptEngineManager
 import javax.script.ScriptEngine
@@ -35,7 +36,7 @@ class TestJs {
         if (script) {
             try {
 
-                def finalScript
+                String finalScript
                 if (jsFile) {
                     finalScript = jsFile.text + script
                 } else {
@@ -54,7 +55,28 @@ class TestJs {
                     map.each { bind.putAt(it.key, it.value) }
                 }
                 //Run javascript script
-                engine.eval(finalScript, bind)
+                try {
+                    engine.eval(finalScript, bind)
+                } catch (e) {
+                    String message = e.message
+                    GsConsole.error("Evaluation engine error (Lines: ${finalScript.readLines().size()}): ${message}")
+                    if (message.contains('at line number')) {
+                        def number = message.substring(message.indexOf('at line number') + 14) as int
+                        def actualLine = number - 2
+                        finalScript.readLines()[actualLine .. number + 2].each { line ->
+                            println " ${actualLine++}: $line"
+                        }
+                        /*
+                        finalScript.eachLine { line ->
+                            if (actualLine in [number - 2, number + 2]) {
+                                println " ${actualLine}: $line"
+                            }
+                            actualLine++
+                        }*/
+                    }
+                    throw e
+                }
+
                 //Put binding result to resultMap
                 if (bind) {
                     bind.each { resultMap.putAt(it.key, it.value) }
