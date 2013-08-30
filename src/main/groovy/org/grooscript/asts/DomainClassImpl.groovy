@@ -64,25 +64,27 @@ public class DomainClassImpl implements ASTTransformation {
                     }
                 }
 
-                l << new MapEntryExpression(new ConstantExpression('constraints'),new MapExpression(constraints))
+                l << new MapEntryExpression(new ConstantExpression('constraints'), new MapExpression(constraints))
 
                 def map = new NamedArgumentListExpression(l)
-                list.addExpression(new ConstructorCallExpression(new ClassNode(Expando),new TupleExpression(map)))
+                list.addExpression(new ConstructorCallExpression(new ClassNode(Expando), new TupleExpression(map)))
             }
         }
-        theClass.addProperty('listColumns', Modifier.STATIC , new ClassNode(ArrayList),list,null,null)
+        theClass.addProperty('listColumns', Modifier.STATIC , new ClassNode(ArrayList), list, null, null)
 
-        theClass.addProperty('listItems', Modifier.STATIC , new ClassNode(ArrayList),new ListExpression([]),null,null)
-        theClass.addProperty('mapTransactions', Modifier.STATIC , new ClassNode(HashMap),new MapExpression([]),null,null)
+        theClass.addProperty('listItems', Modifier.STATIC , new ClassNode(ArrayList),
+                new ListExpression([]), null, null)
+        theClass.addProperty('mapTransactions', Modifier.STATIC , new ClassNode(HashMap),
+                new MapExpression([]), null, null)
         theClass.addProperty('dataHandler', Modifier.STATIC , new ClassNode(Object),null,null,null)
         theClass.addProperty('lastId', Modifier.STATIC, ClassHelper.Long_TYPE,new ConstantExpression(0),null,null)
         theClass.addProperty('version', Modifier.STATIC, ClassHelper.Long_TYPE,new ConstantExpression(0),null,null)
 
         //Instance variables
         theClass.addProperty('id', Modifier.PUBLIC, ClassHelper.Long_TYPE,null,null,null)
-        theClass.addProperty('errors', Modifier.PUBLIC, new ClassNode(HashMap),new MapExpression([]),null,null)
+        theClass.addProperty('errors', Modifier.PUBLIC, new ClassNode(HashMap), new MapExpression([]), null, null)
 
-        theClass.addMethod('clientValidations',Modifier.PUBLIC,ClassHelper.Boolean_TYPE,Parameter.EMPTY_ARRAY,
+        theClass.addMethod('clientValidations', Modifier.PUBLIC, ClassHelper.Boolean_TYPE, Parameter.EMPTY_ARRAY,
                 ClassNode.EMPTY_ARRAY, new AstBuilder().buildFromCode {
             def result = true
             def item = this
@@ -90,13 +92,17 @@ public class DomainClassImpl implements ASTTransformation {
             listColumns.each { field ->
                 if (field.constraints) {
                     if (field.constraints['blank']==false && !item."${field.name}") {
-                        //errors.put(field.name,'blank validation on value '+this."${field.name}")
                         errors.put(field.name,'blank validation on value '+item."${field.name}")
                         result = false
                     }
                 }
             }
             return result
+        }[0])
+
+        theClass.addMethod('validate',Modifier.PUBLIC,ClassHelper.Boolean_TYPE,Parameter.EMPTY_ARRAY,
+                ClassNode.EMPTY_ARRAY, new AstBuilder().buildFromCode {
+            return clientValidations()
         }[0])
 
         //hasErrors()
@@ -159,8 +165,11 @@ public class DomainClassImpl implements ASTTransformation {
                 if (data.action=='insert') {
                     listItems << item
                 }
+                if (data.action=='delete') {
+                    listItems = listItems - item
+                }
                 if (mapTransactions[data.number].onOk) {
-                    mapTransactions[data.number].onOk.call()
+                    mapTransactions[data.number].onOk.call(data)
                 }
                 mapTransactions.remove(data.number)
                 processChanges(data)
@@ -232,8 +241,8 @@ public class DomainClassImpl implements ASTTransformation {
         params = new Parameter[2]
         params[0] = new Parameter(new ClassNode(Closure),'onOk',new ConstantExpression(null))
         params[1] = new Parameter(new ClassNode(Closure),'onError',new ConstantExpression(null))
-        theClass.addMethod('save',Modifier.PUBLIC,ClassHelper.Long_TYPE, params,
-                ClassNode.EMPTY_ARRAY,new AstBuilder().buildFromCode { //onOk = null, onError = null ->
+        theClass.addMethod('save', Modifier.PUBLIC, ClassHelper.Long_TYPE, params,
+                ClassNode.EMPTY_ARRAY, new AstBuilder().buildFromCode { //onOk = null, onError = null ->
 
             if (!this.clientValidations()) {
                 return 0
@@ -265,19 +274,45 @@ public class DomainClassImpl implements ASTTransformation {
                     return this.id
                 }
             }
+        }[0])
 
+        //Delete method
+        params = new Parameter[2]
+        params[0] = new Parameter(new ClassNode(Closure),'onOk',new ConstantExpression(null))
+        params[1] = new Parameter(new ClassNode(Closure),'onError',new ConstantExpression(null))
+        theClass.addMethod('delete', Modifier.PUBLIC, ClassHelper.Long_TYPE, params,
+                ClassNode.EMPTY_ARRAY,new AstBuilder().buildFromCode {
+
+            if (this.id) {
+                //If we have dataHandler
+                if (dataHandler) {
+                    def numberTransaction = dataHandler.delete(this.class.name, this)
+
+                    def transaction = [item:this,onOk:onOk,onError:onError]
+                    mapTransactions.put(numberTransaction,transaction)
+                    return numberTransaction
+
+                } else {
+                    listItems = listItems - this
+                    processChanges([action:'delete',item:this])
+                    return this.id
+                }
+            } else {
+                throw new Exception('Deleting not saved object')
+            }
         }[0])
 
         //Change Listeners
-        theClass.addProperty('changeListeners', Modifier.STATIC , new ClassNode(ArrayList),new ListExpression([]),null,null)
+        theClass.addProperty('changeListeners', Modifier.STATIC , new ClassNode(ArrayList),
+                new ListExpression([]), null, null)
 
         params = new Parameter[1]
         params[0] = new Parameter(new ClassNode(HashMap),'data')
         theClass.addMethod('processChanges',Modifier.STATIC,null,params,
                 ClassNode.EMPTY_ARRAY,new AstBuilder().buildFromCode {
             def actionData = data
-            if (data.version) {
-                this.version = data.version
+            if (actionData.version) {
+                version = actionData.version
             }
 
             if (changeListeners) {

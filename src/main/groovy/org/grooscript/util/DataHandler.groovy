@@ -7,4 +7,5 @@ package org.grooscript.util
 interface DataHandler {
     long insert(String className, item)
     long update(String className, item)
+    long delete(String className, item)
 }

@@ -11,6 +11,7 @@ class TestDomainClass extends Specification {
 
     static final NAME = 'name'
     static final VALUE = 'value'
+    static final FAKE_ID = -3464356
 
     @DomainClass class AstItem {
         String name
@@ -32,6 +33,7 @@ class TestDomainClass extends Specification {
 
     def cleanup() {
         AstItem.lastId = 0
+        AstItem.version = 0
         AstItem.listItems = []
         AstItem.dataHandler = null
         AstItem.mapTransactions = [:]
@@ -44,6 +46,7 @@ class TestDomainClass extends Specification {
         expect:
         //println item.properties
         item.properties.containsKey('id')
+        AstItem.version == 0
         AstItem.listItems == []
         AstItem.mapTransactions == [:]
         AstItem.dataHandler == null
@@ -58,16 +61,28 @@ class TestDomainClass extends Specification {
         AstItem.version == 0
         //println item.metaClass.methods
         item.metaClass.methods.find { it.name=='save'}
+        item.metaClass.methods.find { it.name=='delete'}
         item.save()
     }
 
-    def 'test save item locally'() {
+    def 'test get method'() {
+        given:
+        def item = getBasicItem()
+
+        expect:
+        item.id
+        AstItem.get(item.id) == item
+        !AstItem.get(FAKE_ID)
+    }
+
+    def 'test create new item'() {
         given:
         AstItem.count() == 0
         def item = new AstItem()
 
         expect:
         !item.id
+        AstItem.lastId == 0
 
         when:
         item."${NAME}" = VALUE
@@ -76,9 +91,43 @@ class TestDomainClass extends Specification {
         then:
         result == 1
         item.id == 1
+        AstItem.count() == 1
         AstItem.listItems.size() == 1
         AstItem.listItems[0]."${NAME}" == VALUE
         AstItem.list() == AstItem.listItems
+        AstItem.lastId == 1
+    }
+
+    def 'test update an item'() {
+        given:
+        def item = getBasicItem()
+
+        expect:
+        item.name == NAME
+
+        when:
+        item.name = VALUE
+        item.save()
+
+        then:
+        AstItem.get(item.id).name == VALUE
+        AstItem.list()[0] == item
+    }
+
+    def 'test delete an item'() {
+        given:
+        AstItem item = getBasicItem()
+
+        expect:
+        AstItem.count() == 1
+
+        when:
+        item.delete()
+
+        then:
+        AstItem.count() == 0
+        !AstItem.list()
+        !AstItem.listItems
     }
 
     def 'test change listener executed'() {
@@ -102,6 +151,7 @@ class TestDomainClass extends Specification {
 
         expect:
         !item.clientValidations()
+        !item.validate()
 
         and:
         item.hasErrors()
@@ -136,7 +186,7 @@ class TestDomainClass extends Specification {
         item.mapTransactions[NUMBER_TRANSACTION] == [item:item,onOk:null,onError:null]
     }
 
-    def 'test success save new item in datahandler'() {
+    def 'test success save new item in dataHandler'() {
         given:
         def (item, dataHandler) = getNewItemWithDataHandler()
         dataHandler.insert(_,_) >> NUMBER_TRANSACTION
@@ -145,31 +195,133 @@ class TestDomainClass extends Specification {
         item.save(successClosure)
 
         expect:
+        AstItem.version == 0
         AstItem.count() == 0
         AstItem.mapTransactions[NUMBER_TRANSACTION] == [item:item,onOk:successClosure,onError:null]
 
         when:
-        item.processDataHandlerSuccess([number: NUMBER_TRANSACTION, action: 'insert',
-                item: [id : 11, name: 'name', number: 12]])
+        item.processDataHandlerSuccess([number: NUMBER_TRANSACTION, action: 'insert', version: 7,
+                item: [id : 11, name: NAME, number: 12]])
 
         then:
         AstItem.count() == 1
+        AstItem.version == 7
         number == 4 * 2
 
         and:
         AstItem.list()[0] == item
         item.id == 11
-        item.name == 'name'
+        item.name == NAME
         item.number == 12
 
         and:
         !AstItem.mapTransactions
     }
 
+    def 'test update item with dataHandler'() {
+        given:
+        def (item, dataHandler) = getItemWithDataHandler()
+
+        expect:
+        item.name == NAME
+
+        when:
+        item.name = VALUE
+        def numberTransaction = item.save()
+
+        then:
+        1 * dataHandler.update("${this.class.name}\$AstItem",item) >> NUMBER_TRANSACTION
+        numberTransaction == NUMBER_TRANSACTION
+
+        and:
+        item.mapTransactions[NUMBER_TRANSACTION] == [item:item,onOk:null,onError:null]
+    }
+
+    def 'test success save update item with dataHandler'() {
+        given:
+        def (item, dataHandler) = getItemWithDataHandler()
+        AstItem.mapTransactions[NUMBER_TRANSACTION] = [item:item,onOk:null,onError:null]
+
+        expect:
+        item.name == NAME
+        AstItem.version == 0
+        AstItem.count() == 1
+
+        when:
+        item.processDataHandlerSuccess([number: NUMBER_TRANSACTION, action: 'update', version: 7,
+                item: [id : item.id, name: VALUE, number: 12]])
+
+        then:
+        AstItem.count() == 1
+        AstItem.version == 7
+
+        and:
+        AstItem.list()[0] == item
+        item.id == old(item.id)
+        item.name == VALUE
+        item.number == 12
+
+        and:
+        !AstItem.mapTransactions
+    }
+
+    def 'test delete item with dataHandler'() {
+        given:
+        def (item, dataHandler) = getItemWithDataHandler()
+        def number = 5
+
+        expect:
+        item.name == NAME
+
+        when:
+        def numberTransaction = item.delete()
+
+        then:
+        1 * dataHandler.delete("${this.class.name}\$AstItem",item) >> NUMBER_TRANSACTION
+        numberTransaction == NUMBER_TRANSACTION
+
+        and:
+        item.mapTransactions[NUMBER_TRANSACTION] == [item:item,onOk:null,onError:null]
+    }
+
+    def 'test success delete item with dataHandler'() {
+        given:
+        def (item, dataHandler) = getItemWithDataHandler()
+        AstItem.mapTransactions[NUMBER_TRANSACTION] = [item:item,onOk:null,onError:null]
+
+        expect:
+        AstItem.count() == 1
+
+        when:
+        item.processDataHandlerSuccess([number: NUMBER_TRANSACTION, action: 'delete', version: 5,
+                item: [id : item.id, name: VALUE, number: 12]])
+
+        then:
+        AstItem.count() == 0
+        AstItem.version == 5
+
+        and:
+        !AstItem.mapTransactions
+    }
+
+    def getBasicItem() {
+        def item = new AstItem(name: NAME)
+        item.save()
+        item
+    }
+
     def getNewItemWithDataHandler() {
         DataHandler dataHandler = Mock(DataHandler)
         AstItem.dataHandler = dataHandler
         def item = new AstItem()
+        [item, dataHandler]
+    }
+
+    def getItemWithDataHandler() {
+        def item = getBasicItem()
+        DataHandler dataHandler = Mock(DataHandler)
+        AstItem.dataHandler = dataHandler
+
         [item, dataHandler]
     }
 }
