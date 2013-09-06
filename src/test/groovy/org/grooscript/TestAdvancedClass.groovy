@@ -12,17 +12,17 @@ class TestAdvancedClass extends Specification {
 
     def 'test class names' () {
         expect:
-        !readAndConvert('classes/Names',false,[addClassNames:true]).assertFails
+        !readAndConvert('classes/Names').assertFails
     }
 
     def 'test instanceof basic'() {
         expect:
-        !readAndConvert('classes/InstanceOf',false,[addClassNames:true]).assertFails
+        !readAndConvert('classes/InstanceOf').assertFails
     }
 
     def 'add methods and properties to classes'() {
         expect:
-        !readAndConvert('classes/AddingStuff',false,[addClassNames:true]).assertFails
+        !readAndConvert('classes/AddingStuff').assertFails
     }
 
     def 'who knows categories'() {
@@ -32,7 +32,7 @@ class TestAdvancedClass extends Specification {
 
     def 'mixins to the hell'() {
         expect:
-        !readAndConvert('classes/Mixins',false,[addClassNames:true]).assertFails
+        !readAndConvert('classes/Mixins').assertFails
     }
 
     def 'string buffer'() {
