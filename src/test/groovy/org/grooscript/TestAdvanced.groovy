@@ -104,7 +104,7 @@ class TestAdvanced extends Specification {
 
     def 'object comparation'() {
         expect:
-        !readAndConvert('advanced/Comparable',false,[addClassNames:true]).assertFails
+        !readAndConvert('advanced/Comparable').assertFails
     }
 
     def 'more list and maps features'() {
@@ -155,5 +155,10 @@ class TestAdvanced extends Specification {
     def 'curry and rcurry'() {
         expect:
         !readAndConvert('advanced/Curry').assertFails
+    }
+
+    def 'mixin annotation'() {
+        expect:
+        !readAndConvert('advanced/MixinAst').assertFails
     }
 }

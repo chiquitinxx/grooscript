@@ -132,9 +132,9 @@ function inherit(p,objectName) {
 
     // If Object.create() is defined... // then just use it.
     // Otherwise do some more type checking
-    if (t !== "object" && t !== "function")
+    if (t !== "object" && t !== "function") {
         throw TypeError();
-
+    }
     function f() {};
     f.prototype = p;
     return gSexpandWithMetaclass(new f(),objectName);
@@ -1744,7 +1744,9 @@ function gSpassMapToObject(source,destination) {
     for (prop in source) {
         if (typeof source[prop] === "function") continue;
         //destination[prop] = source[prop];
-        gSsetProperty(destination,prop,source[prop]);
+        if (prop != 'gSclass') {
+            gSsetProperty(destination,prop,source[prop]);
+        }
     }
 }
 
@@ -2000,7 +2002,7 @@ function gSgetMethod(item,methodName) {
 }
 
 //Get a property of a class
-function gSgetProperty(item,nameProperty) {
+function gSgetProperty(item, nameProperty) {
 
     //console.log('item->'+item+' property->'+nameProperty);
 
@@ -2020,7 +2022,7 @@ function gSgetProperty(item,nameProperty) {
                 return item[nameProperty]();
             } else {
                 //console.log('property------'+nameProperty+' = '+item[nameProperty]);
-                if (item[nameProperty]!=undefined) {
+                if (item[nameProperty] != undefined) {
                     return item[nameProperty];
                 } else {
                     if (item['gSdefaultValue']!=undefined && (typeof item['gSdefaultValue'] === "function")) {
@@ -2118,9 +2120,10 @@ function gSmethodCall(item,methodName,values) {
             }
             //Lets check in mixins classes
             if (gSmixins.length>0) {
+                //console.log('******');
                 var whereExecutes = gSmixinSearching(item,methodName);
                 if (whereExecutes!=null) {
-                    //console.log('Where!'+whereExecutes[methodName]+' - '+item);
+                    //console.log('Where!'+whereExecutes[methodName]+' - '+item.name);
                     return whereExecutes[methodName].apply(item,gSjoinParameters(item,values));
                 }
             }
@@ -2251,20 +2254,31 @@ function gSmixinSearching(item,methodName) {
     if (typeof(item) == 'object' && item.gSclass!=undefined && item.gSclass.simpleName!=undefined) {
         className = item.gSclass.simpleName
     }
+    //console.log(' className:'+className);
     if (className!=null) {
         var i,ourMixin=null;
         for (i = gSmixins.length-1;i>=0 && ourMixin==null;i--) {
             var data = gSmixins[i];
+            //console.log(' mixin: '+data.name);
             if (data.name == className) {
                 ourMixin = data.items;
             }
         }
         if (ourMixin!=null) {
             var i;
-            for (i=0;i<ourMixin.length && result==null;i++) {
+            //console.log(' our: '+ourMixin+' - '+methodName);
+            for (i = 0; i < ourMixin.length && result == null; i++) {
                 if (eval(ourMixin[i])[methodName]) {
                     //return eval(name)[methodName](object);
                     result = eval(ourMixin[i]);
+                } else {
+                    var classItem = eval(ourMixin[i]+'()')
+                    if (classItem) {
+                        var notStatic = classItem[methodName];
+                        if (notStatic != null && typeof notStatic === "function") {
+                            result = classItem;
+                        }
+                    }
                 }
             }
         }
@@ -2275,12 +2289,13 @@ function gSmixinSearching(item,methodName) {
 
 function gSmixinObjectsSearching(item,methodName) {
 
-    //console.log('gSmixinObjectsSearching->'+item);
+    //console.log('gSmixinObjectsSearching->'+item+' - '+gSmixinsObjects);
     var result = null;
 
     var i,ourMixin=null;
     for (i = gSmixinsObjects.length-1;i>=0 && ourMixin==null;i--) {
         var data = gSmixinsObjects[i];
+        //console.log('gSmixinObjectsSearching->'+item+' - '+methodName+' - '+data.item);
         if (data.item == item) {
             ourMixin = data.items;
         }

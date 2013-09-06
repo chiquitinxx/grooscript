@@ -17,18 +17,19 @@ class GsConverter {
 
     //Indent for pretty print
     def indent
-    def static final TAB = '  '
-    def String resultScript
-    def Stack<String> classNameStack = new Stack<String>()
-    def Stack<String> superNameStack = new Stack<String>()
+    static final TAB = '  '
+    String resultScript
+    Stack<String> classNameStack = new Stack<String>()
+    Stack<String> superNameStack = new Stack<String>()
     //Use for variable scoping, for class variable names and function names mainly
-    def Stack variableScoping = new Stack()
-    def Stack variableStaticScoping = new Stack()
-    def Stack returnScoping = new Stack()
+    Stack variableScoping = new Stack()
+    Stack variableStaticScoping = new Stack()
+    Stack returnScoping = new Stack()
     //Use por function variable names
-    def Stack actualScope = new Stack()
-    def String superMethodBegin = 'super_'
-    def boolean processingClosure = false
+    Stack actualScope = new Stack()
+    String superMethodBegin = 'super_'
+    boolean processingClosure = false
+    boolean processingClassMethods = false
 
     def inheritedVariables = [:]
 
@@ -48,12 +49,11 @@ class GsConverter {
     def printlnFunction
 
     //Conversion Options
-    def addClassNames = false
     def convertDependencies = true
     Closure customization = null
 
     //Constant names for javascript out
-    def static final GS_OBJECT = 'gSobject'
+    static final GS_OBJECT = 'gSobject'
 
     /**
      * Constructor
@@ -63,18 +63,18 @@ class GsConverter {
         initFunctionNames()
     }
 
-    def private initFunctionNames() {
+    private initFunctionNames() {
         assertFunction = 'gSassert'
         printlnFunction = 'gSprintln'
     }
 
-    def private addToActualScope(variableName) {
+    private addToActualScope(variableName) {
         if (!actualScope.isEmpty()) {
             actualScope.peek().add(variableName)
         }
     }
 
-    def private actualScopeContains(variableName) {
+    private actualScopeContains(variableName) {
         if (!actualScope.isEmpty()) {
             return actualScope.peek().contains(variableName)
         } else {
@@ -230,7 +230,7 @@ class GsConverter {
         return list
     }
 
-    private def compiledCode(conf, codeSource, classLoader, text) {
+    private compiledCode(conf, codeSource, classLoader, text) {
         try {
             def compilationUnit = new CompilationUnit(conf, codeSource.codeSource, classLoader)
             compilationUnit.addSource(codeSource.getName(), text)
@@ -316,7 +316,7 @@ class GsConverter {
 
     //Process list of classes in correct order, inheritance order
     //Save list of variables for inheritance
-    def private processClassList(List<ClassNode> list) {
+    private processClassList(List<ClassNode> list) {
 
         def finalList = []
         def extraClasses = []
@@ -388,7 +388,7 @@ class GsConverter {
      * @param paramList
      * @return
      */
-    def private addConditionConstructorExecution(numberArguments,paramList) {
+    private addConditionConstructorExecution(numberArguments,paramList) {
 
         addScript("if (arguments.length==${numberArguments}) {")
         addScript("${GS_OBJECT}.${translateClassName(classNameStack.peek())}${numberArguments}")
@@ -406,7 +406,7 @@ class GsConverter {
         addLine()
     }
 
-    def private translateClassName(String name) {
+    private translateClassName(String name) {
         def result = name
         def i
         while ((i = result.indexOf('.'))>=0) {
@@ -416,7 +416,7 @@ class GsConverter {
         result
     }
 
-    def private processScriptClassNode(ClassNode node) {
+    private processScriptClassNode(ClassNode node) {
 
         //Push name in stack
         variableScoping.push([])
@@ -459,7 +459,7 @@ class GsConverter {
 
     }
 
-    def private addPropertyToClass(fieldOrProperty,isStatic) {
+    private addPropertyToClass(fieldOrProperty,isStatic) {
 
         def previous = GS_OBJECT
         if (isStatic) {
@@ -477,7 +477,7 @@ class GsConverter {
         }
     }
 
-    def private addPropertyStaticToClass(String name) {
+    private addPropertyStaticToClass(String name) {
 
         addScript("${GS_OBJECT}.__defineGetter__('${name}', function(){ return ${translateClassName(classNameStack.peek())}.${name}; });")
         addLine()
@@ -485,7 +485,7 @@ class GsConverter {
         addLine()
     }
 
-    def private haveAnnotationNonConvert(annotations) {
+    private haveAnnotationNonConvert(annotations) {
         boolean exit = false
         annotations.each { AnnotationNode it ->
             //If dont have to convert then exit
@@ -496,7 +496,7 @@ class GsConverter {
         return exit
     }
 
-    def private haveAnnotationNative(annotations) {
+    private haveAnnotationNative(annotations) {
         boolean exit = false
         annotations.each { AnnotationNode it ->
             //If native then exit
@@ -504,10 +504,37 @@ class GsConverter {
                 exit = true
             }
         }
-        return exit
+        exit
     }
 
-    def private putGsNativeMethod(String name,MethodNode method) {
+    private checkMixinAndCategory(className, annotations) {
+
+        annotations.each { AnnotationNode annotationNode ->
+            if (annotationNode.getClassNode().name=='groovy.lang.Mixin') {
+                def list = []
+                annotationNode.members.values().each { value ->
+                    if (value instanceof ListExpression) {
+                        value.expressions.each { it ->
+                            list << it.type.nameWithoutPackage
+                        }
+                    } else {
+                        list << value.type.nameWithoutPackage
+                    }
+                }
+                addMixinToClass(className, list)
+            }
+        }
+    }
+
+    private addMixinToClass(className, List<String> listMixins) {
+        addScript("gSmixinClass('${className}',")
+        addScript('[')
+        addScript listMixins.collect { "'$it'"}.join(',')
+        addScript(']);')
+        addLine()
+    }
+
+    private putGsNativeMethod(String name,MethodNode method) {
 
         //addScript("${GS_OBJECT}.${method.name} = function(")
         addScript("${name} = function(")
@@ -522,7 +549,7 @@ class GsConverter {
         addLine()
     }
 
-    def private processClassNode(ClassNode node) { //Starting class conversion
+    private processClassNode(ClassNode node) { //Starting class conversion
 
         //Exit if dont have to convert
         if (haveAnnotationNonConvert(node.annotations)) {
@@ -551,9 +578,11 @@ class GsConverter {
             addScript("var ${GS_OBJECT} = inherit(gsBaseClass,'${translateClassName(node.name)}');")
         }
         addLine()
-        //Add class name and super name
-        if (addClassNames) {
-            addClassNames(node.name, (node.superClass.name != 'java.lang.Object'?node.superClass.name:null))
+        addScript("${GS_OBJECT}.gSclass = { name: '${node.name}', simpleName: '${node.nameWithoutPackage}'};")
+        addLine()
+        if (node.superClass) {
+            addScript("${GS_OBJECT}.gSclass.superclass = { name: '${node.superClass.name}', simpleName: '${node.superClass.nameWithoutPackage}'};")
+            addLine()
         }
 
         if (consoleInfo) {
@@ -594,39 +623,7 @@ class GsConverter {
         //Ignoring fields
         //node?.fields?.each { println 'field->'+it  }
 
-        //Methods
-        node?.methods?.each { MethodNode it -> //println 'method->'+it;
-            //Add too method names to variable scoping
-            if (!it.isStatic() && !it.isAbstract()) {
-                variableScoping.peek().add(it.name)
-            }
-        }
-        node?.methods?.each { MethodNode it -> //println 'method->'+it;
-
-            if (!haveAnnotationNonConvert(it.annotations) && !it.isAbstract()) {
-                //Process the methods
-                if (haveAnnotationNative(it.annotations) && !it.isStatic()) {
-                    putGsNativeMethod("${GS_OBJECT}.${it.name}",it)
-                } else if (!it.isStatic()) {
-                    processMethodNode(it,false)
-                } else {
-                    //We put the number of params as x? name variables
-                    def numberParams = 0
-                    if (it.parameters && it.parameters.size()>0) {
-                        numberParams = it.parameters.size()
-                    }
-                    def params = []
-                    numberParams.times { number ->
-                        params << 'x'+number
-                    }
-
-                    addScript("${GS_OBJECT}.${it.name} = function(${params.join(',')}) { return ${translateClassName(node.name)}.${it.name}(")
-                    addScript(params.join(','))
-                    addScript("); }")
-                    addLine()
-                }
-            }
-        }
+        processClassMethods(node?.methods, node.nameWithoutPackage)
 
         if (consoleInfo) {
             GsConsole.message("   Processing class ${node.name}, step 3")
@@ -655,6 +652,8 @@ class GsConverter {
             addScript("if (arguments.length==1) {${GS_OBJECT}.${translateClassName(node.name)}1(arguments[0]); }")
             addLine()
         }
+
+        checkMixinAndCategory(node.nameWithoutPackage, node.annotations)
 
         addLine()
         indent --
@@ -702,33 +701,46 @@ class GsConverter {
         }
     }
 
-    def addClassNames(actualClassName,superClassName) {
+    private processClassMethods(List<MethodNode> methods, String nodeName) {
 
-        if (superClassName) {
-            addScript("var temp = ${GS_OBJECT}.gSclass;")
-            addLine()
-            addScript("${GS_OBJECT}.gSclass = [];")
-            addLine()
-            addScript("${GS_OBJECT}.gSclass.superclass = temp;")
-            addLine()
-        } else {
-            addScript("${GS_OBJECT}.gSclass = [];")
-            addLine()
-            addScript("${GS_OBJECT}.gSclass.superclass = [];")
-            addLine()
-            addScript("${GS_OBJECT}.gSclass.superclass.name= 'java.lang.Object';")
-            addLine()
-            addScript("${GS_OBJECT}.gSclass.superclass.simpleName= 'Object';")
-            addLine()
+        methods?.each { MethodNode it ->
+            //Add method names to variable scoping
+            if (!it.isStatic() && !it.isAbstract()) {
+                variableScoping.peek().add(it.name)
+            }
         }
-        addScript("${GS_OBJECT}.gSclass.name = '${actualClassName}';")
-        addLine()
-        addScript("${GS_OBJECT}.gSclass.simpleName = '${translateClassName(actualClassName)}';")
-        addLine()
 
+        processingClassMethods = true
+        methods?.each { MethodNode it ->
+
+            if (!haveAnnotationNonConvert(it.annotations) && !it.isAbstract()) {
+                //Process the methods
+                if (haveAnnotationNative(it.annotations) && !it.isStatic()) {
+                    putGsNativeMethod("${GS_OBJECT}.${it.name}",it)
+                } else if (!it.isStatic()) {
+                    processMethodNode(it,false)
+                } else {
+                    //We put the number of params as x? name variables
+                    def numberParams = 0
+                    if (it.parameters && it.parameters.size()>0) {
+                        numberParams = it.parameters.size()
+                    }
+                    def params = []
+                    numberParams.times { number ->
+                        params << 'x'+number
+                    }
+
+                    addScript("${GS_OBJECT}.${it.name} = function(${params.join(',')}) { return ${nodeName}.${it.name}(")
+                    addScript(params.join(','))
+                    addScript("); }")
+                    addLine()
+                }
+            }
+        }
+        processingClassMethods = false
     }
 
-    def private processFunctionOrMethodParameters(functionOrMethod, boolean isConstructor,boolean addItInParameter) {
+    private processFunctionOrMethodParameters(functionOrMethod, boolean isConstructor,boolean addItInParameter) {
 
         boolean first = true
         boolean lastParameterCanBeMore = false
@@ -745,7 +757,7 @@ class GsConverter {
             functionOrMethod.parameters?.eachWithIndex { Parameter param, index ->
 
                 //If the last parameter is an Object[] then, maybe, can get more parameters as optional
-                if (param.type.name=='[Ljava.lang.Object;' && index+1==functionOrMethod.parameters.size()) {
+                if (param.type.name=='[Ljava.lang.Object;' && index+1 == functionOrMethod.parameters.size()) {
                     lastParameterCanBeMore = true
                 }
                 //println 'pe->'+param.toString()+' - '+param.type.name //+' - '+param.type
@@ -803,7 +815,7 @@ class GsConverter {
         }
     }
 
-    def private putFunctionParametersAndBody(functionOrMethod, boolean isConstructor, boolean addItDefault) {
+    private putFunctionParametersAndBody(functionOrMethod, boolean isConstructor, boolean addItDefault) {
 
         actualScope.push([])
 
@@ -819,7 +831,7 @@ class GsConverter {
         actualScope.pop()
     }
 
-    def private processBasicFunction(name, method, isConstructor) {
+    private processBasicFunction(name, method, isConstructor) {
 
         addScript("$name = function(")
 
@@ -837,7 +849,7 @@ class GsConverter {
 
     }
 
-    def private processMethodNode(MethodNode method,isConstructor) {
+    private processMethodNode(MethodNode method,isConstructor) {
 
         //Starting method conversion
         //Ignoring annotations
@@ -869,12 +881,12 @@ class GsConverter {
      * @param addReturn put 'return ' before last statement
      * @return
      */
-    def private processBlockStament(block,addReturn) {
+    private processBlockStament(block,addReturn) {
         if (block) {
             def number = 1
             //println 'Block->'+block
             if (block instanceof EmptyStatement) {
-                println 'BlockEmpty->'+block.text
+                GsConsole.debug "BlockEmpty -> ${block.text}"
                 //println 'Empty->'+block.getStatementLabel()
             } else {
                 //println '------------------------------Block->'+block.text
@@ -916,7 +928,7 @@ class GsConverter {
     }
 
     //???? there are both used
-    def private processBlockStatement(block) {
+    private processBlockStatement(block) {
         processBlockStament(block,false)
     }
 
@@ -926,7 +938,7 @@ class GsConverter {
      * @param line
      * @return
      */
-    def private addLine() {
+    private addLine() {
         //println "sc(${script}) line(${line})"
         if (resultScript) {
             resultScript += '\n'
@@ -941,7 +953,7 @@ class GsConverter {
      * @param text
      * @return
      */
-    def private addScript(text) {
+    private addScript(text) {
         //println 'adding ->'+text
         //indent.times { resultScript += TAB }
         resultScript += text
@@ -953,7 +965,7 @@ class GsConverter {
      * @param position
      * @return
      */
-    def private addScriptAt(text,position) {
+    private addScriptAt(text,position) {
         resultScript = resultScript.substring(0,position) + text + resultScript.substring(position)
     }
 
@@ -961,7 +973,7 @@ class GsConverter {
      * Remove a TAB from current javascript output
      * @return
      */
-    def private removeTabScript() {
+    private removeTabScript() {
         resultScript = resultScript[0..resultScript.size()-1-TAB.size()]
     }
 
@@ -969,7 +981,7 @@ class GsConverter {
      * Get actual position in javascript output
      * @return
      */
-    def private getSavePoint() {
+    private getSavePoint() {
         return resultScript.size()
     }
 
@@ -977,7 +989,7 @@ class GsConverter {
      * Process a statement, adding ; at the end
      * @param statement
      */
-    def private void processStatement(Statement statement) {
+    private void processStatement(Statement statement) {
 
         //println "statement (${statement.class.simpleName})->"+statement+' - '+statement.text
         visitNode(statement)
@@ -990,7 +1002,7 @@ class GsConverter {
         //println 'end statement'
     }
 
-    def private processAssertStatement(AssertStatement statement) {
+    private processAssertStatement(AssertStatement statement) {
         Expression e = statement.booleanExpression
         addScript(assertFunction)
         addScript('(')
@@ -1002,7 +1014,7 @@ class GsConverter {
         addScript(')')
     }
 
-    def private handExpressionInBoolean(expression) {
+    private handExpressionInBoolean(expression) {
         if (expression instanceof VariableExpression || expression instanceof PropertyExpression ||
                 (expression instanceof NotExpression &&
                         expression.expression &&
@@ -1020,17 +1032,17 @@ class GsConverter {
         }
     }
 
-    def private processBooleanExpression(BooleanExpression expression) {
+    private processBooleanExpression(BooleanExpression expression) {
         //Groovy truth is a bit different, empty collections return false, we fix that here
         handExpressionInBoolean(expression.expression)
     }
 
-    def private processExpressionStatement(ExpressionStatement statement) {
+    private processExpressionStatement(ExpressionStatement statement) {
         Expression e = statement.expression
         visitNode(e)
     }
 
-    def private processDeclarationExpression(DeclarationExpression expression) {
+    private processDeclarationExpression(DeclarationExpression expression) {
         //println 'l->'+expression.leftExpression
         //println 'r->'+expression.rightExpression
         //println 'v->'+expression.getVariableExpression()
@@ -1071,7 +1083,7 @@ class GsConverter {
         }
     }
 
-    def private tourStack(Stack stack,variableName) {
+    private tourStack(Stack stack,variableName) {
         if (stack.isEmpty()) {
             return false
         } else if (stack.peek()?.contains(variableName)) {
@@ -1085,18 +1097,18 @@ class GsConverter {
         }
     }
 
-    def private variableScopingContains(variableName) {
+    private variableScopingContains(variableName) {
         //println 'vs('+variableName+')->'+fuckStack(variableScoping,variableName) //variableScoping.peek()?.contains(variableName) //variableScoping.search(variableName)
         //println 'actualScope->'+actualScope
-        return tourStack(variableScoping,variableName)
+        tourStack(variableScoping,variableName)
     }
 
-    def allActualScopeContains(variableName) {
+    private allActualScopeContains(variableName) {
         //println 'as('+variableName+')->'+fuckStack(actualScope,variableName) //variableScoping.peek()?.contains(variableName) //variableScoping.search(variableName)
-        return tourStack(actualScope,variableName)
+        tourStack(actualScope,variableName)
     }
 
-    def private processVariableExpression(VariableExpression expression) {
+    private processVariableExpression(VariableExpression expression) {
 
         //println "name:${expression.name} - scope:${variableScoping.peek()} - isThis - ${expression.isThisExpression()}"
         if (variableScoping.peek().contains(expression.name) && !(actualScopeContains(expression.name))) {
@@ -1104,20 +1116,20 @@ class GsConverter {
         } else if (variableStaticScoping.peek().contains(expression.name) && !(actualScopeContains(expression.name))) {
             addScript(translateClassName(classNameStack.peek())+'.'+expression.name)
         } else {
-            if (processingClosure && !expression.isThisExpression()
+            if (!expression.isThisExpression()
                     && !allActualScopeContains(expression.name) && !variableScopingContains(expression.name)) {
-                addScript('this.')
+                if (processingClosure || processingClassMethods) {
+                    addScript("this.${expression.name}")
+                } else {
+                    addScript(expression.name)
+                }
+            } else {
+                addScript(expression.name)
             }
-            addScript(expression.name)
         }
     }
 
-    /**
-     *
-     * @param b
-     * @return
-     */
-    def private processBinaryExpression(BinaryExpression expression) {
+    private processBinaryExpression(BinaryExpression expression) {
 
         //println 'Binary->'+expression.text + ' - '+expression.operation.text
         //Getting a range from a list
@@ -1282,7 +1294,7 @@ class GsConverter {
     }
 
     //Adding () for operators order, can spam loads of ()
-    def private upgradedExpresion(expresion) {
+    private upgradedExpresion(expresion) {
         if (expresion instanceof BinaryExpression) {
             addScript('(')
         }
@@ -1292,7 +1304,7 @@ class GsConverter {
         }
     }
 
-    def private processConstantExpression(ConstantExpression expression) {
+    private processConstantExpression(ConstantExpression expression) {
         //println 'ConstantExpression->'+expression.text
         if (expression.value instanceof String) {
             //println 'Value->'+expression.value+'<'+expression.value.endsWith('\n')
@@ -1323,7 +1335,7 @@ class GsConverter {
 
     }
 
-    def private processConstantExpression(ConstantExpression expression,boolean addStuff) {
+    private processConstantExpression(ConstantExpression expression,boolean addStuff) {
         if (expression.value instanceof String && addStuff) {
             processConstantExpression(expression)
         } else {
@@ -1338,7 +1350,7 @@ class GsConverter {
      * @param e
      * @return
      */
-    def private processGStringExpression(GStringExpression expression) {
+    private processGStringExpression(GStringExpression expression) {
 
         def number = 0
         expression.getStrings().each {   exp ->
@@ -1358,12 +1370,12 @@ class GsConverter {
         }
     }
 
-    def private processNotExpression(NotExpression expression) {
+    private processNotExpression(NotExpression expression) {
         addScript('!')
         visitNode(expression.expression)
     }
 
-    def private processConstructorCallExpression(ConstructorCallExpression expression) {
+    private processConstructorCallExpression(ConstructorCallExpression expression) {
 
         //println 'ConstructorCallExpression->'+expression.type.name + ' super? '+expression?.isSuperCall()
         //Super expression in constructor is allowed
@@ -1399,7 +1411,7 @@ class GsConverter {
         visitNode(expression.arguments)
     }
 
-    def private processArgumentListExpression(ArgumentListExpression expression,boolean withParenthesis) {
+    private processArgumentListExpression(ArgumentListExpression expression,boolean withParenthesis) {
         if (withParenthesis) {
             addScript '('
         }
@@ -1415,11 +1427,11 @@ class GsConverter {
 
     }
 
-    def private processArgumentListExpression(ArgumentListExpression expression) {
+    private processArgumentListExpression(ArgumentListExpression expression) {
         processArgumentListExpression(expression,true)
     }
 
-    def private processObjectExpressionFromProperty(PropertyExpression expression) {
+    private processObjectExpressionFromProperty(PropertyExpression expression) {
         if (expression.objectExpression instanceof ClassExpression) {
             addScript(translateClassName(expression.objectExpression.type.name))
         } else {
@@ -1427,7 +1439,7 @@ class GsConverter {
         }
     }
 
-    def private processPropertyExpressionFromProperty(PropertyExpression expression) {
+    private processPropertyExpressionFromProperty(PropertyExpression expression) {
         if (expression.property instanceof GStringExpression) {
             visitNode(expression.property)
         } else {
@@ -1437,7 +1449,7 @@ class GsConverter {
         }
     }
 
-    def private processPropertyExpression(PropertyExpression expression) {
+    private processPropertyExpression(PropertyExpression expression) {
 
         //println 'Pe->'+expression.objectExpression
         //println 'Pro->'+expression.property
@@ -1502,7 +1514,7 @@ class GsConverter {
 
     }
 
-    def private processMethodCallExpression(MethodCallExpression expression) {
+    private processMethodCallExpression(MethodCallExpression expression) {
 
         //println "MCE ${expression.objectExpression} - ${expression.methodAsString}"
         def addParameters = true
@@ -1630,7 +1642,7 @@ class GsConverter {
         }
     }
 
-    def private processPostfixExpression(PostfixExpression expression) {
+    private processPostfixExpression(PostfixExpression expression) {
 
         if (expression.expression instanceof PropertyExpression) {
 
@@ -1652,7 +1664,7 @@ class GsConverter {
         }
     }
 
-    def private processPrefixExpression(PrefixExpression expression) {
+    private processPrefixExpression(PrefixExpression expression) {
         if (expression.expression instanceof PropertyExpression) {
             def plus = true
             if (expression.operation.text=='--') {
@@ -1669,18 +1681,18 @@ class GsConverter {
         }
     }
 
-    def private processReturnStatement(ReturnStatement statement) {
+    private processReturnStatement(ReturnStatement statement) {
         //variableScoping.peek().add(gSgotResultStatement)
         returnScoping.add(true)
         addScript('return ')
         visitNode(statement.expression)
     }
 
-    def private processClosureExpression(ClosureExpression expression) {
+    private processClosureExpression(ClosureExpression expression) {
         processClosureExpression(expression, true)
     }
 
-    def private processClosureExpression(ClosureExpression expression, boolean addItDefault) {
+    private processClosureExpression(ClosureExpression expression, boolean addItDefault) {
 
         addScript("function(")
 
@@ -1695,7 +1707,7 @@ class GsConverter {
 
     }
 
-    def private processIfStatement(IfStatement statement) {
+    private processIfStatement(IfStatement statement) {
         addScript('if (')
         visitNode(statement.booleanExpression)
         addScript(') {')
@@ -1730,7 +1742,7 @@ class GsConverter {
         }
     }
 
-    def private processMapExpression(MapExpression expression) {
+    private processMapExpression(MapExpression expression) {
         addScript('gSmap()')
         expression.mapEntryExpressions?.each { ep ->
             addScript(".add(");
@@ -1741,7 +1753,7 @@ class GsConverter {
         }
     }
 
-    def private processListExpression(ListExpression expression) {
+    private processListExpression(ListExpression expression) {
         addScript('gSlist([')
         //println 'List->'+expression
         //l.each { println it}
@@ -1757,7 +1769,7 @@ class GsConverter {
         addScript('])')
     }
 
-    def private processRangeExpression(RangeExpression expression) {
+    private processRangeExpression(RangeExpression expression) {
         addScript('gSrange(')
 
         //println 'Is inclusive->'+r.isInclusive()
@@ -1768,7 +1780,7 @@ class GsConverter {
         addScript(')')
     }
 
-    def private processForStatement(ForStatement statement) {
+    private processForStatement(ForStatement statement) {
 
         if (statement?.variable != ForStatement.FOR_LOOP_DUMMY) {
             //println 'DUMMY!-'+statement.variable
@@ -1799,7 +1811,7 @@ class GsConverter {
         }
     }
 
-    def private processClosureListExpression(ClosureListExpression expression) {
+    private processClosureListExpression(ClosureListExpression expression) {
         //println 'ClosureListExpression-'+expression.text
         boolean first = true
         expression?.expressions?.each { it ->
@@ -1811,12 +1823,12 @@ class GsConverter {
         }
     }
 
-    def private processParameter(Parameter parameter) {
+    private processParameter(Parameter parameter) {
         //println 'Initial->'+parameter.getInitialExpression()
         addScript(parameter.name)
     }
 
-    def private processTryCatchStatement(TryCatchStatement statement) {
+    private processTryCatchStatement(TryCatchStatement statement) {
         //Try block
         addScript('try {')
         indent++
@@ -1844,11 +1856,11 @@ class GsConverter {
         addScript('}')
     }
 
-    def private processCatchStatement(CatchStatement statement) {
+    private processCatchStatement(CatchStatement statement) {
         processBlockStament(statement.code,false)
     }
 
-    def private processTernaryExpression(TernaryExpression expression) {
+    private processTernaryExpression(TernaryExpression expression) {
         //println 'Ternary->'+expression.text
         addScript('(')
         visitNode(expression.booleanExpression)
@@ -1859,7 +1871,7 @@ class GsConverter {
         addScript(')')
     }
 
-    def private getSwitchExpression(Expression expression,String varName) {
+    private getSwitchExpression(Expression expression,String varName) {
 
         if (expression instanceof ClosureExpression) {
             addClosureSwitchInitialization = true
@@ -1872,7 +1884,7 @@ class GsConverter {
 
     }
 
-    def private processSwitchStatement(SwitchStatement statement) {
+    private processSwitchStatement(SwitchStatement statement) {
 
         def varName = 'gSswitch' + switchCount++
 
@@ -1912,7 +1924,7 @@ class GsConverter {
         switchCount--
     }
 
-    def private processCaseStatement(CaseStatement statement) {
+    private processCaseStatement(CaseStatement statement) {
         addScript 'case '
         visitNode(statement?.expression)
         addScript ':'
@@ -1923,13 +1935,13 @@ class GsConverter {
         removeTabScript()
     }
 
-    def private processBreakStatement(BreakStatement statement) {
+    private processBreakStatement(BreakStatement statement) {
         if (switchCount==0) {
             addScript('break')
         }
     }
 
-    def private processWhileStatement(WhileStatement statement) {
+    private processWhileStatement(WhileStatement statement) {
         addScript('while (')
         visitNode(statement.booleanExpression)
         addScript(') {')
@@ -1941,7 +1953,7 @@ class GsConverter {
         addScript('}')
     }
 
-    def private processTupleExpression(TupleExpression expression, withParenthesis = true) {
+    private processTupleExpression(TupleExpression expression, withParenthesis = true) {
         //println 'Tuple->'+expression.text
         if (withParenthesis) {
             addScript('(')
@@ -1955,7 +1967,7 @@ class GsConverter {
         }
     }
 
-    def private processNamedArgumentListExpression(NamedArgumentListExpression expression) {
+    private processNamedArgumentListExpression(NamedArgumentListExpression expression) {
         expression.mapEntryExpressions.eachWithIndex { MapEntryExpression exp,i ->
             //println 'key->'+ exp.keyExpression
             addScript('.add(')
@@ -1966,11 +1978,11 @@ class GsConverter {
         }
     }
 
-    def private processBitwiseNegationExpression(BitwiseNegationExpression expression) {
+    private processBitwiseNegationExpression(BitwiseNegationExpression expression) {
         addScript("/${expression.text}/")
     }
 
-    def private processEnum(ClassNode node) {
+    private processEnum(ClassNode node) {
 
         addLine()
 
@@ -2024,23 +2036,23 @@ class GsConverter {
         variableScoping.pop()
     }
 
-    def private processClassExpression(ClassExpression expression) {
+    private processClassExpression(ClassExpression expression) {
         addScript(translateClassName(expression.text))
     }
 
-    def private processThrowStatement(ThrowStatement statement) {
+    private processThrowStatement(ThrowStatement statement) {
         addScript('throw "Exception"')
         //println 'throw expression'+statement.expression.text
     }
 
-    def private processStaticMethodCallExpression(StaticMethodCallExpression expression) {
+    private processStaticMethodCallExpression(StaticMethodCallExpression expression) {
 
         //println 'SMCE->'+expression.text
         addScript("${expression.ownerType.name}.${expression.method}")
         visitNode(expression.arguments)
     }
 
-    def private processElvisOperatorExpression(ElvisOperatorExpression expression) {
+    private processElvisOperatorExpression(ElvisOperatorExpression expression) {
         //println 'Elvis->'+expression.text
         //println 'true->'+expression.trueExpression
         //println 'false->'+expression.falseExpression
@@ -2055,11 +2067,11 @@ class GsConverter {
 
     }
 
-    def private processAttributeExpression(AttributeExpression expression) {
+    private processAttributeExpression(AttributeExpression expression) {
         processPropertyExpression(expression)
     }
 
-    def private processCastExpression(CastExpression expression) {
+    private processCastExpression(CastExpression expression) {
         if (expression.type.nameWithoutPackage == 'Set' && expression.expression instanceof ListExpression) {
             addScript('gSset(')
             visitNode(expression.expression)
@@ -2069,7 +2081,7 @@ class GsConverter {
         }
     }
 
-    def private processMethodPointerExpression(MethodPointerExpression expression) {
+    private processMethodPointerExpression(MethodPointerExpression expression) {
         //println 'Exp-'+expression.expression
         //println 'dynamic-'+expression.dynamic
         //println 'methodName-'+expression.methodName
@@ -2079,23 +2091,23 @@ class GsConverter {
         addScript(']')
     }
 
-    def private processSpreadExpression(SpreadExpression expression) {
+    private processSpreadExpression(SpreadExpression expression) {
         //println 'exp-'+expression
         addScript('new GSspread(')
         visitNode(expression.expression)
         addScript(')')
     }
 
-    def private processSpreadMapExpression(SpreadMapExpression expression) {
+    private processSpreadMapExpression(SpreadMapExpression expression) {
         //println 'Map exp-'+expression.text
         addScript('"gSspreadMap"')
     }
 
-    def private processEmptyExpression(EmptyExpression expression) {
+    private processEmptyExpression(EmptyExpression expression) {
         //Nothing to do
     }
 
-    private void visitNode(expression) {
+    private visitNode(expression) {
         "process${expression.class.simpleName}"(expression)
     }
 }
