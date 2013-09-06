@@ -33,7 +33,6 @@ class TestDomainClass extends Specification {
 
     def cleanup() {
         AstItem.lastId = 0
-        AstItem.version = 0
         AstItem.listItems = []
         AstItem.dataHandler = null
         AstItem.mapTransactions = [:]
@@ -46,7 +45,6 @@ class TestDomainClass extends Specification {
         expect:
         //println item.properties
         item.properties.containsKey('id')
-        AstItem.version == 0
         AstItem.listItems == []
         AstItem.mapTransactions == [:]
         AstItem.dataHandler == null
@@ -58,8 +56,6 @@ class TestDomainClass extends Specification {
         AstItem.listColumns.find{it.name=='number'}.name == 'number'
         AstItem.listColumns.find{it.name=='number'}.type == 'java.lang.Integer'
         AstItem.listColumns.find{it.name=='number'}.constraints == [:]
-        AstItem.version == 0
-        //println item.metaClass.methods
         item.metaClass.methods.find { it.name=='save'}
         item.metaClass.methods.find { it.name=='delete'}
         item.save()
@@ -195,17 +191,15 @@ class TestDomainClass extends Specification {
         item.save(successClosure)
 
         expect:
-        AstItem.version == 0
         AstItem.count() == 0
         AstItem.mapTransactions[NUMBER_TRANSACTION] == [item:item,onOk:successClosure,onError:null]
 
         when:
-        item.processDataHandlerSuccess([number: NUMBER_TRANSACTION, action: 'insert', version: 7,
-                item: [id : 11, name: NAME, number: 12]])
+        item.processDataHandlerSuccess([number: NUMBER_TRANSACTION, action: 'insert',
+                item: [id : 11, name: NAME, number: 12, version: 7]])
 
         then:
         AstItem.count() == 1
-        AstItem.version == 7
         number == 4 * 2
 
         and:
@@ -213,6 +207,7 @@ class TestDomainClass extends Specification {
         item.id == 11
         item.name == NAME
         item.number == 12
+        item.version == 7
 
         and:
         !AstItem.mapTransactions
@@ -244,22 +239,21 @@ class TestDomainClass extends Specification {
 
         expect:
         item.name == NAME
-        AstItem.version == 0
         AstItem.count() == 1
 
         when:
-        item.processDataHandlerSuccess([number: NUMBER_TRANSACTION, action: 'update', version: 7,
-                item: [id : item.id, name: VALUE, number: 12]])
+        item.processDataHandlerSuccess([number: NUMBER_TRANSACTION, action: 'update',
+                item: [id : item.id, name: VALUE, number: 12, version: 8]])
 
         then:
         AstItem.count() == 1
-        AstItem.version == 7
+        AstItem.list()[0] == item
 
         and:
-        AstItem.list()[0] == item
         item.id == old(item.id)
         item.name == VALUE
         item.number == 12
+        item.version == 8
 
         and:
         !AstItem.mapTransactions
@@ -293,12 +287,11 @@ class TestDomainClass extends Specification {
         AstItem.count() == 1
 
         when:
-        item.processDataHandlerSuccess([number: NUMBER_TRANSACTION, action: 'delete', version: 5,
+        item.processDataHandlerSuccess([number: NUMBER_TRANSACTION, action: 'delete',
                 item: [id : item.id, name: VALUE, number: 12]])
 
         then:
         AstItem.count() == 0
-        AstItem.version == 5
 
         and:
         !AstItem.mapTransactions

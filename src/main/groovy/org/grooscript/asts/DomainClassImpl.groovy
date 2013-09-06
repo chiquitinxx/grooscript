@@ -78,11 +78,11 @@ public class DomainClassImpl implements ASTTransformation {
                 new MapExpression([]), null, null)
         theClass.addProperty('dataHandler', Modifier.STATIC , new ClassNode(Object),null,null,null)
         theClass.addProperty('lastId', Modifier.STATIC, ClassHelper.Long_TYPE,new ConstantExpression(0),null,null)
-        theClass.addProperty('version', Modifier.STATIC, ClassHelper.Long_TYPE,new ConstantExpression(0),null,null)
 
         //Instance variables
         theClass.addProperty('id', Modifier.PUBLIC, ClassHelper.Long_TYPE,null,null,null)
         theClass.addProperty('errors', Modifier.PUBLIC, new ClassNode(HashMap), new MapExpression([]), null, null)
+        theClass.addProperty('version', Modifier.PUBLIC, ClassHelper.Long_TYPE,new ConstantExpression(0),null,null)
 
         theClass.addMethod('clientValidations', Modifier.PUBLIC, ClassHelper.Boolean_TYPE, Parameter.EMPTY_ARRAY,
                 ClassNode.EMPTY_ARRAY, new AstBuilder().buildFromCode {
@@ -181,30 +181,27 @@ public class DomainClassImpl implements ASTTransformation {
         params[0] = new Parameter(new ClassNode(HashMap),'data')
         theClass.addMethod('processPublishMessage',Modifier.STATIC,null, params,
                 ClassNode.EMPTY_ARRAY,new AstBuilder().buildFromCode {
-            if (version < data.version) {
-
-                if (data.action == 'list') {
-                    processOnServerList(data)
+            if (data.action == 'list') {
+                processOnServerList(data)
+            } else {
+                def item
+                if (data.action == 'insert') {
+                    item = Class.forName(data.model).newInstance()
                 } else {
-                    def item
-                    if (data.action == 'insert') {
-                        item = Class.forName(data.model).newInstance()
-                    } else {
-                        item = get(data.item.id)
-                    }
+                    item = get(data.item.id)
+                }
 
-                    if (data.item) {
-                        data.item.each { key, value ->
-                            item."${key}" = value
-                        }
-                    }
-
-                    if (data.action=='insert') {
-                        listItems << item
+                if (data.item) {
+                    data.item.each { key, value ->
+                        item."${key}" = value
                     }
                 }
-                processChanges(data)
+
+                if (data.action=='insert') {
+                    listItems << item
+                }
             }
+            processChanges(data)
         }[0])
 
         //processOnServerList(data)
@@ -311,9 +308,6 @@ public class DomainClassImpl implements ASTTransformation {
         theClass.addMethod('processChanges',Modifier.STATIC,null,params,
                 ClassNode.EMPTY_ARRAY,new AstBuilder().buildFromCode {
             def actionData = data
-            if (actionData.version) {
-                version = actionData.version
-            }
 
             if (changeListeners) {
                 changeListeners.each {
