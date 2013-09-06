@@ -5,9 +5,9 @@ apply plugin: 'signing'
 apply plugin: 'codenarc'
 
 group = 'org.grooscript'
-version = '0.3'
+version = '0.3.1-SNAPSHOT'
 
-sourceCompatibility = 1.7
+sourceCompatibility = 1.5
 
 def appName = 'GrooScript'
 def webDir = '../grooscript_web'

@@ -31,7 +31,7 @@ page.onConsoleMessage = function(msg) {
 
 page.open('{{URL}}', function (status) {
     if (status !== 'success') {
-        console.log('Fail loading url.');
+        console.log('  Result:FAIL Desc:Fail loading url..');
         phantom.exit(1);
     } else {
         page.libraryPath = '{{LIBRARY_PATH}}'
@@ -85,7 +85,7 @@ page.open('{{URL}}', function (status) {
             {{CAPTURE}}
             phantom.exit()
         } else {
-            console.log('Fail in inject.');
+            console.log(' Result:FAIL Desc:Fail in inject.');
             phantom.exit(1);
         }
     }
