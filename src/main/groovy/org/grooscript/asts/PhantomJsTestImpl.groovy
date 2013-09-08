@@ -49,10 +49,7 @@ page.open('{{URL}}', function (status) {
                 };
 
                 function gSprintln(value) {
-                    if (gSconsole != "") {
-                        gSconsole = gSconsole + "\\n";
-                    }
-                    gSconsole = gSconsole + 'Console: ' + value
+                    console.log(value);
                 };
 
                 function grooKimbo(selector,other) {
@@ -67,9 +64,8 @@ page.open('{{URL}}', function (status) {
 
                 //Begin grooscript code
                 {{GROOSCRIPT}}
+                {{FUNCTION_CALL}}
                 //End  grooscript code
-
-                gSresult.console = gSconsole;
 
                 return gSresult;
             });
@@ -80,8 +76,9 @@ page.open('{{URL}}', function (status) {
                     console.log('Test ('+i+') Result:'+(result.tests[i].result==true?'OK':'FAIL')+
                         ' Desc:'+result.tests[i].text);
                 }
+            } else {
+                console.log('0 tests done.');
             }
-            console.log(result.console);
             {{CAPTURE}}
             phantom.exit()
         } else {
@@ -99,56 +96,58 @@ page.open('{{URL}}', function (status) {
         }
 
         MethodNode method = (MethodNode) nodes[1]
-        Statement testCode = method.getCode()
+        //Statement testCode = method.getCode()
 
         def messageError
         AnnotationNode node = (AnnotationNode) nodes[0]
         String url = node.getMember('url').text
         String capture = node.getMember('capture')?.text
+        String finalText = ''
 
         if (!url) {
             messageError = 'url not defined, use @PhantomJsTest(url=\'http://grooscript.org\')'
-        } else {
-            method.getDeclaringClass().addProperty("phantomjsUrl${method.name}", Modifier.STATIC, ClassHelper.STRING_TYPE,
-                    new ConstantExpression(url),null,null)
         }
         if (!messageError) {
             GsConverter converter = new GsConverter()
 
             def jsTest
             try {
-                jsTest = converter.processAstListToJs([testCode])
+                jsTest = converter.processAstListToJs([method])
             } catch (e) {
                 messageError = 'Error converting code ->'+e.message
             }
 
             if (!messageError) {
-                String text = phantomJsText
-                text = text.replace('{{GROOSCRIPT}}',jsTest)
+                finalText = phantomJsText
+                finalText = finalText.replace('{{URL}}', url)
+                finalText = finalText.replace('{{GROOSCRIPT}}', jsTest)
 
                 if (capture) {
-                    text = text.replace('{{CAPTURE}}',"console.log('Capturing...');page.render('$capture');\n")
+                    finalText = finalText.replace('{{CAPTURE}}', "console.log('Capturing...');page.render('$capture');\n")
                 } else {
-                    text = text.replace('{{CAPTURE}}','')
+                    finalText = finalText.replace('{{CAPTURE}}', '')
                 }
-
-                //Save in a static variable content of the file
-                method.getDeclaringClass().addProperty("phantomjsScript${method.name}", Modifier.STATIC,
-                        ClassHelper.STRING_TYPE,new ConstantExpression(text),null,null)
             }
         }
-        method.getDeclaringClass().addProperty("phantomjsError${method.name}", Modifier.STATIC, ClassHelper.STRING_TYPE,
-                new ConstantExpression(messageError),null,null)
 
-        method.setCode new AstBuilder().buildFromCode {
-            def marker = new Throwable()
-            def methodName = org.codehaus.groovy.runtime.StackTraceUtils.sanitize(marker).stackTrace[0].methodName
-            def testUrl = this."phantomjsUrl${methodName}"
-            if (!methodName || !testUrl) {
-                assert false, "Fail getting test info. Method name: ${methodName} Url: ${testUrl}"
+        def parametersText
+        def listParams = []
+
+        if (method.parameters) {
+            parametersText = ''
+            method.parameters?.each { param ->
+                listParams << "(${param.name} instanceof String ? gJump + ${param.name} + gJump:${param.name})"
             }
-            if (this."phantomjsError${methodName}") {
-                assert false, 'PhantomJs Error: '+this."phantomjsError${methodName}"
+            parametersText += listParams.join(' + \', \' + ')
+        } else {
+            parametersText = "\"\""
+        }
+
+        def textCode = '''
+            def marker = new Throwable()
+            def errorMessage = "''' + (messageError ?: '') + '''"
+            if (errorMessage) {
+                assert false, 'PhantomJs Error: '+errorMessage
             }
             def jsHome = System.getProperty('JS_LIBRARIES_PATH')
             if (!System.getProperty('JS_LIBRARIES_PATH')) {
@@ -161,12 +160,12 @@ page.open('{{URL}}', function (status) {
                         def path = userHome + File.separator + '.grooscript' + (version ? File.separator + version : '')
                         def folder = new File(path)
                         if (folder.exists()) {
-                            println "Using js local files in $path"
+                            println 'Using js local files in ' + path
                         } else {
                             folder.mkdirs()
                             ['grooscript.js','kimbo.min.js'].each { fileName ->
                                 new File(path + File.separator + fileName).text =
-                                    this.class.classLoader.getResourceAsStream("META-INF/resources/${fileName}").text
+                                    this.class.classLoader.getResourceAsStream('META-INF/resources/' + fileName).text
                             }
                         }
                         jsHome = path
@@ -186,25 +185,30 @@ page.open('{{URL}}', function (status) {
             } else {
                 phantomJsHome = System.getProperty('PHANTOMJS_HOME') ?: System.getenv('PHANTOMJS_HOME')
             }
-            println "Starting PhantomJs test in ${testUrl}..."
+            println 'Starting PhantomJs test in ''' + url + '''\'
             def nameFile = 'phantomjs.js'
             try {
                 //Save the file
-                def finalText = this."phantomjsScript${methodName}"
+                def finalText = \'\'\''''+ finalText +'''\'\'\'
                 finalText = finalText.replace('{{LIBRARY_PATH}}', jsHome)
-                finalText = finalText.replace('{{URL}}', testUrl)
-
+                def gJump = '"'
+                def parametersText = '''+ parametersText +'''
+                //println 'Parameters: '+parametersText
+                finalText = finalText.replace('{{FUNCTION_CALL}}', \'''' + method.name + '''(' + parametersText + ');\')
+                //println '*********************'
+                //println finalText
+                //println '*********************'
                 new File(nameFile).text = finalText
 
                 //Execute PhantomJs
-                String command = "${phantomJsHome}/bin/phantomjs ${nameFile}"
+                String command = phantomJsHome + "/bin/phantomjs " + nameFile
                 def proc = command.execute()
                 proc.waitForOrKill(10000L)
                 def exit = proc.in.text
                 if (!exit) {
                     println 'Error executing command: '+command
-                    println "return code: ${proc.exitValue()}"
-                    println "stderr: ${proc.err.text}"
+                    println 'return code: ' + proc.exitValue()
+                    println 'stderr: ' + proc.err.text
                     assert false, 'Error launching PhantomJs'
                 } else {
                     exit.eachLine { String line->
@@ -225,9 +229,9 @@ page.open('{{URL}}', function (status) {
             } catch (e) {
                 println 'Error PhantomJs Test ->'+e.message
                 if (e.message && e.message.startsWith('Cannot run program')) {
-                    assert false,'Don\'t find PhantomJs: '+e.message
+                    assert false,"Don't find PhantomJs: " + e.message
                 } else {
-                    assert false,'Error executing PhantomJs: '+e.message
+                    assert false,'Error executing PhantomJs: ' + e.message
                 }
             } finally {
                 File file = new File(nameFile)
@@ -237,6 +241,8 @@ page.open('{{URL}}', function (status) {
             }
             println 'PhantomJs test finished.'
             return null
-        }
+        '''
+
+        method.setCode new AstBuilder().buildFromString(CompilePhase.CLASS_GENERATION , textCode)
     }
 }

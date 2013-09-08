@@ -25,11 +25,6 @@ class TestPhantomJs extends GroovyTestCase {
         }
     }
 
-    @PhantomJsTest(url = 'http://www.grails.org/')
-    void countLinksFailAssert() {
-        assert $('a').size() < 5,"Number of links in page is ${$('a').size()}"
-    }
-
     void testWorksFindingJsFilesInUserHomeDir() {
 
         System.properties.remove('JS_LIBRARIES_PATH')
@@ -61,6 +56,11 @@ class TestPhantomJs extends GroovyTestCase {
 
     void testPhantomJs() {
         countLinks()
+    }
+
+    @PhantomJsTest(url = 'http://www.grails.org/')
+    void countLinksFailAssert() {
+        assert $('a').size() < 5,"Number of links in page is ${$('a').size()}"
     }
 
     void testPhantomJsFailAssert() {
@@ -113,6 +113,30 @@ class TestPhantomJs extends GroovyTestCase {
         } catch(AssertionError e) {
             println 'Time in miliseconds: ' + (new Date().time - start.time)
             assert true, 'Timeout Error'
+        }
+    }
+
+    @PhantomJsTest(url = 'http://localhost:8080/')
+    void testExpectedElements(element, expectedSize) {
+        assert $(element).size == expectedSize,"Number of '${element}' in page is ${$(element).size()}"
+    }
+
+    void testPassParameters() {
+        testExpectedElements('a',13)
+        testExpectedElements('div',14)
+    }
+
+    @PhantomJsTest(url = 'http://mockmockmock.mock')
+    void wrongUrl() {
+        assert true
+    }
+
+    void testWrongUrl() {
+        try {
+            wrongUrl()
+            fail 'Wrong url error not throw'
+        } catch(AssertionError e) {
+            assert e.message == 'Fail loading url... Expression: false'
         }
     }
 }
