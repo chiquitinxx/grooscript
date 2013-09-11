@@ -11,6 +11,7 @@ sourceCompatibility = 1.5
 
 def appName = 'GrooScript'
 def webDir = '../grooscript_web'
+def webDirJar = "$webDir/lib"
 def webDirJs = "$webDir/web-app/js/"
 
 repositories {
@@ -94,7 +95,16 @@ uploadArchives {
 //End Sonar
 
 //Copy jar, js file, and examples to web directory, defined at start
-task copyToGscriptWeb(dependsOn: build) << {
+task copyToGscriptWeb() << {
+	println "Copying $appName jar to $webDirJar ..."
+	copy {
+		into "$webDirJar"
+		from "build/libs"
+		include "**/*.jar"
+		rename {
+			return "grooscript-${version}.jar"
+		}
+	}
 	
 	println "Copying $appName jsFiles to $webDirJs ..."
 	copy {
