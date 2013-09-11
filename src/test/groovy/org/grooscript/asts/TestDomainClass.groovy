@@ -1,5 +1,7 @@
 package org.grooscript.asts
 
+import org.grooscript.GrooScript
+import org.grooscript.test.TestJs
 import org.grooscript.util.DataHandler
 import spock.lang.Specification
 
@@ -36,6 +38,7 @@ class TestDomainClass extends Specification {
         AstItem.listItems = []
         AstItem.dataHandler = null
         AstItem.mapTransactions = [:]
+        GrooScript.clearAllOptions()
     }
 
     def 'test ast for domain classes'() {
@@ -316,5 +319,22 @@ class TestDomainClass extends Specification {
         AstItem.dataHandler = dataHandler
 
         [item, dataHandler]
+    }
+
+    def 'test convert a basic domain class'() {
+        given:
+        GrooScript.clearAllOptions()
+        GrooScript.setConversionProperty('customization', {
+            ast(org.grooscript.asts.DomainClass)
+        })
+
+        when:
+        def result = GrooScript.convert(TestJs.getGroovyTestScript('asts/DomainClass').text)
+        println result
+
+        then:
+        noExceptionThrown()
+        !result.contains('mapping')
+        !result.contains('transients')
     }
 }

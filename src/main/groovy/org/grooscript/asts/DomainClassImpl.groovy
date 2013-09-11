@@ -20,6 +20,7 @@ import java.lang.reflect.Modifier
 @GroovyASTTransformation(phase = CompilePhase.SEMANTIC_ANALYSIS)
 public class DomainClassImpl implements ASTTransformation {
 
+    static final NOT_PROPERTY_NAMES = ['transients', 'constraints', 'mapping', 'hasMany', 'belongsTo']
 
     public void visit(ASTNode[] nodes, SourceUnit sourceUnit) {
         //TODO
@@ -37,10 +38,10 @@ public class DomainClassImpl implements ASTTransformation {
         //Get properties for the class and load into listColumns
         ListExpression list = new ListExpression([])
         theClass.properties.each { PropertyNode pn ->
-            if (pn.name!='constraints') {
-                List<MapEntryExpression> l = new ArrayList<MapEntryExpression>()
-                l << new MapEntryExpression(new ConstantExpression('name'),new ConstantExpression(pn.name))
-                l << new MapEntryExpression(new ConstantExpression('type'),new ConstantExpression(pn.type.name))
+            if (!(pn.name in NOT_PROPERTY_NAMES)) {
+                List<MapEntryExpression> listColumnProperties = new ArrayList<MapEntryExpression>()
+                listColumnProperties << new MapEntryExpression(new ConstantExpression('name'),new ConstantExpression(pn.name))
+                listColumnProperties << new MapEntryExpression(new ConstantExpression('type'),new ConstantExpression(pn.type.name))
                 //Let's find constraints
                 def constraints = []
                 if (theClass.properties.find {it.name=='constraints'}) {
@@ -64,14 +65,18 @@ public class DomainClassImpl implements ASTTransformation {
                     }
                 }
 
-                l << new MapEntryExpression(new ConstantExpression('constraints'), new MapExpression(constraints))
+                listColumnProperties << new MapEntryExpression(new ConstantExpression('constraints'), new MapExpression(constraints))
 
-                def map = new NamedArgumentListExpression(l)
+                def map = new NamedArgumentListExpression(listColumnProperties)
                 list.addExpression(new ConstructorCallExpression(new ClassNode(Expando), new TupleExpression(map)))
             }
         }
-        theClass.addProperty('listColumns', Modifier.STATIC , new ClassNode(ArrayList), list, null, null)
 
+        //Remove properties not allowed
+        theClass.properties.removeAll { it.name in NOT_PROPERTY_NAMES }
+        theClass.fields.removeAll { it.name in NOT_PROPERTY_NAMES }
+
+        theClass.addProperty('listColumns', Modifier.STATIC , new ClassNode(ArrayList), list, null, null)
         theClass.addProperty('listItems', Modifier.STATIC , new ClassNode(ArrayList),
                 new ListExpression([]), null, null)
         theClass.addProperty('mapTransactions', Modifier.STATIC , new ClassNode(HashMap),
