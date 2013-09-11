@@ -5,13 +5,12 @@ apply plugin: 'signing'
 apply plugin: 'codenarc'
 
 group = 'org.grooscript'
-version = '0.3.1-SNAPSHOT'
+version = '0.3.1'
 
 sourceCompatibility = 1.5
 
 def appName = 'GrooScript'
 def webDir = '../grooscript_web'
-def webDirJar = "$webDir/lib"
 def webDirJs = "$webDir/web-app/js/"
 
 repositories {
@@ -96,24 +95,12 @@ uploadArchives {
 
 //Copy jar, js file, and examples to web directory, defined at start
 task copyToGscriptWeb(dependsOn: build) << {
-	println "Copying $appName jar to $webDirJar ..."
-	copy {
-		into "$webDirJar"
-		from "build/libs"			
-		include "**/*.jar"
-		rename { 
-			return "grooscript-${version}.jar"
-		}
-	}
 	
 	println "Copying $appName jsFiles to $webDirJs ..."
 	copy {
 		into "$webDirJs"
 		from "src/main/resources/META-INF/resources"
 		include "grooscript.js"
-		//exclude "test.js"
 	}
-
-    
 }
 

@@ -116,14 +116,14 @@ class TestPhantomJs extends GroovyTestCase {
         }
     }
 
-    @PhantomJsTest(url = 'http://localhost:8080/')
+    @PhantomJsTest(url = 'http://groovy.codehaus.org')
     void testExpectedElements(element, expectedSize) {
         assert $(element).size == expectedSize,"Number of '${element}' in page is ${$(element).size()}"
     }
 
     void testPassParameters() {
-        testExpectedElements('a',13)
-        testExpectedElements('div',14)
+        testExpectedElements('a', 69)
+        testExpectedElements('div', 90)
     }
 
     @PhantomJsTest(url = 'http://mockmockmock.mock')
@@ -131,7 +131,7 @@ class TestPhantomJs extends GroovyTestCase {
         assert true
     }
 
-    void testWrongUrl() {
+    void testWrongUrlGetAssertFail() {
         try {
             wrongUrl()
             fail 'Wrong url error not throw'
