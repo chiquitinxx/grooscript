@@ -1,3 +1,6 @@
+@GrabConfig(systemClassLoader=true)
+@Grab('org.grooscript:grooscript:0.3.1')
+
 import org.grooscript.asts.PhantomJsTest
 
 /**
@@ -5,10 +8,8 @@ import org.grooscript.asts.PhantomJsTest
  * Date: 30/03/13
  */
 System.setProperty('PHANTOMJS_HOME','/Applications/phantomjs')
-System.setProperty('JS_LIBRARIES_PATH','../../../src/main/resources/META-INF/resources')
 
-//@PhantomJsTest(url = 'http://www.grails.org', capture = 'grails.png')
-@PhantomJsTest(url = 'http://www.grails.org')
+@PhantomJsTest(url = 'http://www.grails.org', capture = 'grails.png')
 void testCountLinks() {
     assert $('a').size() > 50,"Number of links in page is ${$('a').size()}"
     def title = $("title")
@@ -20,3 +21,5 @@ void testCountLinks() {
 }
 
 testCountLinks()
+
+new File('grails.png').delete()
