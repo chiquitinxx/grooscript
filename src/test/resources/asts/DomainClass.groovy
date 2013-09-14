@@ -6,6 +6,8 @@ package asts
  */
 class DomainClass {
 
+    String name
+
     static constraints = {
     }
 
