@@ -111,6 +111,7 @@ public class DomainClassImpl implements ASTTransformation {
         }[0])
 
         //hasErrors()
+        /* This give problems with Grails, so comment this 3 methods using buildFromSpec
         theClass.addMethod('hasErrors',Modifier.PUBLIC, ClassHelper.boolean_TYPE,Parameter.EMPTY_ARRAY,
                 ClassNode.EMPTY_ARRAY,new AstBuilder().buildFromSpec {
             block {
@@ -142,6 +143,20 @@ public class DomainClassImpl implements ASTTransformation {
                     }
                 }
             }
+        }[0])*/
+        theClass.addMethod('hasErrors',Modifier.PUBLIC, ClassHelper.boolean_TYPE,Parameter.EMPTY_ARRAY,
+                ClassNode.EMPTY_ARRAY,new AstBuilder().buildFromCode {
+            return errors
+        }[0])
+
+        theClass.addMethod('list',Modifier.STATIC,new ClassNode(ArrayList),Parameter.EMPTY_ARRAY,
+                ClassNode.EMPTY_ARRAY,new AstBuilder().buildFromCode {
+            return listItems
+        }[0])
+
+        theClass.addMethod('count',Modifier.STATIC,ClassHelper.int_TYPE,Parameter.EMPTY_ARRAY,
+                ClassNode.EMPTY_ARRAY,new AstBuilder().buildFromCode {
+            return listItems.size()
         }[0])
 
         //processDataHandlerError(data)

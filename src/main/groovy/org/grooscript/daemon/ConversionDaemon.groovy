@@ -44,7 +44,11 @@ class ConversionDaemon {
                     }
                     sleep(REST_TIME)
                 }
-            }
+            }.then({
+                GsConsole.message('Daemon Terminated.')
+            }, { e ->
+                GsConsole.error('Daemon finished cause error: ' + e.message)
+            })
             GsConsole.message('Daemon Started.')
         } else {
             GsConsole.error('Daemon need sourceList and destinationFolder to run.')
@@ -59,7 +63,6 @@ class ConversionDaemon {
         if (actualTask) {
             continueExecution = false
             actualTask.join()
-            GsConsole.message('Daemon Terminated.')
         }
     }
 

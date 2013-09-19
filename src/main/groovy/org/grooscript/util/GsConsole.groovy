@@ -7,7 +7,7 @@ package org.grooscript.util
 class GsConsole {
 
     static error(message) {
-        println "[Grooscript] ERROR - ${message}"
+        println "\u001B[91m[Grooscript] ERROR - ${message}\u001B[0m"
     }
 
     static message(message) {
