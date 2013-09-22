@@ -17,4 +17,5 @@ import java.lang.annotation.Target
 public @interface PhantomJsTest {
     String url ()
     String capture () default ''
+    int waitSeconds () default 0
 }

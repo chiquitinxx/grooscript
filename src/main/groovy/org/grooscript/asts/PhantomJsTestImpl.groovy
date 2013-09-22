@@ -29,6 +29,68 @@ page.onConsoleMessage = function(msg) {
     console.log('CONSOLE: ' + msg);
 };
 
+function evaluateAfterSeconds(seconds) {
+    setTimeout(function() {
+        var result = evaluateTest();
+        console.log('Number of tests: '+result.number);
+        if (result.number > 0) {
+            var i;
+            for (i=0;i<result.tests.length;i++) {
+                console.log('Test ('+i+') Result:'+(result.tests[i].result==true?'OK':'FAIL')+
+                    ' Desc:'+result.tests[i].text);
+            }
+        } else {
+            console.log('0 tests done.');
+        }
+        {{CAPTURE}}
+        phantom.exit();
+    }, seconds * 1000);
+};
+
+function evaluateTest() {
+
+    return page.evaluate(function() {
+
+        var gSresult = { number:0 , tests: [], console: ''};
+        function gSassert(value, text) {
+            var test = { result: value, text: value.toString()}
+            if (arguments.length == 2 && arguments[1]!=null && arguments[1]!=undefined) {
+                test.text = text;
+            }
+            gSresult.tests[gSresult.number++] = test;
+        };
+
+        function gSprintln(value) {
+            console.log(value);
+        };
+
+        function grooKimbo(selector,other) {
+            //return gSlist(window.Kimbo(selector,other));
+            var result = window.Kimbo(selector,other);
+            result.size = function() {
+                return this.length;
+            }
+            return result;
+        }
+        window.$ = grooKimbo;
+
+        //Begin grooscript code
+        {{GROOSCRIPT}}
+
+        try {
+            {{FUNCTION_CALL}}
+        } catch (e) {
+            var message = 'ERROR EXECUTING CODE: ' + e;
+            console.log (message);
+            var test = { result: false, text: message}
+            gSresult.tests[gSresult.number++] = test;
+        };
+        //End  grooscript code
+
+        return gSresult;
+    });
+};
+
 page.open('{{URL}}', function (status) {
     if (status !== 'success') {
         console.log('  Result:FAIL Desc:Fail loading url..');
@@ -36,51 +98,8 @@ page.open('{{URL}}', function (status) {
     } else {
         page.libraryPath = '{{LIBRARY_PATH}}'
         if (page.injectJs('kimbo.min.js') && page.injectJs('grooscript.js')) {
-            //console.log('Evaluating...');
-            var result = page.evaluate(function() {
-
-                var gSresult = { number:0 , tests: [], console: ''};
-                function gSassert(value, text) {
-                    var test = { result: value, text: value.toString()}
-                    if (arguments.length == 2 && arguments[1]!=null && arguments[1]!=undefined) {
-                        test.text = text;
-                    }
-                    gSresult.tests[gSresult.number++] = test;
-                };
-
-                function gSprintln(value) {
-                    console.log(value);
-                };
-
-                function grooKimbo(selector,other) {
-                    //return gSlist(window.Kimbo(selector,other));
-                    var result = window.Kimbo(selector,other);
-                    result.size = function() {
-                        return this.length;
-                    }
-                    return result;
-                }
-                window.$ = grooKimbo;
-
-                //Begin grooscript code
-                {{GROOSCRIPT}}
-                {{FUNCTION_CALL}}
-                //End  grooscript code
-
-                return gSresult;
-            });
-            //console.log('Number of tests: '+result.number);
-            if (result.number > 0) {
-                var i;
-                for (i=0;i<result.tests.length;i++) {
-                    console.log('Test ('+i+') Result:'+(result.tests[i].result==true?'OK':'FAIL')+
-                        ' Desc:'+result.tests[i].text);
-                }
-            } else {
-                console.log('0 tests done.');
-            }
-            {{CAPTURE}}
-            phantom.exit()
+            //console.log('Evaluating code...');
+            evaluateAfterSeconds({{SECONDS}});
         } else {
             console.log(' Result:FAIL Desc:Fail in inject.');
             phantom.exit(1);
@@ -102,6 +121,7 @@ page.open('{{URL}}', function (status) {
         AnnotationNode node = (AnnotationNode) nodes[0]
         String url = node.getMember('url').text
         String capture = node.getMember('capture')?.text
+        int waitSeconds = node.getMember('waitSeconds') ? node.getMember('waitSeconds').value : 0
         String finalText = ''
 
         if (!url) {
@@ -121,6 +141,7 @@ page.open('{{URL}}', function (status) {
                 finalText = phantomJsText
                 finalText = finalText.replace('{{URL}}', url)
                 finalText = finalText.replace('{{GROOSCRIPT}}', jsTest)
+                finalText = finalText.replace('{{SECONDS}}', waitSeconds as String)
 
                 if (capture) {
                     finalText = finalText.replace('{{CAPTURE}}', "console.log('Capturing...');page.render('$capture');\n")

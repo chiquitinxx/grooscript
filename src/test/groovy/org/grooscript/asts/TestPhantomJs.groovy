@@ -139,4 +139,15 @@ class TestPhantomJs extends GroovyTestCase {
             assert e.message == 'Fail loading url... Expression: false'
         }
     }
+
+    @PhantomJsTest(url = 'http://groovy.codehaus.org', waitSeconds = 2)
+    void testWaitSeconds() {
+        assert $('#moto').text().contains('A dynamic language'), "Id=Moto contains 'A dynamic language'"
+    }
+
+    /*
+    @PhantomJsTest(url = 'http://localhost:8080/grooscript-vertx/main/vertxEvents', waitSeconds = 2)
+    void testWaitSeconds() {
+        assert $('#points').html() == '.',"points Html after is ${$('#points').html()}"
+    }*/
 }
