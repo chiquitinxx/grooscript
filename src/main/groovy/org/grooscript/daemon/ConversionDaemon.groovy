@@ -77,19 +77,14 @@ class ConversionDaemon {
             def converter = new GsConverter()
 
             //Set the conversion options
-            def classpath = null
             if (conversionOptions) {
                 conversionOptions.each { String key,value ->
-                    if (key.toUpperCase().contains('CLASSPATH')) {
-                        classpath = value
-                    } else {
-                        converter."${key}" = value
-                    }
+                    converter."${key}" = value
                 }
             }
 
             //Do conversion
-            def jsResult = converter.toJs(source.text, classpath)
+            def jsResult = converter.toJs(source.text)
 
             //Save the js file
             def newFile = new File(destinationFolder + System.getProperty('file.separator') + name + '.js')

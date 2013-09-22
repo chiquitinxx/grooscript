@@ -45,7 +45,7 @@ class ConversionMixin {
         TestJs.jsEval(jsScript)
     }
 
-    boolean checkBuilderCodeAssertsFails(String code, jsResultOnConsole = false, options = [:], classpath = null) {
+    boolean checkBuilderCodeAssertsFails(String code, jsResultOnConsole = false, options = [:]) {
 
         if (options) {
             options.each { key, value ->
@@ -53,7 +53,7 @@ class ConversionMixin {
             }
         }
 
-        String jsScript = converter.toJs(code, classpath)
+        String jsScript = converter.toJs(code)
 
         def builderCode = GrooScript.convert(new File('src/main/groovy/org/grooscript/builder/Builder.groovy').text)
         jsScript = builderCode + jsScript

@@ -324,7 +324,7 @@ class TestDomainClass extends Specification {
     def 'test convert a basic domain class'() {
         given:
         GrooScript.clearAllOptions()
-        GrooScript.setOwnClassPath(['src/test/resources'])
+        GrooScript.setConversionProperty('classPath', ['src/test/resources'])
         GrooScript.setConversionProperty('customization', {
             ast(org.grooscript.asts.DomainClass)
         })

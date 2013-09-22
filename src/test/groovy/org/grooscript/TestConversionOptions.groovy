@@ -8,6 +8,7 @@ import spock.lang.Specification
  */
 class TestConversionOptions extends Specification {
 
+    private static final CLASSPATH_OPTION = 'classPath'
     private static final CONVERT_DEPENDENCIES_OPTION = 'convertDependencies'
     private static final CUSTOMIZATION_OPTION = 'customization'
     private static final FILE_BASIC_NAME = 'BasicClass'
@@ -30,7 +31,7 @@ class TestConversionOptions extends Specification {
 
         given:
         setupNeedDirectory()
-        GrooScript.setOwnClassPath(FOLDER_NEED_DEPENDENCY)
+        GrooScript.setConversionProperty(CLASSPATH_OPTION, FOLDER_NEED_DEPENDENCY)
 
         when: 'convert a class with need dependency'
         String result = GrooScript.convert("class A {};def need = new Need()")
@@ -47,10 +48,9 @@ class TestConversionOptions extends Specification {
 
         given:
         setupNeedDirectory()
-        GrooScript.setOwnClassPath(FOLDER_NEED_DEPENDENCY)
 
         when: 'we dont want dependencies classes in the javascript result, in this case Need class'
-        GrooScript.setOwnClassPath(FOLDER_NEED_DEPENDENCY)
+        GrooScript.setConversionProperty(CLASSPATH_OPTION, FOLDER_NEED_DEPENDENCY)
         GrooScript.setConversionProperty(CONVERT_DEPENDENCIES_OPTION,false)
         String result = GrooScript.convert("class B { ${CLASS_NEED_DEPENDENCY} c}")
 
@@ -65,7 +65,7 @@ class TestConversionOptions extends Specification {
         setupNeedDirectory()
 
         when: 'we set classpath as list'
-        GrooScript.setOwnClassPath([FOLDER_NEED_DEPENDENCY])
+        GrooScript.setConversionProperty(CLASSPATH_OPTION, [FOLDER_NEED_DEPENDENCY])
         String result = GrooScript.convert("class B { def Need c}")
 
         then: 'conversion done'

@@ -10,7 +10,6 @@ import org.grooscript.util.GsConsole
  */
 class GrooScript {
 
-    static ownClassPath
     static debug = false
     static options = [:]
 
@@ -34,7 +33,7 @@ class GrooScript {
      */
     static convert(String text) {
         if (text) {
-            return getNewConverter().toJs(text, ownClassPath)
+            return getNewConverter().toJs(text)
         }
         throw new GrooScriptException('Nothing to Convert.')
     }
@@ -76,15 +75,6 @@ class GrooScript {
         }
     }
 
-    /**
-     * Set the dir where all your groovy starts, the mainSource ( src/main/groovy, src/groovy, ..)
-     * @param dir String or List
-     * @return
-     */
-    static setOwnClassPath(dir) {
-        ownClassPath = dir
-    }
-
     private static fileConvert(File source, File destination) {
         if (debug) {
             GsConsole.debug('    Converting...')
@@ -93,7 +83,7 @@ class GrooScript {
             if (source.isFile() && source.name.endsWith(GROOVY_EXTENSION)) {
                 //println 'Name file->'+source.name
                 def name = source.name.split(/\./)[0]
-                def jsResult = getNewConverter().toJs(source.text, ownClassPath)
+                def jsResult = getNewConverter().toJs(source.text)
 
                 //println 'Result file->'+destination.path+System.getProperty('file.separator')+name+'.js'
                 def newFile = new File("${destination.path}$SEP$name$JS_EXTENSION")
@@ -126,7 +116,6 @@ class GrooScript {
      */
     static clearAllOptions() {
         options = [:]
-        ownClassPath = null
     }
 
     //Only a deamon can be active
@@ -138,7 +127,7 @@ class GrooScript {
      *
      * @param sourceList A list of folders and files to be converted
      * @param destinationFolder Folder where save .js files
-     * @param conversionOptions Map of conversion options [classpath:['xxx/groovy','xxx.jar'], addClassNames: true, ...]
+     * @param conversionOptions Map of conversion options [classPath:['xxx/groovy','xxx.jar'], addClassNames: true, ...]
      * @param doAfter A closure to launch each time daemons ends and convert files. Param is a list of files modified
      */
     static startConversionDaemon(sourceList, destinationFolder, conversionOptions = null, doAfter = null) {

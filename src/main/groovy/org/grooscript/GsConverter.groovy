@@ -51,6 +51,7 @@ class GsConverter {
     //Conversion Options
     def convertDependencies = true
     Closure customization = null
+    def classPath = null
 
     //Constant names for javascript out
     static final GS_OBJECT = 'gSobject'
@@ -88,21 +89,7 @@ class GsConverter {
      * @return String script in javascript
      */
     def toJs(String script) {
-        return toJs(script,null)
-    }
-
-    /**
-     * Converts Groovy script to Javascript
-     * @param String script in groovy
-     * @param String classPath to add to classpath
-     * @return String script in javascript
-     */
-    def toJs(String script,Object classPath) {
         def result
-        //Classpath must be a String or a list
-        if (classPath && !(classPath instanceof String || classPath instanceof Collection)) {
-            throw new Exception('The classpath must be a String or a List')
-        }
         //Script not empty plz!
         def phase = 0
         if (script) {
@@ -115,7 +102,7 @@ class GsConverter {
                     GsConsole.message('Getting ast from code...')
                 }
                 //def AstBuilder asts
-                def list = getAstFromText(script,classPath)
+                def list = getAstFromText(script)
 
                 if (consoleInfo) {
                     GsConsole.message('Processing AST...')
@@ -145,12 +132,12 @@ class GsConverter {
      * @param classpath
      * @return
      */
-    def getAstFromText(text,Object classpath) {
+    def getAstFromText(text) {
 
         if (consoleInfo) {
             GsConsole.message('Converting string code to AST')
             GsConsole.message(' Option convertDependencies: '+convertDependencies)
-            GsConsole.message(' Classpath: '+classpath)
+            GsConsole.message(' Classpath: '+classPath)
         }
         //By default, convertDependencies = true
         //All the imports in a file are added to the source to be compiled, if not added, compiler fails
@@ -166,23 +153,28 @@ class GsConverter {
         def scriptClassName = "script" + System.currentTimeMillis()
         GroovyClassLoader classLoader = new GroovyClassLoader()
         //Add classpath to classloader
-        if (classpath) {
-            if (classpath instanceof Collection) {
-                classpath.each {
+        if (classPath) {
+            //Classpath must be a String or a list
+            if (!(classPath instanceof String || classPath instanceof Collection)) {
+                throw new Exception('The classpath must be a String or a List')
+            }
+
+            if (classPath instanceof Collection) {
+                classPath.each {
                     classLoader.addClasspath(it)
                 }
             } else {
-                classLoader.addClasspath(classpath)
+                classLoader.addClasspath(classPath)
             }
         }
         GroovyCodeSource codeSource = new GroovyCodeSource(text, scriptClassName + ".groovy", "/groovy/script")
         CompilerConfiguration conf = new CompilerConfiguration()
         //Add classpath to configuration
-        if (classpath && classpath instanceof String) {
-            conf.setClasspath(classpath)
+        if (classPath && classPath instanceof String) {
+            conf.setClasspath(classPath)
         }
-        if (classpath && classpath instanceof Collection) {
-            conf.setClasspathList(classpath)
+        if (classPath && classPath instanceof Collection) {
+            conf.setClasspathList(classPath)
         }
         if (customization) {
             withConfig(conf, customization)
