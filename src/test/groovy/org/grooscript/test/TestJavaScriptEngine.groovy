@@ -47,7 +47,7 @@ class TestJavaScriptEngine extends Specification {
 
     def 'function gSassert results'() {
 
-        def map = TestJs.jsEval("gSassert(${value});",null)
+        def map = TestJs.jsEval("gs.assert(${value});",null)
 
         expect:
         map.gSfails == result

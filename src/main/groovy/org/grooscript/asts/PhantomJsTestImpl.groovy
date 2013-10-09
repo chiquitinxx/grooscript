@@ -2,18 +2,13 @@ package org.grooscript.asts
 
 import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.ast.AnnotationNode
-import org.codehaus.groovy.ast.ClassHelper
 import org.codehaus.groovy.ast.MethodNode
 import org.codehaus.groovy.ast.builder.AstBuilder
-import org.codehaus.groovy.ast.expr.ConstantExpression
-import org.codehaus.groovy.ast.stmt.Statement
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.transform.ASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
 import org.grooscript.GsConverter
-
-import java.lang.reflect.Modifier
 
 /**
  * User: jorgefrancoleza
@@ -52,7 +47,7 @@ function evaluateTest() {
     return page.evaluate(function() {
 
         var gSresult = { number:0 , tests: [], console: ''};
-        function gSassert(value, text) {
+        gs.assert =  function(value, text) {
             var test = { result: value, text: value.toString()}
             if (arguments.length == 2 && arguments[1]!=null && arguments[1]!=undefined) {
                 test.text = text;
@@ -60,7 +55,7 @@ function evaluateTest() {
             gSresult.tests[gSresult.number++] = test;
         };
 
-        function gSprintln(value) {
+        gs.println = function(value) {
             console.log(value);
         };
 

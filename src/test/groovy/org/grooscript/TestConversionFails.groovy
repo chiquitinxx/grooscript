@@ -40,5 +40,4 @@ class TestConversionFails extends Specification {
         Exception e = thrown()
         e.message.startsWith 'Compiler END ERROR on Script -Not allowed access metaClass'
     }
-
- }
+}

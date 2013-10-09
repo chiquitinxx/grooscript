@@ -1,27 +1,24 @@
 package org.grooscript
 
-import org.codehaus.groovy.ast.*
-import org.codehaus.groovy.ast.expr.*
-import org.codehaus.groovy.ast.stmt.*
-import org.codehaus.groovy.control.CompilationUnit
 import org.codehaus.groovy.control.CompilePhase
-import org.codehaus.groovy.control.CompilerConfiguration
-import org.grooscript.util.GsConsole
+import org.codehaus.groovy.ast.stmt.*
+import org.codehaus.groovy.ast.expr.*
 import org.grooscript.util.Util
-
+import org.grooscript.util.GsConsole
+import org.codehaus.groovy.ast.*
+import org.codehaus.groovy.control.CompilerConfiguration
+import org.codehaus.groovy.control.CompilationUnit
 import static org.codehaus.groovy.control.customizers.builder.CompilerCustomizationBuilder.withConfig
-import static org.grooscript.JsNames.*
 
 /**
  * JFL 27/08/12
  */
-class GsConverter {
+class OldGsConverter {
 
     //Indent for pretty print
     def indent
     static final TAB = '  '
     String resultScript
-    //Class names stacks
     Stack<String> classNameStack = new Stack<String>()
     Stack<String> superNameStack = new Stack<String>()
     //Use for variable scoping, for class variable names and function names mainly
@@ -46,10 +43,31 @@ class GsConverter {
     def switchCount = 0
     def addClosureSwitchInitialization = false
 
+    //We get this function names from unused_functions.groovy
+    //Not now, changed, maybe in future can use a file for define that
+    def assertFunction
+    def printlnFunction
+
     //Conversion Options
     def convertDependencies = true
     Closure customization = null
     def classPath = null
+
+    //Constant names for javascript out
+    static final GS_OBJECT = 'gSobject'
+
+    /**
+     * Constructor
+     * @return
+     */
+    def OldGsConverter() {
+        initFunctionNames()
+    }
+
+    private initFunctionNames() {
+        assertFunction = 'gSassert'
+        printlnFunction = 'gSprintln'
+    }
 
     private addToActualScope(variableName) {
         if (!actualScope.isEmpty()) {
@@ -455,7 +473,7 @@ class GsConverter {
 
         addScript("${GS_OBJECT}.__defineGetter__('${name}', function(){ return ${translateClassName(classNameStack.peek())}.${name}; });")
         addLine()
-        addScript("${GS_OBJECT}.__defineSetter__('${name}', function(${VALUE}){ ${translateClassName(classNameStack.peek())}.${name} = ${VALUE}; });")
+        addScript("${GS_OBJECT}.__defineSetter__('${name}', function(gSval){ ${translateClassName(classNameStack.peek())}.${name} = gSval; });")
         addLine()
     }
 
@@ -501,7 +519,7 @@ class GsConverter {
     }
 
     private addMixinToClass(className, List<String> listMixins) {
-        addScript("${GS_MIXIN_CLASS}('${className}',")
+        addScript("gSmixinClass('${className}',")
         addScript('[')
         addScript listMixins.collect { "'$it'"}.join(',')
         addScript(']);')
@@ -509,6 +527,8 @@ class GsConverter {
     }
 
     private putGsNativeMethod(String name,MethodNode method) {
+
+        //addScript("${GS_OBJECT}.${method.name} = function(")
         addScript("${name} = function(")
         actualScope.push([])
         processFunctionOrMethodParameters(method,false,false)
@@ -547,13 +567,13 @@ class GsConverter {
             //We add to this class scope variables of fathers
             variableScoping.peek().addAll(inheritedVariables[node.superClass.name])
         } else {
-            addScript("var ${GS_OBJECT} = ${GS_INHERIT}(${GS_BASE_CLASS},'${translateClassName(node.name)}');")
+            addScript("var ${GS_OBJECT} = inherit(gsBaseClass,'${translateClassName(node.name)}');")
         }
         addLine()
-        addScript("${GS_OBJECT}.${CLASS} = { name: '${node.name}', simpleName: '${node.nameWithoutPackage}'};")
+        addScript("${GS_OBJECT}.gSclass = { name: '${node.name}', simpleName: '${node.nameWithoutPackage}'};")
         addLine()
         if (node.superClass) {
-            addScript("${GS_OBJECT}.${CLASS}.superclass = { name: '${node.superClass.name}', simpleName: '${node.superClass.nameWithoutPackage}'};")
+            addScript("${GS_OBJECT}.gSclass.superclass = { name: '${node.superClass.name}', simpleName: '${node.superClass.nameWithoutPackage}'};")
             addLine()
         }
 
@@ -619,7 +639,7 @@ class GsConverter {
 
         }
         if (!has1parameterConstructor) {
-            addScript("${GS_OBJECT}.${translateClassName(node.name)}1 = function(map) { ${GS_PASS_MAP_TO_OBJECT}(map,this); return this;};")
+            addScript("${GS_OBJECT}.${translateClassName(node.name)}1 = function(map) { gSpassMapToObject(map,this); return this;};")
             addLine()
             addScript("if (arguments.length==1) {${GS_OBJECT}.${translateClassName(node.name)}1(arguments[0]); }")
             addLine()
@@ -760,7 +780,7 @@ class GsConverter {
 
         //We add initialization of it inside switch closure function
         if (addClosureSwitchInitialization) {
-            def name = SWITCH_VAR_NAME + (switchCount - 1)
+            def name = 'gSswitch' + (switchCount - 1)
             addScript("if (it === undefined) it = ${name};")
             addLine()
             addClosureSwitchInitialization = false
@@ -768,17 +788,17 @@ class GsConverter {
 
         if (lastParameterCanBeMore) {
             def Parameter lastParameter = functionOrMethod.parameters.last()
-            addScript("if (arguments.length==${functionOrMethod.parameters.size()}) { ${lastParameter.name}=${GS_LIST}([arguments[${functionOrMethod.parameters.size()}-1]]); }")
+            addScript("if (arguments.length==${functionOrMethod.parameters.size()}) { ${lastParameter.name}=gSlist([arguments[${functionOrMethod.parameters.size()}-1]]); }")
             addLine()
-            addScript("if (arguments.length<${functionOrMethod.parameters.size()}) { ${lastParameter.name}=${GS_LIST}([]); }")
+            addScript("if (arguments.length<${functionOrMethod.parameters.size()}) { ${lastParameter.name}=gSlist([]); }")
             addLine()
             addScript("if (arguments.length>${functionOrMethod.parameters.size()}) {")
             addLine()
-            addScript("  ${lastParameter.name}=${GS_LIST}([${lastParameter.name}]);")
+            addScript("  ${lastParameter.name}=gSlist([${lastParameter.name}]);")
             addLine()
-            addScript("  for (${COUNT}=${functionOrMethod.parameters.size()};${COUNT} < arguments.length; ${COUNT}++) {")
+            addScript("  for (gScount=${functionOrMethod.parameters.size()};gScount<arguments.length;gScount++) {")
             addLine()
-            addScript("    ${lastParameter.name}.add(arguments[${COUNT}]);")
+            addScript("    ${lastParameter.name}.add(arguments[gScount]);")
             addLine()
             addScript("  }")
             addLine()
@@ -976,7 +996,7 @@ class GsConverter {
 
     private processAssertStatement(AssertStatement statement) {
         Expression e = statement.booleanExpression
-        addScript(GS_ASSERT)
+        addScript(assertFunction)
         addScript('(')
         visitNode(e)
         if (statement.getMessageExpression() && !(statement.messageExpression instanceof EmptyExpression)) {
@@ -992,10 +1012,10 @@ class GsConverter {
                         expression.expression &&
                         (expression.expression instanceof VariableExpression || expression.expression instanceof PropertyExpression))) {
             if (expression instanceof NotExpression) {
-                addScript("!${GS_BOOL}(")
+                addScript('!gSbool(')
                 visitNode(expression.expression)
             } else {
-                addScript("${GS_BOOL}(")
+                addScript('gSbool(')
                 visitNode(expression)
             }
             addScript(')')
@@ -1101,20 +1121,12 @@ class GsConverter {
         }
     }
 
-    private writeFunctionWithLeftAndRight(functionName, expression) {
-        addScript("${functionName}(")
-        upgradedExpresion(expression.leftExpression)
-        addScript(', ')
-        upgradedExpresion(expression.rightExpression)
-        addScript(')')
-    }
-
     private processBinaryExpression(BinaryExpression expression) {
 
         //println 'Binary->'+expression.text + ' - '+expression.operation.text
         //Getting a range from a list
         if (expression.operation.text=='[' && expression.rightExpression instanceof RangeExpression) {
-            addScript("${GS_RANGE_FROM_LIST}(")
+            addScript('gSrangeFromList(')
             upgradedExpresion(expression.leftExpression)
             addScript(", ")
             visitNode(expression.rightExpression.getFrom())
@@ -1125,14 +1137,14 @@ class GsConverter {
         } else if (expression.operation.text=='<<') {
             //We call add function
             //println 'le->'+ expression.leftExpression
-            addScript("${GS_METHOD_CALL}(")
+            addScript('gSmethodCall(')
             upgradedExpresion(expression.leftExpression)
-            addScript(",'leftShift', ${GS_LIST}([")
+            addScript(',"leftShift", gSlist([')
             upgradedExpresion(expression.rightExpression)
             addScript(']))')
         //Regular Expression exact match all
         } else if (expression.operation.text=='==~') {
-            addScript("${GS_EXACT_MATCH}(")
+            addScript('gSexactMatch(')
             upgradedExpresion(expression.leftExpression)
             addScript(',')
             //If is a regular expresion /fgsg/, comes like a contantExpresion fgsg, we keep /'s for javascript
@@ -1147,7 +1159,7 @@ class GsConverter {
             addScript(')')
         //A matcher of regular expresion
         } else if (expression.operation.text=='=~') {
-            addScript("${GS_REG_EXP}(")
+            addScript('gSregExp(')
             //println 'rx->'+expression.leftExpression
             upgradedExpresion(expression.leftExpression)
             addScript(',')
@@ -1163,40 +1175,67 @@ class GsConverter {
             addScript(')')
         //Equals
         } else if (expression.operation.text=='==') {
-            writeFunctionWithLeftAndRight(GS_EQUALS, expression)
+                addScript('gSequals(')
+                upgradedExpresion(expression.leftExpression)
+                addScript(', ')
+                upgradedExpresion(expression.rightExpression)
+                addScript(')')
         //in
         } else if (expression.operation.text=='in') {
-            writeFunctionWithLeftAndRight(GS_IN, expression)
+            addScript('gSin(')
+            upgradedExpresion(expression.leftExpression)
+            addScript(', ')
+            upgradedExpresion(expression.rightExpression)
+            addScript(')')
         //Spaceship operator <=>
         } else if (expression.operation.text=='<=>') {
-            writeFunctionWithLeftAndRight(GS_SPACE_SHIP, expression)
+            addScript('gSspaceShip(')
+            upgradedExpresion(expression.leftExpression)
+            addScript(', ')
+            upgradedExpresion(expression.rightExpression)
+            addScript(')')
         //instanceof
         } else if (expression.operation.text=='instanceof') {
-            addScript("${GS_INSTANCE_OF}(")
+            addScript('gSinstanceOf(')
             upgradedExpresion(expression.leftExpression)
             addScript(', "')
             upgradedExpresion(expression.rightExpression)
             addScript('")')
         //Multiply
         } else if (expression.operation.text=='*') {
-            writeFunctionWithLeftAndRight(GS_MULTIPLY, expression)
+            addScript('gSmultiply(')
+            upgradedExpresion(expression.leftExpression)
+            addScript(', ')
+            upgradedExpresion(expression.rightExpression)
+            addScript(')')
         //Plus
         } else if (expression.operation.text=='+') {
-            writeFunctionWithLeftAndRight(GS_PLUS, expression)
+            addScript('gSplus(')
+            upgradedExpresion(expression.leftExpression)
+            addScript(', ')
+            upgradedExpresion(expression.rightExpression)
+            addScript(')')
         //Minus
         } else if (expression.operation.text=='-') {
-            writeFunctionWithLeftAndRight(GS_MINUS, expression)
+            addScript('gSminus(')
+            upgradedExpresion(expression.leftExpression)
+            addScript(', ')
+            upgradedExpresion(expression.rightExpression)
+            addScript(')')
         } else {
 
             //Execute setter if available
             if (expression.leftExpression instanceof PropertyExpression &&
                     (expression.operation.text in ['=','+=','-=']) &&
                 !(expression.leftExpression instanceof AttributeExpression)) {
+                    //(expression.leftExpression instanceof PropertyExpression && !expression.leftExpression instanceof AttributeExpression)) {
 
                 PropertyExpression pe = (PropertyExpression)expression.leftExpression
-                addScript("${GS_SET_PROPERTY}(")
+                //println 'pe->'+pe.propertyAsString
+                addScript('gSsetProperty(')
                 upgradedExpresion(pe.objectExpression)
                 addScript(',')
+                //addScript(pe.propertyAsString)
                 upgradedExpresion(pe.property)
                 addScript(',')
                 if (expression.operation.text == '+=') {
@@ -1336,28 +1375,29 @@ class GsConverter {
             def name = superNameStack.peek()
             //println 'processNotExpression name->'+name
             if (name == 'java.lang.Object') {
-                addScript("this.${CONSTRUCTOR}")
+                addScript('this.gSconstructor')
             } else {
                 addScript("this.${name}${expression.arguments.expressions.size()}")
             }
         } else if (expression.type.name=='java.util.Date') {
-            addScript(GS_DATE)
+            addScript('gSdate')
         } else if (expression.type.name=='groovy.util.Expando') {
-            addScript(GS_EXPANDO)
+            addScript('gSexpando')
         } else if (expression.type.name=='java.util.Random') {
-            addScript(GS_RANDOM)
+            addScript('gSrandom')
         } else if (expression.type.name=='java.util.HashSet') {
-            addScript(GS_SET)
-        } else if (expression.type.name=='groovy.lang.ExpandoMetaClass') {
-            addScript(GS_EXPANDO_META_CLASS)
+            addScript('gSset')
         } else if (expression.type.name=='java.lang.StringBuffer') {
-            addScript(GS_STRING_BUFFER)
+            addScript('gSstringBuffer')
         } else {
+            //println 'processConstructorCallExpression->'+ expression.type.name
             if (expression.type.name.startsWith('java.') || expression.type.name.startsWith('groovy.util.')) {
                 throw new Exception('Not support type '+expression.type.name)
             }
             //Constructor have name with number of params on it
+            //addScript("gsCreate${expression.type.name}().${expression.type.name}${expression.arguments.expressions.size()}")
             def name = translateClassName(expression.type.name)
+            //addScript("gsCreate${name}")
             addScript(name)
         }
         visitNode(expression.arguments)
@@ -1415,7 +1455,7 @@ class GsConverter {
                 } else {
 
                     //I had to add variable = ... cause gSmetaClass changing object and sometimes variable don't change
-                    addScript("(${expression.objectExpression.name} = ${GS_META_CLASS}(")
+                    addScript("(${expression.objectExpression.name} = gSmetaClass(")
                     visitNode(expression.objectExpression)
                     addScript('))')
                 }
@@ -1425,20 +1465,22 @@ class GsConverter {
                      expression.objectExpression.type.name.startsWith('groovy.'))) {
                     throw new Exception("Not allowed access metaClass of Groovy or Java types (${expression.objectExpression.type.name})")
                 }
-                addScript("${GS_META_CLASS}(")
+                addScript('gSmetaClass(')
                 visitNode(expression.objectExpression)
                 addScript(')')
             }
         } else if (expression.property instanceof ConstantExpression && expression.property.value == 'class') {
             visitNode(expression.objectExpression)
-            addScript(".${CLASS}")
+            addScript('.gSclass')
         } else {
 
             if (!(expression instanceof AttributeExpression)) {
-                addScript("${GS_GET_PROPERTY}(")
+                //println 'expr->'+expression
+                addScript('gSgetProperty(')
+
                 if (expression.objectExpression instanceof VariableExpression &&
                         expression.objectExpression.name=='this') {
-                    addScript("${GS_THIS_OR_OBJECT}(this,${GS_OBJECT})")
+                    addScript("gSthisOrObject(this,${GS_OBJECT})")
                 } else {
                     processObjectExpressionFromProperty(expression)
                 }
@@ -1447,7 +1489,7 @@ class GsConverter {
 
                 processPropertyExpressionFromProperty(expression)
 
-                //If is a safe expression as item?.data, we add one more parameter
+                //If is a safe expresion as item?.data, we add one more parameter
                 if (expression.isSafe()) {
                     addScript(',true')
                 }
@@ -1471,7 +1513,7 @@ class GsConverter {
 
         //Change println for javascript function
         if (expression.methodAsString == 'println' || expression.methodAsString == 'print') {
-            addScript(GS_PRINTLN)
+            addScript(printlnFunction)
         //Remove call method call from closures
         } else if (expression.methodAsString == 'call') {
             //println 'Calling!->'+expression.objectExpression
@@ -1479,7 +1521,7 @@ class GsConverter {
             if (expression.objectExpression instanceof VariableExpression) {
                 addParameters = false
                 def nameFunc = expression.objectExpression.text
-                addScript("(${nameFunc}.delegate!=undefined?${GS_APPLY_DELEGATE}(${nameFunc},${nameFunc}.delegate,[")
+                addScript("(${nameFunc}.delegate!=undefined?gSapplyDelegate(${nameFunc},${nameFunc}.delegate,[")
                 processArgumentListExpression(expression.arguments,false)
                 addScript("]):${nameFunc}")
                 visitNode(expression.arguments)
@@ -1501,23 +1543,28 @@ class GsConverter {
         } else if (expression.methodAsString == 'with' && expression.arguments instanceof ArgumentListExpression &&
                 expression.arguments.getExpression(0) && expression.arguments.getExpression(0) instanceof ClosureExpression) {
             visitNode(expression.objectExpression)
-            addScript(".${WITH}")
+            addScript(".gSwith")
         //Using Math library
         } else if (expression.objectExpression instanceof ClassExpression && expression.objectExpression.type.name=='java.lang.Math') {
             addScript("Math.${expression.methodAsString}")
         //Adding class.forName
         } else if (expression.objectExpression instanceof ClassExpression && expression.objectExpression.type.name=='java.lang.Class' &&
                 expression.methodAsString=='forName') {
-            addScript("${GS_CLASS_FOR_NAME}(")
+            addScript('gSclassForName(')
+            //println '->'+expression.arguments[0]
             processArgumentListExpression(expression.arguments,false)
             addScript(')')
             addParameters = false
         //this.use {} Categories
         } else if (expression.objectExpression instanceof VariableExpression &&
                 expression.objectExpression.name=='this' && expression.methodAsString == 'use') {
+            //println 'Category going!'
             ArgumentListExpression args = expression.arguments
+            //println 'cat size()->'+args.expressions.size()
+            //println '0->'+ args.expressions[0].type.name
+
             addParameters = false
-            addScript("${GS_CATEGORY_USE}(\"")
+            addScript('gScategoryUse("')
             addScript(translateClassName(args.expressions[0].type.name))
             addScript('",')
             visitNode(args.expressions[1])
@@ -1526,7 +1573,7 @@ class GsConverter {
         } else if (expression.objectExpression instanceof ClassExpression && expression.methodAsString == 'mixin') {
             //println 'Mixin!'
             addParameters = false
-            addScript("${GS_MIXIN_CLASS}('${translateClassName(expression.objectExpression.type.name)}',")
+            addScript("gSmixinClass('${translateClassName(expression.objectExpression.type.name)}',")
             addScript('[')
             ArgumentListExpression args = expression.arguments
             addScript args.expressions.inject ([]) { item,expr->
@@ -1539,7 +1586,7 @@ class GsConverter {
                 expression.objectExpression.property.text == 'metaClass' &&
                 expression.methodAsString == 'mixin') {
             addParameters = false
-            addScript("${GS_MIXIN_OBJECT}(${expression.objectExpression.objectExpression.text},")
+            addScript("gSmixinObject(${expression.objectExpression.objectExpression.text},")
             addScript('[')
             ArgumentListExpression args = expression.arguments
             addScript args.expressions.inject ([]) { item,expr->
@@ -1551,7 +1598,7 @@ class GsConverter {
             //println 'spreadsafe!'
             addParameters = false
             visitNode(expression.objectExpression)
-            addScript(".collect(function(it) { return ${GS_METHOD_CALL}(it,'${expression.methodAsString}',${GS_LIST}([")
+            addScript(".collect(function(it) { return gSmethodCall(it,'${expression.methodAsString}',gSlist([")
             processArgumentListExpression(expression.arguments,false)
             addScript(']));})')
         } else {
@@ -1560,11 +1607,12 @@ class GsConverter {
             //println 'Method->'+expression.methodAsString+' - '+expression.arguments.class.simpleName
             addParameters = false
 
-            addScript("${GS_METHOD_CALL}(")
+            addScript('gSmethodCall(')
             //Object
             if (expression.objectExpression instanceof VariableExpression &&
                     expression.objectExpression.name == 'this' &&
                     variableScoping.peek()?.contains(expression.methodAsString)) {
+                //Remove this and put ${GS_OBJECT} for variable scoping
                 addScript(GS_OBJECT)
             } else {
                 visitNode(expression.objectExpression)
@@ -1574,9 +1622,10 @@ class GsConverter {
             //MethodName
             visitNode(expression.method)
 
+            addScript(',gSlist([')
             //Parameters
-            addScript(",${GS_LIST}([")
             "process${expression.arguments.class.simpleName}"(expression.arguments,false)
+
             addScript(']))')
         }
 
@@ -1585,33 +1634,39 @@ class GsConverter {
         }
     }
 
-    private addPlusPlusFunction(expression, isBefore) {
-
-        //Only in mind ++ and --
-        def plus = true
-        if (expression.operation.text=='--') {
-            plus = false
-        }
-
-        addScript("${GS_PLUS_PLUS}(")
-        processObjectExpressionFromProperty(expression.expression)
-        addScript(',')
-        processPropertyExpressionFromProperty(expression.expression)
-        addScript(",${plus},${isBefore?'true':'false'})")
-    }
-
     private processPostfixExpression(PostfixExpression expression) {
+
         if (expression.expression instanceof PropertyExpression) {
-            addPlusPlusFunction(expression, false)
+
+            //Only in mind ++ and --
+            def plus = true
+            if (expression.operation.text=='--') {
+                plus = false
+            }
+            addScript('gSplusplus(')
+            processObjectExpressionFromProperty(expression.expression)
+            addScript(',')
+            processPropertyExpressionFromProperty(expression.expression)
+            addScript(",${plus},false)")
         } else {
+
             visitNode(expression.expression)
             addScript(expression.operation.text)
+
         }
     }
 
     private processPrefixExpression(PrefixExpression expression) {
         if (expression.expression instanceof PropertyExpression) {
-            addPlusPlusFunction(expression, true)
+            def plus = true
+            if (expression.operation.text=='--') {
+                plus = false
+            }
+            addScript('gSplusplus(')
+            processObjectExpressionFromProperty(expression.expression)
+            addScript(',')
+            processPropertyExpressionFromProperty(expression.expression)
+            addScript(",${plus},true)")
         } else {
             addScript(expression.operation.text)
             visitNode(expression.expression)
@@ -1680,7 +1735,7 @@ class GsConverter {
     }
 
     private processMapExpression(MapExpression expression) {
-        addScript("${GS_MAP}()")
+        addScript('gSmap()')
         expression.mapEntryExpressions?.each { ep ->
             addScript(".add(");
             visitNode(ep.keyExpression)
@@ -1691,7 +1746,9 @@ class GsConverter {
     }
 
     private processListExpression(ListExpression expression) {
-        addScript("${GS_LIST}([")
+        addScript('gSlist([')
+        //println 'List->'+expression
+        //l.each { println it}
         def first = true
         expression?.expressions?.each { it ->
             if (!first) {
@@ -1705,7 +1762,9 @@ class GsConverter {
     }
 
     private processRangeExpression(RangeExpression expression) {
-        addScript("${GS_RANGE}(")
+        addScript('gSrange(')
+
+        //println 'Is inclusive->'+r.isInclusive()
         visitNode(expression.from)
         addScript(", ")
         visitNode(expression.to)
@@ -1716,13 +1775,18 @@ class GsConverter {
     private processForStatement(ForStatement statement) {
 
         if (statement?.variable != ForStatement.FOR_LOOP_DUMMY) {
+            //println 'DUMMY!-'+statement.variable
             //We change this for in...  for a call lo closure each, that works fine in javascript
+            //"process${statement.variable.class.simpleName}"(statement.variable)
+            //addScript ' in '
+
             visitNode(statement?.collectionExpression)
             addScript('.each(function(')
             visitNode(statement.variable)
 
         } else {
             addScript 'for ('
+            //println 'collectionExpression-'+ statement?.collectionExpression.text
             visitNode(statement?.collectionExpression)
         }
         addScript ') {'
@@ -1740,6 +1804,7 @@ class GsConverter {
     }
 
     private processClosureListExpression(ClosureListExpression expression) {
+        //println 'ClosureListExpression-'+expression.text
         boolean first = true
         expression?.expressions?.each { it ->
             if (!first) {
@@ -1813,7 +1878,7 @@ class GsConverter {
 
     private processSwitchStatement(SwitchStatement statement) {
 
-        def varName = SWITCH_VAR_NAME + switchCount++
+        def varName = 'gSswitch' + switchCount++
 
         addScript('var '+varName+' = ')
         visitNode(statement.expression)
@@ -1881,10 +1946,11 @@ class GsConverter {
     }
 
     private processTupleExpression(TupleExpression expression, withParenthesis = true) {
+        //println 'Tuple->'+expression.text
         if (withParenthesis) {
             addScript('(')
         }
-        addScript("${GS_MAP}()")
+        addScript('gSmap()')
         expression.expressions.each {
             visitNode(it)
             if (withParenthesis) {
@@ -1895,6 +1961,7 @@ class GsConverter {
 
     private processNamedArgumentListExpression(NamedArgumentListExpression expression) {
         expression.mapEntryExpressions.eachWithIndex { MapEntryExpression exp,i ->
+            //println 'key->'+ exp.keyExpression
             addScript('.add(')
             visitNode(exp.keyExpression)
             addScript(',')
@@ -1971,18 +2038,25 @@ class GsConverter {
     }
 
     private processStaticMethodCallExpression(StaticMethodCallExpression expression) {
+
+        //println 'SMCE->'+expression.text
         addScript("${expression.ownerType.name}.${expression.method}")
         visitNode(expression.arguments)
     }
 
     private processElvisOperatorExpression(ElvisOperatorExpression expression) {
-        addScript("${GS_ELVIS}(")
+        //println 'Elvis->'+expression.text
+        //println 'true->'+expression.trueExpression
+        //println 'false->'+expression.falseExpression
+
+        addScript('gSelvis(')
         visitNode(expression.booleanExpression)
         addScript(' , ')
         visitNode(expression.trueExpression)
         addScript(' , ')
         visitNode(expression.falseExpression)
         addScript(')')
+
     }
 
     private processAttributeExpression(AttributeExpression expression) {
@@ -1991,7 +2065,7 @@ class GsConverter {
 
     private processCastExpression(CastExpression expression) {
         if (expression.type.nameWithoutPackage == 'Set' && expression.expression instanceof ListExpression) {
-            addScript("${GS_SET}(")
+            addScript('gSset(')
             visitNode(expression.expression)
             addScript(')')
         } else {
@@ -2000,6 +2074,9 @@ class GsConverter {
     }
 
     private processMethodPointerExpression(MethodPointerExpression expression) {
+        //println 'Exp-'+expression.expression
+        //println 'dynamic-'+expression.dynamic
+        //println 'methodName-'+expression.methodName
         visitNode(expression.expression)
         addScript('[')
         visitNode(expression.methodName)
@@ -2007,13 +2084,15 @@ class GsConverter {
     }
 
     private processSpreadExpression(SpreadExpression expression) {
-        addScript("new ${GS_SPREAD}(")
+        //println 'exp-'+expression
+        addScript('new GSspread(')
         visitNode(expression.expression)
         addScript(')')
     }
 
     private processSpreadMapExpression(SpreadMapExpression expression) {
-        addScript("'${SPREAD_MAP}'")
+        //println 'Map exp-'+expression.text
+        addScript('"gSspreadMap"')
     }
 
     private processEmptyExpression(EmptyExpression expression) {
