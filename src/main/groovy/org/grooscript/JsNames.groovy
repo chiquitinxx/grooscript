@@ -58,4 +58,5 @@ class JsNames {
     static final GS_MIXIN_OBJECT = "${GS}mixinObject"
     static final GS_PLUS_PLUS = "${GS}plusPlus"
     static final GS_SPREAD = "${GS}spread"
+    static final GS_FIND_SCOPE = "${GS}fs"
 }

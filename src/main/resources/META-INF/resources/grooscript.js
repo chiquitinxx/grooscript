@@ -19,8 +19,10 @@ var gSconsole = "";
         root.gs = gs;
     }
 
+    //Fails
+    gs.fails = false;
     //If true and console is available, all output will go through console
-    var consoleOutput = false;
+    gs.consoleOutput = false;
     //If true and console is available, some methods will show info on console
     var consoleInfo = false;
 
@@ -42,6 +44,7 @@ var gSconsole = "";
     gs.assert = function(value) {
         if(value==false) {
             gSfails = true;
+            gs.fails = true;
             var message = 'Assert Fails! - ';
             if (arguments.length == 2 && arguments[1]!=null) {
                 message = arguments[1] + ' - ';
@@ -52,7 +55,7 @@ var gSconsole = "";
 
     //Function that used for print and println in groovy
     gs.println = function(value) {
-        if (consoleOutput && console) {
+        if (gs.consoleOutput && console) {
             console.log(value);
         } else {
             if (gSconsole != "") {
@@ -2284,6 +2287,16 @@ var gSconsole = "";
         return function () {
             return that.apply(null, (slice.apply(arguments)).concat(args));
         };
+    };
+
+    //MISC
+    gs.fs = function(name, thisScope) {
+        if (thisScope != undefined && thisScope[name] != undefined) {
+            return thisScope[name];
+        } else {
+            var func = new Function("return "+name)
+            return func();
+        }
     };
 
 }).call(this);

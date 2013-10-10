@@ -1038,9 +1038,7 @@ class GsConverter {
             }
         } else {
 
-            //actualScope.add(expression.variableExpression.name)
             addToActualScope(expression.variableExpression.name)
-            //variableScoping.add(expression.variableExpression.name)
 
             addScript('var ')
             processVariableExpression(expression.variableExpression)
@@ -1070,14 +1068,16 @@ class GsConverter {
     }
 
     private variableScopingContains(variableName) {
-        //println 'vs('+variableName+')->'+fuckStack(variableScoping,variableName) //variableScoping.peek()?.contains(variableName) //variableScoping.search(variableName)
-        //println 'actualScope->'+actualScope
         tourStack(variableScoping,variableName)
     }
 
     private allActualScopeContains(variableName) {
-        //println 'as('+variableName+')->'+fuckStack(actualScope,variableName) //variableScoping.peek()?.contains(variableName) //variableScoping.search(variableName)
         tourStack(actualScope,variableName)
+    }
+
+    private boolean isVariableWithMissingScope(VariableExpression expression) {
+        !expression.isThisExpression() && !allActualScopeContains(expression.name) &&
+            !variableScopingContains(expression.name) && (processingClosure || processingClassMethods)
     }
 
     private processVariableExpression(VariableExpression expression) {
@@ -1088,13 +1088,8 @@ class GsConverter {
         } else if (variableStaticScoping.peek().contains(expression.name) && !(actualScopeContains(expression.name))) {
             addScript(translateClassName(classNameStack.peek())+'.'+expression.name)
         } else {
-            if (!expression.isThisExpression()
-                    && !allActualScopeContains(expression.name) && !variableScopingContains(expression.name)) {
-                if (processingClosure || processingClassMethods) {
-                    addScript("this.${expression.name}")
-                } else {
-                    addScript(expression.name)
-                }
+            if (isVariableWithMissingScope(expression)) {
+                addScript("${GS_FIND_SCOPE}('${expression.name}', this)")
             } else {
                 addScript(expression.name)
             }
@@ -1597,11 +1592,12 @@ class GsConverter {
         processObjectExpressionFromProperty(expression.expression)
         addScript(',')
         processPropertyExpressionFromProperty(expression.expression)
+
         addScript(",${plus},${isBefore?'true':'false'})")
     }
 
     private processPostfixExpression(PostfixExpression expression) {
-        if (expression.expression instanceof PropertyExpression) {
+        if (expression.operation.text in ['++','--'] && expression.expression instanceof PropertyExpression) {
             addPlusPlusFunction(expression, false)
         } else {
             visitNode(expression.expression)
@@ -1926,10 +1922,10 @@ class GsConverter {
         //visitType node.superClass
 
         //Fields
-        def numero = 1
+        def number = 1
         node?.fields?.each { it->
             if (!['MIN_VALUE','MAX_VALUE','$VALUES'].contains(it.name)) {
-                addScript("${it.name} : ${numero++},")
+                addScript("${it.name} : ${number++},")
                 addLine()
                 variableScoping.peek().add(it.name)
             }
