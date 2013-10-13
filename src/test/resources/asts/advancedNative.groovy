@@ -10,7 +10,7 @@ def a = 0
 class Foo {
     public void methodA(){
         println 'methodA'
-        a = a + 1
+        a = a + 1 //TODO fails with a++
     }
 
     @GsNative

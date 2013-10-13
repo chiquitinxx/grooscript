@@ -1,5 +1,7 @@
 package org.grooscript
 
+import org.grooscript.convert.GsConverter
+
 import static org.grooscript.util.Util.*
 import org.grooscript.util.GrooScriptException
 import org.grooscript.daemon.ConversionDaemon

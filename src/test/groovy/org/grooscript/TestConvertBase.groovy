@@ -1,5 +1,6 @@
 package org.grooscript
 
+import org.grooscript.convert.GsConverter
 import spock.lang.Specification
 import org.grooscript.util.Util
 
