@@ -118,12 +118,12 @@ class TestPhantomJs extends GroovyTestCase {
 
     @PhantomJsTest(url = 'http://groovy.codehaus.org')
     void testExpectedElements(element, expectedSize) {
-        assert $(element).size == expectedSize,"Number of '${element}' in page is ${$(element).size()}"
+        assert $(element).size > expectedSize,"Number of '${element}' in page is ${$(element).size()}"
     }
 
     void testPassParameters() {
-        testExpectedElements('a', 69)
-        testExpectedElements('div', 90)
+        testExpectedElements('a', 65)
+        testExpectedElements('div', 85)
     }
 
     @PhantomJsTest(url = 'http://mockmockmock.mock')

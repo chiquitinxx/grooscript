@@ -29,6 +29,10 @@ page.onConsoleMessage = function(msg) {
     console.log('CONSOLE: ' + msg);
 };
 
+page.onError = function(msg, trace) {
+    console.error('ONERROR: ' + msg);
+};
+
 function evaluateAfterSeconds(seconds) {
     setTimeout(function() {
         var result = evaluateTest();
@@ -53,7 +57,7 @@ function evaluateTest() {
 
         var gSresult = { number:0 , tests: [], console: ''};
         function gSassert(value, text) {
-            var test = { result: value, text: value.toString()}
+            var test = { result: value, text: value.toString()};
             if (arguments.length == 2 && arguments[1]!=null && arguments[1]!=undefined) {
                 test.text = text;
             }
@@ -65,7 +69,6 @@ function evaluateTest() {
         };
 
         function grooKimbo(selector,other) {
-            //return gSlist(window.Kimbo(selector,other));
             var result = window.Kimbo(selector,other);
             result.size = function() {
                 return this.length;
@@ -74,7 +77,6 @@ function evaluateTest() {
         }
         window.$ = grooKimbo;
 
-        //Begin grooscript code
         {{GROOSCRIPT}}
 
         try {
@@ -82,10 +84,9 @@ function evaluateTest() {
         } catch (e) {
             var message = 'ERROR EXECUTING CODE: ' + e;
             console.log (message);
-            var test = { result: false, text: message}
+            var test = { result: false, text: message};
             gSresult.tests[gSresult.number++] = test;
         };
-        //End  grooscript code
 
         return gSresult;
     });
@@ -171,10 +172,12 @@ page.open('{{URL}}', function (status) {
                 assert false, 'PhantomJs Error: '+errorMessage
             }
             def jsHome = System.getProperty('JS_LIBRARIES_PATH')
+            def sysOp = System.getProperty("os.name")
             if (!System.getProperty('JS_LIBRARIES_PATH')) {
 
                 try {
                     def userHome = System.getProperty('user.home')
+
                     if (userHome) {
                         def version = Class.forName('org.grooscript.GsConverter').package.implementationVersion
 
@@ -211,25 +214,32 @@ page.open('{{URL}}', function (status) {
             try {
                 //Save the file
                 def finalText = \'\'\''''+ finalText +'''\'\'\'
+
+                if (sysOp && sysOp.toUpperCase().contains('WINDOWS')) {
+                    jsHome = jsHome.replace("\\\\",'/')
+                    jsHome = (jsHome.indexOf(':')==1?jsHome.substring(2):jsHome)
+                }
+
                 finalText = finalText.replace('{{LIBRARY_PATH}}', jsHome)
                 def gJump = '"'
                 def parametersText = '''+ parametersText +'''
                 //println 'Parameters: '+parametersText
                 finalText = finalText.replace('{{FUNCTION_CALL}}', \'''' + method.name + '''(' + parametersText + ');\')
-                //println '*********************'
-                //println finalText
-                //println '*********************'
                 new File(nameFile).text = finalText
 
                 //Execute PhantomJs
-                String command = phantomJsHome + "/bin/phantomjs " + nameFile
+                String command = phantomJsHome
+                if (sysOp && sysOp.toUpperCase().contains('WINDOWS')) {
+                    command += "${File.separator}phantomjs.exe " + nameFile
+                } else {
+                    command += "${File.separator}bin${File.separator}phantomjs " + nameFile
+                }
                 def proc = command.execute()
                 proc.waitForOrKill(10000L)
                 def exit = proc.in.text
                 if (!exit) {
                     println 'Error executing command: '+command
-                    println 'return code: ' + proc.exitValue()
-                    println 'stderr: ' + proc.err.text
+                    println 'return code: ' + proc.exitValue() + ' stderr: ' + proc.err.text
                     assert false, 'Error launching PhantomJs'
                 } else {
                     exit.eachLine { String line->
@@ -248,7 +258,7 @@ page.open('{{URL}}', function (status) {
                 println 'Assert error in PhantomJs test.'
                 throw ae
             } catch (e) {
-                println 'Error PhantomJs Test ->'+e.message
+                println 'Exception PhantomJs Test ->'+e.message
                 if (e.message && e.message.startsWith('Cannot run program')) {
                     assert false,"Don't find PhantomJs: " + e.message
                 } else {
@@ -256,6 +266,7 @@ page.open('{{URL}}', function (status) {
                 }
             } finally {
                 File file = new File(nameFile)
+                //new File('out.js').text = file.text
                 if (file && file.exists()) {
                     file.delete()
                 }
