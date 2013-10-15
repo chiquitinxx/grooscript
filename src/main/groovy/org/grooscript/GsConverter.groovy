@@ -99,20 +99,20 @@ class GsConverter {
                 nativeFunctions = Util.getNativeFunctions(script)
 
                 if (consoleInfo) {
-                    GsConsole.message('Getting ast from code...')
+                    GsConsole.info('Getting ast from code...')
                 }
                 //def AstBuilder asts
                 def list = getAstFromText(script)
 
                 if (consoleInfo) {
-                    GsConsole.message('Processing AST...')
+                    GsConsole.info('Processing AST...')
                 }
 
                 phase++
                 result = processAstListToJs(list)
 
                 if (consoleInfo) {
-                    GsConsole.message('Code processed.')
+                    GsConsole.info('Code processed.')
                 }
             } catch (e) {
                 GsConsole.error('Error getting AST from script: '+e.message)
@@ -135,9 +135,9 @@ class GsConverter {
     def getAstFromText(text) {
 
         if (consoleInfo) {
-            GsConsole.message('Converting string code to AST')
-            GsConsole.message(' Option convertDependencies: '+convertDependencies)
-            GsConsole.message(' Classpath: '+classPath)
+            GsConsole.info('Converting string code to AST')
+            GsConsole.info(' Option convertDependencies: '+convertDependencies)
+            GsConsole.info(' Classpath: '+classPath)
         }
         //By default, convertDependencies = true
         //All the imports in a file are added to the source to be compiled, if not added, compiler fails
@@ -217,7 +217,7 @@ class GsConverter {
             acc
         }
         if (consoleInfo) {
-            GsConsole.message('Done converting string code to AST. Number of nodes: '+list.size())
+            GsConsole.info('Done converting string code to AST. Number of nodes: '+list.size())
         }
         return list
     }
@@ -279,18 +279,18 @@ class GsConverter {
             //Process list of classes
             if (classList) {
                 if (consoleInfo) {
-                    GsConsole.message('Processing class list...')
+                    GsConsole.info('Processing class list...')
                 }
                 processClassList(classList)
                 if (consoleInfo) {
-                    GsConsole.message('Done class list.')
+                    GsConsole.info('Done class list.')
                 }
             }
 
             //Process list of methods
             methodList?.each { MethodNode methodNode ->
                 if (consoleInfo) {
-                    GsConsole.message('Processing method '+methodNode.name)
+                    GsConsole.info('Processing method '+methodNode.name)
                 }
                 //processMethodNode(methodNode)
                 processBasicFunction("var ${methodNode.name}",methodNode,false)
@@ -350,13 +350,13 @@ class GsConverter {
         //Finally process classes in order
         finalList.each { String nameClass ->
             if (consoleInfo) {
-                GsConsole.message('  Processing class '+nameClass)
+                GsConsole.info('  Processing class '+nameClass)
             }
             processClassNode(list.find { ClassNode it ->
                 return it.name == nameClass
             })
             if (consoleInfo) {
-                GsConsole.message('  Processing class done.')
+                GsConsole.info('  Processing class done.')
             }
         }
         //Expandos - Nothing to do!
@@ -578,7 +578,7 @@ class GsConverter {
         }
 
         if (consoleInfo) {
-            GsConsole.message("   Processing class ${node.name}, step 1")
+            GsConsole.info("   Processing class ${node.name}, step 1")
         }
 
         //Adding initial values of properties
@@ -607,7 +607,7 @@ class GsConverter {
         }
 
         if (consoleInfo) {
-            GsConsole.message("   Processing class ${node.name}, step 2")
+            GsConsole.info("   Processing class ${node.name}, step 2")
         }
 
         //Save variables from this class for use in 'son' classes
@@ -618,7 +618,7 @@ class GsConverter {
         processClassMethods(node?.methods, node.nameWithoutPackage)
 
         if (consoleInfo) {
-            GsConsole.message("   Processing class ${node.name}, step 3")
+            GsConsole.info("   Processing class ${node.name}, step 3")
         }
 
         //Constructors
@@ -655,7 +655,7 @@ class GsConverter {
         addLine()
 
         if (consoleInfo) {
-            GsConsole.message("   Processing class ${node.name}, step 4")
+            GsConsole.info("   Processing class ${node.name}, step 4")
         }
 
         //Static methods
@@ -689,7 +689,7 @@ class GsConverter {
 
         //Finish class conversion
         if (consoleInfo) {
-            GsConsole.message("   Processing class ${node.name}, Done.")
+            GsConsole.info("   Processing class ${node.name}, Done.")
         }
     }
 

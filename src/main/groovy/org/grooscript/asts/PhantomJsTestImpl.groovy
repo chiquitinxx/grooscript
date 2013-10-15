@@ -2,18 +2,16 @@ package org.grooscript.asts
 
 import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.ast.AnnotationNode
-import org.codehaus.groovy.ast.ClassHelper
 import org.codehaus.groovy.ast.MethodNode
 import org.codehaus.groovy.ast.builder.AstBuilder
-import org.codehaus.groovy.ast.expr.ConstantExpression
-import org.codehaus.groovy.ast.stmt.Statement
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.transform.ASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
+import org.grooscript.GrooScript
 import org.grooscript.GsConverter
 
-import java.lang.reflect.Modifier
+import static org.grooscript.util.GsConsole.*
 
 /**
  * User: jorgefrancoleza
@@ -21,6 +19,10 @@ import java.lang.reflect.Modifier
  */
 @GroovyASTTransformation(phase=CompilePhase.SEMANTIC_ANALYSIS)
 public class PhantomJsTestImpl implements ASTTransformation {
+
+    static final MAX_TIME_WAITING = 10000L
+    static final HEAD = '[PhantomJs Test]'
+    static final CONSOLE = '  [Console]'
 
     static final phantomJsText = '''
 var page = require('webpage').create();
@@ -151,130 +153,143 @@ page.open('{{URL}}', function (status) {
                 }
             }
         }
+        //(org.grooscript.asts.PhantomJsTestImpl).
+        def textCode = "def listParams = [];\n${method.parameters.collect { "listParams << ${it.name}"}.join(';')};\n" +
+                "Class.forName('org.grooscript.asts.PhantomJsTestImpl').doPhantomJsTest('${url}', " +
+                "\'\'\'"+ finalText +"\'\'\', '${method.name?:''}', listParams, " +
+                "'${messageError?:''}'); return null"
+        method.declaringClass
+        method.setCode new AstBuilder().buildFromString(CompilePhase.CLASS_GENERATION , textCode)
+    }
 
-        def parametersText
-        def listParams = []
+    static String getJsLibrariesPath() {
 
-        if (method.parameters) {
-            parametersText = ''
-            method.parameters?.each { param ->
-                listParams << "(${param.name} instanceof String ? gJump + ${param.name} + gJump:${param.name})"
-            }
-            parametersText += listParams.join(' + \', \' + ')
-        } else {
-            parametersText = "\"\""
-        }
+        String jsHome = System.getProperty('JS_LIBRARIES_PATH')
+        if (!System.getProperty('JS_LIBRARIES_PATH')) {
 
-        def textCode = '''
-            def marker = new Throwable()
-            def errorMessage = "''' + (messageError ?: '') + '''"
-            if (errorMessage) {
-                assert false, 'PhantomJs Error: '+errorMessage
-            }
-            def jsHome = System.getProperty('JS_LIBRARIES_PATH')
-            def sysOp = System.getProperty("os.name")
-            if (!System.getProperty('JS_LIBRARIES_PATH')) {
+            try {
+                def userHome = System.getProperty('user.home')
 
-                try {
-                    def userHome = System.getProperty('user.home')
+                if (userHome) {
+                    def version = Class.forName('org.grooscript.GsConverter').package.implementationVersion
 
-                    if (userHome) {
-                        def version = Class.forName('org.grooscript.GsConverter').package.implementationVersion
-
-                        def path = userHome + File.separator + '.grooscript' + (version ? File.separator + version : '')
-                        def folder = new File(path)
-                        if (folder.exists()) {
-                            println 'Using js local files in ' + path
-                        } else {
-                            folder.mkdirs()
-                            ['grooscript.js','kimbo.min.js'].each { fileName ->
-                                new File(path + File.separator + fileName).text =
-                                    this.class.classLoader.getResourceAsStream('META-INF/resources/' + fileName).text
-                            }
-                        }
-                        jsHome = path
+                    def path = userHome + File.separator + '.grooscript' + (version ? File.separator + version : '')
+                    def folder = new File(path)
+                    if (folder.exists()) {
+                        message 'Using js local files in ' + path, HEAD
                     } else {
-                        println "Error looking for js files: missing System.getProperty('user.home')"
+                        folder.mkdirs()
+                        ['grooscript.js','kimbo.min.js'].each { fileName ->
+                            new File(path + File.separator + fileName).text =
+                                GrooScript.classLoader.getResourceAsStream('META-INF/resources/' + fileName).text
+                        }
                     }
-                } catch (e) {
-                    println "Error looking for js files: " + e.message
+                    jsHome = path
+                } else {
+                    error "Error looking for js files: missing System.getProperty('user.home')", HEAD
                 }
-                if (!jsHome) {
-                    assert false, 'Need define property JS_LIBRARIES_PATH, folder with grooscript.js and kimbo.min.js'
-                }
+            } catch (e) {
+                exception "Error looking for js files: ${e.message}", HEAD
             }
+            if (!jsHome) {
+                assert false, 'Need define property JS_LIBRARIES_PATH, folder with grooscript.js and kimbo.min.js'
+            }
+        }
+        return jsHome
+    }
+
+    static void doPhantomJsTest(String url, String testCode, String methodName,
+                                List parameters = null, String messageError = null) {
+        def nameFile = 'phantomjs.js'
+        try {
+            if (messageError) {
+                assert false, 'PhantomJs Initial Error: ' + messageError
+            }
+            def sysOp = System.getProperty("os.name")
+            def jsHome = org.grooscript.asts.PhantomJsTestImpl.getJsLibrariesPath()
             def phantomJsHome
             if (!System.getProperty('PHANTOMJS_HOME') && !System.getenv('PHANTOMJS_HOME')) {
                 assert false, 'Need define PHANTOMJS_HOME as property or environment variable; the PhantomJs folder'
             } else {
                 phantomJsHome = System.getProperty('PHANTOMJS_HOME') ?: System.getenv('PHANTOMJS_HOME')
             }
-            println 'Starting PhantomJs test in ''' + url + '''\'
-            def nameFile = 'phantomjs.js'
-            try {
-                //Save the file
-                def finalText = \'\'\''''+ finalText +'''\'\'\'
+            message "Starting Test in ${url}", HEAD
 
-                if (sysOp && sysOp.toUpperCase().contains('WINDOWS')) {
-                    jsHome = jsHome.replace("\\\\",'/')
-                    jsHome = (jsHome.indexOf(':')==1?jsHome.substring(2):jsHome)
-                }
+            //Save the file
+            def finalText = testCode
 
-                finalText = finalText.replace('{{LIBRARY_PATH}}', jsHome)
-                def gJump = '"'
-                def parametersText = '''+ parametersText +'''
-                //println 'Parameters: '+parametersText
-                finalText = finalText.replace('{{FUNCTION_CALL}}', \'''' + method.name + '''(' + parametersText + ');\')
-                new File(nameFile).text = finalText
+            if (sysOp && sysOp.toUpperCase().contains('WINDOWS')) {
+                jsHome = jsHome.replace("\\",'/')
+                jsHome = (jsHome.indexOf(':') == 1 ? jsHome.substring(2) : jsHome)
+            }
 
-                //Execute PhantomJs
-                String command = phantomJsHome
-                if (sysOp && sysOp.toUpperCase().contains('WINDOWS')) {
-                    command += "${File.separator}phantomjs.exe " + nameFile
-                } else {
-                    command += "${File.separator}bin${File.separator}phantomjs " + nameFile
-                }
-                def proc = command.execute()
-                proc.waitForOrKill(10000L)
-                def exit = proc.in.text
-                if (!exit) {
-                    println 'Error executing command: '+command
-                    println 'return code: ' + proc.exitValue() + ' stderr: ' + proc.err.text
-                    assert false, 'Error launching PhantomJs'
-                } else {
-                    exit.eachLine { String line->
-                        if (line.contains('Result:FAIL')) {
-                            assert false,line.substring(line.indexOf(' Desc:')+6)
-                        } else if (line.startsWith('Console:')) {
-                            println line.substring(8)
-                        } else if (line.contains('Result:OK')) {
-                            assert true,line.substring(line.indexOf(' Desc:')+6)
-                        } else {
-                            println line
-                        }
+            finalText = finalText.replace('{{LIBRARY_PATH}}', jsHome)
+            finalText = finalText.replace('{{FUNCTION_CALL}}', "${methodName}(${getParametersText(parameters)});")
+            new File(nameFile).text = finalText
+
+            //println '*********************** FINAL '
+            //println finalText
+            //println '*********************** FINAL '
+
+            //Execute PhantomJs
+            String command = phantomJsHome
+            if (sysOp && sysOp.toUpperCase().contains('WINDOWS')) {
+                command += "${File.separator}phantomjs.exe " + nameFile
+            } else {
+                command += "${File.separator}bin${File.separator}phantomjs " + nameFile
+            }
+            def proc = command.execute()
+            proc.waitForOrKill(MAX_TIME_WAITING)
+            def exit = proc.in.text
+            if (!exit) {
+                error 'Error executing command: '+command, HEAD
+                message '  return code: ' + proc.exitValue() + ' stderr: ' + proc.err.text, HEAD
+                assert false, 'Error launching PhantomJs'
+            } else {
+                exit.eachLine { String line->
+                    if (line.contains('Result:FAIL')) {
+                        assert false,line.substring(line.indexOf(' Desc:')+6)
+                    } else if (line.toUpperCase().startsWith('CONSOLE:')) {
+                        message line.substring(8), CONSOLE
+                    } else if (line.contains('Result:OK')) {
+                        assert true,line.substring(line.indexOf(' Desc:')+6)
+                    } else {
+                        message line, HEAD
                     }
                 }
-            } catch (AssertionError ae) {
-                println 'Assert error in PhantomJs test.'
-                throw ae
-            } catch (e) {
-                println 'Exception PhantomJs Test ->'+e.message
-                if (e.message && e.message.startsWith('Cannot run program')) {
-                    assert false,"Don't find PhantomJs: " + e.message
-                } else {
-                    assert false,'Error executing PhantomJs: ' + e.message
-                }
-            } finally {
-                File file = new File(nameFile)
-                //new File('out.js').text = file.text
-                if (file && file.exists()) {
-                    file.delete()
-                }
             }
-            println 'PhantomJs test finished.'
-            return null
-        '''
+            message "Result \u001B[91mSUCCESS\u001B[0m.", HEAD
+        } catch (AssertionError ae) {
+            message "Assert error. \u001B[91mFAIL\u001B[0m.", HEAD
+            message "  ${ae.message}", HEAD
+            throw ae
+        } catch (e) {
+            exception e.message, HEAD
+            if (e.message && e.message.startsWith('Cannot run program')) {
+                assert false,"Don't find PhantomJs: ${e.message}"
+            } else {
+                assert false,'Error executing PhantomJs: ' + e.message
+            }
+        } finally {
+            File file = new File(nameFile)
+            //new File('out.js').text = file.text
+            if (file && file.exists()) {
+                file.delete()
+            }
+        }
+    }
 
-        method.setCode new AstBuilder().buildFromString(CompilePhase.CLASS_GENERATION , textCode)
+    static String getParametersText(List parameters) {
+        def parametersText = ''
+        if (parameters) {
+            parametersText = parameters.collect { value ->
+                if (value instanceof String) {
+                    return '"' + value + '"'
+                } else {
+                    return value as String
+                }
+            }.join(',')
+        }
+        return parametersText
     }
 }
