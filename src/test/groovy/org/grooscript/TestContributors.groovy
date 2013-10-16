@@ -56,7 +56,6 @@ class TestContributors extends Specification {
         'contribution/Anonymous0'  | 'FizzBuzz\n91'
         'contribution/Anonymous1'  | 'fizzbuzz\n91'
         'contribution/Anonymous2'  | 'fizZbuzZ\n16'
-
     }
 
     def 'bugs coming from monkfish'() {
@@ -72,6 +71,7 @@ class TestContributors extends Specification {
     def 'testing more web' () {
         expect:
         !readAndConvert('contribution/Anonymous3').assertFails
+        !readAndConvert('contribution/Anonymous4').assertFails
     }
 
     def 'testing mario extends'() {
