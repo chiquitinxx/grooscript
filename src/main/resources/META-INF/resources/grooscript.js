@@ -1257,16 +1257,21 @@ function gSflatten (result, list) {
 }
 
 /////////////////////////////////////////////////////////////////
-//gSrange - [x..y] from groovy
-//Only works with numbers atm
+//gSrange - (x..y) from groovy
 /////////////////////////////////////////////////////////////////
 function gSrange(begin,end,inclusive) {
     var start = begin;
     var finish = end;
+    var areChars = (typeof(begin) == 'string');
+    if (areChars) {
+        start = start.charCodeAt(0);
+        finish = finish.charCodeAt(0);
+    }
     var reverse = false;
-    if (finish<start) {
+    if (finish < start) {
+        var oldStart = start;
         start = finish;
-        finish = begin;
+        finish = oldStart;
         reverse = true;
         if (!inclusive) {
             start = start + 1;
@@ -1279,10 +1284,14 @@ function gSrange(begin,end,inclusive) {
 
     var result,number,count;
     for (result=[], number=start, count=0 ; number<=finish ; number++,count++) {
-        result[count] = number;
+        if (areChars) {
+            result[count] = String.fromCharCode(number);
+        } else {
+            result[count] = number;
+        }
     }
     if (reverse) {
-        result = result.reverse()
+        result = result.reverse();
     }
     var object = gSlist(result);
     object.toList = function() {

@@ -161,4 +161,9 @@ class TestAdvanced extends Specification {
         expect:
         !readAndConvert('advanced/MixinAst').assertFails
     }
+
+    def 'ranges of chars'() {
+        expect:
+        !readAndConvert('advanced/RangeChars').assertFails
+    }
 }
