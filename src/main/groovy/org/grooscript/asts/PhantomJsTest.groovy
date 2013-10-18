@@ -18,4 +18,5 @@ public @interface PhantomJsTest {
     String url ()
     String capture () default ''
     int waitSeconds () default 0
+    boolean withDebug () default false
 }

@@ -125,6 +125,7 @@ page.open('{{URL}}', function (status) {
         String url = node.getMember('url').text
         String capture = node.getMember('capture')?.text
         int waitSeconds = node.getMember('waitSeconds') ? node.getMember('waitSeconds').value : 0
+        boolean withDebug = node.getMember('withDebug')
         String finalText = ''
 
         if (!url) {
@@ -157,7 +158,7 @@ page.open('{{URL}}', function (status) {
         def textCode = "def listParams = [];\n${method.parameters.collect { "listParams << ${it.name}"}.join(';')};\n" +
                 "Class.forName('org.grooscript.asts.PhantomJsTestImpl').doPhantomJsTest('${url}', " +
                 "\'\'\'"+ finalText +"\'\'\', '${method.name?:''}', listParams, " +
-                "'${messageError?:''}'); return null"
+                "'${messageError?:''}', ${withDebug}); return null"
         method.declaringClass
         method.setCode new AstBuilder().buildFromString(CompilePhase.CLASS_GENERATION , textCode)
     }
@@ -199,13 +200,12 @@ page.open('{{URL}}', function (status) {
     }
 
     static void doPhantomJsTest(String url, String testCode, String methodName,
-                                List parameters = null, String messageError = null) {
+                                List parameters = null, String messageError = null, boolean withDebug = false) {
         def nameFile = 'phantomjs.js'
         try {
             if (messageError) {
                 assert false, 'PhantomJs Initial Error: ' + messageError
             }
-            def sysOp = System.getProperty("os.name")
             def jsHome = org.grooscript.asts.PhantomJsTestImpl.getJsLibrariesPath()
             def phantomJsHome
             if (!System.getProperty('PHANTOMJS_HOME') && !System.getenv('PHANTOMJS_HOME')) {
@@ -218,6 +218,7 @@ page.open('{{URL}}', function (status) {
             //Save the file
             def finalText = testCode
 
+            def sysOp = System.getProperty("os.name")
             if (sysOp && sysOp.toUpperCase().contains('WINDOWS')) {
                 jsHome = jsHome.replace("\\",'/')
                 jsHome = (jsHome.indexOf(':') == 1 ? jsHome.substring(2) : jsHome)
@@ -238,6 +239,20 @@ page.open('{{URL}}', function (status) {
             } else {
                 command += "${File.separator}bin${File.separator}phantomjs " + nameFile
             }
+
+            if (withDebug) {
+                message '**************************************************** DEBUG INFO BEGIN', HEAD
+                message 'Url: ' + url, HEAD
+                message 'MethodName: ' + methodName, HEAD
+                message 'Parameters: ' + parameters, HEAD
+                message 'MessageError: ' + messageError, HEAD
+                message 'Operating system: ' + sysOp, HEAD
+                message 'PhantomJs Home used: ' + phantomJsHome, HEAD
+                message 'Execution command: ' + command, HEAD
+                message 'Library path used: ' + jsHome, HEAD
+                message '**************************************************** DEBUG INFO END', HEAD
+            }
+
             def proc = command.execute()
             proc.waitForOrKill(MAX_TIME_WAITING)
             def exit = proc.in.text
@@ -272,6 +287,11 @@ page.open('{{URL}}', function (status) {
             }
         } finally {
             File file = new File(nameFile)
+            if (withDebug) {
+                message '**************************************************** BEGIN JS TEST', HEAD
+                println file.text
+                message '**************************************************** END JS TEST', HEAD
+            }
             //new File('out.js').text = file.text
             if (file && file.exists()) {
                 file.delete()
