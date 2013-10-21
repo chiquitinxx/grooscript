@@ -125,7 +125,7 @@ page.open('{{URL}}', function (status) {
         String url = node.getMember('url').text
         String capture = node.getMember('capture')?.text
         int waitSeconds = node.getMember('waitSeconds') ? node.getMember('waitSeconds').value : 0
-        boolean withDebug = node.getMember('withDebug')
+        boolean withInfo = node.getMember('info')
         String finalText = ''
 
         if (!url) {
@@ -158,7 +158,7 @@ page.open('{{URL}}', function (status) {
         def textCode = "def listParams = [];\n${method.parameters.collect { "listParams << ${it.name}"}.join(';')};\n" +
                 "Class.forName('org.grooscript.asts.PhantomJsTestImpl').doPhantomJsTest('${url}', " +
                 "\'\'\'"+ finalText +"\'\'\', '${method.name?:''}', listParams, " +
-                "'${messageError?:''}', ${withDebug}); return null"
+                "'${messageError?:''}', ${withInfo}); return null"
         method.declaringClass
         method.setCode new AstBuilder().buildFromString(CompilePhase.CLASS_GENERATION , textCode)
     }
@@ -200,7 +200,7 @@ page.open('{{URL}}', function (status) {
     }
 
     static void doPhantomJsTest(String url, String testCode, String methodName,
-                                List parameters = null, String messageError = null, boolean withDebug = false) {
+                                List parameters = null, String messageError = null, boolean withInfo = false) {
         def nameFile = 'phantomjs.js'
         try {
             if (messageError) {
@@ -240,8 +240,8 @@ page.open('{{URL}}', function (status) {
                 command += "${File.separator}bin${File.separator}phantomjs " + nameFile
             }
 
-            if (withDebug) {
-                message '**************************************************** DEBUG INFO BEGIN', HEAD
+            if (withInfo) {
+                message '**************************************************** INFO BEGIN', HEAD
                 message 'Url: ' + url, HEAD
                 message 'MethodName: ' + methodName, HEAD
                 message 'Parameters: ' + parameters, HEAD
@@ -250,7 +250,7 @@ page.open('{{URL}}', function (status) {
                 message 'PhantomJs Home used: ' + phantomJsHome, HEAD
                 message 'Execution command: ' + command, HEAD
                 message 'Library path used: ' + jsHome, HEAD
-                message '**************************************************** DEBUG INFO END', HEAD
+                message '**************************************************** INFO END', HEAD
             }
 
             def proc = command.execute()
@@ -287,7 +287,7 @@ page.open('{{URL}}', function (status) {
             }
         } finally {
             File file = new File(nameFile)
-            if (withDebug) {
+            if (withInfo) {
                 message '**************************************************** BEGIN JS TEST', HEAD
                 println file.text
                 message '**************************************************** END JS TEST', HEAD

@@ -145,8 +145,8 @@ class TestPhantomJs extends GroovyTestCase {
         assert $('#moto').text().contains('A dynamic language'), "Id=Moto contains 'A dynamic language'"
     }
 
-    @PhantomJsTest(url = 'http://groovy.codehaus.org', withDebug = true)
-    void testWithDebug() {
+    @PhantomJsTest(url = 'http://groovy.codehaus.org', info = true)
+    void testWithInfo() {
         assert true
     }
 
