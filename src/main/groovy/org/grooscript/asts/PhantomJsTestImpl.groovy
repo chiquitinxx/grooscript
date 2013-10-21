@@ -126,38 +126,24 @@ page.open('{{URL}}', function (status) {
         String capture = node.getMember('capture')?.text
         int waitSeconds = node.getMember('waitSeconds') ? node.getMember('waitSeconds').value : 0
         boolean withInfo = node.getMember('info')
-        String finalText = ''
 
         if (!url) {
             messageError = 'url not defined, use @PhantomJsTest(url=\'http://grooscript.org\')'
         }
+        def jsTest
         if (!messageError) {
             GsConverter converter = new GsConverter()
 
-            def jsTest
             try {
                 jsTest = converter.processAstListToJs([method])
             } catch (e) {
                 messageError = 'Error converting code ->'+e.message
             }
-
-            if (!messageError) {
-                finalText = phantomJsText
-                finalText = finalText.replace('{{URL}}', url)
-                finalText = finalText.replace('{{GROOSCRIPT}}', jsTest)
-                finalText = finalText.replace('{{SECONDS}}', waitSeconds as String)
-
-                if (capture) {
-                    finalText = finalText.replace('{{CAPTURE}}', "console.log('Capturing...');page.render('$capture');\n")
-                } else {
-                    finalText = finalText.replace('{{CAPTURE}}', '')
-                }
-            }
         }
-        //(org.grooscript.asts.PhantomJsTestImpl).
+
         def textCode = "def listParams = [];\n${method.parameters.collect { "listParams << ${it.name}"}.join(';')};\n" +
                 "Class.forName('org.grooscript.asts.PhantomJsTestImpl').doPhantomJsTest('${url}', " +
-                "\'\'\'"+ finalText +"\'\'\', '${method.name?:''}', listParams, " +
+                "\'\'\'"+ jsTest +"\'\'\', '${method.name?:''}', ${waitSeconds}, '${capture?:''}',listParams, " +
                 "'${messageError?:''}', ${withInfo}); return null"
         method.declaringClass
         method.setCode new AstBuilder().buildFromString(CompilePhase.CLASS_GENERATION , textCode)
@@ -199,8 +185,9 @@ page.open('{{URL}}', function (status) {
         return jsHome
     }
 
-    static void doPhantomJsTest(String url, String testCode, String methodName,
-                                List parameters = null, String messageError = null, boolean withInfo = false) {
+    static void doPhantomJsTest(String url, String testCode, String methodName, int waitSeconds = 0,
+                                String capture = null, List parameters = null, String messageError = null,
+                                boolean withInfo = false) {
         def nameFile = 'phantomjs.js'
         try {
             if (messageError) {
@@ -216,7 +203,17 @@ page.open('{{URL}}', function (status) {
             message "Starting Test in ${url}", HEAD
 
             //Save the file
-            def finalText = testCode
+            def finalText
+            finalText = phantomJsText
+            finalText = finalText.replace('{{URL}}', url)
+            finalText = finalText.replace('{{GROOSCRIPT}}', testCode)
+            finalText = finalText.replace('{{SECONDS}}', waitSeconds as String)
+
+            if (capture) {
+                finalText = finalText.replace('{{CAPTURE}}', "console.log('Capturing...');page.render('$capture');\n")
+            } else {
+                finalText = finalText.replace('{{CAPTURE}}', '')
+            }
 
             def sysOp = System.getProperty("os.name")
             if (sysOp && sysOp.toUpperCase().contains('WINDOWS')) {
@@ -227,10 +224,6 @@ page.open('{{URL}}', function (status) {
             finalText = finalText.replace('{{LIBRARY_PATH}}', jsHome)
             finalText = finalText.replace('{{FUNCTION_CALL}}', "${methodName}(${getParametersText(parameters)});")
             new File(nameFile).text = finalText
-
-            //println '*********************** FINAL '
-            //println finalText
-            //println '*********************** FINAL '
 
             //Execute PhantomJs
             String command = phantomJsHome

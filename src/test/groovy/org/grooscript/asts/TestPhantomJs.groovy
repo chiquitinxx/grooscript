@@ -150,6 +150,11 @@ class TestPhantomJs extends GroovyTestCase {
         assert true
     }
 
+    void testWithoutAnnotation() {
+        PhantomJsTestImpl.doPhantomJsTest('http://groovy.codehaus.org', 'function hello() {console.log("Hello!");}',
+            'hello', 0, null, null, null, true)
+    }
+
     /*
     @PhantomJsTest(url = 'http://localhost:8080/grooscript-vertx/main/vertxEvents', waitSeconds = 2)
     void testWaitSeconds() {
