@@ -6,19 +6,29 @@ package org.grooscript.util
 @SuppressWarnings('Println')
 class GsConsole {
 
-    static error(message) {
-        println "\u001B[91m[Grooscript] ERROR - ${message}\u001B[0m"
+    static final DESCRIPTION = '[grooscript]'
+
+    private static getHead(origin) {
+        origin?:DESCRIPTION
     }
 
-    static message(message) {
-        println "[Grooscript] MSG - ${message}"
+    static error(message, origin = null) {
+        println "\u001B[91m${getHead(origin)} - Error - ${message}\u001B[0m"
     }
 
-    static exception(message) {
-        println "[Grooscript] EXCEPTION - ${message}"
+    static message(message, origin = null) {
+        println "${getHead(origin)} ${message}"
     }
 
-    static debug(message) {
-        println "[Grooscript - Debug] ${message}"
+    static info(message, origin = null) {
+        println "${getHead(origin)} - Info ${message}"
+    }
+
+    static exception(message, origin = null) {
+        println "\u001B[91m${getHead(origin)} - Exception - ${message}\u001B[0m"
+    }
+
+    static debug(message, origin = null) {
+        println "${getHead(origin)} - Debug - ${message}"
     }
 }
