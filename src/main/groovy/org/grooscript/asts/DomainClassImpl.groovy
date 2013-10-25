@@ -82,7 +82,9 @@ public class DomainClassImpl implements ASTTransformation {
         theClass.addProperty('mapTransactions', Modifier.STATIC , new ClassNode(HashMap),
                 new MapExpression([]), null, null)
         theClass.addProperty('dataHandler', Modifier.STATIC , new ClassNode(Object),null,null,null)
-        theClass.addProperty('lastId', Modifier.STATIC, ClassHelper.Long_TYPE,new ConstantExpression(0),null,null)
+        theClass.addProperty('lastId', Modifier.STATIC, ClassHelper.Long_TYPE, new ConstantExpression(0), null, null)
+        theClass.addProperty('className', Modifier.STATIC, ClassHelper.STRING_TYPE,
+                new ConstantExpression(theClass.name), null, null)
 
         //Instance variables
         theClass.addProperty('id', Modifier.PUBLIC, ClassHelper.Long_TYPE,null,null,null)
@@ -111,39 +113,6 @@ public class DomainClassImpl implements ASTTransformation {
         }[0])
 
         //hasErrors()
-        /* This give problems with Grails, so comment this 3 methods using buildFromSpec
-        theClass.addMethod('hasErrors',Modifier.PUBLIC, ClassHelper.boolean_TYPE,Parameter.EMPTY_ARRAY,
-                ClassNode.EMPTY_ARRAY,new AstBuilder().buildFromSpec {
-            block {
-                returnStatement {
-                    variable 'errors'
-                }
-            }
-        }[0])
-
-        //list()
-        theClass.addMethod('list',Modifier.STATIC,new ClassNode(ArrayList),Parameter.EMPTY_ARRAY,
-                ClassNode.EMPTY_ARRAY,new AstBuilder().buildFromSpec {
-            block {
-                returnStatement {
-                    variable 'listItems'
-                }
-            }
-        }[0])
-
-        //count()
-        theClass.addMethod('count',Modifier.STATIC,ClassHelper.int_TYPE,Parameter.EMPTY_ARRAY,
-                ClassNode.EMPTY_ARRAY,new AstBuilder().buildFromSpec {
-            block {
-                returnStatement {
-                    methodCall {
-                        variable 'listItems'
-                        constant 'size'
-                        argumentList ()
-                    }
-                }
-            }
-        }[0])*/
         theClass.addMethod('hasErrors',Modifier.PUBLIC, ClassHelper.boolean_TYPE,Parameter.EMPTY_ARRAY,
                 ClassNode.EMPTY_ARRAY,new AstBuilder().buildFromCode {
             return errors
@@ -178,14 +147,20 @@ public class DomainClassImpl implements ASTTransformation {
         theClass.addMethod('processDataHandlerSuccess',Modifier.STATIC,null, params,
                 ClassNode.EMPTY_ARRAY,new AstBuilder().buildFromCode {
             if (mapTransactions[data.number]) {
-                def item = mapTransactions[data.number].item
+                def item
+                if (data.action == 'get') {
+                    def actualItem = listItems.find { it.id == data.item.id}
+                    item = actualItem ?: Class.forName(data.model).newInstance()
+                } else {
+                    item = mapTransactions[data.number].item
+                }
                 data.item.each { key,value ->
                     item."${key}" = value
                 }
-                if (data.action=='insert') {
+                if (data.action == 'insert') {
                     listItems << item
                 }
-                if (data.action=='delete') {
+                if (data.action == 'delete') {
                     listItems = listItems - item
                 }
                 if (mapTransactions[data.number].onOk) {
@@ -199,8 +174,8 @@ public class DomainClassImpl implements ASTTransformation {
         //processPublishMessage(data)
         params = new Parameter[1]
         params[0] = new Parameter(new ClassNode(HashMap),'data')
-        theClass.addMethod('processPublishMessage',Modifier.STATIC,null, params,
-                ClassNode.EMPTY_ARRAY,new AstBuilder().buildFromCode {
+        theClass.addMethod('processPublishMessage', Modifier.STATIC, null, params,
+                ClassNode.EMPTY_ARRAY, new AstBuilder().buildFromCode {
             if (data.action == 'list') {
                 processOnServerList(data)
             } else {
@@ -217,8 +192,11 @@ public class DomainClassImpl implements ASTTransformation {
                     }
                 }
 
-                if (data.action=='insert') {
+                if (data.action == 'insert') {
                     listItems << item
+                }
+                if (data.action == 'delete') {
+                    listItems = listItems - item
                 }
             }
             processChanges(data)
@@ -245,13 +223,24 @@ public class DomainClassImpl implements ASTTransformation {
 
 
         //get(id)
-        params = new Parameter[1]
+        params = new Parameter[3]
         params[0] = new Parameter(ClassHelper.long_TYPE,'value')
-        theClass.addMethod('get',Modifier.STATIC,null, params,
-                ClassNode.EMPTY_ARRAY,new AstBuilder().buildFromCode {
+        params[1] = new Parameter(new ClassNode(Closure),'onOk',new ConstantExpression(null))
+        params[2] = new Parameter(new ClassNode(Closure),'onError',new ConstantExpression(null))
+        theClass.addMethod('get', Modifier.STATIC, null, params,
+                ClassNode.EMPTY_ARRAY, new AstBuilder().buildFromCode {
             def number = value
-            def item = listItems.find { it.id == number}
-            return item
+            if (dataHandler) {
+                def numberTransaction
+                numberTransaction = dataHandler.getDomainItem(className, number)
+
+                def transaction = [item: null, onOk: onOk, onError: onError]
+                mapTransactions.put(numberTransaction,transaction)
+                return numberTransaction
+            } else {
+                def item = listItems.find { it.id == number}
+                return item
+            }
         }[0])
 
         //Save method
@@ -280,7 +269,6 @@ public class DomainClassImpl implements ASTTransformation {
                     //Without dataHandler
                     //Insert
                     if (!this.id) {
-                        //numberTransaction = item.class.getDataHandler().insert(cl.name, item)
                         this.id = ++lastId
                         listItems << this
                         processChanges([action:'insert',item:this])
