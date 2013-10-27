@@ -152,9 +152,9 @@ class TestAdvanced extends Specification {
         !readAndConvert('advanced/MethodMissingTwo').assertFails
     }
 
-    def 'curry and rcurry'() {
+    def 'curry, rcurry and ncurry'() {
         expect:
-        !readAndConvert('advanced/Curry').assertFails
+        !readAndConvert('advanced/Curry', true).assertFails
     }
 
     def 'mixin annotation'() {

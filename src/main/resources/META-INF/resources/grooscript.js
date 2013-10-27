@@ -2289,6 +2289,16 @@ var gSconsole = "";
         };
     };
 
+    Function.prototype.ncurry = function () {
+        var slice = Array.prototype.slice,
+            args = slice.apply(arguments, [1]),
+            begin = arguments[0],
+            that = this;
+        return function () {
+            return that.apply(null, slice.apply(arguments, [0, begin]).concat(args).concat(slice.apply(arguments, [begin])));
+        };
+    };
+
     //MISC
     gs.fs = function(name, thisScope) {
         if (thisScope != undefined && thisScope[name] != undefined) {
