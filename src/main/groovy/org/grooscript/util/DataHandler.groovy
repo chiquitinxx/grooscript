@@ -6,6 +6,7 @@ package org.grooscript.util
  */
 interface DataHandler {
     long getDomainItem(String className, id)
+    long list(String className, params)
     long insert(String className, item)
     long update(String className, item)
     long delete(String className, item)
