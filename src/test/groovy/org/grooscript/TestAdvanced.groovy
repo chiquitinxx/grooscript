@@ -161,4 +161,9 @@ class TestAdvanced extends Specification {
         expect:
         !readAndConvert('advanced/MixinAst').assertFails
     }
+
+    def 'variable number of arguments'() {
+        expect:
+        !readAndConvert('advanced/VariableArguments').assertFails
+    }
 }
