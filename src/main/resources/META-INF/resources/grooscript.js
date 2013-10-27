@@ -2299,6 +2299,22 @@ var gSconsole = "";
         };
     };
 
+    Function.prototype.leftShift = function () {
+        var func = arguments[0],
+            that = this;
+        return function () {
+            return that(func.apply(null, arguments));
+        };
+    };
+
+    Function.prototype.rightShift = function () {
+        var func = arguments[0],
+            that = this;
+        return function () {
+            return func(that.apply(null, arguments));
+        };
+    };
+
     //MISC
     gs.fs = function(name, thisScope) {
         if (thisScope != undefined && thisScope[name] != undefined) {

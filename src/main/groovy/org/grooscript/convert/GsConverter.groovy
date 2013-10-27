@@ -1023,7 +1023,7 @@ class GsConverter {
 
         //println 'Binary->'+expression.text + ' - '+expression.operation.text
         //Getting a range from a list
-        if (expression.operation.text=='[' && expression.rightExpression instanceof RangeExpression) {
+        if (expression.operation.text == '[' && expression.rightExpression instanceof RangeExpression) {
             addScript("${org.grooscript.JsNames.GS_RANGE_FROM_LIST}(")
             upgradedExpresion(expression.leftExpression)
             addScript(", ")
@@ -1031,17 +1031,16 @@ class GsConverter {
             addScript(", ")
             visitNode(expression.rightExpression.getTo())
             addScript(')')
-        //LeftShift function
-        } else if (expression.operation.text=='<<') {
-            //We call add function
-            //println 'le->'+ expression.leftExpression
+        //leftShift and rightShift function
+        } else if (expression.operation.text == '<<' || expression.operation.text == '>>') {
+            def nameFunction = expression.operation.text == '<<' ? 'leftShift' : 'rightShift'
             addScript("${org.grooscript.JsNames.GS_METHOD_CALL}(")
             upgradedExpresion(expression.leftExpression)
-            addScript(",'leftShift', ${org.grooscript.JsNames.GS_LIST}([")
+            addScript(",'${nameFunction}', ${org.grooscript.JsNames.GS_LIST}([")
             upgradedExpresion(expression.rightExpression)
             addScript(']))')
         //Regular Expression exact match all
-        } else if (expression.operation.text=='==~') {
+        } else if (expression.operation.text == '==~') {
             addScript("${org.grooscript.JsNames.GS_EXACT_MATCH}(")
             upgradedExpresion(expression.leftExpression)
             addScript(',')
@@ -1056,7 +1055,7 @@ class GsConverter {
 
             addScript(')')
         //A matcher of regular expresion
-        } else if (expression.operation.text=='=~') {
+        } else if (expression.operation.text == '=~') {
             addScript("${org.grooscript.JsNames.GS_REG_EXP}(")
             //println 'rx->'+expression.leftExpression
             upgradedExpresion(expression.leftExpression)
@@ -1072,35 +1071,35 @@ class GsConverter {
 
             addScript(')')
         //Equals
-        } else if (expression.operation.text=='==') {
+        } else if (expression.operation.text == '==') {
             writeFunctionWithLeftAndRight(org.grooscript.JsNames.GS_EQUALS, expression)
         //in
-        } else if (expression.operation.text=='in') {
+        } else if (expression.operation.text == 'in') {
             writeFunctionWithLeftAndRight(org.grooscript.JsNames.GS_IN, expression)
         //Spaceship operator <=>
-        } else if (expression.operation.text=='<=>') {
+        } else if (expression.operation.text == '<=>') {
             writeFunctionWithLeftAndRight(org.grooscript.JsNames.GS_SPACE_SHIP, expression)
         //instanceof
-        } else if (expression.operation.text=='instanceof') {
+        } else if (expression.operation.text == 'instanceof') {
             addScript("${org.grooscript.JsNames.GS_INSTANCE_OF}(")
             upgradedExpresion(expression.leftExpression)
             addScript(', "')
             upgradedExpresion(expression.rightExpression)
             addScript('")')
         //Multiply
-        } else if (expression.operation.text=='*') {
+        } else if (expression.operation.text == '*') {
             writeFunctionWithLeftAndRight(org.grooscript.JsNames.GS_MULTIPLY, expression)
         //Plus
-        } else if (expression.operation.text=='+') {
+        } else if (expression.operation.text == '+') {
             writeFunctionWithLeftAndRight(org.grooscript.JsNames.GS_PLUS, expression)
         //Minus
-        } else if (expression.operation.text=='-') {
+        } else if (expression.operation.text == '-') {
             writeFunctionWithLeftAndRight(org.grooscript.JsNames.GS_MINUS, expression)
         } else {
 
             //Execute setter if available
             if (expression.leftExpression instanceof PropertyExpression &&
-                    (expression.operation.text in ['=','+=','-=']) &&
+                    (expression.operation.text in ['=', '+=', '-=']) &&
                 !(expression.leftExpression instanceof AttributeExpression)) {
 
                 PropertyExpression pe = (PropertyExpression)expression.leftExpression
@@ -1130,7 +1129,7 @@ class GsConverter {
 
                 //If is a boolean operation, we have to apply groovyTruth
                 //Left
-                if (expression.operation.text in ['&&','||']) {
+                if (expression.operation.text in ['&&', '||']) {
                     addScript '('
                     handExpressionInBoolean(expression.leftExpression)
                     addScript ')'
