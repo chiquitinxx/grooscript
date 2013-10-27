@@ -357,11 +357,62 @@ class GsConverter {
         boolean exit = false
         annotations.each { AnnotationNode it ->
             //If native then exit
-            if (it.getClassNode().nameWithoutPackage=='GsNative') {
+            if (it.getClassNode().nameWithoutPackage == 'GsNative') {
                 exit = true
             }
         }
         exit
+    }
+
+    private haveAnnotationGroovyImmutable(annotations) {
+        boolean exit = false
+        annotations.each { AnnotationNode it ->
+            if (it.getClassNode().name == 'groovy.transform.Immutable') {
+                exit = true
+            }
+        }
+        exit
+    }
+
+    private checkConstructors(ClassNode node) {
+
+        boolean has1parameterConstructor = false
+        node?.declaredConstructors?.each { MethodNode it->
+            def numberArguments = it.parameters?.size()
+            if (numberArguments==1) {
+                has1parameterConstructor = true
+            }
+            processMethodNode(it,true)
+
+            addConditionConstructorExecution(numberArguments,it.parameters)
+        }
+
+        if (haveAnnotationGroovyImmutable(node.annotations)) {
+            //Add a constructor with params
+            def paramSize = node.properties.size()
+            def paramNames = node.properties.collect { it.name }.join(', ')
+            def nameFunction = "${org.grooscript.JsNames.GS_OBJECT}.${translateClassName(node.name)}${paramSize}"
+            addScript("${nameFunction} = function(${paramNames}) {")
+            node.properties.collect { it.name }.each {
+                addScript("  ${org.grooscript.JsNames.GS_OBJECT}.${it} = ${it}; ")
+            }
+            addScript("  return this; ")
+            addScript("};")
+            addLine()
+            addScript("if (arguments.length==${paramSize}) {${nameFunction}.apply(${org.grooscript.JsNames.GS_OBJECT}, arguments); }")
+            addLine()
+            if (paramSize == 1) {
+                has1parameterConstructor = true
+            }
+        }
+
+        //If no constructor with 1 parameter, we create 1 that get a map, for put value on properties
+        if (!has1parameterConstructor) {
+            addScript("${org.grooscript.JsNames.GS_OBJECT}.${translateClassName(node.name)}1 = function(map) { ${org.grooscript.JsNames.GS_PASS_MAP_TO_OBJECT}(map,this); return this;};")
+            addLine()
+            addScript("if (arguments.length==1) {${org.grooscript.JsNames.GS_OBJECT}.${translateClassName(node.name)}1(arguments[0]); }")
+            addLine()
+        }
     }
 
     private checkMixinAndCategory(className, annotations) {
@@ -485,29 +536,10 @@ class GsConverter {
         }
 
         //Constructors
-        //If no constructor with 1 parameter, we create 1 that get a map, for put value on properties
-        boolean has1parameterConstructor = false
-        //boolean has0parameterConstructor = false
-        node?.declaredConstructors?.each { MethodNode it->
-            def numberArguments = it.parameters?.size()
-            if (numberArguments==1) {
-                has1parameterConstructor = true
-            }
-            //if (it.parameters?.size()==0) {
-            //    has0parameterConstructor = true
-            //}
-            processMethodNode(it,true)
+        checkConstructors(node)
 
-            addConditionConstructorExecution(numberArguments,it.parameters)
-
-        }
-        if (!has1parameterConstructor) {
-            addScript("${org.grooscript.JsNames.GS_OBJECT}.${translateClassName(node.name)}1 = function(map) { ${org.grooscript.JsNames.GS_PASS_MAP_TO_OBJECT}(map,this); return this;};")
-            addLine()
-            addScript("if (arguments.length==1) {${org.grooscript.JsNames.GS_OBJECT}.${translateClassName(node.name)}1(arguments[0]); }")
-            addLine()
-        }
-
+        //Mixin
+        //TODO category
         checkMixinAndCategory(node.nameWithoutPackage, node.annotations)
 
         addLine()
