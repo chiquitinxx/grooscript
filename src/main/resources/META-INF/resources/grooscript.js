@@ -24,7 +24,7 @@ var gSconsole = "";
     //If true and console is available, all output will go through console
     gs.consoleOutput = false;
     //If true and console is available, some methods will show info on console
-    var consoleInfo = false;
+    gs.consoleInfo = false;
 
     var globalMetaClass = {};
 
@@ -1992,7 +1992,7 @@ var gSconsole = "";
     //Control all method calls
     gs.mc = function(item, methodName, values) {
 
-        if (consoleInfo && console) {
+        if (gs.consoleInfo && console) {
             console.log('[INFO] gs.mc (' + item + ').' + methodName + ' params:' + values);
         }
 
@@ -2323,6 +2323,54 @@ var gSconsole = "";
             var func = new Function("return "+name)
             return func();
         }
+    };
+
+    gs.toJavascript = function(message) {
+        var result;
+        if (message!=null && message!=undefined && typeof(message) !== "function") {
+            if (message instanceof Array) {
+                result = [];
+                var i;
+                for (i = 0; i < message.length; i++) {
+                    result[result.length] = gs.toJavascript(message[i]);
+                }
+            } else {
+                if (message instanceof Object) {
+                    result = {};
+                    for (ob in message) {
+                        if (!isMapProperty(ob)) {
+                            result[ob] = gs.toJavascript(message[ob]);
+                        }
+                    }
+                } else {
+                    result = message;
+                }
+            }
+        }
+        return result;
+    };
+
+    gs.toGroovy = function(message) {
+        var result;
+        if (message!=null && message!=undefined && typeof(message) !== "function") {
+            if (message instanceof Array) {
+                result = gs.list([]);
+                var i;
+                for (i = 0; i < message.length; i++) {
+                    result.add(gs.toGroovy(message[i]));
+                }
+            } else {
+                if (message instanceof Object) {
+                    result = gs.map();
+                    for (ob in message) {
+                        result.add(ob, gs.toGroovy(message[ob]));
+                    }
+                } else {
+                    result = message;
+                }
+            }
+        }
+        return result;
     };
 
 }).call(this);
