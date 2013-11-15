@@ -9,6 +9,8 @@ describe('initial tests on gs', function(){
     it('initial values', function(){
         assert.equal(false, gs.fails);
         assert.equal(false, gs.consoleInfo);
+        assert.equal('', gs.consoleData);
+        assert.equal(true, gs.consoleOutput);
     })
     it('convert to javascript', function(){
         assert.equal(gs.toJavascript(5), 5);

@@ -1,8 +1,3 @@
-//Fail any test
-var gSfails = false;
-//Where local output is stored
-var gSconsole = "";
-
 (function() {
     var gs = function(obj) {
         if (obj instanceof gs) return obj;
@@ -21,8 +16,10 @@ var gSconsole = "";
 
     //Fails
     gs.fails = false;
+    //Local console
+    gs.consoleData = '';
     //If true and console is available, all output will go through console
-    gs.consoleOutput = false;
+    gs.consoleOutput = true;
     //If true and console is available, some methods will show info on console
     gs.consoleInfo = false;
 
@@ -43,7 +40,6 @@ var gSconsole = "";
     /////////////////////////////////////////////////////////////////
     gs.assert = function(value) {
         if(value==false) {
-            gSfails = true;
             gs.fails = true;
             var message = 'Assert Fails! - ';
             if (arguments.length == 2 && arguments[1]!=null) {
@@ -58,10 +54,10 @@ var gSconsole = "";
         if (gs.consoleOutput && console) {
             console.log(value);
         } else {
-            if (gSconsole != "") {
-                gSconsole = gSconsole + "\n";
+            if (gs.consoleData != "") {
+                gs.consoleData = gs.consoleData + "\n";
             }
-            gSconsole = gSconsole + value;
+            gs.consoleData = gs.consoleData + value;
         }
     };
 
@@ -2374,22 +2370,3 @@ var gSconsole = "";
     };
 
 }).call(this);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
