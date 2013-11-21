@@ -40,7 +40,7 @@ class TestJs {
                 if (jsFile) {
                     finalScript = jsFile.text + script
                 } else {
-                    finalScript = addJsLibrarys(script)
+                    finalScript = addJsLibraries(script)
                 }
 
                 //Load script manager
@@ -87,12 +87,13 @@ class TestJs {
         resultMap
     }
 
-    static addJsLibrarys(text) {
+    static addJsLibraries(text) {
         def result = text
         //We get gscript functions file
         File file = Util.getJsFile('grooscript.js')
         //Add that file to javascript code
-        result = file.text + result
+        result = file.text + '\ngs.consoleOutput = false;\n' + result
+        result = result + '\nvar gSfails = gs.fails;var gSconsole = gs.consoleData;\n'
         result
     }
 

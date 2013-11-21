@@ -1,5 +1,6 @@
 package org.grooscript
 
+import org.grooscript.convert.GsConverter
 import spock.lang.Specification
 import org.grooscript.util.Util
 
@@ -39,7 +40,7 @@ class TestConvertBase extends Specification {
         !result.assertFails
         result.a == 0
         !result.exception
-        result.jsScript == 'var a = 0;\ngSprintln("Hey");\ngSassert(true, null);\n'
+        result.jsScript == 'var a = 0;\ngs.println("Hey");\ngs.assert(true, null);\n'
     }
 
     def 'use static class converter'() {

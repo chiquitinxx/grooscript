@@ -1,8 +1,9 @@
 var fs = require('fs');
 
 // file is included here:
-eval(fs.readFileSync('grooscript.js')+'');
-
+//eval(fs.readFileSync('grooscript.js')+'');
+var gs = require('./grooscript.js');
+gs.consoleOutput = true;
 console.log('Ready to Test!');
 
 /////////////////////////////////////////////////////////// Tests here
@@ -11,5 +12,4 @@ console.log('Ready to Test!');
 
 ////////////////////////////////////////--------------------End Test here -> Resume
 
-console.log('\nConsole OutPut\n--------------\n'+gSconsole);
-console.log('\nFails = '+gSfails);
+console.log('\nFails = '+gs.fails);

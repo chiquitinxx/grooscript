@@ -152,7 +152,7 @@ class TestAdvanced extends Specification {
         !readAndConvert('advanced/MethodMissingTwo').assertFails
     }
 
-    def 'curry and rcurry'() {
+    def 'curry, rcurry and ncurry'() {
         expect:
         !readAndConvert('advanced/Curry').assertFails
     }
@@ -160,6 +160,11 @@ class TestAdvanced extends Specification {
     def 'mixin annotation'() {
         expect:
         !readAndConvert('advanced/MixinAst').assertFails
+    }
+
+    def 'variable number of arguments'() {
+        expect:
+        !readAndConvert('advanced/VariableArguments').assertFails
     }
 
     def 'ranges of chars'() {

@@ -9,7 +9,7 @@ import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.transform.ASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
 import org.grooscript.GrooScript
-import org.grooscript.GsConverter
+import org.grooscript.convert.GsConverter
 
 import static org.grooscript.util.GsConsole.*
 
@@ -113,7 +113,7 @@ page.open('{{URL}}', function (status) {
     public void visit(ASTNode[] nodes, SourceUnit sourceUnit) {
         //Start
         if (!nodes[0] instanceof AnnotationNode ||
-            !nodes[1] instanceof MethodNode) {
+                !nodes[1] instanceof MethodNode) {
             return
         }
 
@@ -158,7 +158,7 @@ page.open('{{URL}}', function (status) {
                 def userHome = System.getProperty('user.home')
 
                 if (userHome) {
-                    def version = Class.forName('org.grooscript.GsConverter').package.implementationVersion
+                    def version = Class.forName('org.grooscript.GrooScript').package.implementationVersion
 
                     def path = userHome + File.separator + '.grooscript' + (version ? File.separator + version : '')
                     def folder = new File(path)

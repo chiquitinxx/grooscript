@@ -62,6 +62,25 @@ class TestDaemon extends Specification {
         generatedFile(FILE1_OUT).text.contains "gSobject['save'] = function(onOk, onError) {"
     }
 
+    def 'test do after'() {
+        given:
+        def number = 5
+        def doAfter = { list ->
+            if (list) {
+                println "List of converted files ${list}"
+            }
+            number ++
+        }
+
+        when:
+        GrooScript.startConversionDaemon([FOLDER_OUT+SEP+FILE1_NAME+'.groovy'] , FOLDER_OUT,
+                null, doAfter)
+        Thread.sleep(TIME_DAEMON * 5)
+
+        then:
+        number > 5
+    }
+
     private waitAndStop() {
         Thread.sleep(TIME_DAEMON)
         GrooScript.stopConversionDaemon()

@@ -2,7 +2,7 @@ package org.grooscript.test
 
 import static org.grooscript.util.Util.*
 import org.grooscript.GrooScript
-import org.grooscript.GsConverter
+import org.grooscript.convert.GsConverter
 import org.grooscript.util.GsConsole
 
 /**

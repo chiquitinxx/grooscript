@@ -1,7 +1,7 @@
 package org.grooscript.util
 
 import org.grooscript.test.TestJs
-import org.grooscript.GsConverter
+import org.grooscript.convert.GsConverter
 
 /**
  * JFL 29/08/12

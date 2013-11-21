@@ -8,7 +8,7 @@ import org.grooscript.util.GrooScriptException
 import groovyx.gpars.dataflow.DataflowQueue
 import groovyx.gpars.dataflow.DataflowVariable
 import groovyx.gpars.dataflow.operator.PoisonPill
-import org.grooscript.GsConverter
+import org.grooscript.convert.GsConverter
 import org.grooscript.util.GsConsole
 
 /**

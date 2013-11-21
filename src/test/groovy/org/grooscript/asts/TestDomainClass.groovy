@@ -11,9 +11,14 @@ import spock.lang.Specification
  */
 class TestDomainClass extends Specification {
 
-    static final NAME = 'name'
-    static final VALUE = 'value'
-    static final FAKE_ID = -3464356
+    private static final NAME = 'name'
+    private static final OTHER_NAME = 'other_name'
+    private static final VALUE = 'value'
+    private static final FAKE_ID = -3464356
+    private static final ID = 1
+    private static final PARAMS = [:]
+
+    private static final CLASS_NAME = 'org.grooscript.asts.TestDomainClass$AstItem'
 
     @DomainClass class AstItem {
         String name
@@ -52,6 +57,7 @@ class TestDomainClass extends Specification {
         AstItem.mapTransactions == [:]
         AstItem.dataHandler == null
         AstItem.lastId == 0
+        AstItem.className == 'org.grooscript.asts.TestDomainClass$AstItem'
         AstItem.listColumns.size() == 2
         AstItem.listColumns.find{it.name==NAME}.name == NAME
         AstItem.listColumns.find{it.name==NAME}.type == 'java.lang.String'
@@ -66,12 +72,50 @@ class TestDomainClass extends Specification {
 
     def 'test get method'() {
         given:
-        def item = getBasicItem()
+        getBasicItem()
+        def item = AstItem.get(1)
 
         expect:
         item.id
-        AstItem.get(item.id) == item
         !AstItem.get(FAKE_ID)
+    }
+
+    def 'test get method obtains a cloned object'() {
+        given:
+        getBasicItem()
+        def item = AstItem.get(1)
+        def item2 = AstItem.list()[0]
+
+        when:
+        item2.name = OTHER_NAME
+
+        then:
+        item.id == item2.id
+        item != item2
+    }
+
+    def 'test get method with dataHandler'() {
+        given:
+        def dataHandler = handler
+
+        when:
+        def numberTransaction = AstItem.get(ID)
+
+        then:
+        1 * dataHandler.getDomainItem(CLASS_NAME, ID) >> NUMBER_TRANSACTION
+        numberTransaction == NUMBER_TRANSACTION
+    }
+
+    def 'test list method with dataHandler'() {
+        given:
+        def dataHandler = handler
+
+        when:
+        AstItem.list(PARAMS, null, null)
+
+        then:
+        1 * dataHandler.list(CLASS_NAME, PARAMS) >> NUMBER_TRANSACTION
+        AstItem.mapTransactions[NUMBER_TRANSACTION] == [onOk: null, onError: null]
     }
 
     def 'test create new item'() {
@@ -177,7 +221,7 @@ class TestDomainClass extends Specification {
         def numberTransaction = item.save()
 
         then:
-        1 * dataHandler.insert("${this.class.name}\$AstItem",item) >> NUMBER_TRANSACTION
+        1 * dataHandler.insert(CLASS_NAME, item) >> NUMBER_TRANSACTION
         numberTransaction == NUMBER_TRANSACTION
 
         and:
@@ -203,10 +247,10 @@ class TestDomainClass extends Specification {
 
         then:
         AstItem.count() == 1
-        number == 4 * 2
+        number == old(number) * 2
 
         and:
-        AstItem.list()[0] == item
+        AstItem.listItems[0] == item
         item.id == 11
         item.name == NAME
         item.number == 12
@@ -228,7 +272,7 @@ class TestDomainClass extends Specification {
         def numberTransaction = item.save()
 
         then:
-        1 * dataHandler.update("${this.class.name}\$AstItem",item) >> NUMBER_TRANSACTION
+        1 * dataHandler.update(CLASS_NAME, item) >> NUMBER_TRANSACTION
         numberTransaction == NUMBER_TRANSACTION
 
         and:
@@ -250,7 +294,7 @@ class TestDomainClass extends Specification {
 
         then:
         AstItem.count() == 1
-        AstItem.list()[0] == item
+        AstItem.listItems[0] == item
 
         and:
         item.id == old(item.id)
@@ -274,7 +318,7 @@ class TestDomainClass extends Specification {
         def numberTransaction = item.delete()
 
         then:
-        1 * dataHandler.delete("${this.class.name}\$AstItem",item) >> NUMBER_TRANSACTION
+        1 * dataHandler.delete(CLASS_NAME, item) >> NUMBER_TRANSACTION
         numberTransaction == NUMBER_TRANSACTION
 
         and:
@@ -300,25 +344,105 @@ class TestDomainClass extends Specification {
         !AstItem.mapTransactions
     }
 
-    def getBasicItem() {
+    def 'test success get item with dataHandler, existing item'() {
+        given:
+        def (item, dataHandler) = getItemWithDataHandler()
+        def spyValue
+        AstItem.mapTransactions[NUMBER_TRANSACTION] = [item:item, onOk: { data ->
+            spyValue = data.item.id
+        }, onError: null]
+
+        when:
+        item.processDataHandlerSuccess([number: NUMBER_TRANSACTION, action: 'get',
+                item: [id : item.id, name: VALUE, number: 12], model: AstItem.class.name])
+
+        then:
+        spyValue == item.id
+        AstItem.count() == 1
+
+        and:
+        !AstItem.mapTransactions
+    }
+
+    def 'test success get item with dataHandler, a new item'() {
+        given:
+        def dataHandler = handler
+        AstItem.mapTransactions[NUMBER_TRANSACTION] = [onOk: null, onError: null]
+
+        expect:
+        AstItem.count() == 0
+
+        when:
+        AstItem.processDataHandlerSuccess([number: NUMBER_TRANSACTION, action: 'get',
+                item: [id : 1, name: VALUE, number: 12], model: AstItem.class.name])
+
+        then:
+        AstItem.count() == 1
+
+        and:
+        !AstItem.mapTransactions
+    }
+
+    def 'test error get item with dataHandler'() {
+        given:
+        def dataHandler = handler
+        def spyValue
+        AstItem.mapTransactions[NUMBER_TRANSACTION] = [number: NUMBER_TRANSACTION, onError: { data ->
+            spyValue = data.number
+        }, onOk: null]
+
+        when:
+        AstItem.processDataHandlerError([number: NUMBER_TRANSACTION, action: 'get', model: AstItem.class.name])
+
+        then:
+        spyValue == NUMBER_TRANSACTION
+        AstItem.count() == 0
+
+        and:
+        !AstItem.mapTransactions
+    }
+
+    def 'test success get list items with dataHandler'() {
+        given:
+        def dataHandler = handler
+        def spyItem
+        AstItem.mapTransactions[NUMBER_TRANSACTION] = [onOk: { data ->
+            spyItem = data.items.collect { it.number }.sum()
+        }, onError:null]
+
+        when:
+        AstItem.processDataHandlerSuccess([number: NUMBER_TRANSACTION, action: 'list',
+                items: [[id : 1, name: VALUE, number: 12],[id : 2, name: VALUE, number: 10]],
+                model: AstItem.class.name])
+
+        then:
+        spyItem == 22
+        AstItem.count() == 2
+
+        and:
+        !AstItem.mapTransactions
+    }
+
+    private getBasicItem() {
         def item = new AstItem(name: NAME)
         item.save()
         item
     }
 
-    def getNewItemWithDataHandler() {
+    private getHandler() {
         DataHandler dataHandler = Mock(DataHandler)
         AstItem.dataHandler = dataHandler
-        def item = new AstItem()
-        [item, dataHandler]
+        dataHandler
     }
 
-    def getItemWithDataHandler() {
-        def item = getBasicItem()
-        DataHandler dataHandler = Mock(DataHandler)
-        AstItem.dataHandler = dataHandler
+    private getNewItemWithDataHandler() {
+        def item = new AstItem()
+        [item, handler]
+    }
 
-        [item, dataHandler]
+    private getItemWithDataHandler() {
+        def item = getBasicItem()
+        [item, handler]
     }
 
     def 'test convert a basic domain class'() {
@@ -331,7 +455,7 @@ class TestDomainClass extends Specification {
 
         when:
         def result = GrooScript.convert(TestJs.getGroovyTestScript('asts/DomainClass').text)
-        println result
+        //println result
 
         then:
         noExceptionThrown()
