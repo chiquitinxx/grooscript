@@ -650,6 +650,546 @@
     }
 
     /////////////////////////////////////////////////////////////////
+    // Array prototype changes
+    /////////////////////////////////////////////////////////////////
+    Array.prototype.get = function(pos) {
+
+        //Maybe comes a second parameter with default value
+        if (arguments.length==2) {
+            //console.log('uh->'+this[pos]);
+            if (this[pos]==null || this[pos]==undefined) {
+                return arguments[1];
+            } else {
+                return this[pos];
+            }
+        } else {
+            return this[pos];
+        }
+    }
+
+    Array.prototype.getAt = function(pos) {
+        return this[pos];
+    }
+
+    Array.prototype.withz = function(closure) {
+        interceptClosureCall(closure, this);
+    }
+
+    Array.prototype.size = function() {
+        return this.length;
+    }
+
+    Array.prototype.isEmpty = function() {
+        return this.length == 0;
+    }
+
+    Array.prototype.add = function(element) {
+        this[this.length]=element;
+        return this;
+    }
+
+    Array.prototype.addAll = function(elements) {
+        if (arguments.length == 1) {
+            if (elements instanceof Array) {
+                var i;
+                for (i=0;i<elements.length;i++) {
+                    this.add(elements[i]);
+                }
+            }
+        } else {
+            //Two parameters index and collection
+            var index = arguments[0];
+            var data = arguments[1],i;
+            for (i=0; i < data.length; i++) {
+                this.splice(index+i, 0, data[i]);
+            }
+        }
+        return true;
+    }
+
+    Array.prototype.clone = function() {
+        var result = gs.list([]);
+        result.addAll(this);
+        return result;
+    }
+
+    Array.prototype.plus = function(other) {
+        var result = this.clone();
+        result.addAll(other);
+        return result;
+    }
+
+    Array.prototype.minus = function(other) {
+        var result = this.clone();
+        result.removeAll(other);
+        return result;
+    }
+
+    Array.prototype.leftShift = function(element) {
+        return this.add(element);
+    }
+
+    Array.prototype.contains = function(object) {
+        var gotIt, i;
+        for (i=0; !gotIt && i < this.length; i++) {
+            if (gs.equals(this[i], object)) {
+                gotIt = true;
+            }
+        }
+        return gotIt;
+    }
+
+    Array.prototype.each = function(closure) {
+        var i;
+        for (i=0;i<this.length;i++) {
+            //TODO Beware this change, have to apply to all closure calls
+            interceptClosureCall(closure, this[i]);
+        }
+        return this;
+    }
+
+    Array.prototype.reverseEach = function(closure) {
+        var i;
+        for (i=this.length-1;i>=0;i--) {
+            interceptClosureCall(closure, this[i]);
+        }
+        return this;
+    }
+
+    Array.prototype.eachWithIndex = function(closure,index) {
+        for (index=0;index<this.length;index++) {
+            closure(this[index],index);
+        }
+        return this;
+    }
+
+    Array.prototype.any = function(closure) {
+        var i;
+        for (i=0;i<this.length;i++) {
+            if (closure(this[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    Array.prototype.values = function() {
+        var result = [];
+        var i;
+        for (i=0;i<this.length;i++) {
+            result[i]=this[i];
+        }
+        return result;
+    }
+    //Remove only 1 item from the list
+    Array.prototype.remove = function(indexOrValue) {
+        var index = -1;
+        if (typeof indexOrValue == 'number') {
+            index = indexOrValue;
+        } else {
+            index = this.indexOf(indexOrValue);
+        }
+        if (index>=0) {
+            this.splice(index,1);
+        }
+        return this;
+    }
+
+    //Maybe too much complex, not much inspired
+    Array.prototype.removeAll = function(data) {
+        if (data instanceof Array) {
+            var result = [];
+            this.forEach(function(v, i, a) {
+                if (data.contains(v)) {
+                    result.push(i);
+                }
+            })
+            //Now in result we have index of items to delete
+            if (result.length>0) {
+                var decremental = 0;
+                var thisList = this;
+                result.forEach(function(v, i, a) {
+                    //Had tho change this for thisList, other scope on this here
+                    thisList.splice(v-decremental,1);
+                    decremental=decremental+1;
+                })
+            }
+        } else if (typeof data === "function") {
+            var i;
+            for (i=this.length-1;i>=0;i--) {
+                if (data(this[i])) {
+                    this.remove(i);
+                }
+            }
+        }
+        return this;
+    }
+
+    Array.prototype.collect = function(closure) {
+        var result = gs.list([]);
+        var i;
+        for (i=0;i<this.length;i++) {
+            result[i] = closure(this[i]);
+        }
+        return result;
+    }
+
+    Array.prototype.collectMany = function(closure) {
+        var result = gs.list([]);
+        var i;
+        for (i=0;i<this.length;i++) {
+            result.addAll(closure(this[i]));
+        }
+        return result;
+    }
+
+    Array.prototype.takeWhile = function(closure) {
+        var result = gs.list([]);
+        var i;
+        for (i=0;i<this.length;i++) {
+            if (closure(this[i])) {
+                result[i] = this[i];
+            } else {
+                break;
+            }
+        }
+        return result;
+    }
+
+    Array.prototype.dropWhile = function(closure) {
+        var result = gs.list([]);
+        var i,j=0, insert = false;
+        for (i=0;i<this.length;i++) {
+            if (!closure(this[i])) {
+                insert=true;
+            }
+            if (insert) {
+                result[j++] = this[i];
+            }
+        }
+        return result;
+    }
+
+    Array.prototype.findAll = function(closure) {
+        var values = this.filter(closure)
+        return gs.list(values)
+    }
+
+    Array.prototype.find = function(closure) {
+        var result,i;
+        for (i=0;!result && i<this.length;i++) {
+            if (closure(this[i])) {
+                result = this[i];
+            }
+        }
+        return result;
+    }
+
+    Array.prototype.first = function() {
+        return this[0];
+    }
+
+    Array.prototype.head = function() {
+        return this.first();
+    }
+
+    Array.prototype.last = function() {
+        return this[this.length-1];
+    }
+
+    Array.prototype.sum = function() {
+
+        var result = 0;
+        //can pass a closure to sum
+        if (arguments.length == 1) {
+            var i;
+            for (i=0;i<this.length;i++) {
+                result = result + arguments[0](this[i]);
+            }
+        } else {
+            if (this.length>0 && this[0]['plus']) {
+                var i;
+                var item = this[0];
+                for (i=0;i+1<this.length;i++) {
+                    item = item.plus(this[i+1]);
+                }
+                return item;
+            } else {
+                var i;
+                for (i=0;i<this.length;i++) {
+                    result = result + this[i];
+                }
+            }
+        }
+        return result;
+    }
+
+    Array.prototype.inject = function() {
+
+        var acc;
+        //only 1 argument, just the closure
+        if (arguments.length == 1) {
+            acc = this[0];
+            var i;
+            for (i=1;i<this.length;i++) {
+                //if (typeof this[i] === "function") continue;
+                acc = arguments[0](acc,this[i]);
+            }
+
+        } else {
+            //We suppose arguments = 2
+            acc = arguments[0];
+            var j;
+            for (j=0;j<this.length;j++) {
+                acc = arguments[1](acc,this[j]);
+            }
+        }
+        return acc;
+    }
+
+    Array.prototype.toList = function() {
+        return this;
+    }
+
+    Array.prototype.intersect = function(otherList) {
+        var result = gs.list([]);
+        var i;
+        for (i=0;i<this.length;i++) {
+            if (otherList.contains(this[i])) {
+                result.add(this[i]);
+            }
+        }
+        return result;
+    }
+
+    Array.prototype.max = function() {
+        var result = null;
+        var i;
+        for (i=0;i<this.length;i++) {
+            if (result==null || this[i]>result) {
+                result = this[i];
+            }
+        }
+        return result;
+    }
+
+    Array.prototype.min = function() {
+        var result = null;
+        var i;
+        for (i=0;i<this.length;i++) {
+            if (result==null || this[i]<result) {
+                result = this[i];
+            }
+        }
+        return result;
+    }
+
+    Array.prototype.toString = function() {
+        if (this.length>0) {
+            var i;
+            var result = '[';
+            for (i=0;i<this.length-1;i++) {
+                result = result + this[i] + ', ';
+            }
+            result = result + this[this.length-1] + ']';
+            return result;
+        } else {
+            return '[]';
+        }
+    }
+
+    Array.prototype.grep = function(param) {
+        if (param instanceof RegExp) {
+            var i;
+            var result = gs.list([]);
+            for (i=0; i<this.length; i++) {
+                if (gs.match(this[i],param)) {
+                    result.add(this[i]);
+                }
+            }
+            return result;
+        } else if (param instanceof Array) {
+            return this.intersect(param);
+        } else if (typeof param === "function") {
+            var i;
+            var result = gs.list([]);
+            for (i=0; i<this.length; i++) {
+                if (param(this[i])) {
+                    result.add(this[i]);
+                }
+            }
+            return result;
+        } else {
+            var i;
+            var result = gs.list([]);
+            for (i=0; i<this.length ;i++) {
+                if (this[i]==param) {
+                    result.add(this[i]);
+                }
+            }
+            return result;
+        }
+    }
+
+    Array.prototype.equals = function(other) {
+        if (!(other instanceof Array) || other.length!=this.length) {
+            return false;
+        } else {
+            var i;
+            var result = true;
+            for (i=0;i<this.length && result;i++) {
+                if (!gs.equals(this[i],other[i])) {
+                    result = false;
+                }
+            }
+            return result;
+        }
+    }
+
+    Array.prototype.gSjoin = function() {
+        var separator = '';
+        if (arguments.length == 1) {
+            separator = arguments[0];
+        }
+        var i, result;
+        result = '';
+        for (i=0;i<this.length;i++) {
+            result = result + this[i];
+            if ((i+1)<this.length) {
+                result = result + separator;
+            }
+        }
+        return result;
+    }
+
+    Array.prototype.oldSort = Array.prototype.sort
+
+    Array.prototype.sort = function() {
+        var modify = true;
+        if (arguments.length > 0 && arguments[0] == false) {
+            modify = false;
+        }
+        var i,copy = [];
+        //Maybe some closure as last parameter
+        var tempFunction = null;
+        if (arguments.length == 2 && typeof arguments[1] === "function") {
+            tempFunction = arguments[1];
+        }
+        if (arguments.length == 1 && typeof arguments[0] === "function") {
+            tempFunction = arguments[0];
+        }
+        //Copy all items
+        for (i=0;i<this.length;i++) {
+            copy[i] = this[i];
+        }
+        //If function has 2 parameter, inside compare both and return a number
+        if (tempFunction!=null && tempFunction.length == 2) {
+            copy.oldSort(tempFunction);
+        }
+        //If function has 1 parameter, we have to compare transformed items
+        if (tempFunction!=null && tempFunction.length == 1) {
+            copy.oldSort(function(a, b) {
+                return gs.spaceShip(tempFunction(a),tempFunction(b));
+            });
+        }
+        if (tempFunction==null) {
+            copy.oldSort();
+        }
+        if (modify) {
+            for (i=0;i<this.length;i++) {
+                this[i] = copy[i];
+            }
+            return this;
+        } else {
+            return gs.list(copy);
+        }
+    }
+
+    Array.prototype.reverse = function() {
+        var result;
+        if (arguments.length == 1 && arguments[0]==true) {
+            var i,count=0;
+            for (i=this.length-1;i>count;i--) {
+                var temp = this[count];
+                this[count++] = this[i];
+                this[i] = temp;
+            }
+            return this;
+        } else {
+            result = [];
+            var i,count=0;
+            for (i=this.length-1;i>=0;i--) {
+                result[count++] = this[i];
+            }
+            return gs.list(result);
+        }
+    }
+
+    Array.prototype.take = function(number) {
+        var result = [];
+        var i;
+        for (i=0;i<number;i++) {
+            if (i<this.length) {
+                result[i] = this[i];
+            }
+        }
+        return gs.list(result);
+    }
+
+    Array.prototype.takeWhile = function(closure) {
+        var result = [];
+        var i,exit=false;
+        for (i=0;!exit && i<this.length;i++) {
+            if (closure(this[i])) {
+                result[i] = this[i];
+            } else {
+                exit = true;
+            }
+        }
+        return gs.list(result);
+    }
+
+    Array.prototype.multiply = function(number) {
+        if (number==0) {
+            return gs.list([]);
+        } else {
+            var i, result = gs.list([]);
+            for (i=0;i<number;i++) {
+                var j;
+                for (j=0;j<this.length;j++) {
+                    result.add(this[j]);
+                }
+            }
+            return result;
+        }
+    }
+
+    Array.prototype.flatten = function() {
+        var result = gs.list([]);
+        gs.flatten(result,this);
+
+        return result;
+    }
+
+    Array.prototype.collate = function(number) {
+        var step = number,times = 0;
+        if (arguments.length == 2) {
+            step = arguments[1];
+        }
+        var result = gs.list([]);
+        while (step * times < this.length) {
+            var items = gs.list([]);
+            var pos = step * times;
+            while (pos<this.length && items.size()<number) {
+                items.add(this[pos++]);
+            }
+            result.add(items);
+            times++;
+        }
+        return result;
+    }
+
+    /////////////////////////////////////////////////////////////////
     //list - [] from groovy
     /////////////////////////////////////////////////////////////////
     gs.list = function(value) {
@@ -675,541 +1215,6 @@
         var object = data;
 
         createClassNames(object,['java.util.ArrayList']);
-
-        object.get = function(pos) {
-
-            //Maybe comes a second parameter with default value
-            if (arguments.length==2) {
-                //console.log('uh->'+this[pos]);
-                if (this[pos]==null || this[pos]==undefined) {
-                    return arguments[1];
-                } else {
-                    return this[pos];
-                }
-            } else {
-                return this[pos];
-            }
-        }
-
-        object.getAt = function(pos) {
-            return this[pos];
-        }
-
-        object.withz = function(closure) {
-            interceptClosureCall(closure, this);
-        }
-
-        object.size = function() {
-            return this.length;
-        }
-
-        object.isEmpty = function() {
-            return this.length == 0;
-        }
-
-        object.add = function(element) {
-            this[this.length]=element;
-            return this;
-        }
-
-        object.addAll = function(elements) {
-            if (arguments.length == 1) {
-                if (elements instanceof Array) {
-                    var i;
-                    for (i=0;i<elements.length;i++) {
-                        this.add(elements[i]);
-                    }
-                }
-            } else {
-                //Two parameters index and collection
-                var index = arguments[0];
-                var data = arguments[1],i;
-                for (i=0; i < data.length; i++) {
-                    this.splice(index+i, 0, data[i]);
-                }
-            }
-            return true;
-        }
-
-        object.clone = function() {
-            var result = gs.list([]);
-            result.addAll(this);
-            return result;
-        }
-
-        object.plus = function(other) {
-            var result = this.clone();
-            result.addAll(other);
-            return result;
-        }
-
-        object.minus = function(other) {
-            var result = this.clone();
-            result.removeAll(other);
-            return result;
-        }
-
-        object.leftShift = function(element) {
-            return this.add(element);
-        }
-
-        object.contains = function(object) {
-            var gotIt, i;
-            for (i=0; !gotIt && i < this.length; i++) {
-                if (gs.equals(this[i], object)) {
-                    gotIt = true;
-                }
-            }
-            return gotIt;
-        }
-
-        object.each = function(closure) {
-            var i;
-            for (i=0;i<this.length;i++) {
-                //TODO Beware this change, have to apply to all closure calls
-                interceptClosureCall(closure, this[i]);
-            }
-            return this;
-        }
-
-        object.reverseEach = function(closure) {
-            var i;
-            for (i=this.length-1;i>=0;i--) {
-                interceptClosureCall(closure, this[i]);
-            }
-            return this;
-        }
-
-        object.eachWithIndex = function(closure,index) {
-            for (index=0;index<this.length;index++) {
-                closure(this[index],index);
-            }
-            return this;
-        }
-
-        object.any = function(closure) {
-            var i;
-            for (i=0;i<this.length;i++) {
-                if (closure(this[i])) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        object.values = function() {
-            var result = [];
-            var i;
-            for (i=0;i<this.length;i++) {
-                result[i]=this[i];
-            }
-            return result;
-        }
-        //Remove only 1 item from the list
-        object.remove = function(indexOrValue) {
-            var index = -1;
-            if (typeof indexOrValue == 'number') {
-                index = indexOrValue;
-            } else {
-                index = this.indexOf(indexOrValue);
-            }
-            if (index>=0) {
-                this.splice(index,1);
-            }
-            return this;
-        }
-
-        //Maybe too much complex, not much inspired
-        object.removeAll = function(data) {
-            if (data instanceof Array) {
-                var result = [];
-                this.forEach(function(v, i, a) {
-                    if (data.contains(v)) {
-                        result.push(i);
-                    }
-                })
-                //Now in result we have index of items to delete
-                if (result.length>0) {
-                    var decremental = 0;
-                    var thisList = this;
-                    result.forEach(function(v, i, a) {
-                        //Had tho change this for thisList, other scope on this here
-                        thisList.splice(v-decremental,1);
-                        decremental=decremental+1;
-                    })
-                }
-            } else if (typeof data === "function") {
-                var i;
-                for (i=this.length-1;i>=0;i--) {
-                    if (data(this[i])) {
-                        this.remove(i);
-                    }
-                }
-            }
-            return this;
-        }
-
-        object.collect = function(closure) {
-            var result = gs.list([]);
-            var i;
-            for (i=0;i<this.length;i++) {
-                result[i] = closure(this[i]);
-            }
-            return result;
-        }
-
-        object.collectMany = function(closure) {
-            var result = gs.list([]);
-            var i;
-            for (i=0;i<this.length;i++) {
-                result.addAll(closure(this[i]));
-            }
-            return result;
-        }
-
-        object.takeWhile = function(closure) {
-            var result = gs.list([]);
-            var i;
-            for (i=0;i<this.length;i++) {
-                if (closure(this[i])) {
-                    result[i] = this[i];
-                } else {
-                    break;
-                }
-            }
-            return result;
-        }
-
-        object.dropWhile = function(closure) {
-            var result = gs.list([]);
-            var i,j=0, insert = false;
-            for (i=0;i<this.length;i++) {
-                if (!closure(this[i])) {
-                    insert=true;
-                }
-                if (insert) {
-                    result[j++] = this[i];
-                }
-            }
-            return result;
-        }
-
-        object.findAll = function(closure) {
-            var values = this.filter(closure)
-            return gs.list(values)
-        }
-
-        object.find = function(closure) {
-            var result,i;
-            for (i=0;!result && i<this.length;i++) {
-                if (closure(this[i])) {
-                    result = this[i];
-                }
-            }
-            return result;
-        }
-
-        object.first = function() {
-            return this[0];
-        }
-
-        object.head = function() {
-            return this.first();
-        }
-
-        object.last = function() {
-            return this[this.length-1];
-        }
-
-        object.sum = function() {
-
-            var result = 0;
-            //can pass a closure to sum
-            if (arguments.length == 1) {
-                var i;
-                for (i=0;i<this.length;i++) {
-                    result = result + arguments[0](this[i]);
-                }
-            } else {
-                if (this.length>0 && this[0]['plus']) {
-                    var i;
-                    var item = this[0];
-                    for (i=0;i+1<this.length;i++) {
-                        item = item.plus(this[i+1]);
-                    }
-                    return item;
-                } else {
-                    var i;
-                    for (i=0;i<this.length;i++) {
-                        result = result + this[i];
-                    }
-                }
-            }
-            return result;
-        }
-
-        object.inject = function() {
-
-            var acc;
-            //only 1 argument, just the closure
-            if (arguments.length == 1) {
-                acc = this[0];
-                var i;
-                for (i=1;i<this.length;i++) {
-                    //if (typeof this[i] === "function") continue;
-                    acc = arguments[0](acc,this[i]);
-                }
-
-            } else {
-                //We suppose arguments = 2
-                acc = arguments[0];
-                var j;
-                for (j=0;j<this.length;j++) {
-                    acc = arguments[1](acc,this[j]);
-                }
-            }
-            return acc;
-        }
-
-        object.toList = function() {
-            return this;
-        }
-
-        object.intersect = function(otherList) {
-            var result = gs.list([]);
-            var i;
-            for (i=0;i<this.length;i++) {
-                if (otherList.contains(this[i])) {
-                    result.add(this[i]);
-                }
-            }
-            return result;
-        }
-
-        object.max = function() {
-            var result = null;
-            var i;
-            for (i=0;i<this.length;i++) {
-                if (result==null || this[i]>result) {
-                    result = this[i];
-                }
-            }
-            return result;
-        }
-
-        object.min = function() {
-            var result = null;
-            var i;
-            for (i=0;i<this.length;i++) {
-                if (result==null || this[i]<result) {
-                    result = this[i];
-                }
-            }
-            return result;
-        }
-
-        object.toString = function() {
-            if (this.length>0) {
-                var i;
-                var result = '[';
-                for (i=0;i<this.length-1;i++) {
-                    result = result + this[i] + ', ';
-                }
-                result = result + this[this.length-1] + ']';
-                return result;
-            } else {
-                return '[]';
-            }
-        }
-
-        object.grep = function(param) {
-            if (param instanceof RegExp) {
-                var i;
-                var result = gs.list([]);
-                for (i=0; i<this.length; i++) {
-                    if (gs.match(this[i],param)) {
-                        result.add(this[i]);
-                    }
-                }
-                return result;
-            } else if (param instanceof Array) {
-                return this.intersect(param);
-            } else if (typeof param === "function") {
-                var i;
-                var result = gs.list([]);
-                for (i=0; i<this.length; i++) {
-                    if (param(this[i])) {
-                        result.add(this[i]);
-                    }
-                }
-                return result;
-            } else {
-                var i;
-                var result = gs.list([]);
-                for (i=0; i<this.length ;i++) {
-                    if (this[i]==param) {
-                        result.add(this[i]);
-                    }
-                }
-                return result;
-            }
-        }
-
-        object.equals = function(other) {
-            if (!(other instanceof Array) || other.length!=this.length) {
-                return false;
-            } else {
-                var i;
-                var result = true;
-                for (i=0;i<this.length && result;i++) {
-                    if (!gs.equals(this[i],other[i])) {
-                        result = false;
-                    }
-                }
-                return result;
-            }
-        }
-
-        object.gSjoin = function() {
-            var separator = '';
-            if (arguments.length == 1) {
-                separator = arguments[0];
-            }
-            var i, result;
-            result = '';
-            for (i=0;i<this.length;i++) {
-                result = result + this[i];
-                if ((i+1)<this.length) {
-                    result = result + separator;
-                }
-            }
-            return result;
-        }
-
-        object.sort = function() {
-            var modify = true;
-            if (arguments.length > 0 && arguments[0] == false) {
-                modify = false;
-            }
-            var i,copy = [];
-            //Maybe some closure as last parameter
-            var tempFunction = null;
-            if (arguments.length == 2 && typeof arguments[1] === "function") {
-                tempFunction = arguments[1];
-            }
-            if (arguments.length == 1 && typeof arguments[0] === "function") {
-                tempFunction = arguments[0];
-            }
-            //Copy all items
-            for (i=0;i<this.length;i++) {
-                copy[i] = this[i];
-            }
-            //If function has 2 parameter, inside compare both and return a number
-            if (tempFunction!=null && tempFunction.length == 2) {
-                copy.sort(tempFunction);
-            }
-            //If function has 1 parameter, we have to compare transformed items
-            if (tempFunction!=null && tempFunction.length == 1) {
-                copy.sort(function(a, b) {
-                    return gs.spaceShip(tempFunction(a),tempFunction(b));
-                });
-            }
-            if (tempFunction==null) {
-                copy.sort();
-            }
-            if (modify) {
-                for (i=0;i<this.length;i++) {
-                    this[i] = copy[i];
-                }
-                return this;
-            } else {
-                return gs.list(copy);
-            }
-        }
-
-        object.reverse = function() {
-            var result;
-            if (arguments.length == 1 && arguments[0]==true) {
-                var i,count=0;
-                for (i=this.length-1;i>count;i--) {
-                    var temp = this[count];
-                    this[count++] = this[i];
-                    this[i] = temp;
-                }
-                return this;
-            } else {
-                result = [];
-                var i,count=0;
-                for (i=this.length-1;i>=0;i--) {
-                    result[count++] = this[i];
-                }
-                return gs.list(result);
-            }
-        }
-
-        object.take = function(number) {
-            var result = [];
-            var i;
-            for (i=0;i<number;i++) {
-                if (i<this.length) {
-                    result[i] = this[i];
-                }
-            }
-            return gs.list(result);
-        }
-
-        object.takeWhile =  function(closure) {
-            var result = [];
-            var i,exit=false;
-            for (i=0;!exit && i<this.length;i++) {
-                if (closure(this[i])) {
-                    result[i] = this[i];
-                } else {
-                    exit = true;
-                }
-            }
-            return gs.list(result);
-        }
-
-        object.multiply = function(number) {
-            if (number==0) {
-                return gs.list([]);
-            } else {
-                var i, result = gs.list([]);
-                for (i=0;i<number;i++) {
-                    var j;
-                    for (j=0;j<this.length;j++) {
-                        result.add(this[j]);
-                    }
-                }
-                return result;
-            }
-        }
-
-        object.flatten = function() {
-            var result = gs.list([]);
-            gs.flatten(result,this);
-
-            return result;
-        }
-
-        object.collate = function(number) {
-            var step = number,times = 0;
-            if (arguments.length == 2) {
-                step = arguments[1];
-            }
-            var result = gs.list([]);
-            while (step * times < this.length) {
-                var items = gs.list([]);
-                var pos = step * times;
-                while (pos<this.length && items.size()<number) {
-                    items.add(this[pos++]);
-                }
-                result.add(items);
-                times++;
-            }
-            return result;
-        }
 
         return object;
     }
@@ -1406,19 +1411,19 @@
         if (data==null || data == undefined) {
             return null;
         } else {
-            var list = [];
+            var list = gs.list([]);
             var i = 0;
 
             while (data != null && data != undefined) {
-                if (data instanceof Array && data.length>1) {
-                    list[i] = gs.list(data);
+                if (data instanceof Array && data.length<2) {
+                    list[i] = data[0];
                 } else {
-                    list[i] = data;
+                    list[i] = gs.list(data);
                 }
                 i = i + 1;
                 data = patt.exec(text);
             }
-            object = gs.inherit(gs.list(list), 'RegExp');
+            object = gs.inherit(list, 'RegExp');
         }
 
         createClassNames(object,['java.util.regex.Matcher']);
