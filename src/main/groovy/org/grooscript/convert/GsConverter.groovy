@@ -46,6 +46,9 @@ class GsConverter {
     Closure customization = null
     def classPath = null
 
+    //Prefix and postfix for variables without clear scope
+    def prefixOperator = '', postfixOperator = ''
+
     private addToActualScope(variableName) {
         if (!actualScope.isEmpty()) {
             actualScope.peek().add(variableName)
@@ -995,18 +998,28 @@ class GsConverter {
             !variableScopingContains(expression.name) && (processingClosure || processingClassMethods)
     }
 
+    private addPrefixOrPostfixIfNeeded(name) {
+        if (prefixOperator) {
+            name = prefixOperator + name
+        }
+        if (postfixOperator) {
+            name = name + postfixOperator
+        }
+        name
+    }
+
     private processVariableExpression(VariableExpression expression) {
 
         //println "name:${expression.name} - scope:${variableScoping.peek()} - isThis - ${expression.isThisExpression()}"
         if (variableScoping.peek().contains(expression.name) && !(actualScopeContains(expression.name))) {
-            addScript("${org.grooscript.JsNames.GS_OBJECT}."+expression.name)
+            addScript(addPrefixOrPostfixIfNeeded("${org.grooscript.JsNames.GS_OBJECT}."+expression.name))
         } else if (variableStaticScoping.peek().contains(expression.name) && !(actualScopeContains(expression.name))) {
-            addScript(translateClassName(classNameStack.peek())+'.'+expression.name)
+            addScript(addPrefixOrPostfixIfNeeded(translateClassName(classNameStack.peek())+'.'+expression.name))
         } else {
             if (isVariableWithMissingScope(expression)) {
-                addScript("${org.grooscript.JsNames.GS_FIND_SCOPE}('${expression.name}', this)")
+                addScript("${org.grooscript.JsNames.GS_FIND_SCOPE}('${addPrefixOrPostfixIfNeeded(expression.name)}', this)")
             } else {
-                addScript(expression.name)
+                addScript(addPrefixOrPostfixIfNeeded(expression.name))
             }
         }
     }
@@ -1514,8 +1527,10 @@ class GsConverter {
         if (expression.operation.text in ['++','--'] && expression.expression instanceof PropertyExpression) {
             addPlusPlusFunction(expression, false)
         } else {
+            postfixOperator = expression.operation.text
             visitNode(expression.expression)
-            addScript(expression.operation.text)
+            //addScript(postfixOperator)
+            postfixOperator = ''
         }
     }
 
@@ -1523,8 +1538,10 @@ class GsConverter {
         if (expression.expression instanceof PropertyExpression) {
             addPlusPlusFunction(expression, true)
         } else {
-            addScript(expression.operation.text)
+            prefixOperator = expression.operation.text
+            //addScript(prefixOperator)
             visitNode(expression.expression)
+            prefixOperator = ''
         }
     }
 

@@ -135,5 +135,4 @@ class TestGroovyBasics extends Specification {
         expect:
         !readAndConvert('arithmetic').assertFails
     }
-
 }
