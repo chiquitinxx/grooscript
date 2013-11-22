@@ -1,6 +1,5 @@
 package org.grooscript.daemon
 
-import groovy.transform.Immutable
 import org.grooscript.GrooScript
 import org.grooscript.util.GsConsole
 import spock.lang.Specification
@@ -49,18 +48,18 @@ class TestDaemon extends Specification {
         generatedFile(FILE1_OUT)
     }
 
-    def 'test option customization applying an ast'() {
+    def 'test option customization with @DomainClass'() {
         given:
         GrooScript.startConversionDaemon([FOLDER_OUT] , FOLDER_OUT,
                 ['customization': {
-                    ast(Immutable)
+                    ast(org.grooscript.asts.DomainClass)
                 }])
 
         when:
         waitAndStop()
 
         then: 'DomainClass ast applied to class'
-        generatedFile(FILE1_OUT).exists()
+        generatedFile(FILE1_OUT).text.contains "gSobject['save'] = function(onOk, onError) {"
     }
 
     def 'test do after'() {
