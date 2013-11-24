@@ -25,3 +25,17 @@ assert "In $month of $year" == "In June of 2009"
 
 def (r, s, t) = [1, 2]
 assert r == 1 && s == 2 && t == null
+
+class ItemWithMethod {
+    private return12() {
+        [1,2]
+    }
+    def doSomething() {
+        def (first, second) = return12()
+        [first, second]
+    }
+}
+
+def (one, two) = new ItemWithMethod().doSomething()
+assert one == 1
+assert two == 2

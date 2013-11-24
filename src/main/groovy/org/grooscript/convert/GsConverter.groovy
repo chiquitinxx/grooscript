@@ -941,14 +941,15 @@ class GsConverter {
             TupleExpression tuple = (TupleExpression)(expression.getLeftExpression())
             def number = 0;
             tuple.expressions.each { Expression expr ->
-                //println '->'+expr
+                //println 'Multiple->'+expr
                 if (expr instanceof VariableExpression && expr.name!='_') {
+                    addToActualScope(expr.name)
                     addScript('var ')
-                    processVariableExpression(expr)
+                    processVariableExpression(expr, true)
                     addScript(' = ')
                     visitNode(expression.rightExpression)
                     addScript(".getAt(${number})")
-                    if (number<tuple.expressions.size()) {
+                    if (number < tuple.expressions.size()) {
                         addScript(';')
                     }
                 }
@@ -959,7 +960,7 @@ class GsConverter {
             addToActualScope(expression.variableExpression.name)
 
             addScript('var ')
-            processVariableExpression(expression.variableExpression)
+            processVariableExpression(expression.variableExpression, true)
 
             if (!(expression.rightExpression instanceof EmptyExpression)) {
                 addScript(' = ')
@@ -1008,15 +1009,14 @@ class GsConverter {
         name
     }
 
-    private processVariableExpression(VariableExpression expression) {
-
+    private processVariableExpression(VariableExpression expression, isDeclaringVariable = false) {
         //println "name:${expression.name} - scope:${variableScoping.peek()} - isThis - ${expression.isThisExpression()}"
         if (variableScoping.peek().contains(expression.name) && !(actualScopeContains(expression.name))) {
             addScript(addPrefixOrPostfixIfNeeded("${org.grooscript.JsNames.GS_OBJECT}."+expression.name))
         } else if (variableStaticScoping.peek().contains(expression.name) && !(actualScopeContains(expression.name))) {
             addScript(addPrefixOrPostfixIfNeeded(translateClassName(classNameStack.peek())+'.'+expression.name))
         } else {
-            if (isVariableWithMissingScope(expression)) {
+            if (isVariableWithMissingScope(expression) && !isDeclaringVariable) {
                 addScript("${org.grooscript.JsNames.GS_FIND_SCOPE}('${addPrefixOrPostfixIfNeeded(expression.name)}', this)")
             } else {
                 addScript(addPrefixOrPostfixIfNeeded(expression.name))
