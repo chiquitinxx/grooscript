@@ -2325,13 +2325,18 @@
         };
     };
 
-    //MISC
+    //MISC Find scope of a var
     gs.fs = function(name, thisScope) {
         if (thisScope != undefined && thisScope[name] != undefined) {
             return thisScope[name];
         } else {
-            var func = new Function("return "+name)
-            return func();
+            var nameFunction = 'get' + name.charAt(0).toUpperCase() + name.slice(1);
+            if (hasFunc(thisScope, nameFunction)) {
+                return thisScope[nameFunction]();
+            } else {
+                var func = new Function("return "+name)
+                return func();
+            }
         }
     };
 

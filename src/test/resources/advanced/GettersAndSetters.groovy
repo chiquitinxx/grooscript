@@ -73,6 +73,15 @@ class Mix2 {
     def putValue(value) {
         data = value
     }
+
+    def getValue() {
+        7
+    }
+
+    def inspectValue(Closure cl) {
+        cl.delegate = this
+        cl()
+    }
 }
 
 def mix2 = new Mix2()
@@ -80,3 +89,5 @@ mix2.putValue(5)
 assert mix2.data == 5
 assert mix2.setterProperty == 0
 assert mix2.setterData == 0
+assert mix2.value == 7
+assert mix2.inspectValue({ value }) == 7
