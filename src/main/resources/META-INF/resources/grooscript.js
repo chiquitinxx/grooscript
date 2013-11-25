@@ -2330,12 +2330,12 @@
         if (thisScope != undefined && thisScope[name] != undefined) {
             return thisScope[name];
         } else {
-            var nameFunction = 'get' + name.charAt(0).toUpperCase() + name.slice(1);
-            if (hasFunc(thisScope, nameFunction)) {
-                return thisScope[nameFunction]();
-            } else {
+            var value = gs.gp(thisScope, name);
+            if (value == undefined) {
                 var func = new Function("return "+name)
                 return func();
+            } else {
+                return value;
             }
         }
     };
