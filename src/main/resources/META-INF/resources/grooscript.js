@@ -1589,6 +1589,10 @@
         }
     }
 
+    String.prototype.capitalize = function() {
+        return this.charAt(0).toUpperCase() + this.slice(1);
+    }
+
     function getItemsMultiline(text) {
         var items = text.split('\n');
         if (items.length>1 && items[items.length-1]=='') {

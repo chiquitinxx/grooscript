@@ -1180,34 +1180,27 @@ class GsConverter {
     }
 
     private processConstantExpression(ConstantExpression expression) {
-        //println 'ConstantExpression->'+expression.text
+        //println 'ConstantExpression->'+expression.text+'< '+expression.nullExpression
         if (expression.value instanceof String) {
             //println 'Value->'+expression.value+'<'+expression.value.endsWith('\n')
-            def String value = ''
+            String value = ''
             if (expression.value.startsWith('\n')) {
                 value = '\\n'
             }
-            //if (expression.value.size()>0 && expression.value.endsWith('\n') && !value.endsWith('\n')) {
-            //    value += '\\n'
-            //}
             def list = []
             expression.value.eachLine {
                 if (it) list << it
             }
             value += list.join('\\n')
-            //expression.value.eachLine { if (it) value += it }
-            //println 'Before->'+value
-            //value = value.replaceAll('"','\\\\u0022')
             value = value.replaceAll('"','\\\\"')
             //println 'After->'+value+'<'+value.endsWith('\n')
-            if (expression.value.endsWith('\n') && !value.endsWith('\n')) {
+            if (expression.value.endsWith('\n') && !value.endsWith('\n') && value != '\\n') {
                 value += '\\n'
             }
             addScript('"'+value+'"')
         } else {
             addScript(expression.value)
         }
-
     }
 
     private processConstantExpression(ConstantExpression expression,boolean addStuff) {
@@ -1229,6 +1222,7 @@ class GsConverter {
 
         def number = 0
         expression.getStrings().each {   exp ->
+            //println 'Exp->'+exp
             if (number>0) {
                 addScript(' + ')
             }

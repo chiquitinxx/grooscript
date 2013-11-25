@@ -82,3 +82,29 @@ assert !'123 4'.isNumber()
 assert !'12h3'.isNumber()
 assert !''.isNumber()
 assert !' '.isNumber()
+
+assert 'hello'.capitalize() == 'Hello'
+assert 'HELLO'.capitalize() == 'HELLO'
+
+def languages = ['Groovy', 'Java', 'Clojure']
+def multiGString = """\
+My favourites languages:
+${languages[0]}
+${languages[1]}
+${languages[2]}
+"""
+
+multiGString.eachLine { line, count ->
+    if (count == 0) {
+        assert line == 'My favourites languages:'
+    }
+    if (count == 1) {
+        assert line == 'Groovy'
+    }
+    if (count == 2) {
+        assert line == 'Java'
+    }
+    if (count == 3) {
+        assert line == 'Clojure'
+    }
+}
