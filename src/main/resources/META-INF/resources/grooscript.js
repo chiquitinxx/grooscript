@@ -695,6 +695,8 @@
                 for (i=0;i<elements.length;i++) {
                     this.add(elements[i]);
                 }
+            } else {
+                this[this.length] = elements;
             }
         } else {
             //Two parameters index and collection
@@ -1655,6 +1657,10 @@
                 return true;
             }
         }
+    }
+
+    String.prototype.plus = function(other) {
+        return this + other.toString()
     }
 
     /////////////////////////////////////////////////////////////////

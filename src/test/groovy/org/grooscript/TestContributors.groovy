@@ -96,6 +96,7 @@ class TestContributors extends Specification {
         where:
         file                       | _
         'contribution/MySelf1'     | _
+        'contribution/MySelf2'     | _
     }
 
     def 'guillaume examples from talks'() {
