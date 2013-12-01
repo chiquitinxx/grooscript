@@ -25,4 +25,15 @@ describe('initial tests on gs', function(){
         var result = gs.equals(gs.toGroovy(list), gs.list([1, [1, 2], gs.map().add('a',1).add('b', 2)]));
         assert.equal(result, true);
     })
+    it('equals lists', function() {
+        assert.equal(gs.equals([1], gs.list([1])), true);
+        assert.notEqual(gs.list([1]), [1]);
+    })
+    it('equals maps', function() {
+        assert.equal(gs.equals(gs.map().add('one', 1), {one: 1}), true);
+        assert.notEqual(gs.map().add('one', 1), { one: 1});
+    })
+    it('test date format', function() {
+        assert.equal(gs.date().parse("yyyy/MM/dd", "2009/09/01").format('yyyy-MM-dd'), '2009-09-01');
+    })
 })

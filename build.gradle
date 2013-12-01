@@ -115,3 +115,74 @@ task copyToGscriptWeb() << {
 	}
 }
 
+task testMocha(type: TestMochaTask) {
+    folder = 'src/test/js'
+}
+
+test.dependsOn testMocha
+
+import groovy.json.JsonSlurper
+
+class TestMochaTask extends DefaultTask {
+
+    String folder
+
+    private runTest() {
+        def result = "mocha -R json ${folder}".execute()
+        def failures = 0
+        def success = 0
+        def messageError = ''
+        def returnCode
+        try {
+            result.waitFor()
+            returnCode = result.exitValue()
+
+            (failures, success) = processJson(result, returnCode, messageError, failures, success)
+        } catch (e) {
+            failures = 1
+            try {
+                messageError += " Error executing mocha, return code: ${returnCode}\n"
+                messageError += " stderr: ${result.err.text}\n"
+                messageError += " stdout: ${result?.in?.text}\n"
+            } catch (ex) {
+            }
+        }
+
+        decideResult(failures, messageError, success)
+    }
+
+    private List processJson(Process result, int returnCode, messageError, int failures, int success) {
+        def slurper = new JsonSlurper()
+        def json = slurper.parseText(result.in.text)
+        if (returnCode == 0) {
+            success = json.stats.passes
+        } else {
+            failures = json.stats.failures
+            json.failures.each {
+                messageError += " Fail: ${it.fullTitle}.${it.title} \n"
+            }
+        }
+        [failures, success]
+    }
+
+    private void decideResult(failures, messageError, success) {
+        if (failures > 0) {
+            throw new GradleException("Mocha tests failed: ${failures}\n${messageError}")
+        } else {
+            if (success == 0) {
+                throw new GradleException('0 tests executed.')
+            } else {
+                println "${success} mocha tests success."
+            }
+        }
+    }
+
+    @TaskAction
+    def testMocha() {
+        if (!folder) {
+            throw new GradleException("Need define folder parameter, where test.js is located.")
+        } else {
+            runTest()
+        }
+    }
+}
