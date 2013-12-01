@@ -323,11 +323,17 @@
     }
 
     gs.map = function() {
-        var object = gs.inherit(gs.baseClass,'LinkedHashMap');
+        var object = new GroovyMap();
+        //gs.inherit(gs.baseClass,'LinkedHashMap');
+        expandWithMetaclass(object, 'LinkedHashMap');
 
-        createClassNames(object,['java.util.LinkedHashMap','java.util.HashMap']);
+        return object;
+    }
 
-        object.add = function(key,value) {
+    function GroovyMap() {
+        this.clazz = { name: 'java.util.LinkedHashMap', simpleName: 'LinkedHashMap',
+            superclass: { name: 'java.util.HashMap', simpleName: 'HashMap'}}
+        this.add = function(key,value) {
             if (key=="spreadMap") {
                 //We insert items of the map, from spread operator
                 var ob;
@@ -341,20 +347,20 @@
             }
             return this;
         }
-        object.put = function(key,value) {
+        this.put = function(key,value) {
             return this.add(key,value);
         }
-        object.leftShift = function(key,value) {
+        this.leftShift = function(key,value) {
             if (arguments.length == 1) {
                 return this.plus(arguments[0]);
             } else {
                 return this.add(key,value);
             }
         }
-        object.putAt = function(key,value) {
+        this.putAt = function(key,value) {
             this.put(key,value);
         }
-        object.size = function() {
+        this.size = function() {
             var number = 0,ob;
             for (ob in this) {
                 if (!isMapProperty(ob)) {
@@ -363,15 +369,15 @@
             }
             return number;
         }
-        object.isEmpty = function() {
+        this.isEmpty = function() {
             return (this.size() == 0);
         }
-        object.remove = function(key) {
+        this.remove = function(key) {
             if (this[key]) {
                 delete this[key];
             }
         }
-        object.each = function(closure) {
+        this.each = function(closure) {
             var ob;
             for (ob in this) {
                 if (!isMapProperty(ob)) {
@@ -387,7 +393,7 @@
             }
         }
 
-        object.count = function(closure) {
+        this.count = function(closure) {
             var number = 0, ob;
             for (ob in this) {
                 if (!isMapProperty(ob)) {
@@ -406,7 +412,7 @@
             return number;
         }
 
-        object.any = function(closure) {
+        this.any = function(closure) {
             var ob;
             for (ob in this) {
                 if (!isMapProperty(ob)) {
@@ -426,7 +432,7 @@
             return false;
         }
 
-        object.every = function(closure) {
+        this.every = function(closure) {
             var ob;
             for (ob in this) {
                 if (!isMapProperty(ob)) {
@@ -446,7 +452,7 @@
             return true;
         }
 
-        object.find = function(closure) {
+        this.find = function(closure) {
             var ob;
             for (ob in this) {
                 if (!isMapProperty(ob)) {
@@ -467,7 +473,7 @@
             return null;
         }
 
-        object.findAll = function(closure) {
+        this.findAll = function(closure) {
             var result = gs.map(), ob;
             for (ob in this) {
                 if (!isMapProperty(ob)) {
@@ -492,7 +498,7 @@
             }
         }
 
-        object.collect = function(closure) {
+        this.collect = function(closure) {
             var result = gs.list([]), ob;
             for (ob in this) {
                 if (!isMapProperty(ob)) {
@@ -512,14 +518,15 @@
             }
         }
 
-        object.containsKey = function(key) {
+        this.containsKey = function(key) {
             if (this[key]==undefined || this[key]==null) {
                 return false;
             } else {
                 return true;
             }
         }
-        object.containsValue = function(value) {
+
+        this.containsValue = function(value) {
             var gotIt = false;
             for (ob in this) {
                 if (!isMapProperty(ob)) {
@@ -532,14 +539,14 @@
             return gotIt;
         }
 
-        object.get = function(key, defaultValue) {
+        this.get = function(key, defaultValue) {
             if (!this.containsKey(key)) {
                 this[key] = defaultValue;
             }
             return this[key];
         }
 
-        object.toString = function() {
+        this.toString = function() {
             var items = '';
             this.each (function(key,value) {
                 items = items + key+': '+value+' ,';
@@ -547,7 +554,7 @@
             return '[' + items + ']';
         }
 
-        object.equals = function(otherMap) {
+        this.equals = function(otherMap) {
 
             var result = true, ob;
             for (ob in this) {
@@ -560,7 +567,7 @@
             return result;
         }
 
-        object.values = function() {
+        this.values = function() {
             var result = gs.list([]), ob;
             for (ob in this) {
                 if (!isMapProperty(ob)) {
@@ -570,14 +577,14 @@
             return result;
         }
 
-        object.gSdefaultValue = null;
+        this.gSdefaultValue = null;
 
-        object.withDefault = function(closure) {
+        this.withDefault = function(closure) {
             this.gSdefaultValue = closure;
             return this;
         }
 
-        object.inject = function(initial,closure) {
+        this.inject = function(initial,closure) {
             var ob;
             for (ob in this) {
                 if (!isMapProperty(ob)) {
@@ -593,7 +600,7 @@
             return initial;
         }
 
-        object.putAll = function (items) {
+        this.putAll = function (items) {
             if (items instanceof Array) {
                 var i;
                 for (i=0;i<items.length;i++) {
@@ -610,7 +617,7 @@
             return this;
         }
 
-        object.plus = function(other) {
+        this.plus = function(other) {
             var result = this.clone();
             if (other instanceof Array) {
                 result.putAll(other);
@@ -625,7 +632,7 @@
             return result;
         }
 
-        object.clone = function() {
+        this.clone = function() {
             var result = gs.map(), ob;
             for (ob in this) {
                 if (!isMapProperty(ob)) {
@@ -635,7 +642,7 @@
             return result;
         }
 
-        object.minus = function(other) {
+        this.minus = function(other) {
             var result = this.clone(), ob;
             for (ob in other) {
                 if (!isMapProperty(ob)) {
@@ -646,7 +653,6 @@
             }
             return result;
         }
-        return object;
     }
 
     /////////////////////////////////////////////////////////////////
