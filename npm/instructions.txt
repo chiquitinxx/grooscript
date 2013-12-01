@@ -1,0 +1,3 @@
+copy grooscript.js from ../src/main/resources/META-INF/resources to here
+change version in package.json
+run 'npm publish' in this directory
