@@ -418,7 +418,7 @@ class GsConverter {
         }
     }
 
-    private checkMixinAndCategory(className, annotations) {
+    private checkAddMixin(className, annotations) {
 
         annotations.each { AnnotationNode annotationNode ->
             if (annotationNode.getClassNode().name=='groovy.lang.Mixin') {
@@ -442,6 +442,29 @@ class GsConverter {
         addScript('[')
         addScript listMixins.collect { "'$it'"}.join(',')
         addScript(']);')
+        addLine()
+    }
+
+    private checkAddCategory(className, annotations) {
+        annotations.each { AnnotationNode annotationNode ->
+            if (annotationNode.getClassNode().name=='groovy.lang.Category') {
+                annotationNode.members.values().each { value ->
+                    if (value instanceof ListExpression) {
+                        value.expressions.each { it ->
+                            addCategoryToClass(className, it.type.nameWithoutPackage)
+                        }
+                    } else {
+                        addCategoryToClass(className, value.type.nameWithoutPackage)
+                    }
+                }
+                addScript("${org.grooscript.JsNames.GS_MY_CATEGORIES}['${className}'] = ${className};")
+                addLine()
+            }
+        }
+    }
+
+    private addCategoryToClass(categoryName, className) {
+        addScript("${org.grooscript.JsNames.GS_ADD_CATEGORY_ANNOTATION}('${categoryName}','${className}');")
         addLine()
     }
 
@@ -541,9 +564,8 @@ class GsConverter {
         //Constructors
         checkConstructors(node)
 
-        //Mixin
-        //TODO category
-        checkMixinAndCategory(node.nameWithoutPackage, node.annotations)
+        //@Mixin
+        checkAddMixin(node.nameWithoutPackage, node.annotations)
 
         addLine()
         indent --
@@ -584,6 +606,9 @@ class GsConverter {
         //Pop name in stack
         classNameStack.pop()
         superNameStack.pop()
+
+        //@Category
+        checkAddCategory(node.nameWithoutPackage, node.annotations)
 
         //Finish class conversion
         if (consoleInfo) {

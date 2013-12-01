@@ -35,6 +35,8 @@
     //Delegate
     var actualDelegate = null;
 
+    gs.myCategories = {};
+
     /////////////////////////////////////////////////////////////////
     // assert and println
     /////////////////////////////////////////////////////////////////
@@ -61,6 +63,11 @@
         }
     };
 
+    //TODO We don't know if a function is constructor, atm if function name starts with uppercase, it is
+    function isConstructor(name, func) {
+        return name[0] == name[0].toUpperCase();
+    }
+
     /////////////////////////////////////////////////////////////////
     // Class functions
     /////////////////////////////////////////////////////////////////
@@ -82,8 +89,7 @@
                 if (typeof this[ob] === "function") {
 
                     if (ob!='getStatic' && ob!='withz' && ob!='getProperties' && ob!='getMethods' && ob!='constructor' &&
-                        //TODO We don't know if a function is constructor, atm if function name starts with uppercase, it is
-                        ob[0] != ob[0].toUpperCase()) {
+                        !(isConstructor(ob, this[ob]))) {
                         var item = {
                             name: ob
                         };
@@ -106,6 +112,13 @@
         constructor : function() {
             return this;
         }
+    }
+
+    function isObjectProperty(name) {
+        return ['clazz','gSdefaultValue','leftShift',
+            'minus','plus','equals','toString',
+            'clone','withz','getProperties',
+            'getMethods','invokeMethod','constructor'].indexOf(name) >= 0;
     }
 
     gs.expando = function() {
@@ -2120,9 +2133,41 @@
     // Categories
     ////////////////////////////////////////////////////////////
     gs.categoryUse = function(item, closure) {
-        categories[categories.length] = item;
+        if (existAnnotatedCategory(item)) {
+            var ob, categoryCreated = gs.myCategories[item]();
+            for (ob in categoryCreated) {
+                if (!isObjectProperty(ob) && !isConstructor(ob, categoryCreated[ob]) &&
+                    typeof categoryCreated[ob] === "function") {
+                    addFunctionToClass(ob, categoryCreated[ob], annotatedCategories[item]);
+                }
+            }
+        } else {
+            categories[categories.length] = item;
+        }
         closure();
-        categories.splice(categories.length - 1, 1);
+        if (existAnnotatedCategory(item)) {
+            var ob, categoryCreated = gs.myCategories[item]();
+            for (ob in categoryCreated) {
+                if (!isObjectProperty(ob) && !isConstructor(ob, categoryCreated[ob]) &&
+                    typeof categoryCreated[ob] === "function") {
+                    removeFunctionToClass(ob, categoryCreated[ob], annotatedCategories[item]);
+                }
+            }
+        } else {
+            categories.splice(categories.length - 1, 1);
+        }
+    }
+
+    function addFunctionToClass(name, func, className) {
+        if (className == 'String' && String.prototype[name] == null) {
+            String.prototype[name] = func;
+        }
+    }
+
+    function removeFunctionToClass(name, func, className) {
+        if (className == 'String' && String.prototype[name] != func) {
+            String.prototype[name] = null;
+        }
     }
 
     function categorySearching(methodName) {
@@ -2135,6 +2180,15 @@
             }
         }
         return result;
+    }
+
+    function existAnnotatedCategory(name) {
+        return (annotatedCategories[name]!=null && annotatedCategories[name]!=undefined);
+    }
+
+    var annotatedCategories = {};
+    gs.addAnnotatedCategory = function(nameCategory, nameClass) {
+        annotatedCategories[nameCategory] = nameClass;
     }
 
     ////////////////////////////////////////////////////////////

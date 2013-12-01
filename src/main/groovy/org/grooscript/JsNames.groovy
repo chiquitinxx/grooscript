@@ -59,4 +59,6 @@ class JsNames {
     static final GS_PLUS_PLUS = "${GS}plusPlus"
     static final GS_SPREAD = "${GS}spread"
     static final GS_FIND_SCOPE = "${GS}fs"
+    static final GS_ADD_CATEGORY_ANNOTATION = "${GS}addAnnotatedCategory"
+    static final GS_MY_CATEGORIES = "${GS}myCategories"
 }

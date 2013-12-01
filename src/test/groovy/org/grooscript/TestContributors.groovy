@@ -31,6 +31,7 @@ class TestContributors extends Specification {
         'contribution/MrHakiGrep'               |_
         'contribution/MrHakiGetSetProperties'   |_
         'contribution/MrHakiSpread'             |_
+        'contribution/MrHakiCategories'         |_
 
     }
 
