@@ -48,4 +48,9 @@ class TestAdvancedClass extends Specification {
         expect:
         !readAndConvert('classes/Abstract').assertFails
     }
+
+    def 'using @Category'() {
+        expect:
+        !readAndConvert('classes/AddCategories').assertFails
+    }
 }

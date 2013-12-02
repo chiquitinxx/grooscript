@@ -336,14 +336,14 @@
     }
 
     gs.map = function() {
-        var object = new GroovyMap();
+        var object = new GsGroovyMap();
         //gs.inherit(gs.baseClass,'LinkedHashMap');
         expandWithMetaclass(object, 'LinkedHashMap');
 
         return object;
     }
 
-    function GroovyMap() {
+    function GsGroovyMap() {
         this.clazz = { name: 'java.util.LinkedHashMap', simpleName: 'LinkedHashMap',
             superclass: { name: 'java.util.HashMap', simpleName: 'HashMap'}}
         this.add = function(key,value) {
@@ -2073,19 +2073,31 @@
                 if (categories.length > 0) {
                     var whereExecutes = categorySearching(methodName);
                     if (whereExecutes!=null) {
-                        return whereExecutes[methodName].apply(item,joinParameters(item,values));
+                        return whereExecutes[methodName].apply(item, joinParameters(item,values));
                     }
                 }
+
+                //In @Category
+                var ob;
+                for (ob in annotatedCategories) {
+                    if (annotatedCategories[ob] == item.clazz.simpleName) {
+                        var categoryItem = gs.myCategories[ob]();
+                        if (categoryItem[methodName] && typeof categoryItem[methodName] === "function") {
+                            return categoryItem[methodName].apply(item, joinParameters(item,values));
+                        }
+                    }
+                }
+
                 //Lets check in mixins classes
                 if (mixins.length>0) {
                     var whereExecutes = mixinSearching(item,methodName);
                     if (whereExecutes!=null) {
-                        return whereExecutes[methodName].apply(item,joinParameters(item,values));
+                        return whereExecutes[methodName].apply(item, joinParameters(item,values));
                     }
                 }
                 //Lets check in mixins objects
                 if (mixinsObjects.length>0) {
-                    var whereExecutes = mixinObjectsSearching(item,methodName);
+                    var whereExecutes = mixinObjectsSearching(item, methodName);
                     if (whereExecutes!=null) {
                         return whereExecutes[methodName].apply(item,joinParameters(item,values));
                     }
@@ -2138,7 +2150,7 @@
             for (ob in categoryCreated) {
                 if (!isObjectProperty(ob) && !isConstructor(ob, categoryCreated[ob]) &&
                     typeof categoryCreated[ob] === "function") {
-                    addFunctionToClass(ob, categoryCreated[ob], annotatedCategories[item]);
+                    addFunctionToClassIfPrototyped(ob, categoryCreated[ob], annotatedCategories[item]);
                 }
             }
         } else {
@@ -2158,15 +2170,34 @@
         }
     }
 
-    function addFunctionToClass(name, func, className) {
-        if (className == 'String' && String.prototype[name] == null) {
-            String.prototype[name] = func;
+    function getProtoypeOfClass(className) {
+        if (className == 'String') {
+            return String.prototype;
+        }
+        if (className == 'Number') {
+            return Number.prototype;
+        }
+        if (className == 'ArrayList') {
+            return Array.prototype;
+        }
+        return null;
+    }
+
+    function addFunctionToClassIfPrototyped(name, func, className) {
+        var proto = getProtoypeOfClass(className);
+        if  (proto != null) {
+            if (proto[name] == null) {
+                proto[name] = func;
+            }
         }
     }
 
     function removeFunctionToClass(name, func, className) {
-        if (className == 'String' && String.prototype[name] != func) {
-            String.prototype[name] = null;
+        var proto = getProtoypeOfClass(className);
+        if  (proto != null) {
+            if (proto[name] == func) {
+                proto[name] = null;
+            }
         }
     }
 
