@@ -58,16 +58,12 @@ function evaluateTest() {
     return page.evaluate(function() {
 
         var gSresult = { number:0 , tests: [], console: ''};
-        function gSassert(value, text) {
+        gs.assert = function(value, text) {
             var test = { result: value, text: value.toString()};
             if (arguments.length == 2 && arguments[1]!=null && arguments[1]!=undefined) {
                 test.text = text;
             }
             gSresult.tests[gSresult.number++] = test;
-        };
-
-        function gSprintln(value) {
-            console.log(value);
         };
 
         function grooKimbo(selector,other) {
