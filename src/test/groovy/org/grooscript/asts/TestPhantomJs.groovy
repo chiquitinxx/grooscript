@@ -126,6 +126,15 @@ class TestPhantomJs extends GroovyTestCase {
         testExpectedElements('div', 85)
     }
 
+    void testAssertError() {
+        try {
+            testExpectedElements('a', 10000)
+            fail 'Must throw assert error'
+        } catch (AssertionError e) {
+            assert e.message.startsWith('Number of \'a\' in page is ')
+        }
+    }
+
     @PhantomJsTest(url = 'http://mockmockmock.mock')
     void wrongUrl() {
         assert true

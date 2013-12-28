@@ -24,9 +24,7 @@ codenarc.configFile = new File('config/codenarc.groovy')
 dependencies {
     compile group: 'org.codehaus.groovy', name: 'groovy', version: '2.1.6'
     compile group: 'org.codehaus.gpars', name: 'gpars', version: '1.0.0'
-    testCompile 'org.spockframework:spock-core:0.7-groovy-2.0', {
-        exclude module: "groovy-all"
-    }
+    testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 }
 
 jar {
