@@ -157,7 +157,7 @@ class TestPhantomJs extends GroovyTestCase {
 
     /*
     @PhantomJsTest(url = 'http://localhost:8080/grooscript-vertx/main/vertxEvents', waitSeconds = 2)
-    void testWaitSeconds() {
+    void testWaitSecondsLocal() {
         assert $('#points').html() == '.',"points Html after is ${$('#points').html()}"
     }*/
 }
