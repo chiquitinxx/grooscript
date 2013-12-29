@@ -48,18 +48,18 @@ class TestDaemon extends Specification {
         generatedFile(FILE1_OUT)
     }
 
-    def 'test option customization with @DomainClass'() {
+    def 'test option customization with @CompileStatic'() {
         given:
         GrooScript.startConversionDaemon([FOLDER_OUT] , FOLDER_OUT,
                 ['customization': {
-                    ast(org.grooscript.asts.DomainClass)
+                    ast(groovy.transform.CompileStatic)
                 }])
 
         when:
         waitAndStop()
 
-        then: 'DomainClass ast applied to class'
-        generatedFile(FILE1_OUT).text.contains "gSobject['save'] = function(onOk, onError) {"
+        then:
+        generatedFile(FILE1_OUT).text.contains "gSobject.clazz = { name: 'File1', simpleName: 'File1'};"
     }
 
     def 'test do after'() {
