@@ -171,4 +171,9 @@ class TestAdvanced extends Specification {
         expect:
         !readAndConvert('advanced/RangeChars').assertFails
     }
+
+    def 'return values'() {
+        expect:
+        !readAndConvert('advanced/ReturnValues').assertFails
+    }
 }

@@ -125,6 +125,6 @@ class TestBuilder extends Specification {
                 }
             }
             assert result.html == "<body><ul><li class='myClass'>item: George</li></ul></body>"
-        ''',true)
+        ''')
     }
 }

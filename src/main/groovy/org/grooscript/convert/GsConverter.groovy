@@ -28,6 +28,7 @@ class GsConverter {
     Stack actualScope = new Stack()
     boolean processingClosure = false
     boolean processingClassMethods = false
+    boolean lookingForReturnStatementInIf = false
 
     def inheritedVariables = [:]
 
@@ -166,7 +167,7 @@ class GsConverter {
 
             //Process blocks after
             listBlocks?.each { it->
-                processBlockStament(it,false)
+                processBlockStatement(it,false)
             }
 
             result = resultScript
@@ -734,11 +735,11 @@ class GsConverter {
 
         actualScope.push([])
 
-        processFunctionOrMethodParameters(functionOrMethod,isConstructor,addItDefault)
+        processFunctionOrMethodParameters(functionOrMethod, isConstructor, addItDefault)
 
         //println 'Closure '+expression+' Code:'+expression.code
         if (functionOrMethod.code instanceof BlockStatement) {
-            processBlockStament(functionOrMethod.code,!isConstructor)
+            processBlockStatement(functionOrMethod.code, !isConstructor)
         } else {
             GsConsole.error("FunctionOrMethod Code not supported (${functionOrMethod.code.class.simpleName})")
         }
@@ -790,50 +791,58 @@ class GsConverter {
 
     }
 
+    private statementThatCanReturn(statement) {
+        return !(statement instanceof ReturnStatement) &&
+                !(statement instanceof IfStatement) && !(statement instanceof WhileStatement) &&
+                !(statement instanceof AssertStatement) && !(statement instanceof BreakStatement) &&
+                !(statement instanceof CaseStatement) && !(statement instanceof CatchStatement) &&
+                !(statement instanceof ContinueStatement) && !(statement instanceof DoWhileStatement) &&
+                !(statement instanceof ForStatement) && !(statement instanceof SwitchStatement) &&
+                !(statement instanceof ThrowStatement) && !(statement instanceof TryCatchStatement) &&
+                !(statement.metaClass.expression && statement.expression instanceof DeclarationExpression)
+    }
+
     /**
      * Process an AST Block
      * @param block
      * @param addReturn put 'return ' before last statement
      * @return
      */
-    private processBlockStament(block,addReturn) {
+    private processBlockStatement(block, addReturn) {
         if (block) {
             def number = 1
             //println 'Block->'+block
             if (block instanceof EmptyStatement) {
                 GsConsole.debug "BlockEmpty -> ${block.text}"
-                //println 'Empty->'+block.getStatementLabel()
             } else {
                 //println '------------------------------Block->'+block.text
                 block.getStatements()?.each { statement ->
-                    //println 'Block Statement-> size '+ block.getStatements().size() + ' number '+number+ ' it->'+it
-                    //println 'is block-> '+ (it instanceof BlockStatement)
-                    //println 'statement-> '+ statement.text
+                    def lookingForIf = false
                     def position
                     returnScoping.push(false)
-                    if (addReturn && ((number++)==block.getStatements().size()) && !(statement instanceof ReturnStatement)
-                            && !(statement instanceof IfStatement) && !(statement instanceof WhileStatement)
-                            && !(statement instanceof AssertStatement) && !(statement instanceof BreakStatement)
-                            && !(statement instanceof CaseStatement) && !(statement instanceof CatchStatement)
-                            && !(statement instanceof ContinueStatement) && !(statement instanceof DoWhileStatement)
-                            && !(statement instanceof ForStatement) && !(statement instanceof SwitchStatement)
-                            && !(statement instanceof ThrowStatement) && !(statement instanceof TryCatchStatement)
-                            && !(statement.metaClass.expression && statement.expression instanceof DeclarationExpression)) {
+                    if (addReturn && ((number++) == block.getStatements().size())
+                            && statementThatCanReturn(statement)) {
 
                         //println 'Saving statemen->'+it
                         //println 'Saving return - '+ variableScoping.peek()
                         //this statement can be a complex statement with a return
                         //Go looking for a return statement in last statement
                         position = getSavePoint()
-                        //We use actualScoping for getting return statement in this scope
-                        //variableScoping.peek().remove(gSgotResultStatement)
+                    }
+                    if (addReturn && (number - 1) == block.getStatements().size() && !lookingForReturnStatementInIf
+                            && statement instanceof IfStatement) {
+                        lookingForReturnStatementInIf = true
+                        lookingForIf = true
                     }
                     processStatement(statement)
+                    if (lookingForIf) {
+                        lookingForReturnStatementInIf = false
+                    }
                     if (addReturn && position) {
                         if (!returnScoping.peek()) {
                             //No return statement, then we want add return
                             //println 'Yes!'+position
-                            addScriptAt('return ',position)
+                            addScriptAt('return ', position)
                         }
                     }
                     returnScoping.pop()
@@ -844,7 +853,7 @@ class GsConverter {
 
     //???? there are both used
     private processBlockStatement(block) {
-        processBlockStament(block,false)
+        processBlockStatement(block, false)
     }
 
     /**
@@ -1594,35 +1603,31 @@ class GsConverter {
         addScript('if (')
         visitNode(statement.booleanExpression)
         addScript(') {')
-        indent++
-        addLine()
-        if (statement.ifBlock instanceof BlockStatement) {
-            processBlockStament(statement.ifBlock,false)
-        } else {
-            //println 'if2->'+ statement.ifBlock.text
-            visitNode(statement.ifBlock)
-            addLine()
-        }
+        processIfOrElseBlock(statement.ifBlock)
 
-        indent--
-        removeTabScript()
-        addScript('}')
         if (statement.elseBlock && !(statement.elseBlock instanceof EmptyStatement)) {
             //println 'Else->'+statement.elseBlock.text
             addScript(' else {')
-            indent++
-            addLine()
-            if (statement.elseBlock instanceof BlockStatement) {
-                processBlockStament(statement.elseBlock,false)
-            } else {
-                //println 'if2->'+ statement.ifBlock.text
-                visitNode(statement.elseBlock)
-                addLine()
-            }
-            indent--
-            removeTabScript()
-            addScript('}')
+            processIfOrElseBlock(statement.elseBlock)
         }
+    }
+
+    private processIfOrElseBlock(block) {
+        indent++
+        addLine()
+        if (block instanceof BlockStatement) {
+            processBlockStatement(block, lookingForReturnStatementInIf)
+        } else {
+            if (lookingForReturnStatementInIf && statementThatCanReturn(block)) {
+                addScript('return ')
+            }
+            visitNode(block)
+            addScript(';')
+            addLine()
+        }
+        indent--
+        removeTabScript()
+        addScript('}')
     }
 
     private processMapExpression(MapExpression expression) {
@@ -1730,7 +1735,7 @@ class GsConverter {
     }
 
     private processCatchStatement(CatchStatement statement) {
-        processBlockStament(statement.code,false)
+        processBlockStatement(statement.code,false)
     }
 
     private processTernaryExpression(TernaryExpression expression) {
