@@ -834,7 +834,12 @@ class GsConverter {
                         lookingForReturnStatementInIf = true
                         lookingForIf = true
                     }
+                    def oldlookingForReturnStatementInIf = lookingForReturnStatementInIf
+                    if ((number - 1) != block.getStatements().size()) {
+                        lookingForReturnStatementInIf = false
+                    }
                     processStatement(statement)
+                    lookingForReturnStatementInIf = oldlookingForReturnStatementInIf
                     if (lookingForIf) {
                         lookingForReturnStatementInIf = false
                     }
@@ -1603,6 +1608,7 @@ class GsConverter {
         addScript('if (')
         visitNode(statement.booleanExpression)
         addScript(') {')
+
         processIfOrElseBlock(statement.ifBlock)
 
         if (statement.elseBlock && !(statement.elseBlock instanceof EmptyStatement)) {

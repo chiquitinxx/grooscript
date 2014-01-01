@@ -34,6 +34,20 @@ def cl5 = { a ->
     }
 }
 
+def cl6 = { a ->
+    if (a > 0) {
+        if (a > 3) {
+            3
+            4
+        } else {
+            5
+        }
+        return 1
+    } else {
+        0
+    }
+}
+
 assert cl1(1) == 1
 assert cl2(1) == 1
 assert cl2(-1) == 0
@@ -44,3 +58,5 @@ assert cl4(-1) == 0
 assert cl5(1) == 5
 assert cl5(9) == 9
 assert cl5(-1) == 0
+assert cl6(5) == 1
+assert cl6(-1) == 0
