@@ -33,6 +33,10 @@ jar {
     }
 }
 
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.10'
+}
+
 //Sonar repository stuff
 /*task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
