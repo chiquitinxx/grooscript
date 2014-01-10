@@ -119,6 +119,11 @@ task copyToGscriptWeb() << {
 	}
 }
 
+task testUnit(type: org.gradle.api.tasks.testing.Test) {
+    exclude 'org/grooscript/asts/TestPhantom*'
+    exclude 'org/grooscript/daemon/**'
+}
+
 task testMocha(type: TestMochaTask) {
     folder = 'src/test/js'
 }
