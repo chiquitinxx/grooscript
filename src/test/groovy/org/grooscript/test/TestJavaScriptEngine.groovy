@@ -60,8 +60,12 @@ class TestJavaScriptEngine extends Specification {
     }
 
     def 'speed javascript engine'() {
-        expect:
-        !readAndConvert('TestSpeed').assertFails
+        when:
+        def result = readAndConvert('TestSpeed')
+        //println result.gSconsole
+
+        then:
+        !result.assertFails
     }
 
     def 'problems with reserved words'() {

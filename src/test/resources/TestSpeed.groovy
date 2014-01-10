@@ -31,12 +31,12 @@ def takeTime(text, closure) {
     }
 }
 
-takeTime('methodMissing') { value ->
+takeTime('methodMissingSpeed') { value ->
     def multi = new MultiMethods()
     Random random = new Random()
     value.times {
-        multi."${random.nextInt(100)}"()
+        multi."${random.nextInt(100000)}"()
     }
     //println "  Number hits: ${multi.hits}"
 }
-assert true,'Finish Ok.'
+assert true, 'Finish Ok.'

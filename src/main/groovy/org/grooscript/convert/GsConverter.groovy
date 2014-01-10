@@ -162,6 +162,7 @@ class GsConverter {
                     GsConsole.message('Processing method '+methodNode.name)
                 }
                 //processMethodNode(methodNode)
+                variableScoping.peek().add(methodNode.name)
                 processBasicFunction("var ${methodNode.name}",methodNode,false)
             }
 
@@ -1509,16 +1510,17 @@ class GsConverter {
             addScript(".collect(function(it) { return ${org.grooscript.JsNames.GS_METHOD_CALL}(it,'${expression.methodAsString}',${org.grooscript.JsNames.GS_LIST}([")
             processArgumentListExpression(expression.arguments,false)
             addScript(']));})')
+        //Call a method in this, method exist in main context
+        } else if (isThis(expression.objectExpression) && firstVariableScopingHasMethod(expression.methodAsString)) {
+            addScript(expression.methodAsString)
         } else {
 
-
-            //println 'Method->'+expression.methodAsString+' - '+expression.arguments.class.simpleName
+            //println 'Method->'+expression.methodAsString+' - '+expression.arguments.class.simpleName + ' - ' + variableScoping
             addParameters = false
 
             addScript("${org.grooscript.JsNames.GS_METHOD_CALL}(")
             //Object
-            if (expression.objectExpression instanceof VariableExpression &&
-                    expression.objectExpression.name == 'this' &&
+            if (isThis(expression.objectExpression) &&
                     variableScoping.peek()?.contains(expression.methodAsString)) {
                 addScript(org.grooscript.JsNames.GS_OBJECT)
             } else {
@@ -1538,6 +1540,15 @@ class GsConverter {
         if (addParameters) {
             visitNode(expression.arguments)
         }
+    }
+
+    private isThis(expression) {
+        expression instanceof VariableExpression && expression.name == 'this'
+    }
+
+    private firstVariableScopingHasMethod(methodName) {
+        variableScoping && variableScoping.peek() == variableScoping.firstElement() &&
+            variableScoping.peek().contains(methodName)
     }
 
     private addPlusPlusFunction(expression, isBefore) {
