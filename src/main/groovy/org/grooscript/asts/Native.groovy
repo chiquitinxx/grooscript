@@ -9,6 +9,7 @@ import org.codehaus.groovy.transform.GroovyASTTransformation
 /**
  * JFL 10/11/12
  */
+@SuppressWarnings(['EmptyMethod', 'UnusedMethodParameter'])
 @GroovyASTTransformation(phase=CompilePhase.SEMANTIC_ANALYSIS)
 public class Native implements ASTTransformation {
 

@@ -17,6 +17,7 @@ import static org.grooscript.util.GsConsole.*
  * User: jorgefrancoleza
  * Date: 30/03/13
  */
+@SuppressWarnings('DuplicateStringLiteral')
 @GroovyASTTransformation(phase=CompilePhase.SEMANTIC_ANALYSIS)
 public class PhantomJsTestImpl implements ASTTransformation {
 
@@ -24,7 +25,7 @@ public class PhantomJsTestImpl implements ASTTransformation {
     static final HEAD = '[PhantomJs Test]'
     static final CONSOLE = '  [Console]'
 
-    static final phantomJsText = '''
+    static final PHANTOM_JS_TEXT = '''
 var page = require('webpage').create();
 
 page.onConsoleMessage = function(msg) {
@@ -108,8 +109,7 @@ page.open('{{URL}}', function (status) {
 
     public void visit(ASTNode[] nodes, SourceUnit sourceUnit) {
         //Start
-        if (!nodes[0] instanceof AnnotationNode ||
-                !nodes[1] instanceof MethodNode) {
+        if (!nodes[0] instanceof AnnotationNode || !nodes[1] instanceof MethodNode) {
             return
         }
 
@@ -133,13 +133,13 @@ page.open('{{URL}}', function (status) {
             try {
                 jsTest = converter.processAstListToJs([method])
             } catch (e) {
-                messageError = 'Error converting code ->'+e.message
+                messageError = 'Error converting code ->' + e.message
             }
         }
 
         def textCode = "def listParams = [];\n${method.parameters.collect { "listParams << ${it.name}"}.join(';')};\n" +
                 "Class.forName('org.grooscript.asts.PhantomJsTestImpl').doPhantomJsTest('${url}', " +
-                "\'\'\'"+ jsTest +"\'\'\', '${method.name?:''}', ${waitSeconds}, '${capture?:''}',listParams, " +
+                "\'\'\'" + jsTest + "\'\'\', '${method.name?:''}', ${waitSeconds}, '${capture?:''}',listParams, " +
                 "'${messageError?:''}', ${withInfo}); return null"
         method.declaringClass
         method.setCode new AstBuilder().buildFromString(CompilePhase.CLASS_GENERATION , textCode)
@@ -162,7 +162,7 @@ page.open('{{URL}}', function (status) {
                         message 'Using js local files in ' + path, HEAD
                     } else {
                         folder.mkdirs()
-                        ['grooscript.js','kimbo.min.js'].each { fileName ->
+                        ['grooscript.js', 'kimbo.min.js'].each { fileName ->
                             new File(path + File.separator + fileName).text =
                                 GrooScript.classLoader.getResourceAsStream('META-INF/resources/' + fileName).text
                         }
@@ -178,7 +178,7 @@ page.open('{{URL}}', function (status) {
                 assert false, 'Need define property JS_LIBRARIES_PATH, folder with grooscript.js and kimbo.min.js'
             }
         }
-        return jsHome
+        jsHome
     }
 
     static void doPhantomJsTest(String url, String testCode, String methodName, int waitSeconds = 0,
@@ -200,7 +200,7 @@ page.open('{{URL}}', function (status) {
 
             //Save the file
             def finalText
-            finalText = phantomJsText
+            finalText = PHANTOM_JS_TEXT
             finalText = finalText.replace('{{URL}}', url)
             finalText = finalText.replace('{{GROOSCRIPT}}', testCode)
             finalText = finalText.replace('{{SECONDS}}', waitSeconds as String)
@@ -211,9 +211,9 @@ page.open('{{URL}}', function (status) {
                 finalText = finalText.replace('{{CAPTURE}}', '')
             }
 
-            def sysOp = System.getProperty("os.name")
+            def sysOp = System.getProperty('os.name')
             if (sysOp && sysOp.toUpperCase().contains('WINDOWS')) {
-                jsHome = jsHome.replace("\\",'/')
+                jsHome = jsHome.replace('\\', '/')
                 jsHome = (jsHome.indexOf(':') == 1 ? jsHome.substring(2) : jsHome)
             }
 
@@ -252,11 +252,11 @@ page.open('{{URL}}', function (status) {
             } else {
                 exit.eachLine { String line->
                     if (line.contains('Result:FAIL')) {
-                        assert false,line.substring(line.indexOf(' Desc:')+6)
+                        assert false, line.substring(line.indexOf(' Desc:') + 6)
                     } else if (line.toUpperCase().startsWith('CONSOLE:')) {
                         message line.substring(8), CONSOLE
                     } else if (line.contains('Result:OK')) {
-                        assert true,line.substring(line.indexOf(' Desc:')+6)
+                        assert true, line.substring(line.indexOf(' Desc:') + 6)
                     } else {
                         message line, HEAD
                     }
@@ -278,7 +278,9 @@ page.open('{{URL}}', function (status) {
             File file = new File(nameFile)
             if (withInfo) {
                 message '**************************************************** BEGIN JS TEST', HEAD
-                println file.text
+                file.text.eachLine { line ->
+                    message line, HEAD
+                }
                 message '**************************************************** END JS TEST', HEAD
             }
             //new File('out.js').text = file.text

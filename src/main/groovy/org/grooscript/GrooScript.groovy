@@ -1,12 +1,11 @@
 package org.grooscript
 
-import org.grooscript.convert.GsConverter
-
 import static org.grooscript.util.Util.*
+
+import org.grooscript.convert.GsConverter
 import org.grooscript.util.GrooScriptException
 import org.grooscript.daemon.ConversionDaemon
 import org.grooscript.util.GsConsole
-
 /**
  * JFL 09/11/12
  */

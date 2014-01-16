@@ -9,6 +9,7 @@ import org.codehaus.groovy.control.SourceUnit
 /**
  * JFL 10/11/12
  */
+@SuppressWarnings(['EmptyMethod', 'UnusedMethodParameter'])
 @GroovyASTTransformation(phase=CompilePhase.SEMANTIC_ANALYSIS)
 public class NotConvert implements ASTTransformation {
 

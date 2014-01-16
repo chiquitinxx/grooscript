@@ -65,7 +65,7 @@ class TestJs {
                         if (number > 1) {
                             def actualLine = number - 2
                             finalScript.readLines()[actualLine .. number + 2].each { line ->
-                                println " ${actualLine++}: $line"
+                                GsConsole.info " ${actualLine++}: $line"
                             }
                         }
                     }

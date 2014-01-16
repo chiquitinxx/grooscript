@@ -96,11 +96,11 @@ class GsConverter {
                     GsConsole.message('Code processed.')
                 }
             } catch (e) {
-                GsConsole.error('Error getting AST from script: '+e.message)
+                GsConsole.error('Error getting AST from script: ' + e.message)
                 if (phase==0) {
-                    throw new Exception("Compiler ERROR on Script -"+e.message)
+                    throw new Exception("Compiler ERROR on Script -" + e.message)
                 } else {
-                    throw new Exception("Compiler END ERROR on Script -"+e.message)
+                    throw new Exception("Compiler END ERROR on Script -" + e.message)
                 }
             }
         }
@@ -116,7 +116,7 @@ class GsConverter {
         def result
         indent = 0
         resultScript = ''
-        if (list && list.size()>0) {
+        if (list && list.size() > 0) {
             //println '-----------------Size('+list.size+')->'+list
             variableScoping.clear()
             variableScoping.push([])
@@ -163,12 +163,12 @@ class GsConverter {
                 }
                 //processMethodNode(methodNode)
                 variableScoping.peek().add(methodNode.name)
-                processBasicFunction("var ${methodNode.name}",methodNode,false)
+                processBasicFunction("var ${methodNode.name}", methodNode, false)
             }
 
             //Process blocks after
             listBlocks?.each { it->
-                processBlockStatement(it,false)
+                processBlockStatement(it, false)
             }
 
             result = resultScript
@@ -183,18 +183,18 @@ class GsConverter {
         def finalList = []
         def extraClasses = []
         def enumClasses = []
-        while ((finalList.size()+extraClasses.size()+enumClasses.size())<list.size()) {
+        while ((finalList.size() + extraClasses.size() + enumClasses.size()) < list.size()) {
 
             list.each { ClassNode it ->
                 //println 'it->'+it.name+' super - '+it.superClass.name
-                if (it.superClass.name=='java.lang.Object')  {
+                if (it.superClass.name == 'java.lang.Object')  {
                     if (!finalList.contains(it.name)) {
                         //println 'Adding '+it.name+' - '+it.isInterface()
                         finalList.add(it.name)
                     }
                 } else {
                     //Expando allowed
-                    if (it.superClass.name=='groovy.lang.Script') {
+                    if (it.superClass.name == 'groovy.lang.Script') {
                         extraClasses.add(it.name)
                     } else {
                         //If father in the list, we can add it
@@ -205,10 +205,10 @@ class GsConverter {
                             //Looking for superclass, only accepts superclass a class in same script
                             if (it.superClass.name.startsWith('java.') ||
                                 it.superClass.name.startsWith('groovy.')) {
-                                if (it.superClass.name=='java.lang.Enum') {
+                                if (it.superClass.name == 'java.lang.Enum') {
                                     enumClasses.add(it.name)
                                 } else {
-                                    throw new Exception('Inheritance not Allowed on '+it.name)
+                                    throw new Exception('Inheritance not Allowed on ' + it.name)
                                 }
                             }
                         }
@@ -220,7 +220,7 @@ class GsConverter {
         //Finally process classes in order
         finalList.each { String nameClass ->
             if (consoleInfo) {
-                GsConsole.message('  Processing class '+nameClass)
+                GsConsole.message('  Processing class ' + nameClass)
             }
             processClassNode(list.find { ClassNode it ->
                 return it.name == nameClass
@@ -271,8 +271,8 @@ class GsConverter {
     private translateClassName(String name) {
         def result = name
         def i
-        while ((i = result.indexOf('.'))>=0) {
-            result = result.substring(i+1)
+        while ((i = result.indexOf('.')) >= 0) {
+            result = result.substring(i + 1)
         }
 
         result
@@ -309,7 +309,7 @@ class GsConverter {
             if (it.name!='main' && it.name!='run') {
                 //Add too method names to variable scoping
                 variableScoping.peek().add(it.name)
-                processBasicFunction(it.name,it,false)
+                processBasicFunction(it.name, it, false)
             }
         }
 
@@ -384,10 +384,10 @@ class GsConverter {
         boolean has1parameterConstructor = false
         node?.declaredConstructors?.each { MethodNode it->
             def numberArguments = it.parameters?.size()
-            if (numberArguments==1) {
+            if (numberArguments == 1) {
                 has1parameterConstructor = true
             }
-            processMethodNode(it,true)
+            processMethodNode(it, true)
 
             addConditionConstructorExecution(numberArguments,it.parameters)
         }
@@ -423,7 +423,7 @@ class GsConverter {
     private checkAddMixin(className, annotations) {
 
         annotations.each { AnnotationNode annotationNode ->
-            if (annotationNode.getClassNode().name=='groovy.lang.Mixin') {
+            if (annotationNode.getClassNode().name == 'groovy.lang.Mixin') {
                 def list = []
                 annotationNode.members.values().each { value ->
                     if (value instanceof ListExpression) {
@@ -449,7 +449,7 @@ class GsConverter {
 
     private checkAddCategory(className, annotations) {
         annotations.each { AnnotationNode annotationNode ->
-            if (annotationNode.getClassNode().name=='groovy.lang.Category') {
+            if (annotationNode.getClassNode().name == 'groovy.lang.Category') {
                 annotationNode.members.values().each { value ->
                     if (value instanceof ListExpression) {
                         value.expressions.each { it ->
@@ -553,7 +553,7 @@ class GsConverter {
         }
 
         //Save variables from this class for use in 'son' classes
-        inheritedVariables.put(node.name,variableScoping.peek())
+        inheritedVariables.put(node.name, variableScoping.peek())
         //Ignoring fields
         //node?.fields?.each { println 'field->'+it  }
 
@@ -597,7 +597,7 @@ class GsConverter {
         node?.properties?.each { it-> //println 'Property->'+it; println 'initialExpresion->'+it.initialExpression
             if (it.isStatic()) {
                 addScript(translateClassName(node.name))
-                addPropertyToClass(it,true)
+                addPropertyToClass(it, true)
             }
         }
 
@@ -1020,18 +1020,18 @@ class GsConverter {
         } else {
             //println 'going stack->'+stack.peek()
             def keep = stack.pop()
-            def result = tourStack(stack,variableName)
+            def result = tourStack(stack, variableName)
             stack.push(keep)
             return result
         }
     }
 
     private variableScopingContains(variableName) {
-        tourStack(variableScoping,variableName)
+        tourStack(variableScoping, variableName)
     }
 
     private allActualScopeContains(variableName) {
-        tourStack(actualScope,variableName)
+        tourStack(actualScope, variableName)
     }
 
     private boolean isVariableWithMissingScope(VariableExpression expression) {
@@ -1831,7 +1831,7 @@ class GsConverter {
     }
 
     private processBreakStatement(BreakStatement statement) {
-        if (switchCount==0) {
+        if (switchCount == 0) {
             addScript('break')
         }
     }
@@ -1896,7 +1896,7 @@ class GsConverter {
         //Fields
         def number = 1
         node?.fields?.each { it->
-            if (!['MIN_VALUE','MAX_VALUE','$VALUES'].contains(it.name)) {
+            if (!['MIN_VALUE', 'MAX_VALUE', '$VALUES'].contains(it.name)) {
                 addScript("${it.name} : ${number++},")
                 addLine()
                 variableScoping.peek().add(it.name)
@@ -1906,7 +1906,7 @@ class GsConverter {
         //Methods
         node?.methods?.each { //println 'method->'+it;
 
-            if (!['values','next','previous','valueOf','$INIT','<clinit>'].contains(it.name)) {
+            if (!['values', 'next', 'previous', 'valueOf', '$INIT', '<clinit>'].contains(it.name)) {
 
                 variableScoping.peek().add(it.name)
                 addScript("${it.name} : function(")
@@ -1916,7 +1916,6 @@ class GsConverter {
                 removeTabScript()
                 addScript('},')
                 addLine()
-
             }
         }
 

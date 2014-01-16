@@ -1,5 +1,8 @@
 package org.grooscript.convert
 
+import static org.codehaus.groovy.control.customizers.builder.CompilerCustomizationBuilder.withConfig
+
+import org.grooscript.util.GrooScriptException
 import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.MethodNode
 import org.codehaus.groovy.ast.ModuleNode
@@ -7,8 +10,6 @@ import org.codehaus.groovy.control.CompilationUnit
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.grooscript.util.GsConsole
-
-import static org.codehaus.groovy.control.customizers.builder.CompilerCustomizationBuilder.withConfig
 
 /**
  * User: jorgefrancoleza
@@ -29,9 +30,9 @@ class AstTreeGenerator {
     def fromText(String text) {
         if (consoleInfo) {
             GsConsole.message('Converting string code to AST')
-            GsConsole.message(' Option convertDependencies: '+convertDependencies)
-            GsConsole.message(' Classpath: '+classPath)
-            GsConsole.message(' Customization: '+customization)
+            GsConsole.message(' Option convertDependencies: ' + convertDependencies)
+            GsConsole.message(' Classpath: ' + classPath)
+            GsConsole.message(' Customization: ' + customization)
         }
         //By default, convertDependencies = true
         //All the imports in a file are added to the source to be compiled, if not added, compiler fails
@@ -43,13 +44,13 @@ class AstTreeGenerator {
             }
         }
 
-        def scriptClassName = "script" + System.currentTimeMillis()
+        def scriptClassName = 'script' + System.currentTimeMillis()
         GroovyClassLoader classLoader = new GroovyClassLoader()
         //Add classpath to classloader
         if (classPath) {
             //Classpath must be a String or a list
             if (!(classPath instanceof String || classPath instanceof Collection)) {
-                throw new Exception('The classpath must be a String or a List')
+                throw new GrooScriptException('The classpath must be a String or a List')
             }
 
             if (classPath instanceof Collection) {
@@ -60,7 +61,7 @@ class AstTreeGenerator {
                 classLoader.addClasspath(classPath)
             }
         }
-        GroovyCodeSource codeSource = new GroovyCodeSource(text, scriptClassName + ".groovy", "/groovy/script")
+        GroovyCodeSource codeSource = new GroovyCodeSource(text, scriptClassName + '.groovy', '/groovy/script')
         CompilerConfiguration conf = new CompilerConfiguration()
         //Add classpath to configuration
         if (classPath && classPath instanceof String) {
@@ -75,7 +76,7 @@ class AstTreeGenerator {
         CompilationUnit cu = compiledCode(conf, codeSource, classLoader, text)
 
         // collect all the ASTNodes into the result, possibly ignoring the script body if desired
-        def list = cu.ast.modules.inject([]) {List listAstNodes, ModuleNode node ->
+        def list = cu.ast.modules.inject([]) { List listAstNodes, ModuleNode node ->
             if (node.statementBlock) {
                 listAstNodes.add(node.statementBlock)
 
@@ -84,18 +85,18 @@ class AstTreeGenerator {
                     if (!(cl.name == scriptClassName) && cl.isPrimaryClassNode()) {
 
                         //If we dont want to convert dependencies in the result
-                        if (!convertDependencies) {
+                        if (convertDependencies) {
+                            listAstNodes << cl
+                        } else {
                             if (classesToConvert.contains(cl.nameWithoutPackage)) {
                                 listAstNodes << cl
                             }
-                        } else {
-                            listAstNodes << cl
                         }
                     } else {
                         if (cl.name == scriptClassName && cl.methods) {
                             //Lets take a look to script methods, and add methods in script
                             cl.methods.each { MethodNode methodNode ->
-                                if (!(methodNode.name in ['main','run'])) {
+                                if (!(methodNode.name in ['main', 'run'])) {
                                     listAstNodes << methodNode
                                 }
                             }
@@ -106,9 +107,9 @@ class AstTreeGenerator {
             listAstNodes
         }
         if (consoleInfo) {
-            GsConsole.message('Done converting string code to AST. Number of nodes: '+list.size())
+            GsConsole.message('Done converting string code to AST. Number of nodes: ' + list.size())
         }
-        return list
+        list
     }
 
     private compiledCode(conf, codeSource, classLoader, text) {
