@@ -50,6 +50,4 @@ class TestConvertBase extends Specification {
         then:
         result == 'var a = 0;\n'
     }
-
-
 }

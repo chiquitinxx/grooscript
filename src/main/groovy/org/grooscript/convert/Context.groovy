@@ -1,5 +1,7 @@
 package org.grooscript.convert
 
+import org.codehaus.groovy.ast.expr.VariableExpression
+
 /**
  * User: jorgefrancoleza
  * Date: 16/01/14
@@ -25,6 +27,9 @@ class Context {
     def switchCount = 0
     def addClosureSwitchInitialization = false
 
+    //Prefix and postfix for variables without clear scope
+    def prefixOperator = '', postfixOperator = ''
+
     def addToActualScope(variableName) {
         if (!actualScope.isEmpty()) {
             actualScope.peek().add(variableName)
@@ -39,12 +44,23 @@ class Context {
         }
     }
 
-    private variableScopingContains(variableName) {
+    def variableScopingContains(variableName) {
         tourStack(variableScoping, variableName)
     }
 
-    private allActualScopeContains(variableName) {
+    def allActualScopeContains(variableName) {
         tourStack(actualScope, variableName)
+    }
+
+    boolean firstVariableScopingHasMethod(methodName) {
+        variableScoping && variableScoping.peek() == variableScoping.firstElement() &&
+                variableScoping.peek().contains(methodName)
+    }
+
+    boolean isVariableWithMissingScope(VariableExpression expression) {
+        !expression.isThisExpression() && !allActualScopeContains(expression.name) &&
+                !variableScopingContains(expression.name) &&
+                (processingClosure || processingClassMethods)
     }
 
     private tourStack(Stack stack,variableName) {
@@ -59,10 +75,5 @@ class Context {
             stack.push(keep)
             return result
         }
-    }
-
-    private firstVariableScopingHasMethod(methodName) {
-        variableScoping && variableScoping.peek() == variableScoping.firstElement() &&
-                variableScoping.peek().contains(methodName)
     }
 }

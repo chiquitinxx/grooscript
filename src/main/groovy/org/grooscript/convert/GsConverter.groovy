@@ -17,6 +17,7 @@ class GsConverter {
 
     Context context = new Context()
     Out out = new Out()
+    ConversionFactory conversionFactory
 
     //Where code of native functions stored, as a map. Used for GsNative annotation
     def nativeFunctions
@@ -28,9 +29,6 @@ class GsConverter {
     def convertDependencies = true
     Closure customization = null
     def classPath = null
-
-    //Prefix and postfix for variables without clear scope
-    def prefixOperator = '', postfixOperator = ''
 
     /**
      * Converts Groovy script to Javascript
@@ -86,6 +84,7 @@ class GsConverter {
         out.resultScript = ''
         if (list && list.size() > 0) {
             //println '-----------------Size('+list.size+')->'+list
+            conversionFactory = new ConversionFactory(context, out)
             context.variableScoping.clear()
             context.variableScoping.push([])
             context.variableStaticScoping.clear()
@@ -844,7 +843,8 @@ class GsConverter {
                 if (expr instanceof VariableExpression && expr.name!='_') {
                     context.addToActualScope(expr.name)
                     out.addScript('var ')
-                    processVariableExpression(expr, true)
+                    conversionFactory.getConverter('VariableExpression').handle(expr, true)
+                    //processVariableExpression(expr, true)
                     out.addScript(' = ')
                     visitNode(expression.rightExpression)
                     out.addScript(".getAt(${number})")
@@ -859,7 +859,8 @@ class GsConverter {
             context.addToActualScope(expression.variableExpression.name)
 
             out.addScript('var ')
-            processVariableExpression(expression.variableExpression, true)
+            conversionFactory.getConverter('VariableExpression').handle(expression.variableExpression, true)
+            //processVariableExpression(expression.variableExpression, true)
 
             if (!(expression.rightExpression instanceof EmptyExpression)) {
                 out.addScript(' = ')
@@ -868,51 +869,6 @@ class GsConverter {
                 out.addScript(' = null')
             }
 
-        }
-    }
-
-    private tourStack(Stack stack,variableName) {
-        if (stack.isEmpty()) {
-            return false
-        } else if (stack.peek()?.contains(variableName)) {
-            return true
-        } else {
-            //println 'going stack->'+stack.peek()
-            def keep = stack.pop()
-            def result = tourStack(stack, variableName)
-            stack.push(keep)
-            return result
-        }
-    }
-
-    private boolean isVariableWithMissingScope(VariableExpression expression) {
-        !expression.isThisExpression() && !context.allActualScopeContains(expression.name) &&
-            !context.variableScopingContains(expression.name) &&
-                (context.processingClosure || context.processingClassMethods)
-    }
-
-    private addPrefixOrPostfixIfNeeded(name) {
-        if (prefixOperator) {
-            name = prefixOperator + name
-        }
-        if (postfixOperator) {
-            name = name + postfixOperator
-        }
-        name
-    }
-
-    private processVariableExpression(VariableExpression expression, isDeclaringVariable = false) {
-        //println "name:${expression.name} - scope:${variableScoping.peek()} - isThis - ${expression.isThisExpression()}"
-        if (context.variableScoping.peek().contains(expression.name) && !(context.actualScopeContains(expression.name))) {
-            out.addScript(addPrefixOrPostfixIfNeeded("${GS_OBJECT}."+expression.name))
-        } else if (context.variableStaticScoping.peek().contains(expression.name) && !(context.actualScopeContains(expression.name))) {
-            out.addScript(addPrefixOrPostfixIfNeeded(context.classNameStack.peek()+'.'+expression.name))
-        } else {
-            if (isVariableWithMissingScope(expression) && !isDeclaringVariable) {
-                out.addScript("${GS_FIND_SCOPE}('${addPrefixOrPostfixIfNeeded(expression.name)}', this)")
-            } else {
-                out.addScript(addPrefixOrPostfixIfNeeded(expression.name))
-            }
         }
     }
 
@@ -1420,10 +1376,9 @@ class GsConverter {
         if (expression.operation.text in ['++','--'] && expression.expression instanceof PropertyExpression) {
             addPlusPlusFunction(expression, false)
         } else {
-            postfixOperator = expression.operation.text
+            context.postfixOperator = expression.operation.text
             visitNode(expression.expression)
-            //out.addScript(postfixOperator)
-            postfixOperator = ''
+            context.postfixOperator = ''
         }
     }
 
@@ -1431,10 +1386,9 @@ class GsConverter {
         if (expression.expression instanceof PropertyExpression) {
             addPlusPlusFunction(expression, true)
         } else {
-            prefixOperator = expression.operation.text
-            //out.addScript(prefixOperator)
+            context.prefixOperator = expression.operation.text
             visitNode(expression.expression)
-            prefixOperator = ''
+            context.prefixOperator = ''
         }
     }
 
@@ -1839,6 +1793,10 @@ class GsConverter {
     }
 
     private visitNode(expression) {
-        "process${expression.class.simpleName}"(expression)
+        if (expression.class.simpleName == 'VariableExpression') {
+            conversionFactory.convert(expression)
+        } else {
+            "process${expression.class.simpleName}"(expression)
+        }
     }
 }
