@@ -30,6 +30,9 @@ class Context {
     //Prefix and postfix for variables without clear scope
     def prefixOperator = '', postfixOperator = ''
 
+    //Where code of native functions stored, as a map. Used for GsNative annotation
+    def nativeFunctions
+
     def addToActualScope(variableName) {
         if (!actualScope.isEmpty()) {
             actualScope.peek().add(variableName)

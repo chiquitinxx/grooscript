@@ -1,6 +1,7 @@
 package org.grooscript.convert.handlers
 
 import org.grooscript.convert.Context
+import org.grooscript.convert.ConversionFactory
 import org.grooscript.convert.Out
 
 /**
@@ -11,8 +12,5 @@ class BaseHandler {
 
     Context context
     Out out
-
-    def visitNode(node) {}
-
-    def handle(node) {}
+    ConversionFactory factory
 }
