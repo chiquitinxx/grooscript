@@ -2,10 +2,11 @@ package org.grooscript.convert
 
 import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.ast.Parameter
+import org.codehaus.groovy.ast.expr.NotExpression
+import org.codehaus.groovy.ast.expr.PropertyExpression
+import org.codehaus.groovy.ast.expr.VariableExpression
 import org.codehaus.groovy.ast.stmt.BlockStatement
-import org.grooscript.convert.handlers.BaseHandler
-import org.grooscript.convert.handlers.ClassNodeHandler
-import org.grooscript.convert.handlers.VariableExpressionHandler
+import org.grooscript.convert.handlers.*
 import org.grooscript.util.GrooScriptException
 import org.grooscript.util.GsConsole
 
@@ -24,7 +25,8 @@ class ConversionFactory {
 
     Map converters = [
             'VariableExpression': VariableExpressionHandler,
-            'ClassNode': ClassNodeHandler
+            'ClassNode': ClassNodeHandler,
+            'BinaryExpression': BinaryExpressionHandler,
     ]
 
     ConversionFactory(Context context, Out out) {
@@ -160,6 +162,23 @@ class ConversionFactory {
             out.addScript("    ${lastParameter.name}.add(arguments[${COUNT}]);", true)
             out.addScript("  }", true)
             out.addScript("}", true)
+        }
+    }
+
+    void handExpressionInBoolean(expression) {
+        if (expression instanceof VariableExpression || expression instanceof PropertyExpression ||
+                (expression instanceof NotExpression && expression.expression &&
+                    (expression.expression instanceof VariableExpression || expression.expression instanceof PropertyExpression))) {
+            if (expression instanceof NotExpression) {
+                out.addScript("!${GS_BOOL}(")
+                visitNode(expression.expression)
+            } else {
+                out.addScript("${GS_BOOL}(")
+                visitNode(expression)
+            }
+            out.addScript(')')
+        } else {
+            visitNode(expression)
         }
     }
 

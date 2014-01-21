@@ -14,7 +14,7 @@ import org.codehaus.groovy.ast.MethodNode
  * User: jorgefrancoleza
  * Date: 16/01/14
  */
-class ClassNodeHandler extends BaseHandler  {
+class ClassNodeHandler extends BaseHandler {
 
     void handle(ClassNode node) {
         //Exit if dont have to convert
