@@ -41,10 +41,10 @@
     // assert and println
     /////////////////////////////////////////////////////////////////
     gs.assert = function(value) {
-        if(value==false) {
+        if(value === false) {
             gs.fails = true;
             var message = 'Assert Fails! - ';
-            if (arguments.length == 2 && arguments[1]!=null) {
+            if (arguments.length == 2 && arguments[1] !== null) {
                 message = arguments[1] + ' - ';
             }
             gs.println(message+value);
@@ -56,7 +56,7 @@
         if (gs.consoleOutput && console) {
             console.log(value);
         } else {
-            if (gs.consoleData != "") {
+            if (gs.consoleData !== "") {
                 gs.consoleData = gs.consoleData + "\n";
             }
             gs.consoleData = gs.consoleData + value;
@@ -101,7 +101,7 @@
         },
         invokeMethod: function(name,values) {
             var i,newArgs = [];
-            if (values!=null && values != undefined) {
+            if (values !== null && values !== undefined) {
                 for (i=0; i < values.length ; i++) {
                     newArgs[i] = values[i];
                 }
@@ -112,7 +112,7 @@
         constructor : function() {
             return this;
         }
-    }
+    };
 
     function isObjectProperty(name) {
         return ['clazz','gSdefaultValue','leftShift',
@@ -128,25 +128,25 @@
         if (arguments.length==1) {object.constructorWithMap(arguments[0]); }
 
         return object;
-    }
+    };
 
     gs.expandoMetaClass = function() {
         var object = gs.inherit(gs.baseClass,'ExpandoMetaClass');
         object.initialize = function() {
             return this;
-        }
+        };
         return object;
-    }
+    };
 
     function expandWithMetaclass(item, objectName) {
-        if (globalMetaClass!=undefined && globalMetaClass[objectName]!=null && globalMetaClass[objectName]!=undefined) {
+        if (globalMetaClass !== undefined && globalMetaClass[objectName] !== null && globalMetaClass[objectName] !== undefined) {
             var obj,map = globalMetaClass[objectName];
             for (obj in map) {
 
                 //Static methods
                 var staticMap = map.getStatic();
-                if (staticMap!=null && staticMap!=undefined) {
-                    var objStatic
+                if (staticMap !== null && staticMap !== undefined) {
+                    var objStatic;
                     for (objStatic in staticMap) {
                         if (objStatic != 'gSparent') {
                             //console.log('Adding static->'+objStatic);
@@ -163,7 +163,7 @@
 
     gs.inherit = function(p,objectName) {
     //    function inherit(p,objectName) {
-        if (p == null) throw TypeError();
+        if (p === null) throw TypeError();
         if (Object.create) {
             return expandWithMetaclass(Object.create(p),objectName);
         }
@@ -174,15 +174,15 @@
         if (t !== "object" && t !== "function") {
             throw TypeError();
         }
-        function f() {};
+        function f() {}
         f.prototype = p;
         return expandWithMetaclass(new f(),objectName);
-    }
+    };
 
     function createClassNames(item, items) {
         var number = items.length, i, container;
         for (i=0; i < number ; i++) {
-            if (i==0) {
+            if (i === 0) {
                 container = {};
                 item.clazz = container;
             }
@@ -210,7 +210,7 @@
     gs.set = function(value) {
         var object;
 
-        if (arguments.length==0) {
+        if (arguments.length === 0) {
             object = gs.list([]);
         } else {
             object = value;
@@ -222,7 +222,7 @@
 
         object.withz = function(closure) {
             interceptClosureCall(closure, this);
-        }
+        };
 
         object.add = function(item) {
             if (!(this.contains(item))) {
@@ -231,7 +231,7 @@
             } else {
                 return false;
             }
-        }
+        };
 
         object.addAll = function(elements) {
             if (elements instanceof Array) {
@@ -253,8 +253,7 @@
                 }
             }
             return this;
-        }
-
+        };
 
         object.equals = function(other) {
             if (!(other instanceof Array) || other.length!=this.length || !(other.isSet)) {
@@ -269,7 +268,7 @@
                 }
                 return result;
             }
-        }
+        };
 
         object.toList = function() {
             var i,list = [];
@@ -277,7 +276,7 @@
                 list[i] = this[i];
             }
             return gs.list(list);
-        }
+        };
 
         object.plus = function(other) {
             var result = gs.set();
@@ -291,7 +290,7 @@
                 }
             }
             return result;
-        }
+        };
 
         object.minus = function(other) {
             var result = gs.set();
@@ -305,7 +304,7 @@
                 }
             }
             return result;
-        }
+        };
 
         object.remove = function(value) {
             var index = this.indexOf(value);
@@ -313,10 +312,10 @@
                 this.splice(index,1);
             }
             return this;
-        }
+        };
 
         return object;
-    }
+    };
 
     /////////////////////////////////////////////////////////////////
     // map - [:] from groovy
@@ -341,11 +340,11 @@
         expandWithMetaclass(object, 'LinkedHashMap');
 
         return object;
-    }
+    };
 
     function GsGroovyMap() {
         this.clazz = { name: 'java.util.LinkedHashMap', simpleName: 'LinkedHashMap',
-            superclass: { name: 'java.util.HashMap', simpleName: 'HashMap'}}
+            superclass: { name: 'java.util.HashMap', simpleName: 'HashMap'}};
         this.add = function(key,value) {
             if (key=="spreadMap") {
                 //We insert items of the map, from spread operator
@@ -359,20 +358,20 @@
                 this[key] = value;
             }
             return this;
-        }
+        };
         this.put = function(key,value) {
             return this.add(key,value);
-        }
+        };
         this.leftShift = function(key,value) {
             if (arguments.length == 1) {
                 return this.plus(arguments[0]);
             } else {
                 return this.add(key,value);
             }
-        }
+        };
         this.putAt = function(key,value) {
             this.put(key,value);
-        }
+        };
         this.size = function() {
             var number = 0,ob;
             for (ob in this) {
@@ -381,15 +380,15 @@
                 }
             }
             return number;
-        }
+        };
         this.isEmpty = function() {
-            return (this.size() == 0);
-        }
+            return (this.size() === 0);
+        };
         this.remove = function(key) {
             if (this[key]) {
                 delete this[key];
             }
-        }
+        };
         this.each = function(closure) {
             var ob;
             for (ob in this) {
@@ -404,7 +403,7 @@
                     }
                 }
             }
-        }
+        };
 
         this.count = function(closure) {
             var number = 0, ob;
@@ -423,7 +422,7 @@
                 }
             }
             return number;
-        }
+        };
 
         this.any = function(closure) {
             var ob;
@@ -443,7 +442,7 @@
                 }
             }
             return false;
-        }
+        };
 
         this.every = function(closure) {
             var ob;
@@ -463,7 +462,7 @@
                 }
             }
             return true;
-        }
+        };
 
         this.find = function(closure) {
             var ob;
@@ -484,7 +483,7 @@
                 }
             }
             return null;
-        }
+        };
 
         this.findAll = function(closure) {
             var result = gs.map(), ob;
@@ -509,7 +508,7 @@
             } else {
                 return null;
             }
-        }
+        };
 
         this.collect = function(closure) {
             var result = gs.list([]), ob;
@@ -529,18 +528,18 @@
             } else {
                 return null;
             }
-        }
+        };
 
         this.containsKey = function(key) {
-            if (this[key]==undefined || this[key]==null) {
+            if (this[key] === undefined || this[key] === null) {
                 return false;
             } else {
                 return true;
             }
-        }
+        };
 
         this.containsValue = function(value) {
-            var gotIt = false;
+            var ob, gotIt = false;
             for (ob in this) {
                 if (!isMapProperty(ob)) {
                     if (gs.equals(this[ob],value)) {
@@ -550,14 +549,14 @@
                 }
             }
             return gotIt;
-        }
+        };
 
         this.get = function(key, defaultValue) {
             if (!this.containsKey(key)) {
                 this[key] = defaultValue;
             }
             return this[key];
-        }
+        };
 
         this.toString = function() {
             var items = '';
@@ -565,7 +564,7 @@
                 items = items + key+': '+value+' ,';
             });
             return '[' + items + ']';
-        }
+        };
 
         this.equals = function(otherMap) {
 
@@ -578,7 +577,7 @@
                 }
             }
             return result;
-        }
+        };
 
         this.values = function() {
             var result = gs.list([]), ob;
@@ -588,14 +587,14 @@
                 }
             }
             return result;
-        }
+        };
 
         this.gSdefaultValue = null;
 
         this.withDefault = function(closure) {
             this.gSdefaultValue = closure;
             return this;
-        }
+        };
 
         this.inject = function(initial,closure) {
             var ob;
@@ -611,7 +610,7 @@
                 }
             }
             return initial;
-        }
+        };
 
         this.putAll = function (items) {
             if (items instanceof Array) {
@@ -621,6 +620,7 @@
                     this.add(item.key,item.value);
                 }
             } else {
+                var ob;
                 for (ob in items) {
                     if (!isMapProperty(ob)) {
                         this.add(ob,items[ob]);
@@ -628,7 +628,7 @@
                 }
             }
             return this;
-        }
+        };
 
         this.plus = function(other) {
             var result = this.clone();
@@ -643,7 +643,7 @@
                 }
             }
             return result;
-        }
+        };
 
         this.clone = function() {
             var result = gs.map(), ob;
@@ -653,19 +653,19 @@
                 }
             }
             return result;
-        }
+        };
 
         this.minus = function(other) {
             var result = this.clone(), ob;
             for (ob in other) {
                 if (!isMapProperty(ob)) {
-                    if (result[ob]!=null && result[ob]!=undefined && gs.equals(result[ob],other[ob])) {
+                    if (result[ob] !== null && result[ob] !==undefined && gs.equals(result[ob],other[ob])) {
                         delete result[ob];
                     }
                 }
             }
             return result;
-        }
+        };
     }
 
     /////////////////////////////////////////////////////////////////
@@ -676,7 +676,7 @@
         //Maybe comes a second parameter with default value
         if (arguments.length==2) {
             //console.log('uh->'+this[pos]);
-            if (this[pos]==null || this[pos]==undefined) {
+            if (this[pos] === null || this[pos] === undefined) {
                 return arguments[1];
             } else {
                 return this[pos];
@@ -684,34 +684,34 @@
         } else {
             return this[pos];
         }
-    }
+    };
 
     Array.prototype.getAt = function(pos) {
         return this[pos];
-    }
+    };
 
     Array.prototype.withz = function(closure) {
         interceptClosureCall(closure, this);
-    }
+    };
 
     Array.prototype.size = function() {
         return this.length;
-    }
+    };
 
     Array.prototype.isEmpty = function() {
-        return this.length == 0;
-    }
+        return this.length === 0;
+    };
 
     Array.prototype.add = function(element) {
         this[this.length]=element;
         return this;
-    }
+    };
 
     Array.prototype.addAll = function(elements) {
+        var i;
         if (arguments.length == 1) {
             if (elements instanceof Array) {
-                var i;
-                for (i=0;i<elements.length;i++) {
+                for (i = 0; i < elements.length; i++) {
                     this.add(elements[i]);
                 }
             } else {
@@ -720,35 +720,35 @@
         } else {
             //Two parameters index and collection
             var index = arguments[0];
-            var data = arguments[1],i;
+            var data = arguments[1];
             for (i=0; i < data.length; i++) {
                 this.splice(index+i, 0, data[i]);
             }
         }
         return true;
-    }
+    };
 
     Array.prototype.clone = function() {
         var result = gs.list([]);
         result.addAll(this);
         return result;
-    }
+    };
 
     Array.prototype.plus = function(other) {
         var result = this.clone();
         result.addAll(other);
         return result;
-    }
+    };
 
     Array.prototype.minus = function(other) {
         var result = this.clone();
         result.removeAll(other);
         return result;
-    }
+    };
 
     Array.prototype.leftShift = function(element) {
         return this.add(element);
-    }
+    };
 
     Array.prototype.contains = function(object) {
         var gotIt, i;
@@ -758,7 +758,7 @@
             }
         }
         return gotIt;
-    }
+    };
 
     Array.prototype.each = function(closure) {
         var i;
@@ -767,7 +767,7 @@
             interceptClosureCall(closure, this[i]);
         }
         return this;
-    }
+    };
 
     Array.prototype.reverseEach = function(closure) {
         var i;
@@ -775,14 +775,14 @@
             interceptClosureCall(closure, this[i]);
         }
         return this;
-    }
+    };
 
     Array.prototype.eachWithIndex = function(closure,index) {
         for (index=0;index<this.length;index++) {
             closure(this[index],index);
         }
         return this;
-    }
+    };
 
     Array.prototype.any = function(closure) {
         var i;
@@ -792,7 +792,7 @@
             }
         }
         return false;
-    }
+    };
 
     Array.prototype.values = function() {
         var result = [];
@@ -801,7 +801,7 @@
             result[i]=this[i];
         }
         return result;
-    }
+    };
     //Remove only 1 item from the list
     Array.prototype.remove = function(indexOrValue) {
         var index = -1;
@@ -814,7 +814,7 @@
             this.splice(index,1);
         }
         return this;
-    }
+    };
 
     //Maybe too much complex, not much inspired
     Array.prototype.removeAll = function(data) {
@@ -824,7 +824,7 @@
                 if (data.contains(v)) {
                     result.push(i);
                 }
-            })
+            });
             //Now in result we have index of items to delete
             if (result.length>0) {
                 var decremental = 0;
@@ -833,7 +833,7 @@
                     //Had tho change this for thisList, other scope on this here
                     thisList.splice(v-decremental,1);
                     decremental=decremental+1;
-                })
+                });
             }
         } else if (typeof data === "function") {
             var i;
@@ -844,7 +844,7 @@
             }
         }
         return this;
-    }
+    };
 
     Array.prototype.collect = function(closure) {
         var result = gs.list([]);
@@ -853,7 +853,7 @@
             result[i] = closure(this[i]);
         }
         return result;
-    }
+    };
 
     Array.prototype.collectMany = function(closure) {
         var result = gs.list([]);
@@ -862,7 +862,7 @@
             result.addAll(closure(this[i]));
         }
         return result;
-    }
+    };
 
     Array.prototype.takeWhile = function(closure) {
         var result = gs.list([]);
@@ -875,7 +875,7 @@
             }
         }
         return result;
-    }
+    };
 
     Array.prototype.dropWhile = function(closure) {
         var result = gs.list([]);
@@ -889,12 +889,12 @@
             }
         }
         return result;
-    }
+    };
 
     Array.prototype.findAll = function(closure) {
-        var values = this.filter(closure)
-        return gs.list(values)
-    }
+        var values = this.filter(closure);
+        return gs.list(values);
+    };
 
     Array.prototype.find = function(closure) {
         var result,i;
@@ -904,46 +904,43 @@
             }
         }
         return result;
-    }
+    };
 
     Array.prototype.first = function() {
         return this[0];
-    }
+    };
 
     Array.prototype.head = function() {
         return this.first();
-    }
+    };
 
     Array.prototype.last = function() {
         return this[this.length-1];
-    }
+    };
 
     Array.prototype.sum = function() {
 
-        var result = 0;
+        var i, result = 0;
         //can pass a closure to sum
         if (arguments.length == 1) {
-            var i;
             for (i=0;i<this.length;i++) {
                 result = result + arguments[0](this[i]);
             }
         } else {
-            if (this.length>0 && this[0]['plus']) {
-                var i;
+            if (this.length>0 && this[0].plus) {
                 var item = this[0];
                 for (i=0;i+1<this.length;i++) {
                     item = item.plus(this[i+1]);
                 }
                 return item;
             } else {
-                var i;
-                for (i=0;i<this.length;i++) {
+                for (i = 0; i < this.length; i++) {
                     result = result + this[i];
                 }
             }
         }
         return result;
-    }
+    };
 
     Array.prototype.inject = function() {
 
@@ -966,11 +963,11 @@
             }
         }
         return acc;
-    }
+    };
 
     Array.prototype.toList = function() {
         return this;
-    }
+    };
 
     Array.prototype.intersect = function(otherList) {
         var result = gs.list([]);
@@ -981,29 +978,29 @@
             }
         }
         return result;
-    }
+    };
 
     Array.prototype.max = function() {
         var result = null;
         var i;
         for (i=0;i<this.length;i++) {
-            if (result==null || this[i]>result) {
+            if (result === null || this[i] > result) {
                 result = this[i];
             }
         }
         return result;
-    }
+    };
 
     Array.prototype.min = function() {
         var result = null;
         var i;
         for (i=0;i<this.length;i++) {
-            if (result==null || this[i]<result) {
+            if (result === null || this[i] < result) {
                 result = this[i];
             }
         }
         return result;
-    }
+    };
 
     Array.prototype.toString = function() {
         if (this.length>0) {
@@ -1017,13 +1014,12 @@
         } else {
             return '[]';
         }
-    }
+    };
 
     Array.prototype.grep = function(param) {
+        var i, result = gs.list([]);
         if (param instanceof RegExp) {
-            var i;
-            var result = gs.list([]);
-            for (i=0; i<this.length; i++) {
+            for (i = 0; i < this.length; i++) {
                 if (gs.match(this[i],param)) {
                     result.add(this[i]);
                 }
@@ -1032,25 +1028,21 @@
         } else if (param instanceof Array) {
             return this.intersect(param);
         } else if (typeof param === "function") {
-            var i;
-            var result = gs.list([]);
-            for (i=0; i<this.length; i++) {
+            for (i = 0; i < this.length; i++) {
                 if (param(this[i])) {
                     result.add(this[i]);
                 }
             }
             return result;
         } else {
-            var i;
-            var result = gs.list([]);
-            for (i=0; i<this.length ;i++) {
+            for (i = 0; i < this.length ;i++) {
                 if (this[i]==param) {
                     result.add(this[i]);
                 }
             }
             return result;
         }
-    }
+    };
 
     Array.prototype.equals = function(other) {
         if (!(other instanceof Array) || other.length!=this.length) {
@@ -1065,7 +1057,7 @@
             }
             return result;
         }
-    }
+    };
 
     Array.prototype.gSjoin = function() {
         var separator = '';
@@ -1081,13 +1073,13 @@
             }
         }
         return result;
-    }
+    };
 
-    Array.prototype.oldSort = Array.prototype.sort
+    Array.prototype.oldSort = Array.prototype.sort;
 
     Array.prototype.sort = function() {
         var modify = true;
-        if (arguments.length > 0 && arguments[0] == false) {
+        if (arguments.length > 0 && arguments[0] === false) {
             modify = false;
         }
         var i,copy = [];
@@ -1104,16 +1096,16 @@
             copy[i] = this[i];
         }
         //If function has 2 parameter, inside compare both and return a number
-        if (tempFunction!=null && tempFunction.length == 2) {
+        if (tempFunction !== null && tempFunction.length == 2) {
             copy.oldSort(tempFunction);
         }
         //If function has 1 parameter, we have to compare transformed items
-        if (tempFunction!=null && tempFunction.length == 1) {
+        if (tempFunction !== null && tempFunction.length == 1) {
             copy.oldSort(function(a, b) {
                 return gs.spaceShip(tempFunction(a),tempFunction(b));
             });
         }
-        if (tempFunction==null) {
+        if (tempFunction === null) {
             copy.oldSort();
         }
         if (modify) {
@@ -1124,27 +1116,25 @@
         } else {
             return gs.list(copy);
         }
-    }
+    };
 
     Array.prototype.reverse = function() {
-        var result;
-        if (arguments.length == 1 && arguments[0]==true) {
-            var i,count=0;
-            for (i=this.length-1;i>count;i--) {
+        var i, count = 0;
+        if (arguments.length == 1 && arguments[0] === true) {
+            for (i = this.length - 1; i > count; i--) {
                 var temp = this[count];
                 this[count++] = this[i];
                 this[i] = temp;
             }
             return this;
         } else {
-            result = [];
-            var i,count=0;
-            for (i=this.length-1;i>=0;i--) {
+            var result = [];
+            for (i = this.length - 1; i >= 0; i--) {
                 result[count++] = this[i];
             }
             return gs.list(result);
         }
-    }
+    };
 
     Array.prototype.take = function(number) {
         var result = [];
@@ -1155,7 +1145,7 @@
             }
         }
         return gs.list(result);
-    }
+    };
 
     Array.prototype.takeWhile = function(closure) {
         var result = [];
@@ -1168,10 +1158,10 @@
             }
         }
         return gs.list(result);
-    }
+    };
 
     Array.prototype.multiply = function(number) {
-        if (number==0) {
+        if (number === 0) {
             return gs.list([]);
         } else {
             var i, result = gs.list([]);
@@ -1183,14 +1173,14 @@
             }
             return result;
         }
-    }
+    };
 
     Array.prototype.flatten = function() {
         var result = gs.list([]);
         gs.flatten(result,this);
 
         return result;
-    }
+    };
 
     Array.prototype.collate = function(number) {
         var step = number,times = 0;
@@ -1208,7 +1198,7 @@
             times++;
         }
         return result;
-    }
+    };
 
     /////////////////////////////////////////////////////////////////
     //list - [] from groovy
@@ -1238,7 +1228,7 @@
         createClassNames(object,['java.util.ArrayList']);
 
         return object;
-    }
+    };
 
     gs.flatten = function(result, list) {
         list.each(function (it) {
@@ -1250,7 +1240,7 @@
                 result.add(it);
             }
         });
-    }
+    };
 
     /////////////////////////////////////////////////////////////////
     //range - [x..y] from groovy
@@ -1292,9 +1282,9 @@
         var object = gs.list(result);
         object.toList = function() {
             return gs.list(this.values());
-        }
+        };
         return object;
-    }
+    };
 
     /////////////////////////////////////////////////////////////////
     //date - Date() object from groovy / java
@@ -1322,7 +1312,7 @@
             } else {
                 return this + other;
             }
-        }
+        };
         object.minus = function(other) {
             if (typeof other == 'number') {
                 var a = gs.date(this.time-(other * 1440000));
@@ -1330,7 +1320,7 @@
             } else {
                 return this + other;
             }
-        }
+        };
         object.format = function(rule) {
             //TODO complete
             var exit = '';
@@ -1345,7 +1335,7 @@
                 exit = exit.replaceAll('yy',lastChars(this.getFullYear(),2));
             }
             return exit;
-        }
+        };
         object.parse = function(rule,text) {
             //TODO complete
             var pos = rule.indexOf('yyyy');
@@ -1378,14 +1368,14 @@
                 this.setSeconds(text.substr(pos,2));
             }
             return this;
-        }
+        };
 
         return object;
-    }
+    };
 
     gs.rangeFromList = function(list, begin, end) {
         return list.slice(begin,end+1);
-    }
+    };
 
     function fillZerosLeft(item,size) {
         var value = item + '';
@@ -1412,15 +1402,15 @@
             mock = mock.replace(new RegExp(regExp), "#");
         }
         return mock == "#";
-    }
+    };
 
     gs.match = function(text, regExp) {
         var pos;
         if (regExp instanceof RegExp) {
-            pos = text.search(regExp)
+            pos = text.search(regExp);
         }
         return (pos>=0);
-    }
+    };
 
     /////////////////////////////////////////////////////////////////
     //regExp - For regular expressions
@@ -1438,13 +1428,13 @@
         var object;
 
         var data = patt.exec(text);
-        if (data==null || data == undefined) {
+        if (data === null || data === undefined) {
             return null;
         } else {
             var list = gs.list([]);
             var i = 0;
 
-            while (data != null && data != undefined) {
+            while (data !== null && data !== undefined) {
                 if (data instanceof Array && data.length<2) {
                     list[i] = data[0];
                 } else {
@@ -1463,18 +1453,18 @@
 
         object.replaceFirst = function(data) {
             return this.text.replaceFirst(this[0],data);
-        }
+        };
 
         object.replaceAll = function(data) {
             return this.text.replaceAll(this.pattern,data);
-        }
+        };
 
         object.reset = function() {
             return this;
-        }
+        };
 
         return object;
-    }
+    };
 
     /////////////////////////////////////////////////////////////////
     //Pattern
@@ -1486,7 +1476,7 @@
 
         object.value = pattern;
         return object;
-    }
+    };
 
     /////////////////////////////////////////////////////////////////
     // Regular Expresions
@@ -1500,14 +1490,14 @@
         object.regExp = regExpression;
         object.matches = function() {
             return gs.exactMatch(this.data, this.regExp);
-        }
+        };
 
         return object;
-    }
+    };
 
     RegExp.prototype.matcher = function(item) {
         return gs.matcher(item, this);
-    }
+    };
 
     /////////////////////////////////////////////////////////////////
     //Number functions
@@ -1517,14 +1507,14 @@
         for (i=0; i<this; i++) {
             closure(i);
         }
-    }
+    };
 
     Number.prototype.upto = function(number,closure) {
         var i;
         for (i=this.value; i<=number; i++) {
             closure(i);
         }
-    }
+    };
 
     Number.prototype.step = function(number,jump,closure) {
         var i;
@@ -1532,44 +1522,44 @@
             closure(i);
             i=i+jump;
         }
-    }
+    };
 
     Number.prototype.multiply = function(number) {
         return this * number;
-    }
+    };
 
     Number.prototype.power = function(number) {
         return Math.pow(this,number);
-    }
+    };
 
     /////////////////////////////////////////////////////////////////
     //String functions
     /////////////////////////////////////////////////////////////////
     String.prototype.contains = function(value) {
         return this.indexOf(value)>=0;
-    }
+    };
 
     String.prototype.startsWith = function(value) {
-        return this.indexOf(value)==0;
-    }
+        return this.indexOf(value) === 0;
+    };
 
     String.prototype.endsWith = function(value) {
         return this.indexOf(value)==(this.length - value.length);
-    }
+    };
 
     String.prototype.count = function(value) {
         var reg = new RegExp(value,'g');
         var result = this.match(reg);
-        if (result != null && result != undefined) {
+        if (result !== null && result !== undefined) {
             return result.length;
         } else {
             return 0;
         }
-    }
+    };
 
     String.prototype.size = function() {
         return this.length;
-    }
+    };
 
     String.prototype.replaceAll = function(oldValue,newValue) {
         var reg;
@@ -1579,25 +1569,25 @@
             reg = new RegExp(oldValue,'g');
         }
         return this.replace(reg,newValue);
-    }
+    };
 
     String.prototype.replaceFirst = function(oldValue,newValue) {
         return this.replace(oldValue,newValue);
-    }
+    };
 
 
     String.prototype.reverse = function() {
         return this.split("").reverse().join("");
-    }
+    };
 
     String.prototype.tokenize = function() {
         var str = " ";
-        if (arguments.length==1 && arguments[0]!=null && arguments[0]!=undefined) {
+        if (arguments.length == 1 && arguments[0] !== null && arguments[0] !== undefined) {
             str = arguments[0];
         }
         var list = this.split(str);
         return gs.list(list);
-    }
+    };
 
     String.prototype.multiply = function(value) {
         if (typeof(value)=='number') {
@@ -1608,16 +1598,16 @@
             }
             return result;
         }
-    }
+    };
 
     String.prototype.capitalize = function() {
         return this.charAt(0).toUpperCase() + this.slice(1);
-    }
+    };
 
     function getItemsMultiline(text) {
         var items = text.split('\n');
-        if (items.length>1 && items[items.length-1]=='') {
-            items.splice(items.length-1,1);
+        if (items.length > 1 && items[items.length-1] === '') {
+            items.splice(items.length - 1, 1);
         }
         return items;
     }
@@ -1634,12 +1624,12 @@
                 closure(item);
             }
         }
-    }
+    };
 
     String.prototype.readLines = function() {
         var items = getItemsMultiline(this);
         return gs.list(items);
-    }
+    };
 
     String.prototype.padRight = function(number) {
         var sep = ' ';
@@ -1651,7 +1641,7 @@
             item = item + sep;
         }
         return item;
-    }
+    };
 
     String.prototype.padLeft = function(number) {
         var sep = ' ';
@@ -1663,10 +1653,10 @@
             item = sep + item;
         }
         return item;
-    }
+    };
 
     String.prototype.isNumber = function() {
-        if (this.trim() == '') {
+        if (this.trim() === '') {
             return false;
         } else {
             var res = Number(this);
@@ -1676,11 +1666,11 @@
                 return true;
             }
         }
-    }
+    };
 
     String.prototype.plus = function(other) {
-        return this + other.toString()
-    }
+        return this + other.toString();
+    };
 
     /////////////////////////////////////////////////////////////////
     // Misc Functions
@@ -1698,7 +1688,7 @@
             result = null;
         }
         return result;
-    }
+    };
 
     function StaticMethods(item) {
         this.gSparent = item;
@@ -1724,7 +1714,7 @@
             item = globalMetaClass[item.name];
         }
         return item;
-    }
+    };
 
     gs.passMapToObject = function(source, destination) {
         var prop;
@@ -1734,7 +1724,7 @@
                 gs.sp(destination, prop, source[prop]);
             }
         }
-    }
+    };
 
     gs.equals = function(value1, value2) {
         if (!hasFunc(value1, 'equals')) {
@@ -1746,7 +1736,7 @@
         } else {
             return value1.equals(value2);
         }
-    }
+    };
 
     function interceptClosureCall(func, param) {
         if ((param instanceof Array) && func.length>1) {
@@ -1761,36 +1751,36 @@
         object.nextInt = function(number) {
             var ran = Math.ceil(Math.random()*number);
             return ran - 1;
-        }
+        };
         object.nextBoolean = function() {
             var ran = Math.random();
             return ran < 0.5;
-        }
+        };
         return object;
     };
 
     gs.bool = function(item) {
-        if (item!=null && item!=undefined && item.isEmpty!=null) {
+        if (item !== null && item !== undefined && item.isEmpty !== undefined) {
             return !item.isEmpty();
         } else {
-            if (typeof(item)=='number' && item==0) {
+            if (typeof(item) == 'number' && item === 0) {
                 return false;
-            } else if (typeof(item)=='string' && item=='') {
+            } else if (typeof(item) == 'string' && item === '') {
                 return false;
-            } else if (typeof(item)=='string' && item!='') {
+            } else if (typeof(item) == 'string' && item !== '') {
                 return true;
             }
             return item;
         }
-    }
+    };
 
     gs.less = function(itemLeft, itemRight) {
         return itemLeft < itemRight;
-    }
+    };
 
     gs.greater = function(itemLeft, itemRight) {
         return itemLeft > itemRight;
-    }
+    };
 
     // Operator <=>
     gs.spaceShip = function(itemLeft, itemRight) {
@@ -1803,7 +1793,7 @@
         if (gs.greater(itemLeft, itemRight)) {
             return 1;
         }
-    }
+    };
 
     //InstanceOf function
     gs.instanceOf = function(item,name) {
@@ -1816,7 +1806,7 @@
             return typeof(item)=='number';
         } else if (item.clazz) {
             classItem = item.clazz;
-            while (classItem!=null && classItem!=undefined && !gotIt) {
+            while (classItem !== null && classItem !== undefined && !gotIt) {
                 if (classItem.name == name || classItem.simpleName == name) {
                     gotIt = true;
                 } else {
@@ -1827,7 +1817,7 @@
             gotIt = true;
         }
         return gotIt;
-    }
+    };
 
     //Elvis operator
     gs.elvis = function(booleanExpression,trueExpression,falseExpression) {
@@ -1836,7 +1826,7 @@
         } else {
             return falseExpression;
         }
-    }
+    };
 
     // * operator
     gs.multiply = function(a, b) {
@@ -1850,7 +1840,7 @@
         } else {
             return a.multiply(b);
         }
-    }
+    };
 
     // + operator
     gs.plus = function(a, b) {
@@ -1868,7 +1858,7 @@
         } else {
             return a.plus(b);
         }
-    }
+    };
 
     // - operator
     gs.minus = function(a, b) {
@@ -1877,44 +1867,44 @@
         } else {
             return a.minus(b);
         }
-    }
+    };
 
     // in operator
     gs.gSin = function(item, group) {
-        if (group!=null && group !=undefined && (typeof group.contains === "function")) {
+        if (group !== null && group !== undefined && (typeof group.contains === "function")) {
             return group.contains(item);
         } else {
-            return false
+            return false;
         }
-    }
+    };
 
     //For some special cases where access a property with this."${name}"
     //This can be a closure
     gs.thisOrObject = function(thisItem,objectItem) {
         //this can only be used for our objects, our object must have withz function
-        if (thisItem['withz'] == undefined && objectItem != null && objectItem != undefined) {
+        if (thisItem.withz === undefined && objectItem !== null && objectItem !== undefined) {
             return objectItem;
         } else {
             return thisItem;
         }
-    }
+    };
 
     // spread operator (*)
     gs.spread = function(item) {
-        if (item!=null && item!=undefined) {
+        if (item !== null && item !== undefined) {
             if (item instanceof Array) {
                 this.values = item;
             }
         }
-    }
+    };
 
     /////////////////////////////////////////////////////////////////
     // Beans functions - From groovy beans
     /////////////////////////////////////////////////////////////////
     //If an object has a function by name
     function hasFunc(item,name) {
-        if (item == null || item == undefined ||
-            item[name]==undefined || item[name]==null || !(typeof item[name] === "function")) {
+        if (item === null || item === undefined ||
+            item[name] === undefined || item[name] === null || (typeof item[name] !== "function")) {
             return false;
         } else {
             return true;
@@ -1928,7 +1918,7 @@
             item[nameProperty] = value;
         } else if (nameProperty == 'getProperty') {
             item[nameProperty] = value;
-        } else if (item!=null && item instanceof StaticMethods) {
+        } else if (item !== null && item instanceof StaticMethods) {
             item[nameProperty] = value;
             item.gSparent[nameProperty] = value;
         } else {
@@ -1937,7 +1927,7 @@
 
                 var nameFunction = 'set' + nameProperty.charAt(0).toUpperCase() + nameProperty.slice(1);
 
-                if (item[nameFunction]==undefined || item[nameFunction]==null || !(typeof item[nameFunction] === "function")) {
+                if (item[nameFunction] === undefined || item[nameFunction] === null || (typeof item[nameFunction] != "function")) {
                     item[nameProperty] = value;
                 } else {
                     item[nameFunction](value);
@@ -1947,7 +1937,7 @@
             }
         }
         //return value;
-    }
+    };
 
     //Calling a setMethod
     function setMethod(item,methodName,value) {
@@ -1968,7 +1958,7 @@
         if (!hasFunc(item,methodName)) {
 
             var nameProperty = methodName.charAt(3).toLowerCase() + methodName.slice(4);
-            var res = function () { return item[nameProperty];}
+            var res = function () { return item[nameProperty];};
             return res;
 
         } else {
@@ -1982,7 +1972,7 @@
 
         //It's a get with safe operator as item?.data
         if (arguments.length == 3) {
-            if (item == null || item == undefined) {
+            if (item === null || item === undefined) {
                 return null;
             }
         }
@@ -1993,11 +1983,11 @@
                 if (typeof item[nameProperty] === "function" && nameProperty == 'size') {
                     return item[nameProperty]();
                 } else {
-                    if (item[nameProperty] != undefined) {
+                    if (item[nameProperty] !== undefined) {
                         return item[nameProperty];
                     } else {
-                        if (item['gSdefaultValue']!=undefined && (typeof item['gSdefaultValue'] === "function")) {
-                            item[nameProperty] = item['gSdefaultValue']();
+                        if (item.gSdefaultValue !== undefined && (typeof item.gSdefaultValue === "function")) {
+                            item[nameProperty] = item.gSdefaultValue();
                         }
                         return item[nameProperty];
                     }
@@ -2006,9 +1996,9 @@
                 return item[nameFunction]();
             }
         } else {
-            return item.getProperty(nameProperty)
+            return item.getProperty(nameProperty);
         }
-    }
+    };
 
     //Control property changes with ++,--
     gs.plusPlus = function(item, nameProperty, plus, before) {
@@ -2018,7 +2008,7 @@
             gs.sp(item, nameProperty, value + 1);
             newValue++;
         } else {
-            gs.sp(item, nameProperty, value - 1)
+            gs.sp(item, nameProperty, value - 1);
             newValue--;
         }
         if (before) {
@@ -2026,7 +2016,7 @@
         } else {
             return value;
         }
-    }
+    };
 
     //Control all method calls
     gs.mc = function(item, methodName, values) {
@@ -2068,12 +2058,12 @@
             if (methodName=='newInstance') {
                 return item();
             } else {
-
+                var whereExecutes;
                 //Lets check if in any category we have the static method
                 if (categories.length > 0) {
-                    var whereExecutes = categorySearching(methodName);
-                    if (whereExecutes!=null) {
-                        return whereExecutes[methodName].apply(item, joinParameters(item,values));
+                    whereExecutes = categorySearching(methodName);
+                    if (whereExecutes !== null) {
+                        return whereExecutes[methodName].apply(item, joinParameters(item, values));
                     }
                 }
 
@@ -2083,59 +2073,58 @@
                     if (annotatedCategories[ob] == item.clazz.simpleName) {
                         var categoryItem = gs.myCategories[ob]();
                         if (categoryItem[methodName] && typeof categoryItem[methodName] === "function") {
-                            return categoryItem[methodName].apply(item, joinParameters(item,values));
+                            return categoryItem[methodName].apply(item, joinParameters(item, values));
                         }
                     }
                 }
 
                 //Lets check in mixins classes
-                if (mixins.length>0) {
-                    var whereExecutes = mixinSearching(item,methodName);
-                    if (whereExecutes!=null) {
-                        return whereExecutes[methodName].apply(item, joinParameters(item,values));
+                if (mixins.length > 0) {
+                    whereExecutes = mixinSearching(item,methodName);
+                    if (whereExecutes !== null) {
+                        return whereExecutes[methodName].apply(item, joinParameters(item, values));
                     }
                 }
                 //Lets check in mixins objects
                 if (mixinsObjects.length>0) {
-                    var whereExecutes = mixinObjectsSearching(item, methodName);
-                    if (whereExecutes!=null) {
-                        return whereExecutes[methodName].apply(item,joinParameters(item,values));
+                    whereExecutes = mixinObjectsSearching(item, methodName);
+                    if (whereExecutes !== null) {
+                        return whereExecutes[methodName].apply(item,joinParameters(item, values));
                     }
                 }
 
                 //Lets check in delegate
-                if (actualDelegate!=null && actualDelegate[methodName] != undefined) {
+                if (actualDelegate !== null && actualDelegate[methodName] !== undefined) {
                     return actualDelegate[methodName].apply(item, values);
                 }
-                if (actualDelegate!=null && item['methodMissing'] == undefined
-                    && actualDelegate['methodMissing'] != undefined) {
+                if (actualDelegate !== null && item.methodMissing === undefined && actualDelegate.methodMissing !== undefined) {
                     return gs.mc(actualDelegate, methodName, values);
                 }
 
-                if (item['methodMissing']) {
-                    return item['methodMissing'](methodName,values);
+                if (item.methodMissing) {
+                    return item.methodMissing(methodName, values);
 
                 } else {
                     //Maybe there is a function in the script with the name of the method
                     //In Node.js 'this.xxFunction()' in the main context fails
                     if (typeof eval(methodName)==='function') {
-                        return eval(methodName).apply(this,values);
+                        return eval(methodName).apply(this, values);
                     }
 
                     //Not exist the method, throw exception
-                    throw 'gs.mc Method '+ methodName + ' not exist in '+item;
+                    throw 'gs.mc Method ' + methodName + ' not exist in ' + item;
                 }
             }
 
         } else {
             var f = item[methodName];
-            return f.apply(item,values);
+            return f.apply(item, values);
         }
-    }
+    };
 
     function joinParameters(item,items) {
         var listParameters = [item],i;
-        for (i=0;i<items.size();i++) {
+        for (i=0; i < items.size(); i++) {
             listParameters[listParameters.length] = items[i];
         }
         return listParameters;
@@ -2145,8 +2134,9 @@
     // Categories
     ////////////////////////////////////////////////////////////
     gs.categoryUse = function(item, closure) {
+        var ob, categoryCreated;
         if (existAnnotatedCategory(item)) {
-            var ob, categoryCreated = gs.myCategories[item]();
+            categoryCreated = gs.myCategories[item]();
             for (ob in categoryCreated) {
                 if (!isObjectProperty(ob) && !isConstructor(ob, categoryCreated[ob]) &&
                     typeof categoryCreated[ob] === "function") {
@@ -2158,7 +2148,7 @@
         }
         closure();
         if (existAnnotatedCategory(item)) {
-            var ob, categoryCreated = gs.myCategories[item]();
+            categoryCreated = gs.myCategories[item]();
             for (ob in categoryCreated) {
                 if (!isObjectProperty(ob) && !isConstructor(ob, categoryCreated[ob]) &&
                     typeof categoryCreated[ob] === "function") {
@@ -2168,7 +2158,7 @@
         } else {
             categories.splice(categories.length - 1, 1);
         }
-    }
+    };
 
     function getProtoypeOfClass(className) {
         if (className == 'String') {
@@ -2185,8 +2175,8 @@
 
     function addFunctionToClassIfPrototyped(name, func, className) {
         var proto = getProtoypeOfClass(className);
-        if  (proto != null) {
-            if (proto[name] == null) {
+        if  (proto !== null) {
+            if (proto[name] === undefined) {
                 proto[name] = func;
             }
         }
@@ -2194,7 +2184,7 @@
 
     function removeFunctionToClass(name, func, className) {
         var proto = getProtoypeOfClass(className);
-        if  (proto != null) {
+        if  (proto !== null) {
             if (proto[name] == func) {
                 proto[name] = null;
             }
@@ -2204,7 +2194,7 @@
     function categorySearching(methodName) {
         var result = null;
         var i;
-        for (i = categories.length-1; i >= 0 && result==null; i--) {
+        for (i = categories.length - 1; i >= 0 && result === null; i--) {
             var name = categories[i];
             if (eval(name)[methodName]) {
                 result = eval(name);
@@ -2214,13 +2204,13 @@
     }
 
     function existAnnotatedCategory(name) {
-        return (annotatedCategories[name]!=null && annotatedCategories[name]!=undefined);
+        return (annotatedCategories[name] !== null && annotatedCategories[name] !== undefined);
     }
 
     var annotatedCategories = {};
     gs.addAnnotatedCategory = function(nameCategory, nameClass) {
         annotatedCategories[nameCategory] = nameClass;
-    }
+    };
 
     ////////////////////////////////////////////////////////////
     // Mixins
@@ -2244,7 +2234,7 @@
         if (!gotIt) {
             mixins[mixins.length] = { name: item, items: classes};
         }
-    }
+    };
 
     gs.mixinObject = function(item, classes) {
 
@@ -2265,38 +2255,37 @@
             mixinsObjects[mixinsObjects.length] = { item:item, items:classes};
         }
         //TODO make any kinda cleanup if mixinsObjects growing
-    }
+    };
 
     function mixinSearching(item,methodName) {
         var result = null;
         var className = null;
         if (typeof(item) == 'string') {
-            className = 'String'
+            className = 'String';
         }
-        if (typeof(item) == 'object' && item.clazz!=undefined && item.clazz.simpleName!=undefined) {
-            className = item.clazz.simpleName
+        if (typeof(item) == 'object' && item.clazz !== undefined && item.clazz.simpleName !== undefined) {
+            className = item.clazz.simpleName;
         }
         //console.log(' className:'+className);
-        if (className!=null) {
+        if (className !== null) {
             var i, ourMixin=null;
-            for (i = mixins.length-1;i>=0 && ourMixin==null;i--) {
+            for (i = mixins.length - 1; i >= 0 && ourMixin === null; i--) {
                 var data = mixins[i];
                 //console.log(' mixin: '+data.name);
                 if (data.name == className) {
                     ourMixin = data.items;
                 }
             }
-            if (ourMixin!=null) {
-                var i;
+            if (ourMixin !== null) {
                 //console.log(' our: '+ourMixin+' - '+methodName);
-                for (i = 0; i < ourMixin.length && result == null; i++) {
+                for (i = 0; i < ourMixin.length && result === null; i++) {
                     if (eval(ourMixin[i])[methodName]) {
                         result = eval(ourMixin[i]);
                     } else {
-                        var classItem = eval(ourMixin[i]+'()')
+                        var classItem = eval(ourMixin[i]+'()');
                         if (classItem) {
                             var notStatic = classItem[methodName];
-                            if (notStatic != null && typeof notStatic === "function") {
+                            if (notStatic !== null && typeof notStatic === "function") {
                                 result = classItem;
                             }
                         }
@@ -2311,17 +2300,15 @@
     function mixinObjectsSearching(item,methodName) {
 
         var result = null;
-
-        var i,ourMixin=null;
-        for (i = mixinsObjects.length-1;i>=0 && ourMixin==null;i--) {
+        var i, ourMixin=null;
+        for (i = mixinsObjects.length - 1; i >= 0 && ourMixin === null; i--) {
             var data = mixinsObjects[i];
             if (data.item == item) {
                 ourMixin = data.items;
             }
         }
-        if (ourMixin!=null) {
-            var i;
-            for (i=0;i<ourMixin.length && result==null;i++) {
+        if (ourMixin !== null) {
+            for (i=0 ; i < ourMixin.length && result === null; i++) {
                 if (eval(ourMixin[i])[methodName]) {
                     result = eval(ourMixin[i]);
                 }
@@ -2345,26 +2332,26 @@
 
         object.toString = function() {
             return this.value;
-        }
+        };
 
         object.leftShift = function(value) {
             return this.append(value);
-        }
+        };
 
         object.plus = function(value) {
             return this.append(value);
-        }
+        };
 
         object.size = function() {
             return this.value.length;
-        }
+        };
 
         object.append = function(value) {
             this.value = this.value + value;
             return this;
-        }
+        };
         return object;
-    }
+    };
 
     ////////////////////////////////////////////////////////////
     // Delegate
@@ -2377,7 +2364,7 @@
         //console.log('desetting delegate');
         actualDelegate = oldDelegate;
         return result;
-    }
+    };
 
     ////////////////////////////////////////////////////////////
     // Functional
@@ -2428,12 +2415,12 @@
 
     //MISC Find scope of a var
     gs.fs = function(name, thisScope) {
-        if (thisScope != undefined && thisScope[name] != undefined) {
+        if (thisScope !== undefined && thisScope[name] !== undefined) {
             return thisScope[name];
         } else {
             var value = gs.gp(thisScope, name);
-            if (value == undefined) {
-                var func = new Function("return "+name)
+            if (value === undefined) {
+                var func = new Function("return " + name);
                 return func();
             } else {
                 return value;
@@ -2443,7 +2430,7 @@
 
     gs.toJavascript = function(message) {
         var result;
-        if (message!=null && message!=undefined && typeof(message) !== "function") {
+        if (message !== null && message !== undefined && typeof(message) !== "function") {
             if (message instanceof Array) {
                 result = [];
                 var i;
@@ -2453,6 +2440,7 @@
             } else {
                 if (message instanceof Object) {
                     result = {};
+                    var ob;
                     for (ob in message) {
                         if (!isMapProperty(ob)) {
                             result[ob] = gs.toJavascript(message[ob]);
@@ -2468,7 +2456,7 @@
 
     gs.toGroovy = function(message) {
         var result;
-        if (message!=null && message!=undefined && typeof(message) !== "function") {
+        if (message !== null && message !== undefined && typeof(message) !== "function") {
             if (message instanceof Array) {
                 result = gs.list([]);
                 var i;
@@ -2476,6 +2464,7 @@
                     result.add(gs.toGroovy(message[i]));
                 }
             } else {
+                var ob;
                 if (message instanceof Object) {
                     result = gs.map();
                     for (ob in message) {
