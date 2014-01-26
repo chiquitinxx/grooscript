@@ -27,6 +27,7 @@ class ConversionFactory {
             'VariableExpression': VariableExpressionHandler,
             'ClassNode': ClassNodeHandler,
             'BinaryExpression': BinaryExpressionHandler,
+            'MethodCallExpression': MethodCallExpressionHandler,
     ]
 
     ConversionFactory(Context context, Out out) {

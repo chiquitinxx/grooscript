@@ -13,8 +13,6 @@ import org.grooscript.util.Util
  */
 class GsConverter {
 
-    static final String SUPER_METHOD_BEGIN = 'super_'
-
     Context context = new Context()
     Out out = new Out()
     ConversionFactory conversionFactory
@@ -614,7 +612,7 @@ class GsConverter {
         visitNode(expression.arguments)
     }
 
-    private processArgumentListExpression(ArgumentListExpression expression,boolean withParenthesis) {
+    private processArgumentListExpression(ArgumentListExpression expression, boolean withParenthesis) {
         if (withParenthesis) {
             out.addScript '('
         }
@@ -633,7 +631,7 @@ class GsConverter {
     }
 
     private processArgumentListExpression(ArgumentListExpression expression) {
-        processArgumentListExpression(expression,true)
+        processArgumentListExpression(expression, true)
     }
 
     private processObjectExpressionFromProperty(PropertyExpression expression) {
@@ -715,132 +713,6 @@ class GsConverter {
             }
         }
 
-    }
-
-    private processMethodCallExpression(MethodCallExpression expression) {
-
-        //println "MCE ${expression.objectExpression} - ${expression.methodAsString}"
-        def addParameters = true
-
-        //Change println for javascript function
-        if (expression.methodAsString == 'println' || expression.methodAsString == 'print') {
-            out.addScript(GS_PRINTLN)
-        //Remove call method call from closures
-        } else if (expression.methodAsString == 'call') {
-            //println 'Calling!->'+expression.objectExpression
-
-            if (expression.objectExpression instanceof VariableExpression) {
-                addParameters = false
-                def nameFunc = expression.objectExpression.text
-                out.addScript("(${nameFunc}.delegate!=undefined?${GS_APPLY_DELEGATE}(${nameFunc},${nameFunc}.delegate,[")
-                processArgumentListExpression(expression.arguments,false)
-                out.addScript("]):${nameFunc}")
-                visitNode(expression.arguments)
-                out.addScript(")")
-            } else {
-                visitNode(expression.objectExpression)
-            }
-        //Dont use dot(.) in super calls
-        } else if (expression.objectExpression instanceof VariableExpression &&
-                expression.objectExpression.name=='super') {
-            out.addScript("${SUPER_METHOD_BEGIN}${expression.methodAsString}")
-        //Function times, with a number, have to put (number) in javascript
-        } else if (['times','upto','step'].contains(expression.methodAsString) && expression.objectExpression instanceof ConstantExpression) {
-            out.addScript('(')
-            visitNode(expression.objectExpression)
-            out.addScript(')')
-            out.addScript(".${expression.methodAsString}")
-        //With
-        } else if (expression.methodAsString == 'with' && expression.arguments instanceof ArgumentListExpression &&
-                expression.arguments.getExpression(0) && expression.arguments.getExpression(0) instanceof ClosureExpression) {
-            visitNode(expression.objectExpression)
-            out.addScript(".${WITH}")
-        //Using Math library
-        } else if (expression.objectExpression instanceof ClassExpression && expression.objectExpression.type.name=='java.lang.Math') {
-            out.addScript("Math.${expression.methodAsString}")
-        //Adding class.forName
-        } else if (expression.objectExpression instanceof ClassExpression && expression.objectExpression.type.name=='java.lang.Class' &&
-                expression.methodAsString=='forName') {
-            out.addScript("${GS_CLASS_FOR_NAME}(")
-            processArgumentListExpression(expression.arguments,false)
-            out.addScript(')')
-            addParameters = false
-        //this.use {} Categories
-        } else if (expression.objectExpression instanceof VariableExpression &&
-                expression.objectExpression.name=='this' && expression.methodAsString == 'use') {
-            ArgumentListExpression args = expression.arguments
-            addParameters = false
-            out.addScript("${GS_CATEGORY_USE}(\"")
-            out.addScript(args.expressions[0].type.nameWithoutPackage)
-            out.addScript('",')
-            visitNode(args.expressions[1])
-            out.addScript(')')
-        //Mixin Classes
-        } else if (expression.objectExpression instanceof ClassExpression && expression.methodAsString == 'mixin') {
-            //println 'Mixin!'
-            addParameters = false
-            out.addScript("${GS_MIXIN_CLASS}('${expression.objectExpression.type.nameWithoutPackage}',")
-            out.addScript('[')
-            ArgumentListExpression args = expression.arguments
-            out.addScript args.expressions.inject ([]) { item,expr->
-                item << '"'+expr.type.nameWithoutPackage+'"'
-            }.join(',')
-            out.addScript('])')
-        //Mixin Objects
-        } else if (expression.objectExpression instanceof PropertyExpression &&
-                expression.objectExpression.property instanceof ConstantExpression &&
-                expression.objectExpression.property.text == 'metaClass' &&
-                expression.methodAsString == 'mixin') {
-            addParameters = false
-            out.addScript("${GS_MIXIN_OBJECT}(${expression.objectExpression.objectExpression.text},")
-            out.addScript('[')
-            ArgumentListExpression args = expression.arguments
-            out.addScript args.expressions.inject ([]) { item,expr->
-                item << '"'+expr.type.nameWithoutPackage+'"'
-            }.join(',')
-            out.addScript('])')
-        //Spread method call [1,2,3]*.toString()
-        } else if (expression.isSpreadSafe()) {
-            //println 'spreadsafe!'
-            addParameters = false
-            visitNode(expression.objectExpression)
-            out.addScript(".collect(function(it) { return ${GS_METHOD_CALL}(it,'${expression.methodAsString}',${GS_LIST}([")
-            processArgumentListExpression(expression.arguments,false)
-            out.addScript(']));})')
-        //Call a method in this, method exist in main context
-        } else if (isThis(expression.objectExpression) && context.firstVariableScopingHasMethod(expression.methodAsString)) {
-            out.addScript(expression.methodAsString)
-        } else {
-
-            //println 'Method->'+expression.methodAsString+' - '+expression.arguments.class.simpleName + ' - ' + variableScoping
-            addParameters = false
-
-            out.addScript("${GS_METHOD_CALL}(")
-            //Object
-            if (isThis(expression.objectExpression) &&
-                    context.variableScoping.peek()?.contains(expression.methodAsString)) {
-                out.addScript(GS_OBJECT)
-            } else {
-                visitNode(expression.objectExpression)
-            }
-
-            out.addScript(',')
-            //MethodName
-            visitNode(expression.method)
-
-            //Parameters
-            out.addScript(",${GS_LIST}([")
-            "process${expression.arguments.class.simpleName}"(expression.arguments,false)
-            out.addScript(']))')
-        }
-
-        if (addParameters) {
-            visitNode(expression.arguments)
-        }
-    }
-
-    private isThis(expression) {
-        expression instanceof VariableExpression && expression.name == 'this'
     }
 
     private addPlusPlusFunction(expression, isBefore) {
