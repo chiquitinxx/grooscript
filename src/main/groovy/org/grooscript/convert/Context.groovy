@@ -33,6 +33,15 @@ class Context {
     //Where code of native functions stored, as a map. Used for GsNative annotation
     def nativeFunctions
 
+    Context() {
+        variableScoping.clear()
+        variableScoping.push([])
+        variableStaticScoping.clear()
+        variableStaticScoping.push([])
+        actualScope.clear()
+        actualScope.push([])
+    }
+
     def addToActualScope(variableName) {
         if (!actualScope.isEmpty()) {
             actualScope.peek().add(variableName)

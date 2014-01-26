@@ -6,9 +6,9 @@ package org.grooscript.convert
  */
 class Out {
 
-    def indent
+    def indent = 0
     static final TAB = '  '
-    String resultScript
+    String resultScript = ''
 
     /**
      * Add a line to javascript output

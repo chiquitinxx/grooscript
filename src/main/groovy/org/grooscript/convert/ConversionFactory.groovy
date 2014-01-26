@@ -17,8 +17,9 @@ import static org.grooscript.JsNames.*
 class ConversionFactory {
 
     def conversionClasses = [:]
-    def context
-    def out
+    Context context
+    Out out
+    Functions functions
     def converter
 
     Map converters = [
@@ -28,11 +29,13 @@ class ConversionFactory {
             'MethodCallExpression': MethodCallExpressionHandler,
             'PropertyExpression': PropertyExpressionHandler,
             'BlockStatement': BlockStatementHandler,
+            'MethodNode': MethodNodeHandler,
     ]
 
-    ConversionFactory(Context context, Out out) {
-        this.context = context
-        this.out = out
+    ConversionFactory() {
+        context = new Context()
+        out = new Out()
+        functions = new Functions(conversionFactory: this)
     }
 
     void convert(ASTNode node, otherParam = null) {
@@ -215,6 +218,7 @@ class ConversionFactory {
         BaseHandler instanceHandler = converters[className].newInstance()
         instanceHandler.out = out
         instanceHandler.context = context
+        instanceHandler.functions = functions
         instanceHandler.factory = this
         instanceHandler
     }

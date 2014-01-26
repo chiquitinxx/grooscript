@@ -13,9 +13,10 @@ import org.grooscript.util.Util
  */
 class GsConverter {
 
-    Context context = new Context()
-    Out out = new Out()
     ConversionFactory conversionFactory
+    Context context
+    Out out
+    Functions functions
 
     //Adds a console info if activated
     def consoleInfo = false
@@ -38,8 +39,6 @@ class GsConverter {
 
             try {
 
-                context.nativeFunctions = Util.getNativeFunctions(script)
-
                 if (consoleInfo) {
                     GsConsole.message('Getting ast from code...')
                 }
@@ -51,7 +50,7 @@ class GsConverter {
                 }
 
                 phase++
-                result = processAstListToJs(astList)
+                result = processAstListToJs(astList, Util.getNativeFunctions(script))
 
                 if (consoleInfo) {
                     GsConsole.message('Code processed.')
@@ -74,20 +73,17 @@ class GsConverter {
      * @param list
      * @return
      */
-    def processAstListToJs(list) {
+    def processAstListToJs(list, nativeFunctions = null) {
         def result
-        out.indent = 0
-        out.resultScript = ''
         if (list && list.size() > 0) {
             //println '-----------------Size('+list.size+')->'+list
-            conversionFactory = new ConversionFactory(context, out)
+            conversionFactory = new ConversionFactory()
             conversionFactory.converter = this
-            context.variableScoping.clear()
-            context.variableScoping.push([])
-            context.variableStaticScoping.clear()
-            context.variableStaticScoping.push([])
-            context.actualScope.clear()
-            context.actualScope.push([])
+            functions = conversionFactory.functions
+            context = conversionFactory.context
+            context.nativeFunctions = nativeFunctions
+            out = conversionFactory.out
+
             //Store all methods here
             def methodList = []
             //Store all classes here
@@ -125,9 +121,8 @@ class GsConverter {
                 if (consoleInfo) {
                     GsConsole.message('Processing method '+methodNode.name)
                 }
-                //processMethodNode(methodNode)
                 context.variableScoping.peek().add(methodNode.name)
-                processBasicFunction("var ${methodNode.name}", methodNode, false)
+                functions.processBasicFunction("var ${methodNode.name}", methodNode, false)
             }
 
             //Process blocks after
@@ -221,7 +216,7 @@ class GsConverter {
             if (it.name!='main' && it.name!='run') {
                 //Add too method names to variable scoping
                 context.variableScoping.peek().add(it.name)
-                processBasicFunction(it.name, it, false)
+                functions.processBasicFunction(it.name, it, false)
             }
         }
 
@@ -233,132 +228,8 @@ class GsConverter {
 
     }
 
-    private processFunctionOrMethodParameters(functionOrMethod, boolean isConstructor,boolean addItInParameter) {
-
-        boolean first = true
-        boolean lastParameterCanBeMore = false
-
-        //Parameters with default values if not shown
-        def initalValues = [:]
-
-        //If no parameters, we add it by defaul
-        if (addItInParameter && (!functionOrMethod.parameters || functionOrMethod.parameters.size()==0)) {
-            out.addScript('it')
-            context.addToActualScope('it')
-        } else {
-
-            functionOrMethod.parameters?.eachWithIndex { Parameter param, index ->
-
-                //If the last parameter is an Object[] then, maybe, can get more parameters as optional
-                if (param.type.name=='[Ljava.lang.Object;' && index+1 == functionOrMethod.parameters.size()) {
-                    lastParameterCanBeMore = true
-                }
-                //println 'pe->'+param.toString()+' - '+param.type.name //+' - '+param.type
-
-                if (param.getInitialExpression()) {
-                    //println 'Initial->'+param.getInitialExpression()
-                    initalValues.putAt(param.name,param.getInitialExpression())
-                }
-                if (!first) {
-                    out.addScript(', ')
-                }
-                context.addToActualScope(param.name)
-                out.addScript(param.name)
-                first = false
-            }
-        }
-        out.addScript(') {')
-        out.indent++
-        out.addLine()
-
-        //At start we add initialization of default values
-        initalValues.each { key,value ->
-            out.addScript("if (${key} === undefined) ${key} = ")
-            conversionFactory.visitNode(value)
-            out.addScript(';', true)
-        }
-
-        //We add initialization of it inside switch closure function
-        if (context.addClosureSwitchInitialization) {
-            def name = SWITCH_VAR_NAME + (context.switchCount - 1)
-            out.addScript("if (it === undefined) it = ${name};", true)
-            context.addClosureSwitchInitialization = false
-        }
-
-        if (lastParameterCanBeMore) {
-            def Parameter lastParameter = functionOrMethod.parameters.last()
-            out.addScript("if (arguments.length==${functionOrMethod.parameters.size()}) { " +
-                    "${lastParameter.name}=${GS_LIST}([arguments[${functionOrMethod.parameters.size()}-1]]); }", true)
-            out.addScript("if (arguments.length<${functionOrMethod.parameters.size()}) { " +
-                    "${lastParameter.name}=${GS_LIST}([]); }", true)
-            out.addScript("if (arguments.length>${functionOrMethod.parameters.size()}) {", true)
-            out.addScript("  ${lastParameter.name}=${GS_LIST}([${lastParameter.name}]);", true)
-            out.addScript("  for (${COUNT}=${functionOrMethod.parameters.size()};${COUNT} < arguments.length; ${COUNT}++) {", true)
-            out.addScript("    ${lastParameter.name}.add(arguments[${COUNT}]);", true)
-            out.addScript("  }", true)
-            out.addScript("}", true)
-        }
-    }
-
-    private putFunctionParametersAndBody(functionOrMethod, boolean isConstructor, boolean addItDefault) {
-
-        context.actualScope.push([])
-
-        processFunctionOrMethodParameters(functionOrMethod, isConstructor, addItDefault)
-
-        //println 'Closure '+expression+' Code:'+expression.code
-        if (functionOrMethod.code instanceof BlockStatement) {
-            conversionFactory.visitNode(functionOrMethod.code, !isConstructor)
-        } else {
-            GsConsole.error("FunctionOrMethod Code not supported (${functionOrMethod.code.class.simpleName})")
-        }
-
-        context.actualScope.pop()
-    }
-
-    private processBasicFunction(name, method, isConstructor) {
-
-        out.addScript("$name = function(")
-
-        putFunctionParametersAndBody(method,isConstructor,true)
-
-        out.indent--
-        if (isConstructor) {
-            out.addScript('return this;', true)
-        } else {
-            out.removeTabScript()
-        }
-        out.addScript('}', true)
-    }
-
     private processConstructorNode(ConstructorNode method, isConstructor) {
-        processMethodNode((MethodNode)method, isConstructor)
-    }
-
-    private processMethodNode(MethodNode method, isConstructor) {
-
-        //Starting method conversion
-        //Ignoring annotations
-        //node?.annotations?.each {
-
-        //Ignoring modifiers
-        //visitModifiers(node.modifiers)
-
-        //Ignoring init methods
-        //if (node.name == '<init>') {
-        //} else if (node.name == '<clinit>') {
-        //visitType node.returnType
-
-        def name =  method.name
-        //Constructor method
-        if (isConstructor) {
-            //Add number of params to constructor name
-            //BEWARE Atm only accepts constructor with different number or arguments
-            name = context.classNameStack.peek() + (method.parameters ? method.parameters.size() : '0')
-        }
-
-        processBasicFunction("${GS_OBJECT}['$name']", method, isConstructor)
-
+        conversionFactory.getConverter('MethodNode').handle(method, isConstructor)
     }
 
     private processAssertStatement(AssertStatement statement) {
@@ -472,9 +343,7 @@ class GsConverter {
             if (number>0) {
                 out.addScript(' + ')
             }
-            //out.addScript('"')
             conversionFactory.visitNode(exp)
-            //out.addScript('"')
 
             if (expression.getValues().size() > number) {
                 out.addScript(' + (')
@@ -540,7 +409,6 @@ class GsConverter {
         if (withParenthesis) {
             out.addScript ')'
         }
-
     }
 
     private processArgumentListExpression(ArgumentListExpression expression) {
@@ -598,13 +466,12 @@ class GsConverter {
         out.addScript("function(")
 
         context.processingClosure = true
-        putFunctionParametersAndBody(expression,false,addItDefault)
+        functions.putFunctionParametersAndBody(expression, false, addItDefault)
         context.processingClosure = false
 
         out.indent--
         out.removeTabScript()
         out.addScript('}')
-
     }
 
     private processIfStatement(IfStatement statement) {
@@ -767,7 +634,6 @@ class GsConverter {
             out.addScript("${varName} === ")
             conversionFactory.visitNode(expression)
         }
-
     }
 
     private processSwitchStatement(SwitchStatement statement) {
@@ -805,7 +671,6 @@ class GsConverter {
         }
 
         out.addScript('}')
-
         context.switchCount--
     }
 
@@ -899,7 +764,7 @@ class GsConverter {
 
                 context.variableScoping.peek().add(it.name)
                 out.addScript("${it.name} : function(")
-                putFunctionParametersAndBody(it,false,true)
+                functions.putFunctionParametersAndBody(it, false, true)
 
                 out.indent--
                 out.removeTabScript()
