@@ -2,6 +2,8 @@ package org.grooscript.convert
 
 import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.ast.Parameter
+import org.codehaus.groovy.ast.expr.ClassExpression
+import org.codehaus.groovy.ast.expr.GStringExpression
 import org.codehaus.groovy.ast.expr.NotExpression
 import org.codehaus.groovy.ast.expr.PropertyExpression
 import org.codehaus.groovy.ast.expr.VariableExpression
@@ -28,6 +30,7 @@ class ConversionFactory {
             'ClassNode': ClassNodeHandler,
             'BinaryExpression': BinaryExpressionHandler,
             'MethodCallExpression': MethodCallExpressionHandler,
+            'PropertyExpression': PropertyExpressionHandler,
     ]
 
     ConversionFactory(Context context, Out out) {
@@ -180,6 +183,24 @@ class ConversionFactory {
             out.addScript(')')
         } else {
             visitNode(expression)
+        }
+    }
+
+    void processObjectExpressionFromProperty(PropertyExpression expression) {
+        if (expression.objectExpression instanceof ClassExpression) {
+            out.addScript(expression.objectExpression.type.nameWithoutPackage)
+        } else {
+            visitNode(expression.objectExpression)
+        }
+    }
+
+    void processPropertyExpressionFromProperty(PropertyExpression expression) {
+        if (expression.property instanceof GStringExpression) {
+            visitNode(expression.property)
+        } else {
+            out.addScript('"')
+            visitNode(expression.property, false)
+            out.addScript('"')
         }
     }
 

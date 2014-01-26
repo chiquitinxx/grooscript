@@ -536,7 +536,7 @@ class GsConverter {
         }
     }
 
-    private processConstantExpression(ConstantExpression expression,boolean addStuff) {
+    private processConstantExpression(ConstantExpression expression, boolean addStuff) {
         if (expression.value instanceof String && addStuff) {
             processConstantExpression(expression)
         } else {
@@ -634,87 +634,6 @@ class GsConverter {
         processArgumentListExpression(expression, true)
     }
 
-    private processObjectExpressionFromProperty(PropertyExpression expression) {
-        if (expression.objectExpression instanceof ClassExpression) {
-            out.addScript(expression.objectExpression.type.nameWithoutPackage)
-        } else {
-            visitNode(expression.objectExpression)
-        }
-    }
-
-    private processPropertyExpressionFromProperty(PropertyExpression expression) {
-        if (expression.property instanceof GStringExpression) {
-            visitNode(expression.property)
-        } else {
-            out.addScript('"')
-            "process${expression.property.class.simpleName}"(expression.property,false)
-            out.addScript('"')
-        }
-    }
-
-    private processPropertyExpression(PropertyExpression expression) {
-
-        //println 'Pe->'+expression.objectExpression
-        //println 'Pro->'+expression.property
-
-        //If metaClass property we ignore it, javascript permits add directly properties and methods
-        if (expression.property instanceof ConstantExpression && expression.property.value == 'metaClass') {
-            if (expression.objectExpression instanceof VariableExpression) {
-
-                if (expression.objectExpression.name=='this') {
-                    out.addScript('this')
-                } else {
-
-                    //I had to add variable = ... cause gSmetaClass changing object and sometimes variable don't change
-                    out.addScript("(${expression.objectExpression.name} = ${GS_META_CLASS}(")
-                    visitNode(expression.objectExpression)
-                    out.addScript('))')
-                }
-            } else {
-                if (expression.objectExpression instanceof ClassExpression &&
-                    (expression.objectExpression.type.name.startsWith('java.') ||
-                     expression.objectExpression.type.name.startsWith('groovy.'))) {
-                    throw new Exception("Not allowed access metaClass of Groovy or Java types (${expression.objectExpression.type.name})")
-                }
-                out.addScript("${GS_META_CLASS}(")
-                visitNode(expression.objectExpression)
-                out.addScript(')')
-            }
-        } else if (expression.property instanceof ConstantExpression && expression.property.value == 'class') {
-            visitNode(expression.objectExpression)
-            out.addScript(".${CLASS}")
-        } else {
-
-            if (!(expression instanceof AttributeExpression)) {
-                out.addScript("${GS_GET_PROPERTY}(")
-                if (expression.objectExpression instanceof VariableExpression &&
-                        expression.objectExpression.name=='this') {
-                    out.addScript("${GS_THIS_OR_OBJECT}(this,${GS_OBJECT})")
-                } else {
-                    processObjectExpressionFromProperty(expression)
-                }
-
-                out.addScript(',')
-
-                processPropertyExpressionFromProperty(expression)
-
-                //If is a safe expression as item?.data, we add one more parameter
-                if (expression.isSafe()) {
-                    out.addScript(',true')
-                }
-
-                out.addScript(')')
-            } else {
-
-                processObjectExpressionFromProperty(expression)
-                out.addScript('[')
-                processPropertyExpressionFromProperty(expression)
-                out.addScript(']')
-            }
-        }
-
-    }
-
     private addPlusPlusFunction(expression, isBefore) {
 
         //Only in mind ++ and --
@@ -724,9 +643,9 @@ class GsConverter {
         }
 
         out.addScript("${GS_PLUS_PLUS}(")
-        processObjectExpressionFromProperty(expression.expression)
+        conversionFactory.processObjectExpressionFromProperty(expression.expression)
         out.addScript(',')
-        processPropertyExpressionFromProperty(expression.expression)
+        conversionFactory.processPropertyExpressionFromProperty(expression.expression)
 
         out.addScript(",${plus},${isBefore?'true':'false'})")
     }
@@ -1117,7 +1036,7 @@ class GsConverter {
     }
 
     private processAttributeExpression(AttributeExpression expression) {
-        processPropertyExpression(expression)
+        conversionFactory.getConverter('PropertyExpression').handle(expression)
     }
 
     private processCastExpression(CastExpression expression) {
