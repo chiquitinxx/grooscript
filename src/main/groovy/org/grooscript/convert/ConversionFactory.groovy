@@ -2,12 +2,8 @@ package org.grooscript.convert
 
 import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.ast.Parameter
-import org.codehaus.groovy.ast.expr.ClassExpression
-import org.codehaus.groovy.ast.expr.GStringExpression
-import org.codehaus.groovy.ast.expr.NotExpression
-import org.codehaus.groovy.ast.expr.PropertyExpression
-import org.codehaus.groovy.ast.expr.VariableExpression
-import org.codehaus.groovy.ast.stmt.BlockStatement
+import org.codehaus.groovy.ast.expr.*
+import org.codehaus.groovy.ast.stmt.*
 import org.grooscript.convert.handlers.*
 import org.grooscript.util.GrooScriptException
 import org.grooscript.util.GsConsole
@@ -31,6 +27,7 @@ class ConversionFactory {
             'BinaryExpression': BinaryExpressionHandler,
             'MethodCallExpression': MethodCallExpressionHandler,
             'PropertyExpression': PropertyExpressionHandler,
+            'BlockStatement': BlockStatementHandler,
     ]
 
     ConversionFactory(Context context, Out out) {
@@ -38,12 +35,11 @@ class ConversionFactory {
         this.out = out
     }
 
-    void convert(ASTNode node) {
+    void convert(ASTNode node, otherParam = null) {
         if (!context || !out) {
             throw new GrooScriptException('Need to define context and out in ConversionFactory.')
         }
-        String className = node.class.simpleName
-        getConverter(className).handle(node)
+        visitNode(node, otherParam)
     }
 
     BaseHandler getConverter(String className) {
@@ -60,7 +56,7 @@ class ConversionFactory {
             if (otherParam != null) {
                 converter."process${className}"(node, otherParam)
             } else {
-                converter.visitNode(node)
+                converter."process${className}"(node)
             }
         } else {
             if (otherParam) {
@@ -75,7 +71,7 @@ class ConversionFactory {
 
         out.addScript("$name = function(")
 
-        putFunctionParametersAndBody(method, isConstructor,true)
+        putFunctionParametersAndBody(method, isConstructor, true)
 
         out.indent--
         if (isConstructor) {
@@ -119,7 +115,7 @@ class ConversionFactory {
             functionOrMethod.parameters?.eachWithIndex { Parameter param, index ->
 
                 //If the last parameter is an Object[] then, maybe, can get more parameters as optional
-                if (param.type.name=='[Ljava.lang.Object;' && index+1 == functionOrMethod.parameters.size()) {
+                if (param.type.name=='[Ljava.lang.Object;' && index + 1 == functionOrMethod.parameters.size()) {
                     lastParameterCanBeMore = true
                 }
                 //println 'pe->'+param.toString()+' - '+param.type.name //+' - '+param.type
@@ -202,6 +198,17 @@ class ConversionFactory {
             visitNode(expression.property, false)
             out.addScript('"')
         }
+    }
+
+    boolean statementThatCanReturn(statement) {
+        return !(statement instanceof ReturnStatement) &&
+                !(statement instanceof IfStatement) && !(statement instanceof WhileStatement) &&
+                !(statement instanceof AssertStatement) && !(statement instanceof BreakStatement) &&
+                !(statement instanceof CaseStatement) && !(statement instanceof CatchStatement) &&
+                !(statement instanceof ContinueStatement) && !(statement instanceof DoWhileStatement) &&
+                !(statement instanceof ForStatement) && !(statement instanceof SwitchStatement) &&
+                !(statement instanceof ThrowStatement) && !(statement instanceof TryCatchStatement) &&
+                !(statement.metaClass.expression && statement.expression instanceof DeclarationExpression)
     }
 
     private Object improvedConversionHandler(String className) {

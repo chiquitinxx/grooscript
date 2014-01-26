@@ -132,7 +132,7 @@ class GsConverter {
 
             //Process blocks after
             listBlocks?.each { it->
-                processBlockStatement(it, false)
+                conversionFactory.visitNode(it, false)
             }
 
             result = out.resultScript
@@ -186,7 +186,7 @@ class GsConverter {
             if (consoleInfo) {
                 GsConsole.message('  Processing class ' + nameClass)
             }
-            visitNode(list.find { ClassNode it ->
+            conversionFactory.visitNode(list.find { ClassNode it ->
                 return it.name == nameClass
             })
             if (consoleInfo) {
@@ -274,7 +274,7 @@ class GsConverter {
         //At start we add initialization of default values
         initalValues.each { key,value ->
             out.addScript("if (${key} === undefined) ${key} = ")
-            visitNode(value)
+            conversionFactory.visitNode(value)
             out.addScript(';', true)
         }
 
@@ -308,7 +308,7 @@ class GsConverter {
 
         //println 'Closure '+expression+' Code:'+expression.code
         if (functionOrMethod.code instanceof BlockStatement) {
-            processBlockStatement(functionOrMethod.code, !isConstructor)
+            conversionFactory.visitNode(functionOrMethod.code, !isConstructor)
         } else {
             GsConsole.error("FunctionOrMethod Code not supported (${functionOrMethod.code.class.simpleName})")
         }
@@ -361,101 +361,14 @@ class GsConverter {
 
     }
 
-    private statementThatCanReturn(statement) {
-        return !(statement instanceof ReturnStatement) &&
-                !(statement instanceof IfStatement) && !(statement instanceof WhileStatement) &&
-                !(statement instanceof AssertStatement) && !(statement instanceof BreakStatement) &&
-                !(statement instanceof CaseStatement) && !(statement instanceof CatchStatement) &&
-                !(statement instanceof ContinueStatement) && !(statement instanceof DoWhileStatement) &&
-                !(statement instanceof ForStatement) && !(statement instanceof SwitchStatement) &&
-                !(statement instanceof ThrowStatement) && !(statement instanceof TryCatchStatement) &&
-                !(statement.metaClass.expression && statement.expression instanceof DeclarationExpression)
-    }
-
-    /**
-     * Process an AST Block
-     * @param block
-     * @param addReturn put 'return ' before last statement
-     * @return
-     */
-    private processBlockStatement(block, addReturn) {
-        if (block) {
-            def number = 1
-            //println 'Block->'+block
-            if (block instanceof EmptyStatement) {
-                GsConsole.debug "BlockEmpty -> ${block.text}"
-            } else {
-                //println '------------------------------Block->'+block.text
-                block.getStatements()?.each { statement ->
-                    def lookingForIf = false
-                    def position
-                    context.returnScoping.push(false)
-                    if (addReturn && ((number++) == block.getStatements().size())
-                            && statementThatCanReturn(statement)) {
-
-                        //println 'Saving statemen->'+it
-                        //println 'Saving return - '+ variableScoping.peek()
-                        //this statement can be a complex statement with a return
-                        //Go looking for a return statement in last statement
-                        position = out.getSavePoint()
-                    }
-                    if (addReturn && (number - 1) == block.getStatements().size() &&
-                            !context.lookingForReturnStatementInIf && statement instanceof IfStatement) {
-                        context.lookingForReturnStatementInIf = true
-                        lookingForIf = true
-                    }
-                    def oldlookingForReturnStatementInIf = context.lookingForReturnStatementInIf
-                    if ((number - 1) != block.getStatements().size()) {
-                        context.lookingForReturnStatementInIf = false
-                    }
-                    processStatement(statement)
-                    context.lookingForReturnStatementInIf = oldlookingForReturnStatementInIf
-                    if (lookingForIf) {
-                        context.lookingForReturnStatementInIf = false
-                    }
-                    if (addReturn && position) {
-                        if (!context.returnScoping.peek()) {
-                            //No return statement, then we want add return
-                            //println 'Yes!'+position
-                            out.addScriptAt('return ', position)
-                        }
-                    }
-                    context.returnScoping.pop()
-                }
-            }
-        }
-    }
-
-    //???? there are both used
-    private processBlockStatement(block) {
-        processBlockStatement(block, false)
-    }
-
-    /**
-     * Process a statement, adding ; at the end
-     * @param statement
-     */
-    private void processStatement(Statement statement) {
-
-        //println "statement (${statement.class.simpleName})->"+statement+' - '+statement.text
-        visitNode(statement)
-
-        //Adds ;
-        if (out.resultScript) {
-            out.resultScript += ';'
-        }
-        out.addLine()
-        //println 'end statement'
-    }
-
     private processAssertStatement(AssertStatement statement) {
         Expression e = statement.booleanExpression
         out.addScript(GS_ASSERT)
         out.addScript('(')
-        visitNode(e)
+        conversionFactory.visitNode(e)
         if (statement.getMessageExpression() && !(statement.messageExpression instanceof EmptyExpression)) {
             out.addScript(', ')
-            visitNode(statement.messageExpression)
+            conversionFactory.visitNode(statement.messageExpression)
         }
         out.addScript(')')
     }
@@ -467,7 +380,7 @@ class GsConverter {
 
     private processExpressionStatement(ExpressionStatement statement) {
         Expression e = statement.expression
-        visitNode(e)
+        conversionFactory.visitNode(e)
     }
 
     private processDeclarationExpression(DeclarationExpression expression) {
@@ -486,7 +399,7 @@ class GsConverter {
                     conversionFactory.getConverter('VariableExpression').handle(expr, true)
                     //processVariableExpression(expr, true)
                     out.addScript(' = ')
-                    visitNode(expression.rightExpression)
+                    conversionFactory.visitNode(expression.rightExpression)
                     out.addScript(".getAt(${number})")
                     if (number < tuple.expressions.size()) {
                         out.addScript(';')
@@ -504,7 +417,7 @@ class GsConverter {
 
             if (!(expression.rightExpression instanceof EmptyExpression)) {
                 out.addScript(' = ')
-                visitNode(expression.rightExpression)
+                conversionFactory.visitNode(expression.rightExpression)
             } else {
                 out.addScript(' = null')
             }
@@ -560,12 +473,12 @@ class GsConverter {
                 out.addScript(' + ')
             }
             //out.addScript('"')
-            visitNode(exp)
+            conversionFactory.visitNode(exp)
             //out.addScript('"')
 
             if (expression.getValues().size() > number) {
                 out.addScript(' + (')
-                visitNode(expression.getValue(number))
+                conversionFactory.visitNode(expression.getValue(number))
                 out.addScript(')')
             }
             number++
@@ -574,7 +487,7 @@ class GsConverter {
 
     private processNotExpression(NotExpression expression) {
         out.addScript('!')
-        visitNode(expression.expression)
+        conversionFactory.visitNode(expression.expression)
     }
 
     private processConstructorCallExpression(ConstructorCallExpression expression) {
@@ -609,7 +522,7 @@ class GsConverter {
             def name = expression.type.nameWithoutPackage
             out.addScript(name)
         }
-        visitNode(expression.arguments)
+        conversionFactory.visitNode(expression.arguments)
     }
 
     private processArgumentListExpression(ArgumentListExpression expression, boolean withParenthesis) {
@@ -618,7 +531,7 @@ class GsConverter {
         }
         int count = expression?.expressions?.size()
         expression.expressions?.each {
-            visitNode(it)
+            conversionFactory.visitNode(it)
             count--
             if (count) {
                 out.addScript ', '
@@ -655,7 +568,7 @@ class GsConverter {
             addPlusPlusFunction(expression, false)
         } else {
             context.postfixOperator = expression.operation.text
-            visitNode(expression.expression)
+            conversionFactory.visitNode(expression.expression)
             context.postfixOperator = ''
         }
     }
@@ -665,7 +578,7 @@ class GsConverter {
             addPlusPlusFunction(expression, true)
         } else {
             context.prefixOperator = expression.operation.text
-            visitNode(expression.expression)
+            conversionFactory.visitNode(expression.expression)
             context.prefixOperator = ''
         }
     }
@@ -673,7 +586,7 @@ class GsConverter {
     private processReturnStatement(ReturnStatement statement) {
         context.returnScoping.add(true)
         out.addScript('return ')
-        visitNode(statement.expression)
+        conversionFactory.visitNode(statement.expression)
     }
 
     private processClosureExpression(ClosureExpression expression) {
@@ -696,7 +609,7 @@ class GsConverter {
 
     private processIfStatement(IfStatement statement) {
         out.addScript('if (')
-        visitNode(statement.booleanExpression)
+        conversionFactory.visitNode(statement.booleanExpression)
         out.addScript(') {')
 
         processIfOrElseBlock(statement.ifBlock)
@@ -712,12 +625,12 @@ class GsConverter {
         out.indent++
         out.addLine()
         if (block instanceof BlockStatement) {
-            processBlockStatement(block, context.lookingForReturnStatementInIf)
+            conversionFactory.visitNode(block, context.lookingForReturnStatementInIf)
         } else {
-            if (context.lookingForReturnStatementInIf && statementThatCanReturn(block)) {
+            if (context.lookingForReturnStatementInIf && conversionFactory.statementThatCanReturn(block)) {
                 out.addScript('return ')
             }
-            visitNode(block)
+            conversionFactory.visitNode(block)
             out.addScript(';', true)
         }
         out.indent--
@@ -729,9 +642,9 @@ class GsConverter {
         out.addScript("${GS_MAP}()")
         expression.mapEntryExpressions?.each { ep ->
             out.addScript(".add(");
-            visitNode(ep.keyExpression)
+            conversionFactory.visitNode(ep.keyExpression)
             out.addScript(",");
-            visitNode(ep.valueExpression)
+            conversionFactory.visitNode(ep.valueExpression)
             out.addScript(")");
         }
     }
@@ -745,16 +658,16 @@ class GsConverter {
             } else {
                 first = false
             }
-            visitNode(it)
+            conversionFactory.visitNode(it)
         }
         out.addScript('])')
     }
 
     private processRangeExpression(RangeExpression expression) {
         out.addScript("${GS_RANGE}(")
-        visitNode(expression.from)
+        conversionFactory.visitNode(expression.from)
         out.addScript(", ")
-        visitNode(expression.to)
+        conversionFactory.visitNode(expression.to)
         out.addScript(', '+expression.isInclusive())
         out.addScript(')')
     }
@@ -763,19 +676,19 @@ class GsConverter {
 
         if (statement?.variable != ForStatement.FOR_LOOP_DUMMY) {
             //We change this for in...  for a call lo closure each, that works fine in javascript
-            visitNode(statement?.collectionExpression)
+            conversionFactory.visitNode(statement?.collectionExpression)
             out.addScript('.each(function(')
-            visitNode(statement.variable)
+            conversionFactory.visitNode(statement.variable)
 
         } else {
             out.addScript 'for ('
-            visitNode(statement?.collectionExpression)
+            conversionFactory.visitNode(statement?.collectionExpression)
         }
         out.addScript ') {'
         out.indent++
         out.addLine()
 
-        visitNode(statement?.loopBlock)
+        conversionFactory.visitNode(statement?.loopBlock)
 
         out.indent--
         out.removeTabScript()
@@ -792,7 +705,7 @@ class GsConverter {
                 out.addScript(' ; ')
             }
             first = false
-            visitNode(it)
+            conversionFactory.visitNode(it)
         }
     }
 
@@ -807,14 +720,14 @@ class GsConverter {
         out.indent++
         out.addLine()
 
-        visitNode(statement?.tryStatement)
+        conversionFactory.visitNode(statement?.tryStatement)
 
         out.indent--
         out.removeTabScript()
         //Catch block
         out.addScript('} catch (')
         if (statement?.catchStatements[0]) {
-            visitNode(statement?.catchStatements[0].variable)
+            conversionFactory.visitNode(statement?.catchStatements[0].variable)
         } else {
             out.addScript('e')
         }
@@ -822,7 +735,7 @@ class GsConverter {
         out.indent++
         out.addLine()
         //Only process first catch
-        visitNode(statement?.catchStatements[0])
+        conversionFactory.visitNode(statement?.catchStatements[0])
 
         out.indent--
         out.removeTabScript()
@@ -830,17 +743,17 @@ class GsConverter {
     }
 
     private processCatchStatement(CatchStatement statement) {
-        processBlockStatement(statement.code,false)
+        conversionFactory.visitNode(statement.code, false)
     }
 
     private processTernaryExpression(TernaryExpression expression) {
         //println 'Ternary->'+expression.text
         out.addScript('(')
-        visitNode(expression.booleanExpression)
+        conversionFactory.visitNode(expression.booleanExpression)
         out.addScript(' ? ')
-        visitNode(expression.trueExpression)
+        conversionFactory.visitNode(expression.trueExpression)
         out.addScript(' : ')
-        visitNode(expression.falseExpression)
+        conversionFactory.visitNode(expression.falseExpression)
         out.addScript(')')
     }
 
@@ -852,7 +765,7 @@ class GsConverter {
             out.addScript('()')
         } else {
             out.addScript("${varName} === ")
-            visitNode(expression)
+            conversionFactory.visitNode(expression)
         }
 
     }
@@ -862,7 +775,7 @@ class GsConverter {
         def varName = SWITCH_VAR_NAME + context.switchCount++
 
         out.addScript('var '+varName+' = ')
-        visitNode(statement.expression)
+        conversionFactory.visitNode(statement.expression)
         out.addScript(';', true)
 
         def first = true
@@ -878,7 +791,7 @@ class GsConverter {
             out.addScript(') {')
             out.indent++
             out.addLine()
-            visitNode(it?.code)
+            conversionFactory.visitNode(it?.code)
             out.indent--
             out.removeTabScript()
         }
@@ -886,7 +799,7 @@ class GsConverter {
             out.addScript('} else {')
             out.indent++
             out.addLine()
-            visitNode(statement.defaultStatement)
+            conversionFactory.visitNode(statement.defaultStatement)
             out.indent--
             out.removeTabScript()
         }
@@ -898,11 +811,11 @@ class GsConverter {
 
     private processCaseStatement(CaseStatement statement) {
         out.addScript 'case '
-        visitNode(statement?.expression)
+        conversionFactory.visitNode(statement?.expression)
         out.addScript ':'
         out.indent++
         out.addLine()
-        visitNode(statement?.code)
+        conversionFactory.visitNode(statement?.code)
         out.indent--
         out.removeTabScript()
     }
@@ -915,11 +828,11 @@ class GsConverter {
 
     private processWhileStatement(WhileStatement statement) {
         out.addScript('while (')
-        visitNode(statement.booleanExpression)
+        conversionFactory.visitNode(statement.booleanExpression)
         out.addScript(') {')
         out.indent++
         out.addLine()
-        visitNode(statement.loopBlock)
+        conversionFactory.visitNode(statement.loopBlock)
         out.indent--
         out.removeTabScript()
         out.addScript('}')
@@ -931,7 +844,7 @@ class GsConverter {
         }
         out.addScript("${GS_MAP}()")
         expression.expressions.each {
-            visitNode(it)
+            conversionFactory.visitNode(it)
             if (withParenthesis) {
                 out.addScript(')')
             }
@@ -941,9 +854,9 @@ class GsConverter {
     private processNamedArgumentListExpression(NamedArgumentListExpression expression) {
         expression.mapEntryExpressions.eachWithIndex { MapEntryExpression exp,i ->
             out.addScript('.add(')
-            visitNode(exp.keyExpression)
+            conversionFactory.visitNode(exp.keyExpression)
             out.addScript(',')
-            visitNode(exp.valueExpression)
+            conversionFactory.visitNode(exp.valueExpression)
             out.addScript(')')
         }
     }
@@ -1022,16 +935,16 @@ class GsConverter {
 
     private processStaticMethodCallExpression(StaticMethodCallExpression expression) {
         out.addScript("${expression.ownerType.name}.${expression.method}")
-        visitNode(expression.arguments)
+        conversionFactory.visitNode(expression.arguments)
     }
 
     private processElvisOperatorExpression(ElvisOperatorExpression expression) {
         out.addScript("${GS_ELVIS}(")
-        visitNode(expression.booleanExpression)
+        conversionFactory.visitNode(expression.booleanExpression)
         out.addScript(' , ')
-        visitNode(expression.trueExpression)
+        conversionFactory.visitNode(expression.trueExpression)
         out.addScript(' , ')
-        visitNode(expression.falseExpression)
+        conversionFactory.visitNode(expression.falseExpression)
         out.addScript(')')
     }
 
@@ -1042,7 +955,7 @@ class GsConverter {
     private processCastExpression(CastExpression expression) {
         if (expression.type.nameWithoutPackage == 'Set' && expression.expression instanceof ListExpression) {
             out.addScript("${GS_SET}(")
-            visitNode(expression.expression)
+            conversionFactory.visitNode(expression.expression)
             out.addScript(')')
         } else {
             throw new Exception('Casting not supported for '+expression.type.name)
@@ -1050,15 +963,15 @@ class GsConverter {
     }
 
     private processMethodPointerExpression(MethodPointerExpression expression) {
-        visitNode(expression.expression)
+        conversionFactory.visitNode(expression.expression)
         out.addScript('[')
-        visitNode(expression.methodName)
+        conversionFactory.visitNode(expression.methodName)
         out.addScript(']')
     }
 
     private processSpreadExpression(SpreadExpression expression) {
         out.addScript("new ${GS_SPREAD}(")
-        visitNode(expression.expression)
+        conversionFactory.visitNode(expression.expression)
         out.addScript(')')
     }
 
@@ -1068,13 +981,5 @@ class GsConverter {
 
     private processEmptyExpression(EmptyExpression expression) {
         //Nothing to do
-    }
-
-    private visitNode(expression) {
-        if (conversionFactory.converters.containsKey(expression.class.simpleName)) {
-            conversionFactory.convert(expression)
-        } else {
-            "process${expression.class.simpleName}"(expression)
-        }
     }
 }
