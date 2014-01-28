@@ -11,6 +11,7 @@ class TestConversionOptions extends Specification {
     private static final CLASSPATH_OPTION = 'classPath'
     private static final CONVERT_DEPENDENCIES_OPTION = 'convertDependencies'
     private static final CUSTOMIZATION_OPTION = 'customization'
+    private static final MAIN_CONTEXT_SCOPE_OPTION = 'mainContextScope'
     private static final FILE_BASIC_NAME = 'BasicClass'
     private static final FILE_BASIC_GROOVY_SOURCE = "src/test/resources/classes/${FILE_BASIC_NAME}.groovy"
     private static final FOLDER_NEED_DEPENDENCY = "need"
@@ -113,6 +114,22 @@ class TestConversionOptions extends Specification {
 
         then:
         file.text == '0\n1\n2\n3\n4\n'
+    }
+
+    def 'define main context scope variables'() {
+        given:
+        def code = 'def addToB = { a ->  console.log("Hello!"); a + b }'
+        GrooScript.setConversionProperty(MAIN_CONTEXT_SCOPE_OPTION, ['b', 'console'])
+
+        when:
+        def result = GrooScript.convert(code)
+
+        then:
+        result == '''var addToB = function(a) {
+  gs.mc(console,"log",gs.list(["Hello!"]));
+  return gs.plus(a, b);
+};
+'''
     }
 
     private setupNeedDirectory() {

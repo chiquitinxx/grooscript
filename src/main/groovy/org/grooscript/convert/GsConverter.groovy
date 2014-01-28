@@ -22,9 +22,10 @@ class GsConverter {
     def consoleInfo = false
 
     //Conversion Options
-    def convertDependencies = true
+    boolean convertDependencies = true
     Closure customization = null
     def classPath = null
+    List<String> mainContextScope
 
     /**
      * Converts Groovy script to Javascript
@@ -83,6 +84,12 @@ class GsConverter {
             context = conversionFactory.context
             context.nativeFunctions = nativeFunctions
             out = conversionFactory.out
+
+            if (mainContextScope) {
+                mainContextScope.each { var ->
+                    context.addToActualScope(var)
+                }
+            }
 
             //Store all methods here
             def methodList = []
