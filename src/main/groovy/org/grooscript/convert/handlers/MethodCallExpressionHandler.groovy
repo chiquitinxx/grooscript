@@ -42,10 +42,10 @@ class MethodCallExpressionHandler extends BaseHandler {
             }
             //Dont use dot(.) in super calls
         } else if (expression.objectExpression instanceof VariableExpression &&
-                expression.objectExpression.name=='super') {
+                expression.objectExpression.name == 'super') {
             out.addScript("${SUPER_METHOD_BEGIN}${expression.methodAsString}")
             //Function times, with a number, have to put (number) in javascript
-        } else if (['times','upto','step'].contains(expression.methodAsString) && expression.objectExpression instanceof ConstantExpression) {
+        } else if (['times', 'upto', 'step'].contains(expression.methodAsString) && expression.objectExpression instanceof ConstantExpression) {
             out.addScript('(')
             factory.visitNode(expression.objectExpression)
             out.addScript(')')
@@ -57,11 +57,11 @@ class MethodCallExpressionHandler extends BaseHandler {
             out.addScript(".${WITH}")
             //Using Math library
         } else if (expression.objectExpression instanceof ClassExpression &&
-                expression.objectExpression.type.name=='java.lang.Math') {
+                expression.objectExpression.type.name == 'java.lang.Math') {
             out.addScript("Math.${expression.methodAsString}")
             //Adding class.forName
         } else if (expression.objectExpression instanceof ClassExpression &&
-                expression.objectExpression.type.name=='java.lang.Class' &&
+                expression.objectExpression.type.name == 'java.lang.Class' &&
                 expression.methodAsString=='forName') {
             out.addScript("${GS_CLASS_FOR_NAME}(")
             factory.visitNode(expression.arguments, false)
@@ -69,7 +69,7 @@ class MethodCallExpressionHandler extends BaseHandler {
             addParameters = false
             //this.use {} Categories
         } else if (expression.objectExpression instanceof VariableExpression &&
-                expression.objectExpression.name=='this' && expression.methodAsString == 'use') {
+                expression.objectExpression.name == 'this' && expression.methodAsString == 'use') {
             ArgumentListExpression args = expression.arguments
             addParameters = false
             out.addScript("${GS_CATEGORY_USE}(\"")

@@ -1796,7 +1796,7 @@
     };
 
     //InstanceOf function
-    gs.instanceOf = function(item,name) {
+    gs.instanceOf = function(item, name) {
         var classItem;
         var gotIt = false;
 
@@ -1820,7 +1820,7 @@
     };
 
     //Elvis operator
-    gs.elvis = function(booleanExpression,trueExpression,falseExpression) {
+    gs.elvis = function(booleanExpression, trueExpression, falseExpression) {
         if (gs.bool(booleanExpression)) {
             return trueExpression;
         } else {
@@ -2039,16 +2039,16 @@
             }
         }
 
-        if (!hasFunc(item,methodName)) {
+        if (!hasFunc(item, methodName)) {
 
             if (methodName.startsWith('get') || methodName.startsWith('set')) {
                 var varName = methodName.charAt(3).toLowerCase() + methodName.slice(4);
                 var properties = item.getProperties();
                 if (properties.contains(varName)) {
                     if (methodName.startsWith('get')) {
-                        return gs.gp(item,varName);
+                        return gs.gp(item, varName);
                     } else {
-                        return gs.sp(item,varName,values[0]);
+                        return gs.sp(item, varName, values[0]);
                     }
 
                 }
@@ -2107,7 +2107,7 @@
                 } else {
                     //Maybe there is a function in the script with the name of the method
                     //In Node.js 'this.xxFunction()' in the main context fails
-                    if (typeof eval(methodName)==='function') {
+                    if (typeof eval(methodName) === 'function') {
                         return eval(methodName).apply(this, values);
                     }
 
