@@ -26,6 +26,8 @@ class GsConverter {
     Closure customization = null
     def classPath = null
     List<String> mainContextScope
+    String initialText
+    String finalText
 
     /**
      * Converts Groovy script to Javascript
@@ -37,9 +39,7 @@ class GsConverter {
         //Script not empty plz!
         def phase = 0
         if (script) {
-
             try {
-
                 if (consoleInfo) {
                     GsConsole.message('Getting ast from code...')
                 }
@@ -59,12 +59,23 @@ class GsConverter {
             } catch (e) {
                 e.printStackTrace()
                 GsConsole.error('Error getting AST from script: ' + e.message)
-                if (phase==0) {
+                if (phase == 0) {
                     throw new Exception("Compiler ERROR on Script -" + e.message)
                 } else {
                     throw new Exception("Compiler END ERROR on Script -" + e.message)
                 }
             }
+        }
+
+        completeJsResult(result)
+    }
+
+    private completeJsResult(result) {
+        if (initialText) {
+            result = initialText + '\n' + result
+        }
+        if (finalText) {
+            result = result + '\n' + finalText
         }
         result
     }

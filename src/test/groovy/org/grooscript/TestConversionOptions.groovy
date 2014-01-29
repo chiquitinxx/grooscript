@@ -1,6 +1,7 @@
 package org.grooscript
 
 import spock.lang.Specification
+import spock.lang.Unroll
 
 /**
  * User: jorgefrancoleza
@@ -12,6 +13,8 @@ class TestConversionOptions extends Specification {
     private static final CONVERT_DEPENDENCIES_OPTION = 'convertDependencies'
     private static final CUSTOMIZATION_OPTION = 'customization'
     private static final MAIN_CONTEXT_SCOPE_OPTION = 'mainContextScope'
+    private static final INITIAL_TEXT_OPTION = 'initialText'
+    private static final FINAL_TEXT_OPTION = 'finalText'
     private static final FILE_BASIC_NAME = 'BasicClass'
     private static final FILE_BASIC_GROOVY_SOURCE = "src/test/resources/classes/${FILE_BASIC_NAME}.groovy"
     private static final FOLDER_NEED_DEPENDENCY = "need"
@@ -130,6 +133,24 @@ class TestConversionOptions extends Specification {
   return gs.plus(a, b);
 };
 '''
+    }
+
+    @Unroll
+    def 'add text before and after in generated result'() {
+        given:
+        def code = 'def a = 0'
+
+        when:
+        GrooScript.setConversionProperty(option, 'Text')
+        def result = GrooScript.convert(code)
+
+        then:
+        result == expectedResult
+
+        where:
+        option              | expectedResult
+        INITIAL_TEXT_OPTION | 'Text\nvar a = 0;\n'
+        FINAL_TEXT_OPTION   | 'var a = 0;\n\nText'
     }
 
     private setupNeedDirectory() {
