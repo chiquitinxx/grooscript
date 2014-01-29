@@ -48,4 +48,20 @@ class TestBuilder extends Specification {
         expect:
         result.html == "<body><p class='salute'>hello</p></body>"
     }
+
+    void 'works with code inside the closure'() {
+        given:
+        def result = Builder.process {
+            body {
+                ul(class: 'list', id: 'mainList') {
+                    2.times { number ->
+                        li number + 'Hello!'
+                    }
+                }
+            }
+        }
+
+        expect:
+        result.html == "<body><ul class='list' id='mainList'><li>0Hello!</li><li>1Hello!</li></ul></body>"
+    }
 }

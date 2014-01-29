@@ -48,7 +48,5 @@ class Builder {
             }
         }
         html += "</${name}>"
-
     }
-
 }
