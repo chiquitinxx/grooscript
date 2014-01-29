@@ -1,5 +1,9 @@
 package org.grooscript.asts
 
+import com.sun.net.httpserver.HttpExchange
+import com.sun.net.httpserver.HttpHandler
+import com.sun.net.httpserver.HttpServer
+
 /**
  * User: jorgefrancoleza
  * Date: 15/08/13
@@ -8,19 +12,50 @@ class TestPhantomJs extends GroovyTestCase {
 
     static final PHANTOMJS_HOME = '/Applications/phantomjs'
     static final JS_LIBRARIES_PATH = 'src/main/resources/META-INF/resources'
+    static final PORT = 8000
+    static final ACTION = '/test'
+    static final String FULL_ADRESS = "http://localhost:${PORT}${ACTION}"
+
+    HttpServer server
+
+    class MyHandler implements HttpHandler {
+        public void handle(HttpExchange t) throws IOException {
+            String response = '<html><head><title>Title</title></head><body><p>Welcome</p></body></html>'
+            t.sendResponseHeaders(200, response.length())
+            OutputStream os = t.getResponseBody()
+            os.write(response.getBytes())
+            os.close()
+        }
+    }
+
+    private startServer() {
+        server = HttpServer.create(new InetSocketAddress(PORT), 0)
+        server.createContext(ACTION, new MyHandler())
+        server.setExecutor(null) // creates a default executor
+        server.start()
+    }
+
+    private stopServer() {
+        server.stop(0)
+    }
 
     void setUp() {
         System.setProperty('PHANTOMJS_HOME',PHANTOMJS_HOME)
         System.setProperty('JS_LIBRARIES_PATH',JS_LIBRARIES_PATH)
+        startServer()
     }
 
-    @PhantomJsTest(url = 'http://www.grails.org/')
-    void countLinks() {
-        assert $('a').size() > 50,"Number of links in page is ${$('a').size()}"
+    void tearDown() {
+        stopServer()
+    }
+
+    @PhantomJsTest(url = 'http://localhost:8000/test')
+    void countPs() {
+        assert $('p').size() == 1,"Number of p's in page is ${$('p').size()}"
         def title = $("title")
-        assert title[0].text=='Grails - The search is over.',"Title is ${title[0].text}"
-        def links = $('a')
-        links.each {
+        assert title[0].text=='Title',"Title is ${title[0].text}"
+        def ps = $('p')
+        ps.each {
             println it
         }
     }
@@ -34,11 +69,11 @@ class TestPhantomJs extends GroovyTestCase {
             tempDirectory.deleteDir()
         }
 
-        countLinks()
+        countPs()
 
         assert tempDirectory.exists() && tempDirectory.isDirectory()
 
-        countLinks()
+        countPs()
 
         tempDirectory.deleteDir()
     }
@@ -46,7 +81,7 @@ class TestPhantomJs extends GroovyTestCase {
     void testErrorPhantomJsPath() {
         System.properties.remove('PHANTOMJS_HOME')
         try {
-            countLinks()
+            countPs()
             fail 'Error not thrown'
         } catch (AssertionError e) {
             assert e.message ==
@@ -55,17 +90,17 @@ class TestPhantomJs extends GroovyTestCase {
     }
 
     void testPhantomJs() {
-        countLinks()
+        countPs()
     }
 
-    @PhantomJsTest(url = 'http://www.grails.org/')
-    void countLinksFailAssert() {
-        assert $('a').size() < 5,"Number of links in page is ${$('a').size()}"
+    @PhantomJsTest(url = 'http://localhost:8000/test')
+    void countPsFailAssert() {
+        assert $('p').size() > 5,"Number of links in page is ${$('p').size()}"
     }
 
     void testPhantomJsFailAssert() {
         try {
-            countLinksFailAssert()
+            countPsFailAssert()
             fail 'Error not thrown'
         } catch (AssertionError e) {
             assert true
@@ -74,21 +109,20 @@ class TestPhantomJs extends GroovyTestCase {
         }
     }
 
-    @PhantomJsTest(url = 'http://groovy.codehaus.org')
+    @PhantomJsTest(url = 'http://localhost:8000/test')
     void testDirectPhantomJs() {
         gSconsoleInfo = true
-        println $('#moto').text()
-        assert $('a').size > 50,"Number of links in page is ${$('a').size()}"
-        assert $('#moto').text().contains('A dynamic language'), "Id=Moto contains 'A dynamic language'"
+        println $('p').text()
+        assert $('p').text().contains('Welcome'), "p html is 'Welcome'"
     }
 
-    @PhantomJsTest(url = 'http://groovy.codehaus.org', capture = 'groovy.png')
+    @PhantomJsTest(url = 'http://localhost:8000/test', capture = 'local.png')
     void captureImage() {
         console.log('BYE')
     }
 
     void testCaptureImage() {
-        def file = new File('groovy.png')
+        def file = new File('local.png')
         try {
             assert !file.exists()
             captureImage()
@@ -100,7 +134,7 @@ class TestPhantomJs extends GroovyTestCase {
         }
     }
 
-    @PhantomJsTest(url = 'http://groovy.codehaus.org')
+    @PhantomJsTest(url = 'http://localhost:8000/test')
     void failMethod() {
         console.log(FAIL)
     }
@@ -116,14 +150,14 @@ class TestPhantomJs extends GroovyTestCase {
         }
     }
 
-    @PhantomJsTest(url = 'http://groovy.codehaus.org')
+    @PhantomJsTest(url = 'http://localhost:8000/test')
     void testExpectedElements(element, expectedSize) {
-        assert $(element).size > expectedSize,"Number of '${element}' in page is ${$(element).size()}"
+        assert $(element).size == expectedSize,"Number of '${element}' in page is ${$(element).size()}"
     }
 
     void testPassParameters() {
-        testExpectedElements('a', 65)
-        testExpectedElements('div', 85)
+        testExpectedElements('p', 1)
+        testExpectedElements('body', 1)
     }
 
     void testAssertError() {
@@ -135,7 +169,7 @@ class TestPhantomJs extends GroovyTestCase {
         }
     }
 
-    @PhantomJsTest(url = 'http://mockmockmock.mock')
+    @PhantomJsTest(url = 'http://localhost:7777')
     void wrongUrl() {
         assert true
     }
@@ -149,18 +183,18 @@ class TestPhantomJs extends GroovyTestCase {
         }
     }
 
-    @PhantomJsTest(url = 'http://groovy.codehaus.org', waitSeconds = 2)
+    @PhantomJsTest(url = 'http://localhost:8000/test', waitSeconds = 2)
     void testWaitSeconds() {
-        assert $('#moto').text().contains('A dynamic language'), "Id=Moto contains 'A dynamic language'"
+        assert $('p').text().contains('Welcome'), "p html is 'Welcome'"
     }
 
-    @PhantomJsTest(url = 'http://groovy.codehaus.org', info = true)
+    @PhantomJsTest(url = 'http://localhost:8000/test', info = true)
     void testWithInfo() {
         assert true
     }
 
     void testWithoutAnnotation() {
-        PhantomJsTestImpl.doPhantomJsTest('http://groovy.codehaus.org', 'function hello() {console.log("Hello!");}',
+        PhantomJsTestImpl.doPhantomJsTest(FULL_ADRESS, 'function hello() {console.log("Hello!");}',
             'hello', 0, null, null, null, true)
     }
 
