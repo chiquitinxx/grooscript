@@ -32,6 +32,7 @@ class JsNames {
     static final GS_RANGE = "${GS}range"
     static final GS_BOOL = "${GS}bool"
     static final GS_MAP = "${GS}map"
+    static final GS_TO_NUMBER = "${GS}toNumber"
     static final GS_RANGE_FROM_LIST = "${GS}rangeFromList"
     static final GS_EXACT_MATCH = "${GS}exactMatch"
     static final GS_REG_EXP = "${GS}regExp"

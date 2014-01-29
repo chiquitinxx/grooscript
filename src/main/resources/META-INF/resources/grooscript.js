@@ -2478,4 +2478,14 @@
         return result;
     };
 
+    gs.toNumber = function(number) {
+        if (number) {
+            if (typeof(number) == 'string') {
+                return parseFloat(number);
+            } else {
+                return number;
+            }
+        }
+    };
+
 }).call(this);

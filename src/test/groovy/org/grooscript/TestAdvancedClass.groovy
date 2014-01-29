@@ -53,4 +53,9 @@ class TestAdvancedClass extends Specification {
         expect:
         !readAndConvert('classes/AddCategories').assertFails
     }
+
+    def 'using supported types'() {
+        expect:
+        !readAndConvert('classes/SupportedTypes').assertFails
+    }
 }

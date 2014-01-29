@@ -3,13 +3,11 @@ package org.grooscript.convert.handlers
 import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.PropertyNode
 import org.codehaus.groovy.ast.expr.ListExpression
-
-import static org.grooscript.JsNames.*
-
 import org.codehaus.groovy.ast.AnnotationNode
 import org.codehaus.groovy.ast.FieldNode
 import org.codehaus.groovy.ast.MethodNode
 
+import static org.grooscript.JsNames.*
 /**
  * User: jorgefrancoleza
  * Date: 16/01/14

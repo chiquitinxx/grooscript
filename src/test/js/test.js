@@ -33,8 +33,16 @@ describe('initial tests on gs', function(){
         assert.equal(result, true);
     });
 
+    it('equals numbers', function() {
+        assert.equal(5, 5.00);
+        assert.equal(gs.toNumber(5), 5.00);
+        assert.equal(gs.toNumber('7.02'), 7.02);
+    });
+
     it('equals lists', function() {
         assert.equal(gs.equals([1], gs.list([1])), true);
+        assert.equal(gs.equals([], gs.list()), true);
+        assert.equal(gs.equals([], gs.list([])), true);
         assert.notEqual(gs.list([1]), [1]);
     });
 

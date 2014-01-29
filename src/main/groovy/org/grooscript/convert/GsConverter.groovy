@@ -366,41 +366,6 @@ class GsConverter {
         conversionFactory.visitNode(expression.expression)
     }
 
-    private processConstructorCallExpression(ConstructorCallExpression expression) {
-
-        //println 'ConstructorCallExpression->'+expression.type.name + ' super? '+expression?.isSuperCall()
-        //Super expression in constructor is allowed
-        if (expression?.isSuperCall()) {
-            def name = context.superNameStack.peek()
-            //println 'processNotExpression name->'+name
-            if (name == 'java.lang.Object') {
-                out.addScript("this.${CONSTRUCTOR}")
-            } else {
-                out.addScript("this.${name}${expression.arguments.expressions.size()}")
-            }
-        } else if (expression.type.name=='java.util.Date') {
-            out.addScript(GS_DATE)
-        } else if (expression.type.name=='groovy.util.Expando') {
-            out.addScript(GS_EXPANDO)
-        } else if (expression.type.name=='java.util.Random') {
-            out.addScript(GS_RANDOM)
-        } else if (expression.type.name=='java.util.HashSet') {
-            out.addScript(GS_SET)
-        } else if (expression.type.name=='groovy.lang.ExpandoMetaClass') {
-            out.addScript(GS_EXPANDO_META_CLASS)
-        } else if (expression.type.name=='java.lang.StringBuffer') {
-            out.addScript(GS_STRING_BUFFER)
-        } else {
-            if (expression.type.name.startsWith('java.') || expression.type.name.startsWith('groovy.util.')) {
-                throw new Exception('Not support type '+expression.type.name)
-            }
-            //Constructor have name with number of params on it
-            def name = expression.type.nameWithoutPackage
-            out.addScript(name)
-        }
-        conversionFactory.visitNode(expression.arguments)
-    }
-
     private processArgumentListExpression(ArgumentListExpression expression, boolean withParenthesis) {
         if (withParenthesis) {
             out.addScript '('
