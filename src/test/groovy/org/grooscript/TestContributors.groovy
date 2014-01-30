@@ -73,6 +73,7 @@ class TestContributors extends Specification {
         expect:
         !readAndConvert('contribution/Anonymous3').assertFails
         !readAndConvert('contribution/Anonymous4').assertFails
+        !readAndConvert('contribution/Anonymous5').assertFails
     }
 
     def 'testing mario extends'() {

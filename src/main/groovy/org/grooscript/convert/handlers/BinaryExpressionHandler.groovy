@@ -85,6 +85,9 @@ class BinaryExpressionHandler extends BaseHandler {
             //Multiply
         } else if (expression.operation.text == '*') {
             writeFunctionWithLeftAndRight(GS_MULTIPLY, expression)
+            //Power
+        } else if (expression.operation.text == '**') {
+            writeFunctionWithLeftAndRight('Math.pow', expression)
             //Plus
         } else if (expression.operation.text == '+') {
             writeFunctionWithLeftAndRight(GS_PLUS, expression)
