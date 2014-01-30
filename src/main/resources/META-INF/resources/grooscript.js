@@ -1118,6 +1118,30 @@
         }
     };
 
+    Array.prototype.unique = function() {
+        var modify = true;
+        if (arguments.length > 0 && arguments[0] === false) {
+            modify = false;
+        }
+        var i, copy = [];
+        //Copy all items
+        for (i = 0; i < this.length; i++) {
+            if (!copy.contains(this[i])) {
+                copy[copy.length] = this[i];
+            }
+        }
+
+        if (modify) {
+            this.length = 0;
+            for (i = 0; i < copy.length; i++) {
+                this[i] = copy[i];
+            }
+            return this;
+        } else {
+            return gs.list(copy);
+        }
+    };
+
     Array.prototype.reverse = function() {
         var i, count = 0;
         if (arguments.length == 1 && arguments[0] === true) {

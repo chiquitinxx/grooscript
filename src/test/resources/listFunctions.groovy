@@ -36,3 +36,10 @@ assert odd[1] == 3
 
 assert [1,2] + [3,5] == [1,2,3,5]
 assert [1,2,3,4,5] - [3,5] == [1,2,4]
+
+list = [1, 2, 2, 3, 4]
+assert list.unique() == [1, 2, 3, 4]
+list = [1, 2, 2, 3, 4]
+def uniqList = list.unique(false)
+assert list == [1, 2, 2, 3, 4]
+assert uniqList == [1, 2, 3, 4]
