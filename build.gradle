@@ -9,7 +9,7 @@ version = '0.4.3-SNAPSHOT'
 
 sourceCompatibility = 1.6
 
-def appName = 'GrooScript'
+def appName = 'grooscript'
 def webDir = '../grooscript_web'
 def webDirJar = "$webDir/lib"
 def webDirJs = "$webDir/web-app/js/"
@@ -30,7 +30,7 @@ dependencies {
 
 jar {
     manifest {
-        attributes("Implementation-Title": "GrooScript", "Implementation-Version": version)
+        attributes("Implementation-Title": appName, "Implementation-Version": version)
     }
 }
 
@@ -101,7 +101,7 @@ uploadArchives {
 //End Sonar
 
 //Copy jar, js file, and examples to web directory, defined at start
-task copyToGscriptWeb() << {
+task copyToGrooscriptWeb() << {
 	println "Copying $appName jar to $webDirJar ..."
 	copy {
 		into "$webDirJar"
@@ -120,14 +120,20 @@ task copyToGscriptWeb() << {
 	}
 }
 
-task testUnit(type: org.gradle.api.tasks.testing.Test) {
+copyToGrooscriptWeb.description = 'Copy grooscript jar and js files to web project'
+
+task testUnit(type: Test) {
     exclude 'org/grooscript/asts/TestPhantom*'
     exclude 'org/grooscript/daemon/**'
 }
 
+testUnit.description = 'Run only conversion tests'
+
 task testMocha(type: TestMochaTask) {
     folder = 'src/test/js'
 }
+
+testMocha.description = 'Run mocha javascript tests'
 
 test.dependsOn testMocha
 
@@ -196,3 +202,37 @@ class TestMochaTask extends DefaultTask {
         }
     }
 }
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'org.codehaus.groovy', name: 'groovy', version: '2.1.6'
+        classpath files("$buildDir/classes/main")
+    }
+}
+
+task generateBuilderJs(dependsOn: compileGroovy) << {
+    org.grooscript.GrooScript.setConversionProperty('initialText','//This script needs grooscript.js to run')
+    org.grooscript.GrooScript.convert('./src/main/groovy/org/grooscript/builder/Builder.groovy',
+            './src/main/resources/META-INF/resources')
+}
+
+task renameBuilderJs(dependsOn: generateBuilderJs, type: Copy) {
+    from 'src/main/resources/META-INF/resources/Builder.js'
+    into 'src/main/resources/META-INF/resources'
+    rename { String fileName ->
+        fileName.replace('Builder', 'grooscript-builder')
+    }
+}
+
+task deleteBuilderJs(dependsOn: renameBuilderJs, type: Delete) {
+    delete 'src/main/resources/META-INF/resources/Builder.js'
+}
+
+task generateGrooscriptBuilderJs(dependsOn: deleteBuilderJs) << {
+    org.grooscript.util.GsConsole.info 'Generated grooscript-builder.js'
+}
+
+generateGrooscriptBuilderJs.description = 'Generate grooscript-builder.js file'
