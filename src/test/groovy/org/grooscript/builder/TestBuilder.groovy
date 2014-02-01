@@ -14,30 +14,30 @@ class TestBuilder extends Specification {
 
     void 'process with the builder'() {
         given:
-        def result = Builder.process {
+        def result = Builder.build {
             body {
                 p TEXT
             }
         }
 
         expect:
-        result.html == "<body><p>${TEXT}</p></body>"
+        result == "<body><p>${TEXT}</p></body>"
 
         and: 'works in javascript'
         !checkBuilderCodeAssertsFails('''
-            def result = Builder.process {
+            def result = Builder.build {
                 body {
                     p 'hola'
                 }
             }
 
-            assert result.html == "<body><p>hola</p></body>"
+            assert result == "<body><p>hola</p></body>"
         ''',false)
     }
 
     void 'works with tag options and t function'() {
         given:
-        def result = Builder.process {
+        def result = Builder.build {
             body {
                 p(class:'salute') {
                     t 'hello'
@@ -46,12 +46,12 @@ class TestBuilder extends Specification {
         }
 
         expect:
-        result.html == "<body><p class='salute'>hello</p></body>"
+        result == "<body><p class='salute'>hello</p></body>"
     }
 
     void 'works with code inside the closure'() {
         given:
-        def result = Builder.process {
+        def result = Builder.build {
             body {
                 ul(class: 'list', id: 'mainList') {
                     2.times { number ->
@@ -62,6 +62,6 @@ class TestBuilder extends Specification {
         }
 
         expect:
-        result.html == "<body><ul class='list' id='mainList'><li>0Hello!</li><li>1Hello!</li></ul></body>"
+        result == "<body><ul class='list' id='mainList'><li>0Hello!</li><li>1Hello!</li></ul></body>"
     }
 }

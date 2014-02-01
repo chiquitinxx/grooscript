@@ -12,15 +12,13 @@ class Builder {
         html = ''
     }
 
-    static Map process(Closure closure) {
-        def result = [:]
+    static String build(@DelegatesTo(Builder) Closure closure) {
         def builder = new Builder()
 
         closure.delegate = builder
         closure()
 
-        result.html = builder.html
-        result
+        builder.html
     }
 
     def t(String text) {
