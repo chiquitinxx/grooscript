@@ -11,8 +11,17 @@ import org.grooscript.util.GsConsole
  */
 class GrooScript {
 
-    static debug = false
-    static options = [:]
+    static final String CLASSPATH_OPTION = 'classPath'
+    static final String CONVERT_DEPENDENCIES_OPTION = 'convertDependencies'
+    static final String CUSTOMIZATION_OPTION = 'customization'
+    static final String MAIN_CONTEXT_SCOPE_OPTION = 'mainContextScope'
+    static final String INITIAL_TEXT_OPTION = 'initialText'
+    static final String FINAL_TEXT_OPTION = 'finalText'
+    static final String RECURSIVE_OPTION = 'recursive'
+
+    static boolean debug = false
+    static Map options = [:]
+    static boolean recursive = false
 
     /**
      * Get a new GsConverter with options applied
@@ -64,6 +73,11 @@ class GrooScript {
                             fileConvert(file, fDestination)
                         }
                     }
+                    if (recursive) {
+                        fSource.eachDir { File dir ->
+                            convert(dir.path, destination)
+                        }
+                    }
                 } else {
                     fileConvert(fSource, fDestination)
                 }
@@ -107,8 +121,12 @@ class GrooScript {
      * @param name
      * @param value
      */
-    static setConversionProperty(name, value) {
-        options."$name" = value
+    static setConversionProperty(String name, value) {
+        if (name == RECURSIVE_OPTION) {
+            recursive = value
+        } else {
+            options[name] = value
+        }
     }
 
     /**
@@ -117,6 +135,8 @@ class GrooScript {
      */
     static clearAllOptions() {
         options = [:]
+        recursive = false
+        debug = false
     }
 
     //Only a deamon can be active

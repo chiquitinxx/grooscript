@@ -9,12 +9,6 @@ import spock.lang.Unroll
  */
 class TestConversionOptions extends Specification {
 
-    private static final CLASSPATH_OPTION = 'classPath'
-    private static final CONVERT_DEPENDENCIES_OPTION = 'convertDependencies'
-    private static final CUSTOMIZATION_OPTION = 'customization'
-    private static final MAIN_CONTEXT_SCOPE_OPTION = 'mainContextScope'
-    private static final INITIAL_TEXT_OPTION = 'initialText'
-    private static final FINAL_TEXT_OPTION = 'finalText'
     private static final FILE_BASIC_NAME = 'BasicClass'
     private static final FILE_BASIC_GROOVY_SOURCE = "src/test/resources/classes/${FILE_BASIC_NAME}.groovy"
     private static final FOLDER_NEED_DEPENDENCY = "need"
@@ -22,20 +16,42 @@ class TestConversionOptions extends Specification {
     private static final SEP = System.getProperty('file.separator')
     private static final FILE_BASIC_JS = "${FOLDER_NEED_DEPENDENCY}${SEP}${FILE_BASIC_NAME}.js"
     private static final SOURCE_DIR = 'source'
+    private static final DESTINATION_DIR = 'destination'
     private static final DESTINATION_FILE = 'destination.js'
 
     def cleanup() {
         new File(FOLDER_NEED_DEPENDENCY).deleteDir()
         new File(SOURCE_DIR).deleteDir()
         new File(DESTINATION_FILE).delete()
+        new File(DESTINATION_DIR).deleteDir()
         GrooScript.clearAllOptions()
+    }
+
+    def 'initial values for conversion'() {
+        expect:
+        expectedInitialValues()
+
+        when:
+        GrooScript.clearAllOptions()
+
+        then:
+        expectedInitialValues()
+    }
+
+    def 'cat set options more than 1 time'() {
+        when:
+        GrooScript.setConversionProperty(GrooScript.CLASSPATH_OPTION, FOLDER_NEED_DEPENDENCY)
+        GrooScript.setConversionProperty(GrooScript.CLASSPATH_OPTION, FOLDER_NEED_DEPENDENCY)
+
+        then:
+        GrooScript.options.size() == 1
     }
 
     def 'check dependency resolution'() {
 
         given:
         setupNeedDirectory()
-        GrooScript.setConversionProperty(CLASSPATH_OPTION, FOLDER_NEED_DEPENDENCY)
+        GrooScript.setConversionProperty(GrooScript.CLASSPATH_OPTION, FOLDER_NEED_DEPENDENCY)
 
         when: 'convert a class with need dependency'
         String result = GrooScript.convert("class A {};def need = new Need()")
@@ -54,8 +70,8 @@ class TestConversionOptions extends Specification {
         setupNeedDirectory()
 
         when: 'we dont want dependencies classes in the javascript result, in this case Need class'
-        GrooScript.setConversionProperty(CLASSPATH_OPTION, FOLDER_NEED_DEPENDENCY)
-        GrooScript.setConversionProperty(CONVERT_DEPENDENCIES_OPTION,false)
+        GrooScript.setConversionProperty(GrooScript.CLASSPATH_OPTION, FOLDER_NEED_DEPENDENCY)
+        GrooScript.setConversionProperty(GrooScript.CONVERT_DEPENDENCIES_OPTION, false)
         String result = GrooScript.convert("class B { ${CLASS_NEED_DEPENDENCY} c}")
 
         then: 'Need class not converted'
@@ -69,7 +85,7 @@ class TestConversionOptions extends Specification {
         setupNeedDirectory()
 
         when: 'we set classpath as list'
-        GrooScript.setConversionProperty(CLASSPATH_OPTION, [FOLDER_NEED_DEPENDENCY])
+        GrooScript.setConversionProperty(GrooScript.CLASSPATH_OPTION, [FOLDER_NEED_DEPENDENCY])
         String result = GrooScript.convert("class B { def Need c}")
 
         then: 'conversion done'
@@ -83,8 +99,8 @@ class TestConversionOptions extends Specification {
         setupNeedDirectory()
 
         when: 'no dependencies to convert in a file in a package'
-        GrooScript.setConversionProperty(CONVERT_DEPENDENCIES_OPTION,false)
-        GrooScript.convert(FILE_BASIC_GROOVY_SOURCE,FOLDER_NEED_DEPENDENCY)
+        GrooScript.setConversionProperty(GrooScript.CONVERT_DEPENDENCIES_OPTION, false)
+        GrooScript.convert(FILE_BASIC_GROOVY_SOURCE, FOLDER_NEED_DEPENDENCY)
         def file = new File(FILE_BASIC_JS)
 
         then: 'Conversion returns data converted'
@@ -99,7 +115,7 @@ class TestConversionOptions extends Specification {
         }
 
         when:
-        GrooScript.setConversionProperty(CUSTOMIZATION_OPTION, customization)
+        GrooScript.setConversionProperty(GrooScript.CUSTOMIZATION_OPTION, customization)
         GrooScript.convert('class A {  def say() { println aaaa }}')
 
         then:
@@ -122,7 +138,7 @@ class TestConversionOptions extends Specification {
     def 'define main context scope variables'() {
         given:
         def code = 'def addToB = { a ->  console.log("Hello!"); a + b }'
-        GrooScript.setConversionProperty(MAIN_CONTEXT_SCOPE_OPTION, ['b', 'console'])
+        GrooScript.setConversionProperty(GrooScript.MAIN_CONTEXT_SCOPE_OPTION, ['b', 'console'])
 
         when:
         def result = GrooScript.convert(code)
@@ -148,9 +164,35 @@ class TestConversionOptions extends Specification {
         result == expectedResult
 
         where:
-        option              | expectedResult
-        INITIAL_TEXT_OPTION | 'Text\nvar a = 0;\n'
-        FINAL_TEXT_OPTION   | 'var a = 0;\n\nText'
+        option                         | expectedResult
+        GrooScript.INITIAL_TEXT_OPTION | 'Text\nvar a = 0;\n'
+        GrooScript.FINAL_TEXT_OPTION   | 'var a = 0;\n\nText'
+    }
+
+    @Unroll
+    def 'test recursive conversion'() {
+        given:
+        createFolderWithSubfolderAndFilesInEachDir(SOURCE_DIR, sourceFiles)
+        new File(DESTINATION_DIR).mkdir()
+
+        when:
+        GrooScript.setConversionProperty(GrooScript.RECURSIVE_OPTION, true)
+        GrooScript.convert(SOURCE_DIR, DESTINATION_DIR)
+
+        then:
+        destinationDirContainsFiles(DESTINATION_DIR, destinationFiles)
+
+        where:
+        sourceFiles |destinationFiles
+        0           |0
+        1           |2
+        3           |6
+    }
+
+    private void expectedInitialValues() {
+        assert GrooScript.recursive == false
+        assert GrooScript.debug == false
+        assert GrooScript.options == [:]
     }
 
     private setupNeedDirectory() {
@@ -161,7 +203,22 @@ class TestConversionOptions extends Specification {
     private setupFilesWithNumbers(name, number) {
         new File(name).mkdir()
         number.times {
-            new File(name+SEP+it+'.js') << it as String
+            new File(name + SEP + it + '.js') << it as String
         }
+    }
+
+    private createFolderWithSubfolderAndFilesInEachDir(sourceDir, numberOfFilesInEachDir) {
+        new File(sourceDir).mkdir()
+        numberOfFilesInEachDir.times {
+            new File(sourceDir + SEP + sourceDir + it + '.groovy') << it as String
+        }
+        new File(sourceDir + SEP + 'inside').mkdir()
+        numberOfFilesInEachDir.times {
+            new File(sourceDir + SEP + 'inside' + SEP + 'inside' + it + '.groovy') << it as String
+        }
+    }
+
+    private void destinationDirContainsFiles(destinationDir, numberTotalOfFiles) {
+        assert numberTotalOfFiles == new File(destinationDir).listFiles().size()
     }
 }
