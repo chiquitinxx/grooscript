@@ -19,10 +19,11 @@ class ConversionDaemon {
 
     static final REST_TIME = 500
 
-    def sourceList
-    def destinationFolder
-    def conversionOptions = [:]
+    def source
+    String destinationFolder
+    Map conversionOptions = [:]
     def doAfter = null
+    boolean recursive = false
 
     def dates = [:]
 
@@ -34,7 +35,7 @@ class ConversionDaemon {
      * @return
      */
     def start() {
-        if (sourceList && destinationFolder) {
+        if (source && destinationFolder) {
             continueExecution = true
             actualTask = task {
                 while (continueExecution) {
@@ -51,7 +52,7 @@ class ConversionDaemon {
             }
             GsConsole.message('Daemon Started.')
         } else {
-            GsConsole.error('Daemon need sourceList and destinationFolder to run.')
+            GsConsole.error('Daemon need source and destinationFolder to run.')
         }
     }
 
@@ -66,8 +67,51 @@ class ConversionDaemon {
         }
     }
 
+    DataflowQueue works
+
+    def work() {
+
+        works = new DataflowQueue()
+        final DataflowVariable exit = new DataflowVariable()
+        def listConverteds = []
+
+        final workOperator = operator(inputs: [works], outputs: [exit], maxForks: 3) { absolutePath ->
+
+            try {
+                convertFile(absolutePath)
+                listConverteds << absolutePath
+            } catch (e) {
+                GsConsole.error("Daemon, error processing file (${absolutePath})\n   ${e.message}")
+            }
+        }
+
+        //Check all files and all files in dirs
+        withPool {
+            if (!(source instanceof List)) {
+                source = [source]
+            }
+            source.eachParallel { name ->
+                File file = new File(name)
+                if (file && (file.isDirectory() || file.isFile())) {
+                    checkPath(file)
+                } else {
+                    throw new GrooScriptException("Daemon Error in file/folder $name")
+                }
+            }
+        }
+
+        //Send poison pill to finish the flow
+        works << PoisonPill.instance
+
+        //Wait flow ends
+        workOperator.join()
+
+        //Return list of converted files
+        listConverteds
+    }
+
     //Convert a groovy file to javascript and save in destinationFolder
-    def convertFile(absolutePath) {
+    private convertFile(absolutePath) {
 
         def source = new File(absolutePath)
         if (source && source.isFile() && source.name.endsWith('.groovy')) {
@@ -97,74 +141,37 @@ class ConversionDaemon {
         }
     }
 
-    def work() {
+    //Recursive by default
+    private checkPath = { File fileToCheck ->
+        if (fileToCheck.isDirectory()) {
 
-        final DataflowQueue works = new DataflowQueue()
-        final DataflowVariable exit = new DataflowVariable()
-        def listConverteds = []
-
-        final workOperator = operator(inputs: [works], outputs: [exit], maxForks: 3) { absolutePath ->
-
-            try {
-                convertFile(absolutePath)
-                listConverteds << absolutePath
-            } catch (e) {
-                GsConsole.error("Daemon, error processing file (${absolutePath})\n   ${e.message}")
-            }
-
-        }
-
-        //Check if lastModified of file changed
-        def checkFile = { File file ->
-            def change
-            if (dates."${file.absolutePath}") {
-                change = !(dates."${file.absolutePath}" == file.lastModified())
-            } else {
-                change = true
-            }
-            if (change) {
-                //Send the work of convert the file
-                works << file.absolutePath
-                dates."${file.absolutePath}" = file.lastModified()
-            }
-        }
-
-        //Recursive by default
-        def checkPath = { File fileToCheck ->
-            if (fileToCheck.isDirectory()) {
-
-                fileToCheck.eachFile { File item ->
-                    if (item.isFile()) {
-                        checkFile(item)
-                    }
+            fileToCheck.eachFile { File item ->
+                if (item.isFile()) {
+                    checkFile(item)
                 }
-                fileToCheck.eachDir { dir ->
+            }
+            if (recursive) {
+                fileToCheck.eachDir { File dir ->
                     checkPath(dir)
                 }
-            } else {
-                checkFile(fileToCheck)
             }
+        } else {
+            checkFile(fileToCheck)
         }
+    }
 
-        //Check all files and all files in dirs
-        withPool {
-            sourceList.eachParallel { name ->
-                def file = new File(name)
-                if (file && (file.isDirectory() || file.isFile())) {
-                    checkPath(file)
-                } else {
-                    throw new GrooScriptException("Daemon Error in file/folder $name")
-                }
-            }
+    //Check if lastModified of file changed
+    private checkFile = { File file ->
+        def change
+        if (dates."${file.absolutePath}") {
+            change = !(dates."${file.absolutePath}" == file.lastModified())
+        } else {
+            change = true
         }
-
-        //Send poison pill to finish the flow
-        works << PoisonPill.instance
-
-        //Wait flow ends
-        workOperator.join()
-
-        //Return list of converted files
-        listConverteds
+        if (change) {
+            //Send the work of convert the file
+            works << file.absolutePath
+            dates."${file.absolutePath}" = file.lastModified()
+        }
     }
 }

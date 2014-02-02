@@ -3,6 +3,7 @@ package org.grooscript.daemon
 import org.grooscript.GrooScript
 import org.grooscript.util.GsConsole
 import spock.lang.Specification
+import spock.lang.Unroll
 
 /**
  * User: jorgefrancoleza
@@ -12,32 +13,36 @@ class TestDaemon extends Specification {
 
     static final TIME_DAEMON = 200
     static final FILE1_NAME = 'File1'
+    static final FILE2_NAME = 'File2'
     static final FILE1_OUT = "${FILE1_NAME}.js"
-    static final FOLDER_OUT = 'testOut'
+    static final FILE2_OUT = "${FILE2_NAME}.js"
+    static final SOURCE_FOLDER = 'source'
+    static final DESTINATION_FOLDER = 'destination'
     static final SEP = System.getProperty('file.separator')
 
     def setup() {
-        //Create temp output dir
-        new File(FOLDER_OUT).mkdir()
-        new File(FOLDER_OUT+SEP+FILE1_NAME+'.groovy') << 'class File1 {}'
+        new File(SOURCE_FOLDER).mkdir()
+        new File(SOURCE_FOLDER + SEP + FILE1_NAME + '.groovy') << 'class File1 {}'
+        new File(DESTINATION_FOLDER).mkdir()
     }
 
     def cleanup() {
-        //Delete temp dir
-        new File(FOLDER_OUT).deleteDir()
+        new File(SOURCE_FOLDER).deleteDir()
+        new File(DESTINATION_FOLDER).deleteDir()
     }
 
     File generatedFile(name) {
-        def file = new File("${FOLDER_OUT}${SEP}${name}")
+        def file = new File("${DESTINATION_FOLDER}${SEP}${name}")
         file && file.exists() && file.isFile() ? file : null
     }
 
-    def 'test start and stop'() {
+    @Unroll
+    def 'test start and stop and convert with different sources'() {
 
         GroovySpy(GsConsole, global: true)
 
         given:
-        GrooScript.startConversionDaemon([FOLDER_OUT] , FOLDER_OUT)
+        GrooScript.startConversionDaemon([SOURCE_FOLDER] , DESTINATION_FOLDER)
 
         when:
         waitAndStop()
@@ -46,19 +51,21 @@ class TestDaemon extends Specification {
         1 * GsConsole.message('Daemon Terminated.')
         0 * GsConsole.error(_)
         generatedFile(FILE1_OUT)
+
+        where:
+        source << [[SOURCE_FOLDER], SOURCE_FOLDER]
     }
 
-    def 'test option customization with @CompileStatic'() {
+    def 'test daemon with a conversion option'() {
         given:
-        GrooScript.startConversionDaemon([FOLDER_OUT] , FOLDER_OUT,
-                ['customization': {
-                    ast(groovy.transform.CompileStatic)
-                }])
+        GrooScript.startConversionDaemon([SOURCE_FOLDER] , DESTINATION_FOLDER,
+                ["${GrooScript.INITIAL_TEXT_OPTION}": '//Init'])
 
         when:
         waitAndStop()
 
         then:
+        generatedFile(FILE1_OUT).text.startsWith '//Init\nfunction File1() {'
         generatedFile(FILE1_OUT).text.contains "gSobject.clazz = { name: 'File1', simpleName: 'File1'};"
     }
 
@@ -73,16 +80,47 @@ class TestDaemon extends Specification {
         }
 
         when:
-        GrooScript.startConversionDaemon([FOLDER_OUT+SEP+FILE1_NAME+'.groovy'] , FOLDER_OUT,
+        GrooScript.startConversionDaemon([SOURCE_FOLDER+SEP+FILE1_NAME+'.groovy'] , DESTINATION_FOLDER,
                 null, doAfter)
-        Thread.sleep(TIME_DAEMON * 5)
+        waitAndStop(5)
 
         then:
         number > 5
     }
 
-    private waitAndStop() {
-        Thread.sleep(TIME_DAEMON)
+    def 'test without recursive option'() {
+        given:
+        createFolderInsideSourceWithSecondFile()
+
+        when:
+        GrooScript.startConversionDaemon([SOURCE_FOLDER] , DESTINATION_FOLDER)
+        waitAndStop()
+
+        then:
+        generatedFile(FILE1_OUT)
+        !generatedFile(FILE2_OUT)
+    }
+
+    def 'test with recursive option'() {
+        given:
+        createFolderInsideSourceWithSecondFile()
+
+        when:
+        GrooScript.startConversionDaemon([SOURCE_FOLDER] , DESTINATION_FOLDER, null, null, true)
+        waitAndStop()
+
+        then:
+        generatedFile(FILE1_OUT)
+        generatedFile(FILE2_OUT)
+    }
+
+    private waitAndStop(waitTimes = 1) {
+        Thread.sleep(TIME_DAEMON * waitTimes)
         GrooScript.stopConversionDaemon()
+    }
+
+    private createFolderInsideSourceWithSecondFile() {
+        new File(SOURCE_FOLDER + SEP + 'inside').mkdir()
+        new File(SOURCE_FOLDER + SEP + 'inside'+ SEP + FILE2_NAME + '.groovy') << 'class File2 {}'
     }
 }

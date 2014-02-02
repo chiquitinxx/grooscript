@@ -21,7 +21,7 @@ class GsConsole {
     }
 
     static info(message, origin = null) {
-        println "${getHead(origin)} - Info ${message}"
+        println "${getHead(origin)} - Info - ${message}"
     }
 
     static exception(message, origin = null) {

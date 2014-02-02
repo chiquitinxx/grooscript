@@ -19,6 +19,11 @@ class TestConversionOptions extends Specification {
     private static final DESTINATION_DIR = 'destination'
     private static final DESTINATION_FILE = 'destination.js'
 
+    def setup() {
+        new File(SOURCE_DIR).mkdir()
+        new File(DESTINATION_DIR).mkdir()
+    }
+
     def cleanup() {
         new File(FOLDER_NEED_DEPENDENCY).deleteDir()
         new File(SOURCE_DIR).deleteDir()
@@ -36,6 +41,31 @@ class TestConversionOptions extends Specification {
 
         then:
         expectedInitialValues()
+    }
+
+    def 'convert a groovy file'() {
+        given:
+        def name = 'name'
+        createFolderWithFiles(SOURCE_DIR, 1, name)
+
+        when:
+        GrooScript.convert("${SOURCE_DIR + SEP + name}0.groovy", DESTINATION_DIR)
+
+        then:
+        destinationDirContainsFiles(DESTINATION_DIR, 1)
+    }
+
+    def 'convert a list of groovy files'() {
+        given:
+        def name = 'name'
+        createFolderWithFiles(SOURCE_DIR, 2, name)
+
+        when:
+        GrooScript.convert(["${SOURCE_DIR + SEP + name}0.groovy",
+                "${SOURCE_DIR + SEP + name}1.groovy"], DESTINATION_DIR)
+
+        then:
+        destinationDirContainsFiles(DESTINATION_DIR, 2)
     }
 
     def 'cat set options more than 1 time'() {
@@ -173,7 +203,6 @@ class TestConversionOptions extends Specification {
     def 'test recursive conversion'() {
         given:
         createFolderWithSubfolderAndFilesInEachDir(SOURCE_DIR, sourceFiles)
-        new File(DESTINATION_DIR).mkdir()
 
         when:
         GrooScript.setConversionProperty(GrooScript.RECURSIVE_OPTION, true)
@@ -207,15 +236,16 @@ class TestConversionOptions extends Specification {
         }
     }
 
-    private createFolderWithSubfolderAndFilesInEachDir(sourceDir, numberOfFilesInEachDir) {
+    private createFolderWithFiles(sourceDir, numberOfFilesInside, name = 'name') {
         new File(sourceDir).mkdir()
-        numberOfFilesInEachDir.times {
-            new File(sourceDir + SEP + sourceDir + it + '.groovy') << it as String
+        numberOfFilesInside.times {
+            new File(sourceDir + SEP + name + it + '.groovy') << it as String
         }
-        new File(sourceDir + SEP + 'inside').mkdir()
-        numberOfFilesInEachDir.times {
-            new File(sourceDir + SEP + 'inside' + SEP + 'inside' + it + '.groovy') << it as String
-        }
+    }
+
+    private createFolderWithSubfolderAndFilesInEachDir(sourceDir, numberOfFilesInEachDir) {
+        createFolderWithFiles(sourceDir, numberOfFilesInEachDir, 'base')
+        createFolderWithFiles(sourceDir + SEP + 'inside', numberOfFilesInEachDir, 'inside')
     }
 
     private void destinationDirContainsFiles(destinationDir, numberTotalOfFiles) {

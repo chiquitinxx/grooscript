@@ -51,48 +51,53 @@ class GrooScript {
     /**
      * Converts from a source to destination, groovy files to javascript files
      * Result files will be .js with same name that groovy file
-     * @param source path to directory with groovy files, or a groovy file path. Not recursive
+     * @param source (String or List of String's) directories with groovy files, or groovy files
      * @param destination directory of .js files
      * @throws Exception something fails
      */
-    static convert(String source, String destination) {
+    static convert(source, String destination) {
         if (source && destination) {
-            File fSource = new File(source)
-            if (debug) {
-                GsConsole.debug("Source file: ${fSource.absolutePath}")
-            }
-            File fDestination = new File(destination)
-            if (debug) {
-                GsConsole.debug("Destination file: ${fDestination.absolutePath}")
-            }
-
-            if (fSource.exists() && fDestination.exists() && fDestination.isDirectory()) {
-                if (fSource.isDirectory()) {
-                    fSource.eachFile { file ->
-                        if (file.isFile()) {
-                            fileConvert(file, fDestination)
-                        }
-                    }
-                    if (recursive) {
-                        fSource.eachDir { File dir ->
-                            convert(dir.path, destination)
-                        }
-                    }
-                } else {
-                    fileConvert(fSource, fDestination)
+            if (source instanceof String || source instanceof GString) {
+                checkConvertFile(source, destination)
+            } else if (source instanceof List) {
+                source.each {
+                    checkConvertFile(it, destination)
                 }
             } else {
-                throw new GrooScriptException('Source and destination must exist, and destination must be a directory.')
+                throw new GrooScriptException('Source must be a String or a list.')
             }
-
         } else {
             throw new GrooScriptException('Have to define source and destination.')
         }
     }
 
+    private static checkConvertFile(String source, String destination) {
+        File fSource = new File(source)
+        File fDestination = new File(destination)
+
+        if (fSource.exists() && fDestination.exists() && fDestination.isDirectory()) {
+            if (fSource.isDirectory()) {
+                fSource.eachFile { file ->
+                    if (file.isFile()) {
+                        fileConvert(file, fDestination)
+                    }
+                }
+                if (recursive) {
+                    fSource.eachDir { File dir ->
+                        convert(dir.path, destination)
+                    }
+                }
+            } else {
+                fileConvert(fSource, fDestination)
+            }
+        } else {
+            throw new GrooScriptException('Source and destination must exist, and destination must be a directory.')
+        }
+    }
+
     private static fileConvert(File source, File destination) {
         if (debug) {
-            GsConsole.debug('    Converting...')
+            GsConsole.debug("    Converting file ${source.absolutePath}...")
         }
         try {
             if (source.isFile() && source.name.endsWith(GROOVY_EXTENSION)) {
@@ -144,21 +149,24 @@ class GrooScript {
 
     /**
      * Starts a daemon that check all time if files change, and try convert them
-     * 1stTime runs, convert all sourceList
+     * 1stTime runs, convert all source
      *
      * @param sourceList A list of folders and files to be converted
      * @param destinationFolder Folder where save .js files
      * @param conversionOptions Map of conversion options [classPath:['xxx/groovy','xxx.jar'], addClassNames: true, ...]
      * @param doAfter A closure to launch each time daemons ends and convert files. Param is a list of files modified
+     * @param recursive convert folders recursively, default is true
      */
-    static startConversionDaemon(sourceList, destinationFolder, conversionOptions = null, doAfter = null) {
+    static startConversionDaemon(sourceList, destinationFolder,
+                                 conversionOptions = null, doAfter = null, recursive = false) {
         if (daemon) {
             stopConversionDaemon()
         }
         daemon = new ConversionDaemon()
-        daemon.sourceList = sourceList
+        daemon.source = sourceList
         daemon.destinationFolder = destinationFolder
         daemon.conversionOptions = conversionOptions
+        daemon.recursive = recursive
         if (doAfter) {
             daemon.doAfter = doAfter
         }
@@ -175,6 +183,11 @@ class GrooScript {
         }
     }
 
+    /**
+     * Join js files in one directory to only file
+     * @param sourceDirectory with js files
+     * @param fileDestinationName name of destination file
+     */
     static void joinFiles(sourceDirectory, fileDestinationName) {
         File source = new File(sourceDirectory)
         if (source && source.isDirectory()) {
