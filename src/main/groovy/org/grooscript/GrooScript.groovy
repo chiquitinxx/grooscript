@@ -144,43 +144,28 @@ class GrooScript {
         debug = false
     }
 
-    //Only a deamon can be active
-    static ConversionDaemon daemon
-
     /**
      * Starts a daemon that check all time if files change, and try convert them
      * 1stTime runs, convert all source
      *
      * @param sourceList A list of folders and files to be converted
      * @param destinationFolder Folder where save .js files
-     * @param conversionOptions Map of conversion options [classPath:['xxx/groovy','xxx.jar'], addClassNames: true, ...]
+     * @param conversionOptions Map of conversion options [classPath:['xxx/groovy','xxx.jar'], ...]
      * @param doAfter A closure to launch each time daemons ends and convert files. Param is a list of files modified
-     * @param recursive convert folders recursively, default is true
+     * @param recursive convert folders recursively, default is false
      */
-    static startConversionDaemon(sourceList, destinationFolder,
+    static ConversionDaemon startConversionDaemon(sourceList, destinationFolder,
                                  conversionOptions = null, doAfter = null, recursive = false) {
-        if (daemon) {
-            stopConversionDaemon()
-        }
-        daemon = new ConversionDaemon()
+
+        ConversionDaemon daemon = new ConversionDaemon()
         daemon.source = sourceList
         daemon.destinationFolder = destinationFolder
         daemon.conversionOptions = conversionOptions
         daemon.recursive = recursive
-        if (doAfter) {
-            daemon.doAfter = doAfter
-        }
+        daemon.doAfter = doAfter
 
         daemon.start()
-    }
-
-    /**
-     * Stop the conversion daemon if active, waits until execution stopped
-     */
-    static stopConversionDaemon() {
-        if (daemon) {
-            daemon.stop()
-        }
+        return daemon
     }
 
     /**

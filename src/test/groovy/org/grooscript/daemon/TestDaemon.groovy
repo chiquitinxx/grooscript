@@ -11,7 +11,7 @@ import spock.lang.Unroll
  */
 class TestDaemon extends Specification {
 
-    static final TIME_DAEMON = 200
+    static final TIME_DAEMON = 600
     static final FILE1_NAME = 'File1'
     static final FILE2_NAME = 'File2'
     static final FILE1_OUT = "${FILE1_NAME}.js"
@@ -36,20 +36,33 @@ class TestDaemon extends Specification {
         file && file.exists() && file.isFile() ? file : null
     }
 
-    @Unroll
-    def 'test start and stop and convert with different sources'() {
-
-        GroovySpy(GsConsole, global: true)
-
+    def 'on error stop the daemon'() {
         given:
-        GrooScript.startConversionDaemon([SOURCE_FOLDER] , DESTINATION_FOLDER)
+        GroovySpy(GsConsole, global: true)
+        def daemon = new ConversionDaemon(source: 'fails', destinationFolder: 'fail')
 
         when:
-        waitAndStop()
+        daemon.start()
+        waitTime()
 
         then:
-        1 * GsConsole.message('Daemon Terminated.')
+        1 * GsConsole.error('Exception in daemon: null')
+        1 * GsConsole.exception('Daemon Error in file/folder fails')
+    }
+
+    @Unroll
+    def 'test start and stop and convert with different sources'() {
+        given:
+        GroovySpy(GsConsole, global: true)
+        def daemon = GrooScript.startConversionDaemon(source , DESTINATION_FOLDER)
+
+        when:
+        waitAndStop(daemon, 2)
+
+        then:
+        1 * GsConsole.message('Daemon Finished.')
         0 * GsConsole.error(_)
+        0 * GsConsole.exception(_)
         generatedFile(FILE1_OUT)
 
         where:
@@ -58,11 +71,11 @@ class TestDaemon extends Specification {
 
     def 'test daemon with a conversion option'() {
         given:
-        GrooScript.startConversionDaemon([SOURCE_FOLDER] , DESTINATION_FOLDER,
+        def daemon = GrooScript.startConversionDaemon([SOURCE_FOLDER] , DESTINATION_FOLDER,
                 ["${GrooScript.INITIAL_TEXT_OPTION}": '//Init'])
 
         when:
-        waitAndStop()
+        waitAndStop(daemon, 2)
 
         then:
         generatedFile(FILE1_OUT).text.startsWith '//Init\nfunction File1() {'
@@ -80,9 +93,9 @@ class TestDaemon extends Specification {
         }
 
         when:
-        GrooScript.startConversionDaemon([SOURCE_FOLDER+SEP+FILE1_NAME+'.groovy'] , DESTINATION_FOLDER,
+        def daemon = GrooScript.startConversionDaemon([SOURCE_FOLDER+SEP+FILE1_NAME+'.groovy'] , DESTINATION_FOLDER,
                 null, doAfter)
-        waitAndStop(5)
+        waitAndStop(daemon, 2)
 
         then:
         number > 5
@@ -93,8 +106,8 @@ class TestDaemon extends Specification {
         createFolderInsideSourceWithSecondFile()
 
         when:
-        GrooScript.startConversionDaemon([SOURCE_FOLDER] , DESTINATION_FOLDER)
-        waitAndStop()
+        def daemon = GrooScript.startConversionDaemon([SOURCE_FOLDER] , DESTINATION_FOLDER)
+        waitAndStop(daemon, 2)
 
         then:
         generatedFile(FILE1_OUT)
@@ -106,17 +119,22 @@ class TestDaemon extends Specification {
         createFolderInsideSourceWithSecondFile()
 
         when:
-        GrooScript.startConversionDaemon([SOURCE_FOLDER] , DESTINATION_FOLDER, null, null, true)
-        waitAndStop()
+        def daemon = GrooScript.startConversionDaemon([SOURCE_FOLDER] , DESTINATION_FOLDER, null, null, true)
+        waitAndStop(daemon)
 
         then:
         generatedFile(FILE1_OUT)
         generatedFile(FILE2_OUT)
     }
 
-    private waitAndStop(waitTimes = 1) {
+    private waitTime(waitTimes = 1) {
         Thread.sleep(TIME_DAEMON * waitTimes)
-        GrooScript.stopConversionDaemon()
+    }
+
+    private waitAndStop(ConversionDaemon daemon, waitTimes = 1) {
+        waitTime(waitTimes)
+        daemon.stop()
+        waitTime()
     }
 
     private createFolderInsideSourceWithSecondFile() {
