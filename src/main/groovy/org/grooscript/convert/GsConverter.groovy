@@ -800,16 +800,6 @@ class GsConverter {
         conversionFactory.getConverter('PropertyExpression').handle(expression)
     }
 
-    private processCastExpression(CastExpression expression) {
-        if (expression.type.nameWithoutPackage == 'Set' && expression.expression instanceof ListExpression) {
-            out.addScript("${GS_SET}(")
-            conversionFactory.visitNode(expression.expression)
-            out.addScript(')')
-        } else {
-            throw new Exception('Casting not supported for '+expression.type.name)
-        }
-    }
-
     private processMethodPointerExpression(MethodPointerExpression expression) {
         conversionFactory.visitNode(expression.expression)
         out.addScript('[')

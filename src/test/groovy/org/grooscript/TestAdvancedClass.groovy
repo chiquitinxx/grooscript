@@ -58,4 +58,9 @@ class TestAdvancedClass extends Specification {
         expect:
         !readAndConvert('classes/SupportedTypes').assertFails
     }
+
+    def 'using as keyword'() {
+        expect:
+        !readAndConvert('classes/AsKeyword',).assertFails
+    }
 }

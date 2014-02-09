@@ -31,6 +31,7 @@ class ConversionFactory {
             'BlockStatement': BlockStatementHandler,
             'MethodNode': MethodNodeHandler,
             'ConstructorCallExpression': ConstructorCallExpressionHandler,
+            'CastExpression': CastExpressionHandler
     ]
 
     ConversionFactory() {
