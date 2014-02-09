@@ -63,4 +63,9 @@ class TestAdvancedClass extends Specification {
         expect:
         !readAndConvert('classes/AsKeyword',).assertFails
     }
+
+    def 'using primitive arrays'() {
+        expect:
+        !readAndConvert('classes/PrimitiveArrays').assertFails
+    }
 }

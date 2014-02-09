@@ -703,7 +703,7 @@
     };
 
     Array.prototype.add = function(element) {
-        this[this.length]=element;
+        this[this.length] = element;
         return this;
     };
 
@@ -1201,7 +1201,7 @@
 
     Array.prototype.flatten = function() {
         var result = gs.list([]);
-        gs.flatten(result,this);
+        gs.flatten(result, this);
 
         return result;
     };
@@ -1215,7 +1215,7 @@
         while (step * times < this.length) {
             var items = gs.list([]);
             var pos = step * times;
-            while (pos<this.length && items.size()<number) {
+            while (pos < this.length && items.size() < number) {
                 items.add(this[pos++]);
             }
             result.add(items);
@@ -1223,6 +1223,10 @@
         }
         return result;
     };
+
+    Array.prototype.putAt = function(position, value) {
+        this[position] = value;
+    }
 
     /////////////////////////////////////////////////////////////////
     //list - [] from groovy
@@ -1555,6 +1559,11 @@
     Number.prototype.power = function(number) {
         return Math.pow(this,number);
     };
+
+    Number.prototype.byteValue = Number.prototype.doubleValue = Number.prototype.shortValue =
+        Number.prototype.floatValue = Number.prototype.longValue = function() {
+        return this;
+    }
 
     /////////////////////////////////////////////////////////////////
     //String functions
