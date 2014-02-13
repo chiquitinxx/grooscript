@@ -75,10 +75,10 @@
         //The with function, with is a reserved word in JavaScript
         withz : function(closure) { closure.apply(this,closure.arguments); },
         getProperties : function() {
-            var result = gs.list([]), ob;
+            var result = gs.map(), ob;
             for (ob in this) {
                 if (typeof this[ob] !== "function" && ob != 'clazz') {
-                    result.add(ob);
+                    result.add(ob, this[ob]);
                 }
             }
             return result;
@@ -2077,7 +2077,7 @@
             if (methodName.startsWith('get') || methodName.startsWith('set')) {
                 var varName = methodName.charAt(3).toLowerCase() + methodName.slice(4);
                 var properties = item.getProperties();
-                if (properties.contains(varName)) {
+                if (properties.containsKey(varName)) {
                     if (methodName.startsWith('get')) {
                         return gs.gp(item, varName);
                     } else {
