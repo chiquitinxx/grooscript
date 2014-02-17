@@ -5,7 +5,7 @@ function Builder() {
   gSobject.clazz.superclass = { name: 'java.lang.Object', simpleName: 'Object'};
   gSobject.html = null;
   gSobject.build = function(x0) { return Builder.build(x0); }
-  gSobject['t'] = function(text) {
+  gSobject['yield'] = function(text) {
     return gSobject.html += text;
   }
   gSobject['methodMissing'] = function(name, args) {
@@ -18,12 +18,15 @@ function Builder() {
     gSobject.html += ">";
     if (gs.bool(args)) {
       if ((gs.equals(gs.mc(args,"size",gs.list([])), 1)) && (gs.instanceOf((args [ 0]), "String"))) {
-        gSobject.html += (args [ 0]);
+        gs.mc(gSobject,"yield",gs.list([args [ 0]]));
       } else {
         var lastArg = gs.mc(args,"last",gs.list([]));
         if (gs.instanceOf(lastArg, "Closure")) {
           gs.sp(lastArg,"delegate",this);
           (lastArg.delegate!=undefined?gs.applyDelegate(lastArg,lastArg.delegate,[]):lastArg());
+        };
+        if ((gs.instanceOf(lastArg, "String")) && (gs.mc(args,"size",gs.list([])) > 1)) {
+          gs.mc(gSobject,"yield",gs.list([lastArg]));
         };
       };
     };

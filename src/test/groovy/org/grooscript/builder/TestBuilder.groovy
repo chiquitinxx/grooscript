@@ -40,7 +40,7 @@ class TestBuilder extends Specification {
         def result = Builder.build {
             body {
                 p(class:'salute') {
-                    t 'hello'
+                    yield 'hello'
                 }
             }
         }
@@ -63,5 +63,15 @@ class TestBuilder extends Specification {
 
         expect:
         result == "<body><ul class='list' id='mainList'><li>0Hello!</li><li>1Hello!</li></ul></body>"
+    }
+
+    void 'last param is a string'() {
+        given:
+        def result = Builder.build {
+            p([class: 'text'], 'Hello!')
+        }
+
+        expect:
+        result == "<p class='text'>Hello!</p>"
     }
 }

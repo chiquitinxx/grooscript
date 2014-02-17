@@ -21,7 +21,7 @@ class Builder {
         builder.html
     }
 
-    def t(String text) {
+    def yield(String text) {
         html += text
     }
 
@@ -36,12 +36,15 @@ class Builder {
         html += '>'
         if (args) {
             if (args.size() == 1 && args[0] instanceof String) {
-                html += args[0]
+                yield args[0]
             } else {
                 def lastArg = args.last()
                 if (lastArg instanceof Closure) {
                     lastArg.delegate = this
                     lastArg()
+                }
+                if (lastArg instanceof String && args.size() > 1) {
+                    yield lastArg
                 }
             }
         }
