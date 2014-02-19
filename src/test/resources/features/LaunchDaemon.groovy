@@ -13,12 +13,12 @@ final DIR = 'js'
 new File(DIR).mkdir()
 
 //Start the conversion daemon
-GrooScript.startConversionDaemon(['ZeroOne.groovy'],DIR,null,{ list -> list.each { println 'Converted file -> '+it}})
+def daemon = GrooScript.startConversionDaemon(['ZeroOne.groovy'],DIR,null,{ list -> list.each { println 'Converted file -> '+it}})
 
-sleep(60000)
+sleep(3000)
 
 //Stop conversion daemon
-GrooScript.stopConversionDaemon()
+daemon.stop()
 
 //Remove directory
 new File(DIR).deleteDir()
