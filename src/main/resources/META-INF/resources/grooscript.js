@@ -485,6 +485,41 @@
             return null;
         };
 
+        this.dropWhile = function(closure) {
+            var result = gs.map(), ob;
+            for (ob in this) {
+                if (!isMapProperty(ob)) {
+                    var entry = {key: ob, value: this[ob]};
+
+                    var f = arguments[0];
+                    if (f.length==1) {
+                        if (!closure(entry)) {
+                            result.add(entry.key, entry.value);
+                        }
+                    }
+                    if (f.length==2) {
+                        if (!closure(entry.key, entry.value)) {
+                            result.add(entry.key, entry.value);
+                        }
+                    }
+                }
+            }
+            return result;
+        };
+
+        this.drop = function(number) {
+            var result = gs.map(), ob, count = 0;
+            for (ob in this) {
+                if (!isMapProperty(ob)) {
+                    count ++;
+                    if (count > number) {
+                        result.add(ob, this[ob])
+                    }
+                }
+            }
+            return result;
+        };
+
         this.findAll = function(closure) {
             var result = gs.map(), ob;
             for (ob in this) {
@@ -880,13 +915,21 @@
     Array.prototype.dropWhile = function(closure) {
         var result = gs.list([]);
         var i,j=0, insert = false;
-        for (i=0;i<this.length;i++) {
+        for (i = 0; i < this.length; i++) {
             if (!closure(this[i])) {
                 insert=true;
             }
             if (insert) {
                 result[j++] = this[i];
             }
+        }
+        return result;
+    };
+
+    Array.prototype.drop = function(number) {
+        var result = gs.list([]);
+        for (i = number; i < this.length; i++) {
+            result[result.length] = this[i];
         }
         return result;
     };

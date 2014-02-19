@@ -41,3 +41,8 @@ assert coll == [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7 ] ]
 list = [ 1, 2, 3, 4 ]
 coll = list.collate( 3, 1 )
 assert coll == [ [ 1, 2, 3 ], [ 2, 3, 4 ], [ 3, 4 ], [ 4 ] ]
+
+def strings = [ 'a', 'b', 'c' ]
+assert strings.drop( 0 ) == [ 'a', 'b', 'c' ]
+assert strings.drop( 2 ) == [ 'c' ]
+assert strings.drop( 5 ) == []

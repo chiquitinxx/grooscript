@@ -36,3 +36,15 @@ assert map2.count { it.value > 1} == 2
 
 assert [a:10, b:20] + [a:5, c:7] == [a:5, b:20, c:7]
 assert [a:10, b:20] - [a:10, c:7] == [b:20]
+
+def things = [ 'a':10, 'b':20, 'c':30 ]
+assert things.drop( 0 ) == [ 'a':10, 'b':20, 'c':30 ]
+assert things.drop( 2 ) == [ 'c':30 ]
+assert things.drop( 5 ) == [:]
+
+def shopping = [milk:1, bread:2, chocolate:3]
+println shopping
+println shopping.dropWhile{ it.key.size() < 6 }
+assert shopping.dropWhile{ it.key.size() < 6 } == [chocolate:3] , "1"
+assert shopping.dropWhile{ it.value % 2 } == [bread:2, chocolate:3] , "2"
+assert shopping.dropWhile{ k, v -> k.size() + v <= 7 } == [chocolate:3] , "3"
