@@ -1,0 +1,41 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'org.codehaus.groovy', name: 'groovy', version: '2.1.6'
+        classpath files("$buildDir/classes/main")
+    }
+}
+
+import org.grooscript.GrooScript
+import org.grooscript.gradle.TestMochaTask
+
+task generateBuilderJs() << {
+    GrooScript.setConversionProperty('initialText','//This script needs grooscript.js to run')
+    GrooScript.convert('./src/main/groovy/org/grooscript/builder/Builder.groovy',
+            './src/main/resources/META-INF/resources')
+}
+
+task renameBuilderJs(dependsOn: generateBuilderJs, type: Copy) {
+    from 'src/main/resources/META-INF/resources/Builder.js'
+    into 'src/main/resources/META-INF/resources'
+    rename { String fileName ->
+        fileName.replace('Builder', 'grooscript-builder')
+    }
+}
+
+task deleteBuilderJs(dependsOn: renameBuilderJs, type: Delete) {
+    delete 'src/main/resources/META-INF/resources/Builder.js'
+}
+
+
+task testJsBuilder(dependsOn: deleteBuilderJs, type: TestMochaTask) {
+    file = 'src/test/js/testBuilder.js'
+}
+
+task generateGrooscriptBuilderJs(dependsOn: testJsBuilder) << {
+    println 'Generated grooscript-builder.js'
+}
+
+generateGrooscriptBuilderJs.description = 'Generate grooscript-builder.js file'
