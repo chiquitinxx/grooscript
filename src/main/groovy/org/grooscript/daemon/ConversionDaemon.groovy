@@ -27,8 +27,9 @@ class ConversionDaemon {
             task {
                 convertActor = new ConvertActor(source: source, destinationFolder: destinationFolder,
                     conversionOptions: conversionOptions, doAfter: doAfter, recursive: recursive).start()
-                GsConsole.message('Daemon Started.')
                 convertActor << source
+            }.then {
+                GsConsole.message('Daemon Started.')
             }
         } else {
             GsConsole.error('Daemon need source and destinationFolder to run.')
@@ -40,8 +41,10 @@ class ConversionDaemon {
      * @return
      */
     public void stop() {
-        if (convertActor) {
+        if (convertActor && convertActor.isActive()) {
             convertActor << ConvertActor.FINISH
+        } else {
+            GsConsole.info('Stopping a non running daemon.')
         }
     }
 }

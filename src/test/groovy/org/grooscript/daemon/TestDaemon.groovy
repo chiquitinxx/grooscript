@@ -36,6 +36,18 @@ class TestDaemon extends Specification {
         file && file.exists() && file.isFile() ? file : null
     }
 
+    def 'actor is active after start daemon'() {
+        given:
+        def daemon = GrooScript.startConversionDaemon(SOURCE_FOLDER , DESTINATION_FOLDER)
+        waitTime()
+
+        expect:
+        daemon.convertActor.isActive()
+
+        cleanup:
+        daemon.stop()
+    }
+
     def 'on error stop the daemon'() {
         given:
         GroovySpy(GsConsole, global: true)
@@ -46,7 +58,7 @@ class TestDaemon extends Specification {
         waitTime()
 
         then:
-        1 * GsConsole.error('Exception in daemon: null')
+        1 * GsConsole.exception('Exception in daemon: null')
         1 * GsConsole.exception('Daemon Error in file/folder fails')
     }
 

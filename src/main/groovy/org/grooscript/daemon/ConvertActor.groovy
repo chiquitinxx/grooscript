@@ -4,6 +4,7 @@ import groovyx.gpars.actor.DefaultActor
 import groovyx.gpars.dataflow.DataflowQueue
 import groovyx.gpars.dataflow.DataflowVariable
 import groovyx.gpars.dataflow.operator.PoisonPill
+import org.grooscript.GrooScript
 import org.grooscript.convert.GsConverter
 import org.grooscript.util.GrooScriptException
 import org.grooscript.util.GsConsole
@@ -20,7 +21,6 @@ class ConvertActor extends DefaultActor {
     static final FINISH = 'finish'
 
     private static final REST_TIME = 500
-    private static final SEPARATOR = System.getProperty('file.separator')
 
     def source
     String destinationFolder
@@ -54,7 +54,7 @@ class ConvertActor extends DefaultActor {
     }
 
     public void onException(Throwable e) {
-        GsConsole.error('Exception in daemon: ' + e.message)
+        GsConsole.exception('Exception in daemon: ' + e.message)
         finishIt()
     }
 
@@ -106,30 +106,16 @@ class ConvertActor extends DefaultActor {
 
     //Convert a groovy file to javascript and save in destinationFolder
     private convertFile(absolutePath) {
-        //TODO call to a simple convert 1 file
         def source = new File(absolutePath)
         if (source && source.isFile() && source.name.endsWith('.groovy')) {
-            //Get name of file
-            def name = source.name.split(/\./)[0]
-            //Get a converter
-            def converter = new GsConverter()
-
-            //Set the conversion options
+            GrooScript.clearAllOptions()
             if (conversionOptions) {
                 conversionOptions.each { String key,value ->
-                    converter."${key}" = value
+                    GrooScript.setConversionProperty(key, value)
                 }
             }
-
-            //Do conversion
-            def jsResult = converter.toJs(source.text)
-
-            //Save the js file
-            def newFile = new File(destinationFolder + SEPARATOR + name + '.js')
-            if (newFile.exists()) {
-                newFile.delete()
-            }
-            newFile.write(jsResult)
+            GrooScript.convert(absolutePath, destinationFolder)
+            GrooScript.clearAllOptions()
         } else {
             throw new GrooScriptException("Error in daemon with file $absolutePath")
         }
