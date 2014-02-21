@@ -113,6 +113,14 @@ class MethodCallExpressionHandler extends BaseHandler {
         } else if (isThis(expression.objectExpression) &&
                 context.firstVariableScopingHasMethod(expression.methodAsString)) {
             out.addScript(expression.methodAsString)
+        //is function
+        } else if (expression.methodAsString == 'is') {
+            out.addScript("${GS_IS}(")
+            factory.visitNode(expression.objectExpression)
+            out.addScript(',')
+            factory.visitNode(expression.arguments, false)
+            out.addScript(')')
+            addParameters = false
         } else {
 
             //println 'Method->'+expression.methodAsString+' - '+expression.arguments.class.simpleName + ' - ' + variableScoping

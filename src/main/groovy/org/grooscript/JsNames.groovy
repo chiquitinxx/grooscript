@@ -37,6 +37,7 @@ class JsNames {
     static final GS_EXACT_MATCH = "${GS}exactMatch"
     static final GS_REG_EXP = "${GS}regExp"
     static final GS_EQUALS = "${GS}equals"
+    static final GS_IS = "${GS}is"
     static final GS_IN = "${GS}gSin"
     static final GS_SPACE_SHIP = "${GS}spaceShip"
     static final GS_ELVIS = "${GS}elvis"

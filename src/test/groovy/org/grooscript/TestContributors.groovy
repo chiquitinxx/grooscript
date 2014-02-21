@@ -106,4 +106,9 @@ class TestContributors extends Specification {
         !readAndConvert('contribution/Guillaume').assertFails
         !readAndConvert('contribution/GuillaumeClosuresComposition').assertFails
     }
+
+    def 'ronny is'() {
+        expect:
+        !readAndConvert('contribution/Ronny').assertFails
+    }
 }

@@ -1814,6 +1814,18 @@
         }
     };
 
+    gs.is = function(value1, value2) {
+        if (value1 != null && hasFunc(value1, 'is')) {
+            var count, params = gs.list([value2]);
+            for (count = 2; count < arguments.length; count++) {
+                params.add(arguments[count]);
+            }
+            return gs.mc(value1, 'is', params);
+        } else {
+            return value1 == value2;
+        }
+    };
+
     function interceptClosureCall(func, param) {
         if ((param instanceof Array) && func.length>1) {
             func.apply(func,param);
