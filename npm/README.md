@@ -1,12 +1,15 @@
-grooscript 0.4.3
+grooscript 0.4.4
 ================
 
-This library contains all functions needed to work with grooscript generated code. Grooscript is a little framework that converts groovy code to javascript.
+This library contains all functions needed to work with grooscript generated code. [Grooscript](http://grooscript.org) is a little framework that converts groovy code to javascript.
 
----
+    var gs = require('grooscript');
 
-Twitter: @grooscript
+    //Now groovy code converted with grooscript runs!
 
-Email: grooscript@gmail.com
+Contact
+-------
 
-Website URL (can try conversions there): http://grooscript.org
+Twitter: [@grooscript](http://twitter.com/grooscript)
+
+Email: <grooscript@gmail.com>
