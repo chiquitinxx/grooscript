@@ -176,4 +176,9 @@ class TestAdvanced extends Specification {
         expect:
         !readAndConvert('advanced/ReturnValues').assertFails
     }
+
+    def 'test method pointer advanced'() {
+        expect:
+        !readAndConvert('advanced/MethodPointerAdvanced').assertFails
+    }
 }

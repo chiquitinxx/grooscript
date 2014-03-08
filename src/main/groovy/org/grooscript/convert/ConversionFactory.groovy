@@ -32,7 +32,8 @@ class ConversionFactory {
             'MethodNode': MethodNodeHandler,
             'ConstructorCallExpression': ConstructorCallExpressionHandler,
             'CastExpression': CastExpressionHandler,
-            'ArrayExpression': ArrayExpressionHandler
+            'ArrayExpression': ArrayExpressionHandler,
+            'MethodPointerExpression': MethodPointerExpressionHandler
     ]
 
     ConversionFactory() {
@@ -215,6 +216,10 @@ class ConversionFactory {
                 !(statement instanceof ForStatement) && !(statement instanceof SwitchStatement) &&
                 !(statement instanceof ThrowStatement) && !(statement instanceof TryCatchStatement) &&
                 !(statement.metaClass.expression && statement.expression instanceof DeclarationExpression)
+    }
+
+    boolean isThis(expression) {
+        expression instanceof VariableExpression && expression.name == 'this'
     }
 
     private Object improvedConversionHandler(String className) {

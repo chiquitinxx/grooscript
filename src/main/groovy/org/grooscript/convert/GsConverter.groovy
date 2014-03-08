@@ -800,13 +800,6 @@ class GsConverter {
         conversionFactory.getConverter('PropertyExpression').handle(expression)
     }
 
-    private processMethodPointerExpression(MethodPointerExpression expression) {
-        conversionFactory.visitNode(expression.expression)
-        out.addScript('[')
-        conversionFactory.visitNode(expression.methodName)
-        out.addScript(']')
-    }
-
     private processSpreadExpression(SpreadExpression expression) {
         out.addScript("new ${GS_SPREAD}(")
         conversionFactory.visitNode(expression.expression)

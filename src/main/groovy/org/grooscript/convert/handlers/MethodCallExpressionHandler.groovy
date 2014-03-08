@@ -110,7 +110,7 @@ class MethodCallExpressionHandler extends BaseHandler {
             factory.visitNode(expression.arguments, false)
             out.addScript(']));})')
             //Call a method in this, method exist in main context
-        } else if (isThis(expression.objectExpression) &&
+        } else if (factory.isThis(expression.objectExpression) &&
                 context.firstVariableScopingHasMethod(expression.methodAsString)) {
             out.addScript(expression.methodAsString)
         //is function
@@ -128,8 +128,8 @@ class MethodCallExpressionHandler extends BaseHandler {
 
             out.addScript("${GS_METHOD_CALL}(")
             //Object
-            if (isThis(expression.objectExpression) &&
-                    context.variableScoping.peek()?.contains(expression.methodAsString)) {
+            if (factory.isThis(expression.objectExpression) &&
+                    context.currentVariableScopingHasMethod(expression.methodAsString)) {
                 out.addScript(GS_OBJECT)
             } else {
                 factory.visitNode(expression.objectExpression)
@@ -148,9 +148,5 @@ class MethodCallExpressionHandler extends BaseHandler {
         if (addParameters) {
             factory.visitNode(expression.arguments)
         }
-    }
-
-    private isThis(expression) {
-        expression instanceof VariableExpression && expression.name == 'this'
     }
 }

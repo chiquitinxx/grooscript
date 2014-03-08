@@ -1745,7 +1745,15 @@
     };
 
     String.prototype.plus = function(other) {
-        return this + other.toString();
+        var addText = 'null';
+        if (other != undefined && other != null) {
+            if (other['toString'] != undefined) {
+                addText = other.toString();
+            } else {
+                addText = other;
+            }
+        }
+        return this + addText;
     };
 
     /////////////////////////////////////////////////////////////////

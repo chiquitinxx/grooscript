@@ -32,7 +32,18 @@ class RedColor {
     }
 }
 
-assert new RedColor().is('red')
-assert new RedColor().is('blue', 'red')
-assert new RedColor().is('black', 'brown', 'red')
-assert !new RedColor().is('blue')
+def red = new RedColor()
+assert red.is('blue', 'red')
+assert red.is('black', 'brown', 'red')
+assert !red.is('black', 'brown')
+
+class BlueColor {
+    def is(color) {
+        color == 'blue'
+    }
+}
+
+def blue = new BlueColor()
+assert !blue.is('red')
+assert blue.is('blue')
+assert 'gol'.is("gol")

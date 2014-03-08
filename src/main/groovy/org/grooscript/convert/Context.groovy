@@ -64,9 +64,13 @@ class Context {
         tourStack(actualScope, variableName)
     }
 
-    boolean firstVariableScopingHasMethod(methodName) {
+    boolean firstVariableScopingHasMethod(String methodName) {
         variableScoping && variableScoping.peek() == variableScoping.firstElement() &&
                 variableScoping.peek().contains(methodName)
+    }
+
+    boolean currentVariableScopingHasMethod(String methodName) {
+        variableScoping && variableScoping.peek()?.contains(methodName)
     }
 
     boolean isVariableWithMissingScope(VariableExpression expression) {
