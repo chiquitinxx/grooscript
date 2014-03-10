@@ -45,14 +45,15 @@ class ClassNodeHandler extends BaseHandler {
                         "name: '${node.superClass.name}', simpleName: '${node.superClass.nameWithoutPackage}'};", true)
             }
 
+            //Add variable names to scope
+            addClassVariableNamesToScope(node)
+
             //Adding initial values of properties
             node?.properties?.each { PropertyNode property ->
                 if (!property.isStatic()) {
                     addPropertyToClass(property, false)
                     //We add variable names of the class
-                    context.variableScoping.peek().add(property.name)
                 } else {
-                    context.variableStaticScoping.peek().add(property.name);
                     addPropertyStaticToClass(property.name)
                 }
             }
@@ -62,9 +63,7 @@ class ClassNodeHandler extends BaseHandler {
                 if (field.owner.name == node.name && (field.isPublic()|| !node.properties.any { it.name == field.name})) {
                     if (!field.isStatic()) {
                         addPropertyToClass(field,false)
-                        context.variableScoping.peek().add(field.name)
                     } else {
-                        context.variableStaticScoping.peek().add(field.name)
                         addPropertyStaticToClass(field.name)
                     }
                 }
@@ -121,13 +120,6 @@ class ClassNodeHandler extends BaseHandler {
     }
 
     private processClassMethods(List<MethodNode> methods, String nodeName) {
-
-        methods?.each { MethodNode it ->
-            //Add method names to variable scoping
-            if (!it.isStatic() && !it.isAbstract()) {
-                context.variableScoping.peek().add(it.name)
-            }
-        }
 
         context.processingClassMethods = true
         methods?.each { MethodNode it ->
@@ -333,5 +325,30 @@ class ClassNodeHandler extends BaseHandler {
         out.addScript ')'
 
         out.addScript('; }', true)
+    }
+
+    private addClassVariableNamesToScope(ClassNode node) {
+        node?.properties?.each { PropertyNode property ->
+            if (!property.isStatic()) {
+                context.variableScoping.peek().add(property.name)
+            } else {
+                context.variableStaticScoping.peek().add(property.name);
+            }
+        }
+        node.fields.each { FieldNode field ->
+            if (field.owner.name == node.name && (field.isPublic()|| !node.properties.any { it.name == field.name})) {
+                if (!field.isStatic()) {
+                    context.variableScoping.peek().add(field.name)
+                } else {
+                    context.variableStaticScoping.peek().add(field.name)
+                }
+            }
+        }
+        node.methods?.each { MethodNode it ->
+            //Add method names to variable scoping
+            if (!it.isStatic() && !it.isAbstract()) {
+                context.variableScoping.peek().add(it.name)
+            }
+        }
     }
 }
