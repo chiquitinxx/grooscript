@@ -184,6 +184,6 @@ class TestAdvanced extends Specification {
 
     def 'test callback this'() {
         expect:
-        !readAndConvert('advanced/CallbackThis', true).assertFails
+        !readAndConvert('advanced/CallbackThis').assertFails
     }
 }
