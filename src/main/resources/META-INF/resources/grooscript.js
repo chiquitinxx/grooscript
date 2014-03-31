@@ -1362,21 +1362,21 @@
     /////////////////////////////////////////////////////////////////
     gs.date = function() {
 
-        var object;
+        var gSobject;
         if (arguments.length==1) {
-            object = new Date(arguments[0]);
+            gSobject = new Date(arguments[0]);
         } else {
-            object = new Date();
+            gSobject = new Date();
         }
 
-        createClassNames(object,['java.util.Date']);
+        createClassNames(gSobject,['java.util.Date']);
 
-        object.time = object.getTime();
+        gSobject.time = gSobject.getTime();
 
-        object.year = object.getFullYear();
-        object.month = object.getMonth();
-        object.date = object.getDay();
-        object.plus = function(other) {
+        gSobject.year = gSobject.getFullYear();
+        gSobject.month = gSobject.getMonth();
+        gSobject.date = gSobject.getDay();
+        gSobject.plus = function(other) {
             if (typeof other == 'number') {
                 var a = gs.date(this.time+(other * 1440000));
                 return a;
@@ -1384,7 +1384,7 @@
                 return this + other;
             }
         };
-        object.minus = function(other) {
+        gSobject.minus = function(other) {
             if (typeof other == 'number') {
                 var a = gs.date(this.time-(other * 1440000));
                 return a;
@@ -1392,73 +1392,73 @@
                 return this + other;
             }
         };
-        object.format = function(rule) {
+        gSobject.format = function(rule) {
             //TODO complete
             var exit = '';
             if (rule) {
                 exit = rule;
-                exit = exit.replaceAll('yyyy',this.getFullYear());
-                exit = exit.replaceAll('MM',fillZerosLeft(this.getMonth()+1,2));
-                exit = exit.replaceAll('dd',fillZerosLeft(this.getUTCDate(),2));
-                exit = exit.replaceAll('HH',fillZerosLeft(this.getHours(),2));
-                exit = exit.replaceAll('mm',fillZerosLeft(this.getMinutes(),2));
-                exit = exit.replaceAll('ss',fillZerosLeft(this.getSeconds(),2));
-                exit = exit.replaceAll('yy',lastChars(this.getFullYear(),2));
+                exit = exit.replaceAll('yyyy', this.getFullYear());
+                exit = exit.replaceAll('MM', fillZerosLeft(this.getMonth() + 1, 2));
+                exit = exit.replaceAll('dd', fillZerosLeft(this.getUTCDate(), 2));
+                exit = exit.replaceAll('HH', fillZerosLeft(this.getHours(), 2));
+                exit = exit.replaceAll('mm', fillZerosLeft(this.getMinutes(), 2));
+                exit = exit.replaceAll('ss', fillZerosLeft(this.getSeconds(), 2));
+                exit = exit.replaceAll('yy', lastChars(this.getFullYear(), 2));
             }
             return exit;
         };
-        object.parse = function(rule,text) {
+        gSobject.parse = function(rule, text) {
             //TODO complete
             var pos = rule.indexOf('yyyy');
-            if (pos>=0) {
-                this.setFullYear(text.substr(pos,4));
+            if (pos >= 0) {
+                this.setFullYear(text.substr(pos, 4));
             } else {
                 pos = rule.indexOf('yy');
-                if (pos>=0) {
-                    this.setFullYear(text.substr(pos,2));
+                if (pos >= 0) {
+                    this.setFullYear(text.substr(pos, 2));
                 }
             }
             pos = rule.indexOf('MM');
-            if (pos>=0) {
-                this.setMonth(text.substr(pos,2)-1);
+            if (pos >= 0) { //Have to do twice, sometimes is ignored
+                this.setMonth(text.substr(pos, 2) - 1);
+                this.setMonth(text.substr(pos, 2) - 1);
             }
             pos = rule.indexOf('dd');
-            if (pos>=0) {
-                this.setUTCDate(text.substr(pos,2));
+            if (pos >= 0) {
+                this.setUTCDate(text.substr(pos, 2));
             }
             pos = rule.indexOf('HH');
-            if (pos>=0) {
-                this.setHours(text.substr(pos,2));
+            if (pos >= 0) {
+                this.setHours(text.substr(pos, 2));
             }
             pos = rule.indexOf('mm');
-            if (pos>=0) {
-                this.setMinutes(text.substr(pos,2));
+            if (pos >= 0) {
+                this.setMinutes(text.substr(pos, 2));
             }
             pos = rule.indexOf('ss');
-            if (pos>=0) {
-                this.setSeconds(text.substr(pos,2));
+            if (pos >= 0) {
+                this.setSeconds(text.substr(pos, 2));
             }
             return this;
         };
-
-        return object;
+        return gSobject;
     };
 
     gs.rangeFromList = function(list, begin, end) {
-        return list.slice(begin,end+1);
+        return list.slice(begin, end + 1);
     };
 
-    function fillZerosLeft(item,size) {
+    function fillZerosLeft(item, size) {
         var value = item + '';
-        while (value.length<size) {
-            value = '0'+value;
+        while (value.length < size) {
+            value = '0' + value;
         }
         return value;
     }
 
-    function lastChars(item,number) {
+    function lastChars(item, number) {
         var value = item + '';
-        value = value.substring(value.length-number);
+        value = value.substring(value.length - number);
         return value;
     }
 

@@ -6,9 +6,9 @@ package advanced
 
 assert 1 == 1.0
 assert 1.1 > 1
-assert "a">"A"
-assert "B">"A"
-assert "hello">"Hello"
+assert "a" > "A"
+assert "B" > "A"
+assert "hello" > "Hello"
 assert 6
 def date = new Date()
 assert date + 1 > date

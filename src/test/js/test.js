@@ -52,7 +52,10 @@ describe('initial tests on gs', function(){
     });
 
     it('test date format', function() {
+        assert.equal(gs.date().parse("yyyy/MM/dd", "2009/01/01").format('yyyy-MM-dd'), '2009-01-01');
         assert.equal(gs.date().parse("yyyy/MM/dd", "2009/09/01").format('yyyy-MM-dd'), '2009-09-01');
+        assert.equal(gs.date().parse("yyyy/MM/dd", "2009/10/01").format('yyyy-MM-dd'), '2009-10-01');
+        assert.equal(gs.date().parse("yyyy/MM/dd", "2009/12/01").format('yyyy-MM-dd'), '2009-12-01');
     });
 
     it('get a function from main scope', function() {
