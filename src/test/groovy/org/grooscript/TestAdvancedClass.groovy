@@ -68,4 +68,9 @@ class TestAdvancedClass extends Specification {
         expect:
         !readAndConvert('classes/PrimitiveArrays').assertFails
     }
+
+    def 'starting @Delegate'() {
+        expect:
+        !readAndConvert('classes/StartingDelegate').assertFails
+    }
 }

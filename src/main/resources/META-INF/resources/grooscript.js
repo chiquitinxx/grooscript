@@ -35,6 +35,9 @@
     //Delegate
     var actualDelegate = null;
 
+    //@Delegate
+    var mapAddDelegate = {};
+
     gs.myCategories = {};
 
     /////////////////////////////////////////////////////////////////
@@ -1409,7 +1412,21 @@
         };
         gSobject.parse = function(rule, text) {
             //TODO complete
-            var pos = rule.indexOf('yyyy');
+            var pos = rule.indexOf('MM');
+            if (pos >= 0) {
+                var newMonth = text.substr(pos, 2) - 1;
+                while (this.getMonth() != newMonth) {
+                    this.setMonth(newMonth, this.getUTCDate());
+                }
+            }
+            pos = rule.indexOf('dd');
+            if (pos >= 0) {
+                var newDay = text.substr(pos, 2);
+                while (this.getUTCDate() != newDay) {
+                    this.setUTCDate(newDay);
+                }
+            }
+            pos = rule.indexOf('yyyy');
             if (pos >= 0) {
                 this.setFullYear(text.substr(pos, 4));
             } else {
@@ -1417,15 +1434,6 @@
                 if (pos >= 0) {
                     this.setFullYear(text.substr(pos, 2));
                 }
-            }
-            pos = rule.indexOf('MM');
-            if (pos >= 0) { //Have to do twice, sometimes is ignored
-                this.setMonth(text.substr(pos, 2) - 1);
-                this.setMonth(text.substr(pos, 2) - 1);
-            }
-            pos = rule.indexOf('dd');
-            if (pos >= 0) {
-                this.setUTCDate(text.substr(pos, 2));
             }
             pos = rule.indexOf('HH');
             if (pos >= 0) {
@@ -1439,6 +1447,7 @@
             if (pos >= 0) {
                 this.setSeconds(text.substr(pos, 2));
             }
+
             return this;
         };
         return gSobject;
@@ -2073,7 +2082,7 @@
             }
         }
 
-        if (!hasFunc(item,'getProperty')) {
+        if (!hasFunc(item, 'getProperty')) {
             var nameFunction = 'get' + nameProperty.charAt(0).toUpperCase() + nameProperty.slice(1);
             if (!hasFunc(item,nameFunction)) {
                 if (typeof item[nameProperty] === "function" && nameProperty == 'size') {
@@ -2082,6 +2091,21 @@
                     if (item[nameProperty] !== undefined) {
                         return item[nameProperty];
                     } else {
+                        //Lets check in @Delegate
+                        if (item.clazz !== undefined) {
+                            var addDelegate = mapAddDelegate[item.clazz.simpleName];
+                            if (addDelegate !== null && addDelegate !== undefined) {
+                                var i;
+                                for (i = 0; i < addDelegate.length; i++) {
+                                    var prop = addDelegate[i];
+                                    var target = item[prop][nameProperty];
+                                    if (target !== undefined) {
+                                        return item[prop][nameProperty];
+                                    }
+                                }
+                            }
+                        }
+                        //Default value of a map
                         if (item.gSdefaultValue !== undefined && (typeof item.gSdefaultValue === "function")) {
                             item[nameProperty] = item.gSdefaultValue();
                         }
@@ -2185,7 +2209,21 @@
                 if (mixinsObjects.length>0) {
                     whereExecutes = mixinObjectsSearching(item, methodName);
                     if (whereExecutes !== null) {
-                        return whereExecutes[methodName].apply(item,joinParameters(item, values));
+                        return whereExecutes[methodName].apply(item, joinParameters(item, values));
+                    }
+                }
+                //Lets check in @Delegate
+                if (item.clazz !== undefined) {
+                    var addDelegate = mapAddDelegate[item.clazz.simpleName];
+                    if (addDelegate !== null && addDelegate !== undefined) {
+                        var i;
+                        for (i = 0; i < addDelegate.length; i++) {
+                            var prop = addDelegate[i];
+                            var target = item[prop][methodName];
+                            if (target !== undefined) {
+                                return item[prop][methodName].apply(item, joinParameters(item, values));
+                            }
+                        }
                     }
                 }
 
@@ -2447,6 +2485,18 @@
             return this;
         };
         return object;
+    };
+
+    ////////////////////////////////////////////////////////////
+    // @Delegate
+    ////////////////////////////////////////////////////////////
+    gs.astDelegate = function (baseClass, nameField) {
+        var currentDelegate = mapAddDelegate[baseClass];
+        if (currentDelegate == null || currentDelegate == undefined) {
+            currentDelegate = [];
+        };
+        currentDelegate[currentDelegate.length] = nameField;
+        mapAddDelegate[baseClass] = currentDelegate;
     };
 
     ////////////////////////////////////////////////////////////

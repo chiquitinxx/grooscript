@@ -60,6 +60,8 @@ class ClassNodeHandler extends BaseHandler {
 
             //Add fields not added as properties
             node.fields.each { FieldNode field ->
+                checkDelegateAnnotation(field, node.nameWithoutPackage)
+
                 if (field.owner.name == node.name && (field.isPublic()|| !node.properties.any { it.name == field.name})) {
                     if (!field.isStatic()) {
                         addPropertyToClass(field,false)
@@ -349,6 +351,18 @@ class ClassNodeHandler extends BaseHandler {
             if (!it.isStatic() && !it.isAbstract()) {
                 context.variableScoping.peek().add(it.name)
             }
+        }
+    }
+
+    private checkDelegateAnnotation(FieldNode fieldNode, String nameClass) {
+        if (fieldHasDelegateAnnotation(fieldNode)) {
+            out.addScript("$GS_AST_DELEGATE('${nameClass}', '${fieldNode.name}');", true)
+        }
+    }
+
+    private boolean fieldHasDelegateAnnotation(FieldNode fieldNode) {
+        fieldNode.annotations.any { annotationNode ->
+            annotationNode.getClassNode().name == 'groovy.lang.Delegate'
         }
     }
 }
