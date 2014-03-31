@@ -3,6 +3,7 @@ package org.grooscript.asts
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
 import com.sun.net.httpserver.HttpServer
+import org.codehaus.groovy.control.MultipleCompilationErrorsException
 
 /**
  * User: jorgefrancoleza
@@ -10,13 +11,13 @@ import com.sun.net.httpserver.HttpServer
  */
 class TestPhantomJs extends GroovyTestCase {
 
-    static final PHANTOMJS_HOME = '/Applications/phantomjs'
-    static final JS_LIBRARIES_PATH = 'src/main/resources/META-INF/resources'
-    static final PORT = 8000
-    static final ACTION = '/test'
-    static final String FULL_ADRESS = "http://localhost:${PORT}${ACTION}"
+    private static final PHANTOMJS_HOME = '/Applications/phantomjs'
+    private static final JS_LIBRARIES_PATH = 'src/main/resources/META-INF/resources'
+    private static final PORT = 8000
+    private static final ACTION = '/test'
+    private static final String FULL_ADRESS = "http://localhost:${PORT}${ACTION}"
 
-    HttpServer server
+    private HttpServer server
 
     class MyHandler implements HttpHandler {
         public void handle(HttpExchange t) throws IOException {
@@ -50,7 +51,7 @@ class TestPhantomJs extends GroovyTestCase {
     }
 
     @PhantomJsTest(url = 'http://localhost:8000/test')
-    void countPs() {
+    void countPTagsInPage() {
         assert $('p').size() == 1,"Number of p's in page is ${$('p').size()}"
         def title = $("title")
         assert title[0].text=='Title',"Title is ${title[0].text}"
@@ -69,11 +70,11 @@ class TestPhantomJs extends GroovyTestCase {
             tempDirectory.deleteDir()
         }
 
-        countPs()
+        countPTagsInPage()
 
         assert tempDirectory.exists() && tempDirectory.isDirectory()
 
-        countPs()
+        countPTagsInPage()
 
         tempDirectory.deleteDir()
     }
@@ -81,7 +82,7 @@ class TestPhantomJs extends GroovyTestCase {
     void testErrorPhantomJsPath() {
         System.properties.remove('PHANTOMJS_HOME')
         try {
-            countPs()
+            countPTagsInPage()
             fail 'Error not thrown'
         } catch (AssertionError e) {
             assert e.message ==
@@ -89,13 +90,41 @@ class TestPhantomJs extends GroovyTestCase {
         }
     }
 
-    void testPhantomJs() {
-        countPs()
+    void testPhantomJsFromScript() {
+        assertScript '''
+            import org.grooscript.asts.PhantomJsTest
+
+            @PhantomJsTest(url = 'http://localhost:8000/test')
+            void phantomTest() {
+                assert true
+            }
+            phantomTest()
+        '''
+    }
+
+    void testPhantomJsFromATest() {
+        countPTagsInPage()
+    }
+
+    void testWithoutUrlParameter() {
+        try {
+            assertScript '''
+                import org.grooscript.asts.PhantomJsTest
+
+                @PhantomJsTest
+                void test() {
+                    assert true
+                }
+            '''
+            fail 'Url parameter is mandatory'
+        } catch (MultipleCompilationErrorsException e) {
+            assert e.message.contains('Have to define url parameter')
+        }
     }
 
     @PhantomJsTest(url = 'http://localhost:8000/test')
     void countPsFailAssert() {
-        assert $('p').size() > 5,"Number of links in page is ${$('p').size()}"
+        assert $('p').size() > 5, "Number of links in page is ${$('p').size()}"
     }
 
     void testPhantomJsFailAssert() {
@@ -197,10 +226,4 @@ class TestPhantomJs extends GroovyTestCase {
         PhantomJsTestImpl.doPhantomJsTest(FULL_ADRESS, 'function hello() {console.log("Hello!");}',
             'hello', 0, null, null, null, true)
     }
-
-    /*
-    @PhantomJsTest(url = 'http://localhost:8080/grooscript-vertx/main/vertxEvents', waitSeconds = 2)
-    void testWaitSecondsLocal() {
-        assert $('#points').html() == '.',"points Html after is ${$('#points').html()}"
-    }*/
 }

@@ -6,6 +6,7 @@ import org.codehaus.groovy.ast.MethodNode
 import org.codehaus.groovy.ast.builder.AstBuilder
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
+import org.codehaus.groovy.syntax.SyntaxException
 import org.codehaus.groovy.transform.ASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
 import org.grooscript.GrooScript
@@ -117,11 +118,21 @@ page.open('{{URL}}', function (status) {
         //Statement testCode = method.getCode()
 
         def messageError
-        AnnotationNode node = (AnnotationNode) nodes[0]
-        String url = node.getMember('url').text
-        String capture = node.getMember('capture')?.text
-        int waitSeconds = node.getMember('waitSeconds') ? node.getMember('waitSeconds').value : 0
-        boolean withInfo = node.getMember('info')
+        AnnotationNode annotationNode = (AnnotationNode) nodes[0]
+
+        if (!annotationNode.getMember('url')) {
+            sourceUnit.addError(new SyntaxException('Have to define url parameter',
+                    annotationNode.lineNumber, annotationNode.columnNumber))
+        }
+
+        if (sourceUnit.errorCollector.errorCount > 0) {
+            return
+        }
+
+        String url = annotationNode.getMember('url').text
+        String capture = annotationNode.getMember('capture')?.text
+        int waitSeconds = annotationNode.getMember('waitSeconds') ? annotationNode.getMember('waitSeconds').value : 0
+        boolean withInfo = annotationNode.getMember('info')
 
         if (!url) {
             messageError = 'url not defined, use @PhantomJsTest(url=\'http://grooscript.org\')'
