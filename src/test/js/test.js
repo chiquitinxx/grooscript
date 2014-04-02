@@ -9,6 +9,18 @@ function add(a, b) {
     return a + b;
 }
 
+function MyClass() {
+    var gSobject = gs.inherit(gs.baseClass,'MyClass');
+    gSobject.clazz = { name: 'Pepe', simpleName: 'MyClass'};
+    gSobject.clazz.superclass = { name: 'java.lang.Object', simpleName: 'Object'};
+    gSobject.a = null;
+    gSobject.b = null;
+    gSobject.Pepe1 = function(map) { gs.passMapToObject(map,this); return this;};
+    if (arguments.length==1) {gSobject.Pepe1(arguments[0]); }
+
+    return gSobject;
+};
+
 describe('initial tests on gs', function(){
 
     it('initial values', function(){
@@ -63,5 +75,18 @@ describe('initial tests on gs', function(){
         assert.equal(eval('add')(4, 5), 9);
         //Not working eval in gs.mc
         //assert.equal(gs.mc(this,"add",gs.list([4, 5]), eval), 9);
+    });
+
+    it('initialize a map with a javascript object', function() {
+        var map = gs.map({a: 1, b: 2});
+        assert.equal(map.a, 1);
+        assert.equal(map.b, 2);
+        assert.equal(map.size(), 2);
+    });
+
+    it('initialize a class with a javascript object', function() {
+        var myClass = MyClass({a: 1, b: 2});
+        assert.equal(myClass.a, 1);
+        assert.equal(myClass.b, 2);
     });
 });

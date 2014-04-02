@@ -324,25 +324,28 @@
     // map - [:] from groovy
     /////////////////////////////////////////////////////////////////
     function isMapProperty(name) {
-        return ['clazz','gSdefaultValue','any','collect',
+        return isObjectProperty(name) || ['any','collect',
             'collectEntries','collectMany','countBy','dropWhile',
             'each','eachWithIndex','every','find','findAll',
             'findResult','findResults','get','getAt','groupBy',
-            'inject','intersect','leftShift','max','min',
-            'minus','plus','putAll','putAt','reverseEach',
+            'inject','intersect','max','min',
+            'putAll','putAt','reverseEach',
             'sort','spread','subMap','add','take','takeWhile',
-            'withDefault','count','drop','equals','toString',
+            'withDefault','count','drop',
             'put','size','isEmpty','remove','containsKey',
-            'containsValue','values','clone','withz','getProperties',
-            'getMethods','invokeMethod','constructor'].indexOf(name) >= 0;
+            'containsValue','values'].indexOf(name) >= 0;
     }
 
     gs.map = function() {
-        var object = new GsGroovyMap();
+        var gSobject = new GsGroovyMap();
         //gs.inherit(gs.baseClass,'LinkedHashMap');
-        expandWithMetaclass(object, 'LinkedHashMap');
+        expandWithMetaclass(gSobject, 'LinkedHashMap');
 
-        return object;
+        if (arguments.length == 1 && arguments[0] instanceof Object) {
+            gs.passMapToObject(arguments[0], gSobject);
+        }
+
+        return gSobject;
     };
 
     function GsGroovyMap() {
@@ -1813,7 +1816,7 @@
         var prop;
         for (prop in source) {
             if (typeof source[prop] === "function") continue;
-            if (prop != 'clazz') {
+            if (!isMapProperty(prop)) {
                 gs.sp(destination, prop, source[prop]);
             }
         }
