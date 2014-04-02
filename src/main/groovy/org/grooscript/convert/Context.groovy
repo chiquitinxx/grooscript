@@ -65,8 +65,9 @@ class Context {
     }
 
     boolean firstVariableScopingHasMethod(String methodName) {
-        variableScoping && variableScoping.peek() == variableScoping.firstElement() &&
-                variableScoping.peek().contains(methodName)
+        (variableScoping && variableScoping.peek() == variableScoping.firstElement() &&
+                variableScoping.peek().contains(methodName)) ||
+            (actualScope && actualScope.firstElement().contains(methodName))
     }
 
     boolean currentVariableScopingHasMethod(String methodName) {

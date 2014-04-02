@@ -142,6 +142,7 @@ page.open('{{URL}}', function (status) {
             GsConverter converter = new GsConverter()
 
             try {
+                converter.mainContextScope = ['$']
                 jsTest = converter.processAstListToJs([method])
             } catch (e) {
                 messageError = 'Error converting code ->' + e.message
