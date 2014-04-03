@@ -73,4 +73,9 @@ class TestAdvancedClass extends Specification {
         expect:
         !readAndConvert('classes/StartingDelegate').assertFails
     }
+
+    def 'more categories'() {
+        expect:
+        !readAndConvert('classes/MoreCategories').assertFails
+    }
 }

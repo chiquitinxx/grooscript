@@ -2113,6 +2113,13 @@
                         if (item.gSdefaultValue !== undefined && (typeof item.gSdefaultValue === "function")) {
                             item[nameProperty] = item.gSdefaultValue();
                         }
+                        //Maybe in categories
+                        if (categories.length > 0 && item[nameProperty] === undefined) {
+                            var whereExecutes = categorySearching(nameFunction);
+                            if (whereExecutes !== null) {
+                                return whereExecutes[nameFunction].apply(item, [item]);
+                            }
+                        }
                         return item[nameProperty];
                     }
                 }
@@ -2261,7 +2268,7 @@
         }
     };
 
-    function joinParameters(item,items) {
+    function joinParameters(item, items) {
         var listParameters = [item],i;
         for (i=0; i < items.size(); i++) {
             listParameters[listParameters.length] = items[i];
