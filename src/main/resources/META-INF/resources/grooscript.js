@@ -76,7 +76,7 @@
     /////////////////////////////////////////////////////////////////
     gs.baseClass = {
         //The with function, with is a reserved word in JavaScript
-        withz : function(closure) { closure.apply(this,closure.arguments); },
+        withz : function(closure) { closure.apply(this, closure.arguments); },
         getProperties : function() {
             var result = gs.map(), ob;
             for (ob in this) {
@@ -1302,7 +1302,7 @@
         }
         var object = data;
 
-        createClassNames(object,['java.util.ArrayList']);
+        createClassNames(object, ['java.util.ArrayList']);
 
         return object;
     };
@@ -1376,6 +1376,7 @@
         }
 
         createClassNames(gSobject,['java.util.Date']);
+        gSobject.withz = gs.baseClass.withz;
 
         gSobject.time = gSobject.getTime();
 
@@ -1988,7 +1989,7 @@
 
     //For some special cases where access a property with this."${name}"
     //This can be a closure
-    gs.thisOrObject = function(thisItem,objectItem) {
+    gs.thisOrObject = function(thisItem, objectItem) {
         //this can only be used for our objects, our object must have withz function
         if (thisItem.withz === undefined && objectItem !== null && objectItem !== undefined) {
             return objectItem;
@@ -2203,13 +2204,14 @@
 
                 //Lets check in mixins classes
                 if (mixins.length > 0) {
-                    whereExecutes = mixinSearching(item,methodName);
+                    whereExecutes = mixinSearching(item, methodName);
                     if (whereExecutes !== null) {
                         return whereExecutes[methodName].apply(item, joinParameters(item, values));
                     }
                 }
+
                 //Lets check in mixins objects
-                if (mixinsObjects.length>0) {
+                if (mixinsObjects.length > 0) {
                     whereExecutes = mixinObjectsSearching(item, methodName);
                     if (whereExecutes !== null) {
                         return whereExecutes[methodName].apply(item, joinParameters(item, values));
@@ -2270,7 +2272,7 @@
     ////////////////////////////////////////////////////////////
     // Categories
     ////////////////////////////////////////////////////////////
-    gs.categoryUse = function(item, closure) {
+    gs.categoryUse = function(item, itemClass, closure) {
         var ob, categoryCreated;
         if (existAnnotatedCategory(item)) {
             categoryCreated = gs.myCategories[item]();
@@ -2281,7 +2283,7 @@
                 }
             }
         } else {
-            categories[categories.length] = item;
+            categories[categories.length] = itemClass;
         }
         closure();
         if (existAnnotatedCategory(item)) {
@@ -2332,9 +2334,9 @@
         var result = null;
         var i;
         for (i = categories.length - 1; i >= 0 && result === null; i--) {
-            var name = categories[i];
-            if (eval(name)[methodName]) {
-                result = eval(name);
+            var itemClass = categories[i];
+            if (itemClass[methodName]) {
+                result = itemClass;
             }
         }
         return result;
@@ -2434,7 +2436,7 @@
         return result;
     }
 
-    function mixinObjectsSearching(item,methodName) {
+    function mixinObjectsSearching(item, methodName) {
 
         var result = null;
         var i, ourMixin=null;
@@ -2635,6 +2637,15 @@
                 return number;
             }
         }
+    };
+
+    gs.isGroovyObj = function(maybeGroovyObject) {
+        return maybeGroovyObject !== null &&
+                (maybeGroovyObject['withz'] !== undefined &&
+                typeof(maybeGroovyObject['withz']) === "function")
+            ||
+            (maybeGroovyObject['clazz'] !== undefined &&
+                maybeGroovyObject['clazz'].name == 'java.util.LinkedHashMap')
     };
 
 }).call(this);

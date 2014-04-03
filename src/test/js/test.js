@@ -89,4 +89,20 @@ describe('initial tests on gs', function(){
         assert.equal(myClass.a, 1);
         assert.equal(myClass.b, 2);
     });
+
+    it('is groovy object', function() {
+        assert.equal(gs.isGroovyObj(MyClass()), true);
+        assert.equal(gs.isGroovyObj(gs.range(1, 5)), true);
+        assert.equal(gs.isGroovyObj(gs.map()), true);
+        assert.equal(gs.isGroovyObj(gs.list()), true);
+        assert.equal(gs.isGroovyObj(gs.stringBuffer()), true);
+        assert.equal(gs.isGroovyObj(gs.pattern()), true);
+        assert.equal(gs.isGroovyObj(gs.regExp('hola', 'hola')), true);
+        assert.equal(gs.isGroovyObj(gs.date()), true);
+        assert.equal(gs.isGroovyObj(gs.expando()), true);
+        assert.equal(gs.isGroovyObj(""), false);
+        assert.equal(gs.isGroovyObj(5), false);
+        assert.equal(gs.isGroovyObj({}), false);
+        assert.equal(gs.isGroovyObj(function () {}), false);
+    });
 });

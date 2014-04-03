@@ -72,9 +72,8 @@ class MethodCallExpressionHandler extends BaseHandler {
                 expression.objectExpression.name == 'this' && expression.methodAsString == 'use') {
             ArgumentListExpression args = expression.arguments
             addParameters = false
-            out.addScript("${GS_CATEGORY_USE}(\"")
-            out.addScript(args.expressions[0].type.nameWithoutPackage)
-            out.addScript('",')
+            def nameCategory = args.expressions[0].type.nameWithoutPackage
+            out.addScript("${GS_CATEGORY_USE}(\"${nameCategory}\",${nameCategory},")
             factory.visitNode(args.expressions[1])
             out.addScript(')')
             //Mixin Classes
