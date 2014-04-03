@@ -194,7 +194,7 @@ class ClassNodeHandler extends BaseHandler {
             }
             factory.visitNode(it, true)
 
-            addConditionConstructorExecution(numberArguments,it.parameters)
+            addConditionConstructorExecution(numberArguments, it.parameters)
         }
 
         if (haveAnnotationGroovyImmutable(node.annotations)) {
@@ -217,10 +217,8 @@ class ClassNodeHandler extends BaseHandler {
 
         //If no constructor with 1 parameter, we create 1 that get a map, for put value on properties
         if (!has1parameterConstructor) {
-            out.addScript("${GS_OBJECT}.${node.nameWithoutPackage}1 = function(map) { " +
-                    "${GS_PASS_MAP_TO_OBJECT}(map,this); return this;};", true)
-            out.addScript("if (arguments.length==1) {" +
-                    "${GS_OBJECT}.${node.nameWithoutPackage}1(arguments[0]); }", true)
+            out.addScript("if (arguments.length == 1) {" +
+                    "${GS_PASS_MAP_TO_OBJECT}(arguments[0],${GS_OBJECT});};", true)
         }
     }
 
