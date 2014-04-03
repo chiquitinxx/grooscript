@@ -78,4 +78,9 @@ class TestAdvancedClass extends Specification {
         expect:
         !readAndConvert('classes/MoreCategories').assertFails
     }
+
+    def 'date functions'() {
+        expect:
+        !readAndConvert('classes/DateClass').assertFails
+    }
 }
