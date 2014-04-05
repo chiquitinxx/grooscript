@@ -111,4 +111,9 @@ class TestContributors extends Specification {
         expect:
         !readAndConvert('contribution/Ronny').assertFails
     }
+
+    def 'mscharhag closure composition'() {
+        expect:
+        !readAndConvert('contribution/Mscharhag').assertFails
+    }
 }
