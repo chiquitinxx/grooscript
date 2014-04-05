@@ -33,7 +33,8 @@ class ConversionFactory {
             'ConstructorCallExpression': ConstructorCallExpressionHandler,
             'CastExpression': CastExpressionHandler,
             'ArrayExpression': ArrayExpressionHandler,
-            'MethodPointerExpression': MethodPointerExpressionHandler
+            'MethodPointerExpression': MethodPointerExpressionHandler,
+            'InnerClassNode': InnerClassNodeHandler
     ]
 
     ConversionFactory() {
@@ -229,5 +230,9 @@ class ConversionFactory {
         instanceHandler.functions = functions
         instanceHandler.factory = this
         instanceHandler
+    }
+
+    boolean isValidTraitMethodName(methodName) {
+        !['$init$', '$static$init$'].contains(methodName)
     }
 }

@@ -81,7 +81,7 @@ class Util {
      * @param jsFile grooscript.js file
      * @return map with exception, jsScript, assertFails, ...
      */
-    static fullProcessScript(String script, File jsFile) {
+    static Map fullProcessScript(String script, File jsFile) {
 
         def result = [:]
 
@@ -111,7 +111,7 @@ class Util {
      * @param script
      * @return map with exception,jsScript,assertFails,...
      */
-    static fullProcessScript(String script) {
+    static Map fullProcessScript(String script) {
         fullProcessScript(script, null)
     }
 
@@ -120,7 +120,7 @@ class Util {
      * @param text to be converted
      * @return map [name:code]
      */
-    static getNativeFunctions(String text) {
+    static Map getNativeFunctions(String text) {
 
         def mapResult = [:]
 
@@ -146,5 +146,9 @@ class Util {
         }
 
         mapResult
+    }
+
+    static boolean groovyVersionAtLeast(String version) {
+        Class.forName('groovy.lang.GString').package.implementationVersion >= version
     }
 }

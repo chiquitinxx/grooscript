@@ -6,6 +6,7 @@ import org.codehaus.groovy.ast.expr.ListExpression
 import org.codehaus.groovy.ast.AnnotationNode
 import org.codehaus.groovy.ast.FieldNode
 import org.codehaus.groovy.ast.MethodNode
+import org.grooscript.util.Util
 
 import static org.grooscript.JsNames.*
 /**
@@ -47,6 +48,9 @@ class ClassNodeHandler extends BaseHandler {
 
             //Add variable names to scope
             addClassVariableNamesToScope(node)
+
+            //Traits
+            checkTraits(node)
 
             //Adding initial values of properties
             node?.properties?.each { PropertyNode property ->
@@ -125,7 +129,6 @@ class ClassNodeHandler extends BaseHandler {
 
         context.processingClassMethods = true
         methods?.each { MethodNode it ->
-
             if (!haveAnnotationNonConvert(it.annotations) && !it.isAbstract()) {
                 //Process the methods
                 if (haveAnnotationNative(it.annotations) && !it.isStatic()) {
@@ -362,5 +365,30 @@ class ClassNodeHandler extends BaseHandler {
         fieldNode.annotations.any { annotationNode ->
             annotationNode.getClassNode().name == 'groovy.lang.Delegate'
         }
+    }
+
+    private checkTraits(ClassNode classNode) {
+        if (Util.groovyVersionAtLeast('2.3')) {
+            classNode.interfaces.findAll {
+                isTrait(it)
+            }.each {
+                handleTrait(it)
+            }
+        }
+    }
+
+    private isTrait(ClassNode classNode) {
+        org.codehaus.groovy.transform.trait.Traits.isTrait(classNode)
+    }
+
+    private handleTrait(ClassNode classNode) {
+        addClassVariableNamesToScope(classNode)
+        //processClassMethods(classNode.methods, classNode.nameWithoutPackage)
+        ClassNode helperClassNode = org.codehaus.groovy.transform.trait.Traits.findHelpers(classNode).helper
+
+        processClassMethods(
+                helperClassNode.methods.findAll { factory.isValidTraitMethodName(it.name) },
+                classNode.nameWithoutPackage
+        )
     }
 }
