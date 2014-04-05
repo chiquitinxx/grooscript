@@ -5,7 +5,7 @@ apply plugin: 'signing'
 apply plugin: 'codenarc'
 
 group = 'org.grooscript'
-version = '0.4.5'
+version = '0.5-SNAPSHOT'
 
 sourceCompatibility = 1.6
 
@@ -22,14 +22,14 @@ codenarc.configFile = new File('config/codenarc.groovy')
 [codenarcMain, codenarcTest]*.ignoreFailures = true
 
 dependencies {
-    compile group: 'org.codehaus.groovy', name: 'groovy', version: '2.1.6'
+    compile group: 'org.codehaus.groovy', name: 'groovy', version: '2.3.0-beta-1'
     runtime 'commons-cli:commons-cli:1.2'
-    runtime 'org.apache.ivy:ivy:2.2.0'
-    compile 'org.codehaus.gpars:gpars:1.0.0'
+    runtime 'org.apache.ivy:ivy:2.3.0'
+    compile 'org.codehaus.gpars:gpars:1.1.0'
     testCompile('org.spockframework:spock-core:0.7-groovy-2.0') {
         exclude module: 'groovy-all'
     }
-    testCompile 'org.codehaus.groovy:groovy-test:2.1.6'
+    testCompile 'org.codehaus.groovy:groovy-test:2.3.0-beta-1'
     codenarc 'org.codenarc:CodeNarc:0.20'
 }
 
