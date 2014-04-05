@@ -23,7 +23,7 @@ function Builder() {
         var lastArg = gs.mc(args,"last",gs.list([]));
         if (gs.instanceOf(lastArg, "Closure")) {
           gs.sp(lastArg,"delegate",this);
-          (lastArg.delegate!=undefined?gs.applyDelegate(lastArg,lastArg.delegate,[]):lastArg());
+          (lastArg.delegate!=undefined?gs.applyDelegate(lastArg,lastArg.delegate,[]):gs.executeCall(lastArg, gs.list([])));
         };
         if ((gs.instanceOf(lastArg, "String")) && (gs.mc(args,"size",gs.list([])) > 1)) {
           gs.mc(gSobject,"yield",gs.list([lastArg]));
@@ -37,14 +37,13 @@ function Builder() {
     return this;
   }
   if (arguments.length==0) {gSobject.Builder0(); }
-  gSobject.Builder1 = function(map) { gs.passMapToObject(map,this); return this;};
-  if (arguments.length==1) {gSobject.Builder1(arguments[0]); }
+  if (arguments.length == 1) {gs.passMapToObject(arguments[0],gSobject);};
   
   return gSobject;
 };
 Builder.build = function(closure) {
   var builder = Builder();
   gs.sp(closure,"delegate",builder);
-  (closure.delegate!=undefined?gs.applyDelegate(closure,closure.delegate,[]):closure());
+  (closure.delegate!=undefined?gs.applyDelegate(closure,closure.delegate,[]):gs.executeCall(closure, gs.list([])));
   return gs.gp(builder,"html");
 }
