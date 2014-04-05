@@ -2535,6 +2535,14 @@
         return result;
     };
 
+    gs.executeCall = function (func, params) {
+        if (typeof func === 'object' && func['call'] !== undefined) {
+            return func['call'].apply(func, params);
+        } else {
+            return func.apply(func, params);
+        }
+    };
+
     ////////////////////////////////////////////////////////////
     // Functional
     ////////////////////////////////////////////////////////////

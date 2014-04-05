@@ -83,4 +83,9 @@ class TestAdvancedClass extends Specification {
         expect:
         !readAndConvert('classes/DateClass').assertFails
     }
+
+    def 'default method call'() {
+        expect:
+        !readAndConvert('classes/DefaultMethodCall').assertFails
+    }
 }

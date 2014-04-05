@@ -64,4 +64,5 @@ class JsNames {
     static final GS_ADD_CATEGORY_ANNOTATION = "${GS}addAnnotatedCategory"
     static final GS_MY_CATEGORIES = "${GS}myCategories"
     static final GS_AST_DELEGATE = "${GS}astDelegate"
+    static final GS_EXECUTE_CALL = "${GS}executeCall"
 }
