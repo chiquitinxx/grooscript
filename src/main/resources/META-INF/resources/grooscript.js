@@ -2106,7 +2106,7 @@
                     if (item[nameProperty] !== undefined) {
                         return item[nameProperty];
                     } else {
-                        //Lets check in @Delegate
+                        //Lets check gp in @Delegate
                         if (item.clazz !== undefined) {
                             var addDelegate = mapAddDelegate[item.clazz.simpleName];
                             if (addDelegate !== null && addDelegate !== undefined) {
@@ -2235,7 +2235,7 @@
                         return whereExecutes[methodName].apply(item, joinParameters(item, values));
                     }
                 }
-                //Lets check in @Delegate
+                //Lets check mc in @Delegate
                 if (item.clazz !== undefined) {
                     var addDelegate = mapAddDelegate[item.clazz.simpleName];
                     if (addDelegate !== null && addDelegate !== undefined) {

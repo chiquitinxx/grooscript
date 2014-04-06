@@ -136,23 +136,33 @@ class ClassNodeHandler extends BaseHandler {
                 } else if (!it.isStatic()) {
                     factory.visitNode(it, false)
                 } else {
-                    //We put the number of params as x? name variables
-                    def numberParams = 0
-                    if (it.parameters && it.parameters.size()>0) {
-                        numberParams = it.parameters.size()
-                    }
-                    def params = []
-                    numberParams.times { number ->
-                        params << 'x'+number
-                    }
-
-                    out.addScript("${GS_OBJECT}.${it.name} = function(${params.join(',')}) { return ${nodeName}.${it.name}(")
-                    out.addScript(params.join(','))
-                    out.addScript("); }", true)
+                    staticMethod(it, GS_OBJECT, nodeName)
                 }
             }
         }
         context.processingClassMethods = false
+    }
+
+    private staticMethod(MethodNode methodNode, String objectName, String nodeName, boolean withSelf = false) {
+        //We put the number of params as x? name variables
+        def numberParams = 0
+        if (methodNode.parameters && methodNode.parameters.size()>0) {
+            numberParams = methodNode.parameters.size()
+        }
+        def params = []
+        def paramsCall = []
+        numberParams.times { number ->
+            params << 'x'+number
+            paramsCall << 'x'+number
+        }
+        if (withSelf) {
+            params.remove(0)
+            paramsCall[0] = objectName
+        }
+
+        out.addScript("${objectName}.${methodNode.name} = function(${params.join(',')}) { return ${nodeName}.${methodNode.name}(")
+        out.addScript(paramsCall.join(','))
+        out.addScript("); }", true)
     }
 
     private haveAnnotationNonConvert(annotations) {
@@ -383,12 +393,10 @@ class ClassNodeHandler extends BaseHandler {
 
     private handleTrait(ClassNode classNode) {
         addClassVariableNamesToScope(classNode)
-        //processClassMethods(classNode.methods, classNode.nameWithoutPackage)
         ClassNode helperClassNode = org.codehaus.groovy.transform.trait.Traits.findHelpers(classNode).helper
 
-        processClassMethods(
-                helperClassNode.methods.findAll { factory.isValidTraitMethodName(it.name) },
-                classNode.nameWithoutPackage
-        )
+        helperClassNode.methods.findAll { factory.isValidTraitMethodName(it.name) }.each {
+            staticMethod(it, GS_OBJECT, classNode.nameWithoutPackage, true)
+        }
     }
 }

@@ -14,4 +14,9 @@ class TestTraits extends Specification {
         expect:
         !readAndConvert('traits/Starting').assertFails
     }
+
+    def 'abstract methods'() {
+        expect:
+        !readAndConvert('traits/AbstractMethods').assertFails
+    }
 }

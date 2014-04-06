@@ -13,8 +13,8 @@ class InnerClassNodeHandler extends BaseHandler {
         def className = innerClassNode.outerClass.nameWithoutPackage
         out.addScript("${className} = function() {};", true)
 
-        innerClassNode.methods.each {
-            if (factory.isValidTraitMethodName(it.name)) {
+        innerClassNode.methods.findAll {factory.isValidTraitMethodName(it.name)}.each {
+            if (!it.isAbstract()) {
                 factory.convertBasicFunction("${className}.${it.name}", it, false)
             }
         }
