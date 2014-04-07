@@ -30,8 +30,9 @@ class ClassNodeHandler extends BaseHandler {
 
         out.block ("function ${node.nameWithoutPackage}() ") {
 
+            //Limited allowed inheritance
             context.superNameStack.push(node.superClass.name)
-            //Allowed inheritance
+
             if (node.superClass.name != 'java.lang.Object') {
                 //println 'Allowed!'+ node.superClass.class.name
                 out.addScript("var ${GS_OBJECT} = ${node.superClass.nameWithoutPackage}();", true)
@@ -40,11 +41,9 @@ class ClassNodeHandler extends BaseHandler {
             } else {
                 out.addScript("var ${GS_OBJECT} = ${GS_INHERIT}(${GS_BASE_CLASS},'${node.nameWithoutPackage}');", true)
             }
-            out.addScript("${GS_OBJECT}.${CLASS} = { name: '${node.name}', simpleName: '${node.nameWithoutPackage}'};", true)
-            if (node.superClass) {
-                out.addScript("${GS_OBJECT}.${CLASS}.superclass = { " +
-                        "name: '${node.superClass.name}', simpleName: '${node.superClass.nameWithoutPackage}'};", true)
-            }
+
+            //Class names and interfaces
+            putClassNamesAndInterfaces(node)
 
             //Add variable names to scope
             addClassVariableNamesToScope(node)
@@ -397,6 +396,31 @@ class ClassNodeHandler extends BaseHandler {
 
         helperClassNode.methods.findAll { factory.isValidTraitMethodName(it.name) }.each {
             staticMethod(it, GS_OBJECT, classNode.nameWithoutPackage, true)
+        }
+    }
+
+    private putClassNamesAndInterfaces(ClassNode node) {
+        out.addScript("${GS_OBJECT}.${CLASS} = ${jsObjectNames(node)};", true)
+        if (node.superClass) {
+            out.addScript("${GS_OBJECT}.${CLASS}.superclass = ${jsObjectNames(node.superClass)};", true)
+        }
+        if (node.interfaces) {
+            out.addScript("${GS_OBJECT}.${CLASS}.interfaces = [")
+            node.interfaces.each { ClassNode interfaz ->
+                writeInterface(interfaz)
+            }
+            out.addScript('];', true)
+        }
+    }
+
+    private jsObjectNames(ClassNode node) {
+        "{ name: '${node.name}', simpleName: '${node.nameWithoutPackage}'}"
+    }
+
+    private writeInterface(ClassNode classNode) {
+        out.addScript(jsObjectNames(classNode) + ', ')
+        classNode.interfaces.each {
+            writeInterface(it)
         }
     }
 }

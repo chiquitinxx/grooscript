@@ -1917,20 +1917,28 @@
 
     //InstanceOf function
     gs.instanceOf = function(item, name) {
-        var classItem;
         var gotIt = false;
 
         if (name=="String")  {
-            return typeof(item)=='string';
-        } else if (name=="Number") {
-            return typeof(item)=='number';
+            return typeof(item) == 'string';
+        } else if (name == "Number") {
+            return typeof(item) == 'number';
         } else if (item.clazz) {
-            classItem = item.clazz;
-            while (classItem !== null && classItem !== undefined && !gotIt) {
-                if (classItem.name == name || classItem.simpleName == name) {
+            var classInfo;
+            classInfo = item.clazz;
+            while (classInfo !== null && classInfo !== undefined && !gotIt) {
+                if (classInfoContainsName(classInfo, name)) {
                     gotIt = true;
                 } else {
-                    classItem = classItem.superclass;
+                    classInfo = classInfo.superclass;
+                }
+            }
+            if (!gotIt && item.clazz.interfaces) {
+                var i;
+                for (i = 0; i < item.clazz.interfaces.length && !gotIt; i++) {
+                    if (classInfoContainsName(item.clazz.interfaces[i], name)) {
+                        gotIt = true;
+                    }
                 }
             }
         } else if (typeof item === "function" && name == 'Closure') {
@@ -1938,6 +1946,10 @@
         }
         return gotIt;
     };
+
+    function classInfoContainsName(classInfo, name) {
+        return classInfo.name == name || classInfo.simpleName == name;
+    }
 
     //Elvis operator
     gs.elvis = function(booleanExpression, trueExpression, falseExpression) {

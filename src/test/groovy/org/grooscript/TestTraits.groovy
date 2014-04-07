@@ -19,4 +19,14 @@ class TestTraits extends Specification {
         expect:
         !readAndConvert('traits/AbstractMethods').assertFails
     }
+
+    def 'private methods'() {
+        expect:
+        !readAndConvert('traits/PrivateMethods').assertFails
+    }
+
+    def 'inheritance and interfaces'() {
+        expect:
+        !readAndConvert('traits/Inheritance').assertFails
+    }
 }

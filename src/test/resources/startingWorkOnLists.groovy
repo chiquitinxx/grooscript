@@ -31,16 +31,13 @@ assert log == '9876'
 def list = [5, 6, 7, 8]
 assert list.get(2) == 7
 assert list[2] == 7
-//assert list instanceof java.util.List
 
 def emptyList = []
 assert emptyList.size() == 0
 emptyList.add(5)
 assert emptyList.size() == 1
 
-//Equals on arryas/ranges dont works in javascript
-//TODO
-//assert list[1..2] == [6,7]
+assert list[1..2] == [6,7]
 
 longList = (0..1000).toList()
 assert longList[555] == 555
