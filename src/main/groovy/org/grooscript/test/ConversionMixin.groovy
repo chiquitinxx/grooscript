@@ -59,7 +59,7 @@ class ConversionMixin {
 
         String jsScript = converter.toJs(code)
 
-        def builderCode = GrooScript.convert(new File('src/main/groovy/org/grooscript/builder/Builder.groovy').text)
+        def builderCode = GrooScript.convert(new File('src/main/groovy/org/grooscript/builder/HtmlBuilder.groovy').text)
         jsScript = builderCode + jsScript
 
         if (jsResultOnConsole) {

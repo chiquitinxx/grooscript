@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath group: 'org.codehaus.groovy', name: 'groovy', version: '2.1.6'
+        classpath group: 'org.codehaus.groovy', name: 'groovy', version: '2.3.0-beta-1'
         classpath files("$buildDir/classes/main")
     }
 }
@@ -11,22 +11,23 @@ buildscript {
 import org.grooscript.GrooScript
 import org.grooscript.gradle.TestMochaTask
 
+def htmlBuilderSource = './src/main/groovy/org/grooscript/builder/HtmlBuilder.groovy'
+
 task generateBuilderJs() << {
     GrooScript.setConversionProperty('initialText','//This script needs grooscript.js to run')
-    GrooScript.convert('./src/main/groovy/org/grooscript/builder/Builder.groovy',
-            './src/main/resources/META-INF/resources')
+    GrooScript.convert(htmlBuilderSource, './src/main/resources/META-INF/resources')
 }
 
 task renameBuilderJs(dependsOn: generateBuilderJs, type: Copy) {
-    from 'src/main/resources/META-INF/resources/Builder.js'
+    from 'src/main/resources/META-INF/resources/HtmlBuilder.js'
     into 'src/main/resources/META-INF/resources'
     rename { String fileName ->
-        fileName.replace('Builder', 'grooscript-builder')
+        fileName.replace('HtmlBuilder', 'grooscript-builder')
     }
 }
 
 task deleteBuilderJs(dependsOn: renameBuilderJs, type: Delete) {
-    delete 'src/main/resources/META-INF/resources/Builder.js'
+    delete 'src/main/resources/META-INF/resources/HtmlBuilder.js'
 }
 
 

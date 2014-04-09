@@ -10,10 +10,18 @@ var assert = require("assert");
 describe('test builder', function(){
 
     it('test process a basic html fragment', function(){
-        assert.equal(Builder.build(function(it) {
+        assert.equal(HtmlBuilder.build(function(it) {
             return gs.mc(this,"body",gs.list([function(it) {
                 return gs.mc(this,"p",gs.list(["hola"]));
             }]));
         }), '<body><p>hola</p></body>');
+    });
+
+    it('test process a basic html fragment 2', function(){
+        assert.equal(HtmlBuilder.build(function(it) {
+            return gs.mc(this, 'body', [gs.map({hello: 'hello'}), function(it) {
+                return gs.mc(this, 'p', ['Wow'])
+            }]);
+        }), "<body hello='hello'><p>Wow</p></body>");
     });
 });

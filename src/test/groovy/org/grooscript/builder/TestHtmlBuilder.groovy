@@ -8,13 +8,13 @@ import spock.lang.Specification
  * Date: 08/06/13
  */
 @Mixin([ConversionMixin])
-class TestBuilder extends Specification {
+class TestHtmlBuilder extends Specification {
 
     static final TEXT = 'text'
 
     void 'process with the builder'() {
         given:
-        def result = Builder.build {
+        def result = HtmlBuilder.build {
             body {
                 p TEXT
             }
@@ -37,7 +37,7 @@ class TestBuilder extends Specification {
 
     void 'works with tag options and t function'() {
         given:
-        def result = Builder.build {
+        def result = HtmlBuilder.build {
             body {
                 p(class:'salute') {
                     yield 'hello'
@@ -51,7 +51,7 @@ class TestBuilder extends Specification {
 
     void 'works with code inside the closure'() {
         given:
-        def result = Builder.build {
+        def result = HtmlBuilder.build {
             body {
                 ul(class: 'list', id: 'mainList') {
                     2.times { number ->
@@ -67,7 +67,7 @@ class TestBuilder extends Specification {
 
     void 'last param is a string'() {
         given:
-        def result = Builder.build {
+        def result = HtmlBuilder.build {
             p([class: 'text'], 'Hello!')
         }
 

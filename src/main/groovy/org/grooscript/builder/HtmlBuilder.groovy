@@ -4,16 +4,16 @@ package org.grooscript.builder
  * User: jorgefrancoleza
  * Date: 08/06/13
  */
-class Builder {
+class HtmlBuilder {
 
     String html
 
-    Builder() {
+    HtmlBuilder() {
         html = ''
     }
 
-    static String build(@DelegatesTo(Builder) Closure closure) {
-        def builder = new Builder()
+    static String build(@DelegatesTo(HtmlBuilder) Closure closure) {
+        def builder = new HtmlBuilder()
 
         closure.delegate = builder
         closure()

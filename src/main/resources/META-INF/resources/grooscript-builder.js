@@ -1,10 +1,10 @@
 //This script needs grooscript.js to run
-function Builder() {
-  var gSobject = gs.inherit(gs.baseClass,'Builder');
-  gSobject.clazz = { name: 'org.grooscript.builder.Builder', simpleName: 'Builder'};
+function HtmlBuilder() {
+  var gSobject = gs.inherit(gs.baseClass,'HtmlBuilder');
+  gSobject.clazz = { name: 'org.grooscript.builder.HtmlBuilder', simpleName: 'HtmlBuilder'};
   gSobject.clazz.superclass = { name: 'java.lang.Object', simpleName: 'Object'};
   gSobject.html = null;
-  gSobject.build = function(x0) { return Builder.build(x0); }
+  gSobject.build = function(x0) { return HtmlBuilder.build(x0); }
   gSobject['yield'] = function(text) {
     return gSobject.html += text;
   }
@@ -32,17 +32,17 @@ function Builder() {
     };
     return gSobject.html += "</" + (name) + ">";
   }
-  gSobject['Builder0'] = function(it) {
+  gSobject['HtmlBuilder0'] = function(it) {
     gSobject.html = "";
     return this;
   }
-  if (arguments.length==0) {gSobject.Builder0(); }
+  if (arguments.length==0) {gSobject.HtmlBuilder0(); }
   if (arguments.length == 1) {gs.passMapToObject(arguments[0],gSobject);};
   
   return gSobject;
 };
-Builder.build = function(closure) {
-  var builder = Builder();
+HtmlBuilder.build = function(closure) {
+  var builder = HtmlBuilder();
   gs.sp(closure,"delegate",builder);
   (closure.delegate!=undefined?gs.applyDelegate(closure,closure.delegate,[]):gs.executeCall(closure, gs.list([])));
   return gs.gp(builder,"html");
