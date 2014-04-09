@@ -37,6 +37,9 @@ class ClassNodeHandler extends BaseHandler {
                 //println 'Allowed!'+ node.superClass.class.name
                 out.addScript("var ${GS_OBJECT} = ${node.superClass.nameWithoutPackage}();", true)
                 //We add to this class scope variables of fathers
+                if (!context.inheritedVariables[node.superClass.name]) {
+                    context.inheritedVariables.put(node.superClass.name, context.variableScoping.peek())
+                }
                 context.variableScoping.peek().addAll(context.inheritedVariables[node.superClass.name])
             } else {
                 out.addScript("var ${GS_OBJECT} = ${GS_INHERIT}(${GS_BASE_CLASS},'${node.nameWithoutPackage}');", true)

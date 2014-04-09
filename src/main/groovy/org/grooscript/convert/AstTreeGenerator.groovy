@@ -73,6 +73,7 @@ class AstTreeGenerator {
         if (customization) {
             withConfig(conf, customization)
         }
+
         CompilationUnit cu = compiledCode(conf, codeSource, classLoader, text)
 
         // collect all the ASTNodes into the result, possibly ignoring the script body if desired

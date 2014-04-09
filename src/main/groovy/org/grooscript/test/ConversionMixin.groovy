@@ -24,14 +24,7 @@ class ConversionMixin {
      */
     def readAndConvert(nameOfFile, jsResultOnConsole = false, options = [:], textSearch = null, textReplace = null) {
 
-        def file = TestJs.getGroovyTestScript(nameOfFile)
-        if (options) {
-            options.each { key, value ->
-                converter."$key" = value
-            }
-        }
-
-        String jsScript = converter.toJs(file.text)
+        String jsScript = convertFile(nameOfFile, options)
 
         if (textSearch && jsScript.indexOf(textSearch) >= 0) {
             jsScript = jsScript.substring(0, jsScript.indexOf(textSearch)) +
@@ -43,6 +36,17 @@ class ConversionMixin {
         }
 
         TestJs.jsEval(jsScript)
+    }
+
+    String convertFile(nameOfFile, options = [:]) {
+        def file = TestJs.getGroovyTestScript(nameOfFile)
+        if (options) {
+            options.each { key, value ->
+                converter."$key" = value
+            }
+        }
+
+        converter.toJs(file.text)
     }
 
     boolean checkBuilderCodeAssertsFails(String code, jsResultOnConsole = false, options = [:]) {

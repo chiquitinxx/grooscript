@@ -20,6 +20,7 @@ class TestConversionOptions extends Specification {
     private static final DESTINATION_FILE = 'destination.js'
 
     def setup() {
+        GrooScript.clearAllOptions()
         new File(SOURCE_DIR).mkdir()
         new File(DESTINATION_DIR).mkdir()
     }
@@ -29,7 +30,6 @@ class TestConversionOptions extends Specification {
         new File(SOURCE_DIR).deleteDir()
         new File(DESTINATION_FILE).delete()
         new File(DESTINATION_DIR).deleteDir()
-        GrooScript.clearAllOptions()
     }
 
     def 'initial values for conversion'() {
@@ -84,7 +84,7 @@ class TestConversionOptions extends Specification {
         GrooScript.setConversionProperty(GrooScript.CLASSPATH_OPTION, FOLDER_NEED_DEPENDENCY)
 
         when: 'convert a class with need dependency'
-        String result = GrooScript.convert("class A {};def need = new Need()")
+        String result = GrooScript.convert("class A {};def need = new ${CLASS_NEED_DEPENDENCY}()")
 
         then:
         result.startsWith('function A()')
@@ -94,7 +94,22 @@ class TestConversionOptions extends Specification {
         result.contains("function ${CLASS_NEED_DEPENDENCY}()")
     }
 
-    def 'testing convert dependencies option'() {
+    def 'testing convert dependencies option true'() {
+
+        given:
+        setupNeedDirectory()
+
+        when:
+        GrooScript.setConversionProperty(GrooScript.CLASSPATH_OPTION, FOLDER_NEED_DEPENDENCY)
+        GrooScript.setConversionProperty(GrooScript.CONVERT_DEPENDENCIES_OPTION, true)
+        String result = GrooScript.convert("class B { ${CLASS_NEED_DEPENDENCY} c}")
+
+        then: 'Need class converted'
+        result.startsWith('function B()')
+        result.contains('function Need()')
+    }
+
+    def 'testing convert dependencies option false'() {
 
         given:
         setupNeedDirectory()

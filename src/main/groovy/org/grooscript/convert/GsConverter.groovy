@@ -160,8 +160,8 @@ class GsConverter {
         def finalList = []
         def extraClasses = []
         def enumClasses = []
-        while ((finalList.size() + extraClasses.size() + enumClasses.size()) < list.size()) {
-
+        def numberOfElements = 0
+        while (numberOfElements < list.size()) {
             list.each { ClassNode it ->
                 //println 'it->'+it.name+' super - '+it.superClass.name
                 if (it.superClass.name == 'java.lang.Object')  {
@@ -191,7 +191,10 @@ class GsConverter {
                         }
                     }
                 }
-
+            }
+            numberOfElements = finalList.size() + extraClasses.size() + enumClasses.size()
+            if (numberOfElements == 0 && list.size() == 1) {
+                finalList.add(list.first().name)
             }
         }
         //Finally process classes in order
