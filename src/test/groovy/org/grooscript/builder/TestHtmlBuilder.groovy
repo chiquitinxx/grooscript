@@ -25,7 +25,7 @@ class TestHtmlBuilder extends Specification {
 
         and: 'works in javascript'
         !checkBuilderCodeAssertsFails('''
-            def result = Builder.build {
+            def result = HtmlBuilder.build {
                 body {
                     p 'hola'
                 }
