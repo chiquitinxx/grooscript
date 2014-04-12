@@ -186,4 +186,9 @@ class TestAdvanced extends Specification {
         expect:
         !readAndConvert('advanced/CallbackThis').assertFails
     }
+
+    def 'test property missing'() {
+        expect:
+        !readAndConvert('advanced/PropertyMissing').assertFails
+    }
 }

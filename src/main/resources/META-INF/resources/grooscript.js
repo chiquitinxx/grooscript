@@ -2044,7 +2044,7 @@
     }
 
     //Set a property of a class
-    gs.sp = function(item,nameProperty,value) {
+    gs.sp = function(item, nameProperty, value) {
 
         if (nameProperty == 'setProperty') {
             item[nameProperty] = value;
@@ -2060,7 +2060,13 @@
                 var nameFunction = 'set' + nameProperty.charAt(0).toUpperCase() + nameProperty.slice(1);
 
                 if (item[nameFunction] === undefined || item[nameFunction] === null || (typeof item[nameFunction] != "function")) {
-                    item[nameProperty] = value;
+                    if (item[nameProperty] === undefined &&
+                        item['setPropertyMissing'] !== undefined &&
+                        typeof item['setPropertyMissing'] === "function") {
+                        item['setPropertyMissing'](nameProperty, value);
+                    } else {
+                        item[nameProperty] = value;
+                    }
                 } else {
                     item[nameFunction](value);
                 }
@@ -2143,7 +2149,12 @@
                                 return whereExecutes[nameFunction].apply(item, [item]);
                             }
                         }
-                        return item[nameProperty];
+
+                        if (item['propertyMissing'] !== undefined && typeof item['propertyMissing'] === "function") {
+                            return item.propertyMissing(nameProperty);
+                        } else {
+                            return item[nameProperty];
+                        }
                     }
                 }
             } else {

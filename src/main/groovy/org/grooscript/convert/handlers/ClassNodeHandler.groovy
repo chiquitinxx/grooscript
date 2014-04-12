@@ -130,15 +130,19 @@ class ClassNodeHandler extends BaseHandler {
     private processClassMethods(List<MethodNode> methods, String nodeName) {
 
         context.processingClassMethods = true
-        methods?.each { MethodNode it ->
-            if (!haveAnnotationNonConvert(it.annotations) && !it.isAbstract()) {
+        methods?.each { MethodNode methodNode ->
+            if (!haveAnnotationNonConvert(methodNode.annotations) && !methodNode.isAbstract()) {
                 //Process the methods
-                if (haveAnnotationNative(it.annotations) && !it.isStatic()) {
-                    putGsNativeMethod("${GS_OBJECT}.${it.name}",it)
-                } else if (!it.isStatic()) {
-                    factory.visitNode(it, false)
+                if (haveAnnotationNative(methodNode.annotations) && !methodNode.isStatic()) {
+                    putGsNativeMethod("${GS_OBJECT}.${methodNode.name}", methodNode)
+                } else if (!methodNode.isStatic()) {
+                    if (methodNode.name == 'propertyMissing' && methodNode.parameters.length == 2) {
+                        functions.processBasicFunction("${GS_OBJECT}['setPropertyMissing']", methodNode, false)
+                    } else {
+                        factory.visitNode(methodNode, false)
+                    }
                 } else {
-                    staticMethod(it, GS_OBJECT, nodeName)
+                    staticMethod(methodNode, GS_OBJECT, nodeName)
                 }
             }
         }
