@@ -4,50 +4,16 @@ import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
 import com.sun.net.httpserver.HttpServer
 import org.codehaus.groovy.control.MultipleCompilationErrorsException
+import org.grooscript.FunctionalTest
 
 /**
  * User: jorgefrancoleza
  * Date: 15/08/13
  */
-class TestPhantomJs extends GroovyTestCase {
+class TestPhantomJs extends FunctionalTest {
 
-    private static final PHANTOMJS_HOME = '/Applications/phantomjs'
-    private static final JS_LIBRARIES_PATH = 'src/main/resources/META-INF/resources'
-    private static final PORT = 8000
-    private static final ACTION = '/test'
-    private static final String FULL_ADRESS = "http://localhost:${PORT}${ACTION}"
-
-    private HttpServer server
-
-    class MyHandler implements HttpHandler {
-        public void handle(HttpExchange t) throws IOException {
-            String response = '<html><head><title>Title</title></head><body><p>Welcome</p></body></html>'
-            t.sendResponseHeaders(200, response.length())
-            OutputStream os = t.getResponseBody()
-            os.write(response.getBytes())
-            os.close()
-        }
-    }
-
-    private startServer() {
-        server = HttpServer.create(new InetSocketAddress(PORT), 0)
-        server.createContext(ACTION, new MyHandler())
-        server.setExecutor(null) // creates a default executor
-        server.start()
-    }
-
-    private stopServer() {
-        server.stop(0)
-    }
-
-    void setUp() {
-        System.setProperty('PHANTOMJS_HOME',PHANTOMJS_HOME)
-        System.setProperty('JS_LIBRARIES_PATH',JS_LIBRARIES_PATH)
-        startServer()
-    }
-
-    void tearDown() {
-        stopServer()
+    String testResponse() {
+        '<html><head><title>Title</title></head><body><p>Welcome</p></body></html>'
     }
 
     @PhantomJsTest(url = 'http://localhost:8000/test')
@@ -208,7 +174,7 @@ class TestPhantomJs extends GroovyTestCase {
             wrongUrl()
             fail 'Wrong url error not throw'
         } catch(AssertionError e) {
-            assert e.message == 'Fail loading url... Expression: false'
+            assert e.message == 'Fail loading url: fail. Expression: false'
         }
     }
 
@@ -223,7 +189,6 @@ class TestPhantomJs extends GroovyTestCase {
     }
 
     void testWithoutAnnotation() {
-        PhantomJsTestImpl.doPhantomJsTest(FULL_ADRESS, 'function hello() {console.log("Hello!");}',
-            'hello', 0, null, null, null, true)
+        PhantomJsTestImpl.doPhantomJsTest(FULL_ADRESS, 'function hello() {console.log("Hello!");}', 'hello')
     }
 }

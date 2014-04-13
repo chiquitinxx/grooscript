@@ -94,7 +94,7 @@ function evaluateTest() {
 
 page.open('{{URL}}', function (status) {
     if (status !== 'success') {
-        console.log('  Result:FAIL Desc:Fail loading url..');
+        console.log('  Result:FAIL Desc:Fail loading url: '+status);
         phantom.exit(1);
     } else {
         page.libraryPath = '{{LIBRARY_PATH}}'

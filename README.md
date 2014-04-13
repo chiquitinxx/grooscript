@@ -23,14 +23,14 @@ Can convert .groovy files or a text fragment as:
         amazing.metaClass.add = { who << it}
 
         assert amazing.who.size()==0
-        amazing.add 'Rafa Nadal\'
+        amazing.add 'Rafa Nadal'
         assert amazing.who.size()==1'''
 
     println result
 
 Build
 -----
-Only GPars 1.0 and Groovy dependencies in the project, Gradle as build system. Need JDK 1.7 tu run tests. Using gradle wrapper, version 1.11.
+Only GPars 1.0 and Groovy dependencies in the project, Gradle as build system. Need JDK 1.7 and PhantomJs installed to run tests. You have to define 'PHANTOMJS_PATH' system property. Using gradle wrapper, version 1.11.
 
 Create idea project:
 
