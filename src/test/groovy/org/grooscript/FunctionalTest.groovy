@@ -30,6 +30,7 @@ abstract class FunctionalTest extends GroovyTestCase {
         }
         public void handle(HttpExchange t) throws IOException {
             t.sendResponseHeaders(200, response.length())
+            //new File('try.html').text = response
             OutputStream os = t.getResponseBody()
             os.write(response.getBytes())
             os.close()

@@ -1,15 +1,12 @@
-package org.grooscript.jquery
-
-import org.grooscript.asts.GsNative
-
-/**
- * Created by jorge on 15/02/14.
- */
-class JQueryImpl implements JQuery {
-    @GsNative
-    def bind(String selector, target, String nameProperty, Closure closure = null) { /*
-
-        var sourceDom = $(selector);
+//This script needs grooscript.js and jQuery to run
+function JQueryImpl() {
+  var gSobject = gs.inherit(gs.baseClass,'JQueryImpl');
+  gSobject.clazz = { name: 'org.grooscript.jquery.JQueryImpl', simpleName: 'JQueryImpl'};
+  gSobject.clazz.superclass = { name: 'java.lang.Object', simpleName: 'Object'};
+  gSobject.clazz.interfaces = [{ name: 'org.grooscript.jquery.JQuery', simpleName: 'JQuery'}, ];
+  gSobject.bind = function(selector, target, nameProperty, closure) {
+    if (closure === undefined) closure = null;
+    var sourceDom = $(selector);
         //Create set method
         var nameSetMethod = 'set'+nameProperty.capitalize();
 
@@ -71,25 +68,20 @@ class JQueryImpl implements JQuery {
         } else {
             console.log('Not supporting bind for selector ' + selector);
         }
-    */}
-
-    @GsNative
-    boolean existsId(String id) {/*
-        return $("#" + id).length > 0
-    */}
-
-    @GsNative
-    boolean existsName(String name) {/*
-        return $("[name='" + name + "']").length > 0
-    */}
-
-    @GsNative
-    boolean existsGroup(String name) {/*
-        return $("input:radio[name='" + name + "']").length > 0
-    */}
-
-    @GsNative
-    void bindEvent(String id, String name, Closure func) {/*
-        $('#'+id).on(name, func);
-    */}
-}
+  }
+  gSobject.existsId = function(id) {
+    return $("#" + id).length > 0
+  }
+  gSobject.existsName = function(name) {
+    return $("[name='" + name + "']").length > 0
+  }
+  gSobject.existsGroup = function(name) {
+    return $("input:radio[name='" + name + "']").length > 0
+  }
+  gSobject.bindEvent = function(id, name, func) {
+    $('#'+id).on(name, func);
+  }
+  if (arguments.length == 1) {gs.passMapToObject(arguments[0],gSobject);};
+  
+  return gSobject;
+};

@@ -41,7 +41,7 @@ class GrooScript {
      * @return String javascript result code
      * @throws Exception If conversion fails or text is null
      */
-    static convert(String text) {
+    static String convert(String text) {
         if (text) {
             return getNewConverter().toJs(text)
         }
@@ -55,7 +55,7 @@ class GrooScript {
      * @param destination directory of .js files
      * @throws Exception something fails
      */
-    static convert(source, String destination) {
+    static void convert(source, String destination) {
         if (source && destination) {
             if (source instanceof String || source instanceof GString) {
                 checkConvertFile(source, destination)
