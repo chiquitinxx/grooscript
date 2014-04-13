@@ -68,14 +68,14 @@ function evaluateTest() {
             gSresult.tests[gSresult.number++] = test;
         };
 
-        function grooKimbo(selector,other) {
-            var result = window.Kimbo(selector,other);
+        function grooJQuery(selector, other) {
+            var result = window.jQuery(selector,other);
             result.size = function() {
                 return this.length;
             }
             return result;
         }
-        window.$ = grooKimbo;
+        window.$ = grooJQuery;
 
         {{GROOSCRIPT}}
 
@@ -98,7 +98,7 @@ page.open('{{URL}}', function (status) {
         phantom.exit(1);
     } else {
         page.libraryPath = '{{LIBRARY_PATH}}'
-        if (page.injectJs('kimbo.min.js') && page.injectJs('grooscript.js')) {
+        if (page.injectJs('jquery.min.js') && page.injectJs('grooscript.js')) {
             //console.log('Evaluating code...');
             evaluateAfterSeconds({{SECONDS}});
         } else {
@@ -174,7 +174,7 @@ page.open('{{URL}}', function (status) {
                         message 'Using js local files in ' + path, HEAD
                     } else {
                         folder.mkdirs()
-                        ['grooscript.js', 'kimbo.min.js'].each { fileName ->
+                        ['grooscript.js', 'jquery.min.js'].each { fileName ->
                             new File(path + File.separator + fileName).text =
                                 GrooScript.classLoader.getResourceAsStream('META-INF/resources/' + fileName).text
                         }
@@ -187,7 +187,7 @@ page.open('{{URL}}', function (status) {
                 exception "Error looking for js files: ${e.message}", HEAD
             }
             if (!jsHome) {
-                assert false, 'Need define property JS_LIBRARIES_PATH, folder with grooscript.js and kimbo.min.js'
+                assert false, 'Need define property JS_LIBRARIES_PATH, folder with grooscript.js and jquery.min.js'
             }
         }
         jsHome

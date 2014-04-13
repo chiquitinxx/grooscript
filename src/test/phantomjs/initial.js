@@ -11,7 +11,7 @@ page.open('file:///Users/jorgefrancoleza/desarrollo/grooscript/src/test/phantomj
     } else {
         //page.includeJs("http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js", function() {
         page.libraryPath = '../../main/resources/META-INF/resources'
-        if (page.injectJs('kimbo.min.js') && page.injectJs('grooscript.js')) {
+        if (page.injectJs('jquery.min.js') && page.injectJs('grooscript.js')) {
             console.log('Evaluating...');
             var result = page.evaluate(function() {
                 $("body").append('<p>GrooScript</p>');

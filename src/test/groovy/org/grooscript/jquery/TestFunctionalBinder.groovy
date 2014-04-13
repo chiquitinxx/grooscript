@@ -36,17 +36,11 @@ class TestFunctionalBinder extends FunctionalTest {
     @org.grooscript.asts.PhantomJsTest(url = 'http://localhost:8000/test', waitSeconds = 1)
     void doTest() {
         assert $('#author').val() == 'Jorge', "Value is: ${$('#author').val()}"
-        //assert $('[name="title"]').val() == 'Grooscript', "Value is: ${$('[name="title"]').val()}"
+        assert $("input[name='title']").val() == 'Grooscript', "Value is: ${$("[name='title']").val()}"
     }
     doTest()
 '''
     }
-
-    /*@PhantomJsTest(url = 'http://localhost:8000/test')
-    void testInitial() {
-        gSconsoleInfo = true
-        println 'Hello!'
-    }*/
 
     private script(text) {
         "<script>${text}</script>\n"
