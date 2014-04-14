@@ -10,9 +10,6 @@ version = '0.5-SNAPSHOT'
 sourceCompatibility = 1.6
 
 def appName = 'grooscript'
-def webDir = '../grooscript_web'
-def webDirJar = "$webDir/lib"
-def webDirJs = "$webDir/web-app/js/"
 
 repositories {
     mavenCentral()
@@ -105,31 +102,10 @@ uploadArchives {
 }*/
 //End Sonar
 
-//Copy jar, js file, and examples to web directory, defined at start
-task copyToGrooscriptWeb() << {
-	println "Copying $appName jar to $webDirJar ..."
-	copy {
-		into "$webDirJar"
-		from "build/libs"
-		include "**/*.jar"
-		rename {
-			return "grooscript-${version}.jar"
-		}
-	}
-	
-	println "Copying $appName jsFiles to $webDirJs ..."
-	copy {
-		into "$webDirJs"
-		from "src/main/resources/META-INF/resources"
-		include "grooscript.js"
-	}
-}
-
-copyToGrooscriptWeb.description = 'Copy grooscript jar and js files to web project'
-
 task testUnit(type: Test) {
     exclude 'org/grooscript/asts/TestPhantom*'
     exclude 'org/grooscript/daemon/**'
+    exclude 'org/grooscript/jquery/TestFunctional*'
 }
 
 testUnit.description = 'Run only conversion tests'
