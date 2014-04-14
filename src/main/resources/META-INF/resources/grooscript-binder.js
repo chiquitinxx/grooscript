@@ -3,18 +3,18 @@ function Binder() {
   var gSobject = gs.inherit(gs.baseClass,'Binder');
   gSobject.clazz = { name: 'org.grooscript.jquery.Binder', simpleName: 'Binder'};
   gSobject.clazz.superclass = { name: 'java.lang.Object', simpleName: 'Object'};
-  gSobject.jQuery = null;
+  gSobject.gQuery = null;
   gSobject['bindAllProperties'] = function(target, closure) {
     if (closure === undefined) closure = null;
     return gs.mc(gs.gp(target,"properties"),"each",gs.list([function(name, value) {
-      if (gs.mc(gSobject.jQuery,"existsId",gs.list([name]))) {
-        gs.mc(gSobject.jQuery,"bind",gs.list(["#" + (name) + "", target, name, closure]));
+      if (gs.mc(gSobject.gQuery,"existsId",gs.list([name]))) {
+        gs.mc(gSobject.gQuery,"bind",gs.list(["#" + (name) + "", target, name, closure]));
       };
-      if (gs.mc(gSobject.jQuery,"existsName",gs.list([name]))) {
-        gs.mc(gSobject.jQuery,"bind",gs.list(["[name='" + (name) + "']", target, name, closure]));
+      if (gs.mc(gSobject.gQuery,"existsName",gs.list([name]))) {
+        gs.mc(gSobject.gQuery,"bind",gs.list(["[name='" + (name) + "']", target, name, closure]));
       };
-      if (gs.mc(gSobject.jQuery,"existsGroup",gs.list([name]))) {
-        return gs.mc(gSobject.jQuery,"bind",gs.list(["input:radio[name=" + (name) + "]", target, name, closure]));
+      if (gs.mc(gSobject.gQuery,"existsGroup",gs.list([name]))) {
+        return gs.mc(gSobject.gQuery,"bind",gs.list(["input:radio[name=" + (name) + "]", target, name, closure]));
       };
     }]));
   }
@@ -22,8 +22,8 @@ function Binder() {
     return gs.mc(gs.gp((target = gs.metaClass(target)),"methods"),"each",gs.list([function(method) {
       if (gs.mc(gs.gp(method,"name"),"endsWith",gs.list(["Click"]))) {
         var shortName = gs.mc(gs.gp(method,"name"),"substring",gs.list([0, gs.minus(gs.mc(gs.gp(method,"name"),"length",gs.list([])), 5)]));
-        if (gs.mc(gSobject.jQuery,"existsId",gs.list([shortName]))) {
-          return gs.mc(gSobject.jQuery,"bindEvent",gs.list([shortName, "click", target["" + (gs.gp(method,"name")) + ""]]));
+        if (gs.mc(gSobject.gQuery,"existsId",gs.list([shortName]))) {
+          return gs.mc(gSobject.gQuery,"bindEvent",gs.list([shortName, "click", target["" + (gs.gp(method,"name")) + ""]]));
         };
       };
     }]));

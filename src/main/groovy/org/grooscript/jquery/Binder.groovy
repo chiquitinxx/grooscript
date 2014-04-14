@@ -6,18 +6,18 @@ package org.grooscript.jquery
  */
 class Binder {
 
-    JQuery jQuery
+    GQuery gQuery
 
     def bindAllProperties(target, closure = null) {
         target.properties.each { name, value ->
-            if (jQuery.existsId(name)) {
-                jQuery.bind("#$name", target, name, closure)
+            if (gQuery.existsId(name)) {
+                gQuery.bind("#$name", target, name, closure)
             }
-            if (jQuery.existsName(name)) {
-                jQuery.bind("[name='$name']", target, name, closure)
+            if (gQuery.existsName(name)) {
+                gQuery.bind("[name='$name']", target, name, closure)
             }
-            if (jQuery.existsGroup(name)) {
-                jQuery.bind("input:radio[name=${name}]", target, name, closure)
+            if (gQuery.existsGroup(name)) {
+                gQuery.bind("input:radio[name=${name}]", target, name, closure)
             }
         }
     }
@@ -26,8 +26,8 @@ class Binder {
         target.metaClass.methods.each { method ->
             if (method.name.endsWith('Click')) {
                 def shortName = method.name.substring(0, method.name.length() - 5)
-                if (jQuery.existsId(shortName)) {
-                    jQuery.bindEvent(shortName, 'click', target.&"${method.name}")
+                if (gQuery.existsId(shortName)) {
+                    gQuery.bindEvent(shortName, 'click', target.&"${method.name}")
                 }
             }
         }

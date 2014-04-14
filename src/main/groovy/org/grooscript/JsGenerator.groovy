@@ -10,8 +10,8 @@ class JsGenerator {
     static final HTML_BUILDER_SOURCE = 'src/main/groovy/org/grooscript/builder/HtmlBuilder.groovy'
     static final BUILDER_FILE = 'src/main/resources/META-INF/resources/grooscript-builder.js'
 
-    static final JQUERY_SOURCE = 'src/main/groovy/org/grooscript/jquery/JQueryImpl.groovy'
-    static final JQUERY_FILE = 'src/main/resources/META-INF/resources/jQueryImpl.js'
+    static final JQUERY_SOURCE = 'src/main/groovy/org/grooscript/jquery/GQueryImpl.groovy'
+    static final JQUERY_FILE = 'src/main/resources/META-INF/resources/gQueryImpl.js'
 
     static final BINDER_SOURCE = 'src/main/groovy/org/grooscript/jquery/Binder.groovy'
     static final BINDER_FILE = 'src/main/resources/META-INF/resources/grooscript-binder.js'

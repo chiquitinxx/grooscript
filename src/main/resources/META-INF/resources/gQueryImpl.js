@@ -1,9 +1,9 @@
 //This script needs grooscript.js and jQuery to run
-function JQueryImpl() {
-  var gSobject = gs.inherit(gs.baseClass,'JQueryImpl');
-  gSobject.clazz = { name: 'org.grooscript.jquery.JQueryImpl', simpleName: 'JQueryImpl'};
+function GQueryImpl() {
+  var gSobject = gs.inherit(gs.baseClass,'GQueryImpl');
+  gSobject.clazz = { name: 'org.grooscript.jquery.GQueryImpl', simpleName: 'GQueryImpl'};
   gSobject.clazz.superclass = { name: 'java.lang.Object', simpleName: 'Object'};
-  gSobject.clazz.interfaces = [{ name: 'org.grooscript.jquery.JQuery', simpleName: 'JQuery'}, ];
+  gSobject.clazz.interfaces = [{ name: 'org.grooscript.jquery.GQuery', simpleName: 'GQuery'}, ];
   gSobject.bind = function(selector, target, nameProperty, closure) {
     if (closure === undefined) closure = null;
     var sourceDom = $(selector);
@@ -82,6 +82,7 @@ function JQueryImpl() {
     $('#'+id).on(name, func);
   }
   gSobject.doRemoteCall = function(url, type, params, onSuccess, onFailure, objectResult) {
+    if (objectResult === undefined) objectResult = null;
     $.ajax({
             type: type, //GET or POST
             data: gs.toJavascript(params),

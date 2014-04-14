@@ -5,7 +5,7 @@ import org.grooscript.asts.GsNative
 /**
  * Created by jorge on 15/02/14.
  */
-class JQueryImpl implements JQuery {
+class GQueryImpl implements GQuery {
     @GsNative
     def bind(String selector, target, String nameProperty, Closure closure = null) { /*
 
@@ -94,7 +94,7 @@ class JQueryImpl implements JQuery {
     */}
 
     @GsNative
-    void doRemoteCall(String url, String type, params, onSuccess, onFailure, objectResult) {/*
+    void doRemoteCall(String url, String type, params, onSuccess, onFailure, objectResult = null) {/*
         $.ajax({
             type: type, //GET or POST
             data: gs.toJavascript(params),

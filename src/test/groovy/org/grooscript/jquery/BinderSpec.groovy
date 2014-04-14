@@ -13,7 +13,7 @@ class BinderSpec extends Specification {
     private static final SELECTOR = 'selector'
 
     Binder binder
-    JQuery jQuery
+    GQuery jQuery
     Item item
 
     class Item {
@@ -26,8 +26,8 @@ class BinderSpec extends Specification {
     }
 
     def setup() {
-        jQuery = Mock(JQuery)
-        binder = new Binder(jQuery: jQuery)
+        jQuery = Mock(GQuery)
+        binder = new Binder(gQuery: jQuery)
         item = new Item()
     }
 
