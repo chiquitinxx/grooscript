@@ -92,4 +92,18 @@ class JQueryImpl implements JQuery {
     void bindEvent(String id, String name, Closure func) {/*
         $('#'+id).on(name, func);
     */}
+
+    @GsNative
+    void doRemoteCall(String url, String type, params, onSuccess, onFailure, objectResult) {/*
+        $.ajax({
+            type: type, //GET or POST
+            data: gs.toJavascript(params),
+            url: url
+        }).done(function(newData) {
+            onSuccess(gs.toGroovy(newData, objectResult));
+        })
+        .fail(function(error) {
+            onFailure(error);
+        });
+    */}
 }

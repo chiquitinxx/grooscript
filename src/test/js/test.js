@@ -11,12 +11,12 @@ function add(a, b) {
 
 function MyClass() {
     var gSobject = gs.inherit(gs.baseClass,'MyClass');
-    gSobject.clazz = { name: 'Pepe', simpleName: 'MyClass'};
+    gSobject.clazz = { name: 'MyClass', simpleName: 'MyClass'};
     gSobject.clazz.superclass = { name: 'java.lang.Object', simpleName: 'Object'};
     gSobject.a = null;
     gSobject.b = null;
-    gSobject.Pepe1 = function(map) { gs.passMapToObject(map,this); return this;};
-    if (arguments.length==1) {gSobject.Pepe1(arguments[0]); }
+    gSobject.MyClass1 = function(map) { gs.passMapToObject(map,this); return this;};
+    if (arguments.length==1) {gSobject.MyClass1(arguments[0]); }
 
     return gSobject;
 };
@@ -104,5 +104,38 @@ describe('initial tests on gs', function(){
         assert.equal(gs.isGroovyObj(5), false);
         assert.equal(gs.isGroovyObj({}), false);
         assert.equal(gs.isGroovyObj(function () {}), false);
+    });
+
+    it('convert to groovy object of a class', function() {
+        var jsObject = {a: 3, b: 4};
+        var groovyObject = gs.toGroovy(jsObject, MyClass);
+        assert.equal(groovyObject.a, 3);
+        assert.equal(groovyObject.b, 4);
+        assert.equal(gs.isGroovyObj(groovyObject), true);
+        assert.equal(groovyObject.clazz.name, 'MyClass');
+    });
+
+    it('convert to groovy object with null class', function() {
+        var jsObject = {a: 3, b: 4};
+        var groovyObject = gs.toGroovy(jsObject, null);
+        assert.equal(groovyObject.clazz.name, 'java.util.LinkedHashMap');
+    });
+
+    it('convert a list to groovy object of a class', function() {
+        var jsObject = [{a: 3, b: 4}];
+        var groovyList = gs.toGroovy(jsObject, MyClass);
+        assert.equal(groovyList.size(), 1);
+        assert.equal(groovyList[0].a, 3);
+        assert.equal(gs.isGroovyObj(groovyList[0]), true);
+        assert.equal(groovyList[0].clazz.name, 'MyClass');
+    });
+
+    it('convert list groovy object of a class with a list', function() {
+        var jsObject = [{a: 3, b: [{c: 5, d: 6}]}];
+        var groovyList = gs.toGroovy(jsObject, MyClass);
+        var groovyObject = groovyList[0];
+        assert.equal(groovyObject.clazz.name, 'MyClass');
+        assert.equal(gs.equals(groovyObject.b[0], gs.map({c: 5, d: 6})), true);
+        assert.equal(groovyObject.b[0].clazz.name, 'java.util.LinkedHashMap');
     });
 });

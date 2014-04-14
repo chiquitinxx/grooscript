@@ -81,6 +81,18 @@ function JQueryImpl() {
   gSobject.bindEvent = function(id, name, func) {
     $('#'+id).on(name, func);
   }
+  gSobject.doRemoteCall = function(url, type, params, onSuccess, onFailure, objectResult) {
+    $.ajax({
+            type: type, //GET or POST
+            data: gs.toJavascript(params),
+            url: url
+        }).done(function(newData) {
+            onSuccess(gs.toGroovy(newData, objectResult));
+        })
+        .fail(function(error) {
+            onFailure(error);
+        });
+  }
   if (arguments.length == 1) {gs.passMapToObject(arguments[0],gSobject);};
   
   return gSobject;

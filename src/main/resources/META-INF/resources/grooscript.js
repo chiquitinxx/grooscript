@@ -2628,50 +2628,61 @@
         }
     };
 
-    gs.toJavascript = function(message) {
+    gs.toJavascript = function(obj) {
+        if (gs.isGroovyObj(obj)) {
+            var result;
+            if (obj !== null && obj !== undefined && typeof(obj) !== "function") {
+                if (obj instanceof Array) {
+                    result = [];
+                    var i;
+                    for (i = 0; i < obj.length; i++) {
+                        result[result.length] = gs.toJavascript(obj[i]);
+                    }
+                } else {
+                    if (obj instanceof Object) {
+                        result = {};
+                        var ob;
+                        for (ob in obj) {
+                            if (!isMapProperty(ob)) {
+                                result[ob] = gs.toJavascript(obj[ob]);
+                            }
+                        }
+                    } else {
+                        result = obj;
+                    }
+                }
+            }
+            return result;
+        } else {
+            return obj;
+        }
+    };
+
+    gs.toGroovy = function(obj, objClass) {
         var result;
-        if (message !== null && message !== undefined && typeof(message) !== "function") {
-            if (message instanceof Array) {
-                result = [];
+        if (obj !== null && obj !== undefined && typeof(obj) !== "function") {
+            if (obj instanceof Array) {
+                result = gs.list([]);
                 var i;
-                for (i = 0; i < message.length; i++) {
-                    result[result.length] = gs.toJavascript(message[i]);
+                for (i = 0; i < obj.length; i++) {
+                    result.add(gs.toGroovy(obj[i], objClass));
                 }
             } else {
-                if (message instanceof Object) {
-                    result = {};
+                if (obj instanceof Object) {
                     var ob;
-                    for (ob in message) {
-                        if (!isMapProperty(ob)) {
-                            result[ob] = gs.toJavascript(message[ob]);
+                    if (objClass !== undefined && objClass !== null) {
+                        result = objClass();
+                        for (ob in obj) {
+                            result[ob] = gs.toGroovy(obj[ob]);
+                        }
+                    } else {
+                        result = gs.map();
+                        for (ob in obj) {
+                            result.add(ob, gs.toGroovy(obj[ob]));
                         }
                     }
                 } else {
-                    result = message;
-                }
-            }
-        }
-        return result;
-    };
-
-    gs.toGroovy = function(message) {
-        var result;
-        if (message !== null && message !== undefined && typeof(message) !== "function") {
-            if (message instanceof Array) {
-                result = gs.list([]);
-                var i;
-                for (i = 0; i < message.length; i++) {
-                    result.add(gs.toGroovy(message[i]));
-                }
-            } else {
-                var ob;
-                if (message instanceof Object) {
-                    result = gs.map();
-                    for (ob in message) {
-                        result.add(ob, gs.toGroovy(message[ob]));
-                    }
-                } else {
-                    result = message;
+                    result = obj;
                 }
             }
         }
