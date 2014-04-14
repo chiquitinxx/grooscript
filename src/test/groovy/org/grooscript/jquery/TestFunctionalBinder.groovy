@@ -3,7 +3,6 @@ package org.grooscript.jquery
 import org.grooscript.FunctionalTest
 import org.grooscript.GrooScript
 import org.grooscript.JsGenerator
-import org.grooscript.asts.PhantomJsTest
 
 /**
  * Created by jorge on 13/04/14.
@@ -16,11 +15,16 @@ class TestFunctionalBinder extends FunctionalTest {
         result += script(jsFileText('jquery.min.js'))
         result += script(jsFileText('grooscript-binder.js'))
         result += script(jsFileText('jQueryImpl.js'))
-        result += script(GrooScript.convert('class Book { String author; String title}'))
+        result += script(GrooScript.convert(bookClass))
         result += script('var book = Book(); var binder = Binder({jQuery: JQueryImpl()});')
-        result += script('$(document).ready(function() { binder.bindAllProperties(book); book.setAuthor("Jorge"); book.setTitle("Grooscript");});')
-        result += '<input type="text" id="author">'
-        result += '<input type="text" name="title">'
+        result += script('$(document).ready(function() { binder.call(book); book.init()});')
+        result += '<p>Author:<input type="text" id="author"></p>'
+        result += '<p>Title:<input type="text" name="title"></p>'
+        result += '<p><input type="checkbox" id="hasEbook">Has Ebook</p>'
+        result += '<p><input type="radio" name="numberPages" id="smallSize" value="small">Small<input type="radio" name="numberPages" id="bigSize" value="big">Big</p>'
+        result += '<p>Country:<select id="country"><option/><option value="spain">Spain</option><option value="eeuu">EE.UU.</option></select></p>'
+        result += '<p><input type="button" id="do" value="Click!"/></p>'
+
         result += '</body></html>'
         result
     }
@@ -31,12 +35,19 @@ class TestFunctionalBinder extends FunctionalTest {
         JsGenerator.generateBinder()
     }
 
-    void testInitial() {
+    void testBindPropertiesAndClick() {
         assertScript '''
     @org.grooscript.asts.PhantomJsTest(url = 'http://localhost:8000/test', waitSeconds = 1)
     void doTest() {
         assert $('#author').val() == 'Jorge', "Value is: ${$('#author').val()}"
         assert $("input[name='title']").val() == 'Grooscript', "Value is: ${$("[name='title']").val()}"
+        assert $("#hasEbook").is(':checked'), "hasEbook not checked"
+        assert $('#bigSize').is(':checked'), "radio big isn't checked"
+        assert $('#country').val() == 'spain', "country select isn't spain"
+        book.country = 'eeuu'
+        assert $('#country').val() == 'eeuu', "country select isn't eeuu"
+        $('#do').click()
+        assert book.numberOfClicks == 1, "Incorrect number of clicks: ${book.numberOfClicks}"
     }
     doTest()
 '''
@@ -48,5 +59,30 @@ class TestFunctionalBinder extends FunctionalTest {
 
     private jsFileText(fileName) {
         GrooScript.classLoader.getResourceAsStream('META-INF/resources/' + fileName).text
+    }
+
+    private getBookClass() {
+        '''
+        class Book {
+            String author
+            String title
+            boolean hasEbook = false
+            String numberPages
+            String country
+            def numberOfClicks = 0
+
+            def init() {
+                setAuthor("Jorge")
+                setTitle("Grooscript")
+                setHasEbook(true)
+                setNumberPages('big')
+                setCountry('spain')
+            }
+
+            def doClick() {
+                numberOfClicks++
+            }
+        }
+        '''
     }
 }
