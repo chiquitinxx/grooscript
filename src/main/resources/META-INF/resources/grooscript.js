@@ -2489,8 +2489,8 @@
         }
         if (ourMixin !== null) {
             for (i=0 ; i < ourMixin.length && result === null; i++) {
-                if (eval(ourMixin[i])[methodName]) {
-                    result = eval(ourMixin[i]);
+                if (ourMixin[i][methodName]) {
+                    result = ourMixin[i];
                 }
             }
         }

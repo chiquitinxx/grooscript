@@ -94,7 +94,7 @@ class TestAdvanced extends Specification {
 
     def 'advanced web example'() {
         expect:
-        !convertAndEvaluateWithJsEngine('advanced/AdvancedWebExample').assertFails
+        convertAndEvaluate('advanced/AdvancedWebExample')
     }
 
     def 'more string features'() {

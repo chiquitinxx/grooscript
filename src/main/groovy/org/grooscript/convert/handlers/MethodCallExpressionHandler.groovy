@@ -100,7 +100,7 @@ class MethodCallExpressionHandler extends BaseHandler {
             out.addScript('[')
             ArgumentListExpression args = expression.arguments
             out.addScript args.expressions.inject ([]) { item,expr->
-                item << '"'+expr.type.nameWithoutPackage+'"'
+                item << expr.type.nameWithoutPackage
             }.join(',')
             out.addScript('])')
             //Spread method call [1,2,3]*.toString()
