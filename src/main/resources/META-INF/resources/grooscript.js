@@ -2446,23 +2446,20 @@
         if (typeof(item) == 'object' && item.clazz !== undefined && item.clazz.simpleName !== undefined) {
             className = item.clazz.simpleName;
         }
-        //console.log(' className:'+className);
         if (className !== null) {
             var i, ourMixin=null;
             for (i = mixins.length - 1; i >= 0 && ourMixin === null; i--) {
                 var data = mixins[i];
-                //console.log(' mixin: '+data.name);
                 if (data.name == className) {
                     ourMixin = data.items;
                 }
             }
             if (ourMixin !== null) {
-                //console.log(' our: '+ourMixin+' - '+methodName);
                 for (i = 0; i < ourMixin.length && result === null; i++) {
-                    if (eval(ourMixin[i])[methodName]) {
-                        result = eval(ourMixin[i]);
+                    if (ourMixin[i][methodName]) {
+                        result = ourMixin[i];
                     } else {
-                        var classItem = eval(ourMixin[i]+'()');
+                        var classItem = ourMixin[i]();
                         if (classItem) {
                             var notStatic = classItem[methodName];
                             if (notStatic !== null && typeof notStatic === "function") {

@@ -87,7 +87,7 @@ class MethodCallExpressionHandler extends BaseHandler {
             out.addScript('[')
             ArgumentListExpression args = expression.arguments
             out.addScript args.expressions.inject ([]) { item,expr->
-                item << '"'+expr.type.nameWithoutPackage+'"'
+                item << expr.type.nameWithoutPackage
             }.join(',')
             out.addScript('])')
             //Mixin Objects

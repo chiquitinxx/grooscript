@@ -287,7 +287,7 @@ class ClassNodeHandler extends BaseHandler {
     private addMixinToClass(className, List<String> listMixins) {
         out.addScript("${GS_MIXIN_CLASS}('${className}',")
         out.addScript('[')
-        out.addScript listMixins.collect { "'$it'"}.join(',')
+        out.addScript listMixins.join(',')
         out.addScript(']);', true)
     }
 

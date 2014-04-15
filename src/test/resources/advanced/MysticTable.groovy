@@ -63,5 +63,5 @@ mysticTable.with {
 //Last checks
 assert mysticTable.items.size() == 11, 'Fail in size'
 assert mysticTable.items[10].value == 'Eleven', 'Last not eleven'
-assert mysticTable.items[10].date > mysticTable.items[0].date, 'Dates in incorrect order'
-assert mysticTable.items[8].date < mysticTable.items[10].date, 'Incorrect data order'
+assert mysticTable.items[10].date >= mysticTable.items[0].date, 'Dates in incorrect order'
+assert mysticTable.items[8].date <= mysticTable.items[10].date, 'Incorrect data order'

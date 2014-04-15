@@ -99,96 +99,96 @@ class TestAdvanced extends Specification {
 
     def 'more string features'() {
         expect:
-        !convertAndEvaluateWithJsEngine('advanced/StringSecrets').assertFails
+        convertAndEvaluate('advanced/StringSecrets')
     }
 
     def 'object comparation'() {
         expect:
-        !convertAndEvaluateWithJsEngine('advanced/Comparable').assertFails
+        convertAndEvaluate('advanced/Comparable')
     }
 
     def 'more list and maps features'() {
         expect:
-        !convertAndEvaluateWithJsEngine('advanced/ListMapsAdvanced').assertFails
+        convertAndEvaluate('advanced/ListMapsAdvanced')
     }
 
     def 'Get properties and methods of classes'() {
         expect:
-        !convertAndEvaluateWithJsEngine('advanced/PropertiesAndMethods').assertFails
+        convertAndEvaluate('advanced/PropertiesAndMethods')
     }
 
     def 'Get tuple from object'() {
         expect:
-        !convertAndEvaluateWithJsEngine('advanced/GetTupleFromObject').assertFails
+        convertAndEvaluate('advanced/GetTupleFromObject')
     }
 
     def 'test method pointer'() {
         expect:
-        !convertAndEvaluateWithJsEngine('advanced/MethodPointer').assertFails
+        convertAndEvaluate('advanced/MethodPointer')
     }
 
     def 'test safe navigation'() {
         expect:
-        !convertAndEvaluateWithJsEngine('advanced/SafeNavigation').assertFails
+        convertAndEvaluate('advanced/SafeNavigation')
     }
 
     def 'list ninja'() {
         expect:
-        !convertAndEvaluateWithJsEngine('advanced/ListNinja').assertFails
+        convertAndEvaluate('advanced/ListNinja')
     }
 
     def 'maybe dsls'() {
         expect:
-        !convertAndEvaluateWithJsEngine('advanced/TryDsls').assertFails
+        convertAndEvaluate('advanced/TryDsls')
     }
 
     def 'multiple conditions'() {
         expect:
-        !convertAndEvaluateWithJsEngine('advanced/MultipleConditions').assertFails
+        convertAndEvaluate('advanced/MultipleConditions')
     }
 
     def 'method missing with this'() {
         expect:
-        !convertAndEvaluateWithJsEngine('advanced/MethodMissingTwo').assertFails
+        convertAndEvaluate('advanced/MethodMissingTwo')
     }
 
     def 'curry, rcurry and ncurry'() {
         expect:
-        !convertAndEvaluateWithJsEngine('advanced/Curry').assertFails
+        convertAndEvaluate('advanced/Curry')
     }
 
     def 'mixin annotation'() {
         expect:
-        !convertAndEvaluateWithJsEngine('advanced/MixinAst').assertFails
+        convertAndEvaluate('advanced/MixinAst')
     }
 
     def 'variable number of arguments'() {
         expect:
-        !convertAndEvaluateWithJsEngine('advanced/VariableArguments').assertFails
+        convertAndEvaluate('advanced/VariableArguments')
     }
 
     def 'ranges of chars'() {
         expect:
-        !convertAndEvaluateWithJsEngine('advanced/RangeChars').assertFails
+        convertAndEvaluate('advanced/RangeChars')
     }
 
     def 'return values'() {
         expect:
-        !convertAndEvaluateWithJsEngine('advanced/ReturnValues').assertFails
+        convertAndEvaluate('advanced/ReturnValues')
     }
 
     def 'test method pointer advanced'() {
         expect:
-        !convertAndEvaluateWithJsEngine('advanced/MethodPointerAdvanced').assertFails
+        convertAndEvaluate('advanced/MethodPointerAdvanced')
     }
 
     def 'test callback this'() {
         expect:
-        !convertAndEvaluateWithJsEngine('advanced/CallbackThis').assertFails
+        convertAndEvaluate('advanced/CallbackThis')
     }
 
     def 'test property missing'() {
         expect:
-        !convertAndEvaluateWithJsEngine('advanced/PropertyMissing').assertFails
+        convertAndEvaluate('advanced/PropertyMissing')
     }
 }
