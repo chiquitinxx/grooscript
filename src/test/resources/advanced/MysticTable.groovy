@@ -44,14 +44,14 @@ mysticTable.addClosureToApplyAllItems({it-> it.metaClass.index = counter++})
 mysticTable.addMultiple('Groovy ','name',10)
 
 //Checks added correctly
-assert mysticTable.items[0].name == 'Groovy 0'
-assert mysticTable.items.size() == 10
+assert mysticTable.items[0].name == 'Groovy 0', 'First item isn\'t 0'
+assert mysticTable.items.size() == 10, 'Initial size not 10'
 
 //Find item inside
 assert mysticTable.items.find({it -> it.name.endsWith('3')}).name == 'Groovy 3'
 
 //Check index there
-assert mysticTable.items[5].index == 5
+assert mysticTable.items[5].index == 5, 'Incorrect index'
 
 //Insert 1 item more
 def exp = ''
@@ -61,7 +61,7 @@ mysticTable.with {
 }
 
 //Last checks
-assert mysticTable.items.size() == 11
-assert mysticTable.items[10].value == 'Eleven'
-assert mysticTable.items[10].date > mysticTable.items[0].date
-assert mysticTable.items[8].date < mysticTable.items[10].date
+assert mysticTable.items.size() == 11, 'Fail in size'
+assert mysticTable.items[10].value == 'Eleven', 'Last not eleven'
+assert mysticTable.items[10].date > mysticTable.items[0].date, 'Dates in incorrect order'
+assert mysticTable.items[8].date < mysticTable.items[10].date, 'Incorrect data order'

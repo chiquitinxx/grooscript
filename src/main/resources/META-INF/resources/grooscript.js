@@ -2437,7 +2437,7 @@
         //TODO make any kinda cleanup if mixinsObjects growing
     };
 
-    function mixinSearching(item,methodName) {
+    function mixinSearching(item, methodName) {
         var result = null;
         var className = null;
         if (typeof(item) == 'string') {

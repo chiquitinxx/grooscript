@@ -1,6 +1,7 @@
 package org.grooscript
 
 import org.grooscript.test.ConversionMixin
+import org.grooscript.test.JsTestResult
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -12,13 +13,13 @@ class TestContributors extends Specification {
 
     def 'test jochen' () {
         expect:
-        !convertAndEvaluate('contribution/JochenTheodorou').assertFails
+        !convertAndEvaluateWithJsEngine('contribution/JochenTheodorou').assertFails
     }
 
     @Unroll('Testing MrHaki #file')
     def 'test MrHaki' () {
         expect:
-        !convertAndEvaluate(file).assertFails
+        !convertAndEvaluateWithJsEngine(file).assertFails
 
         where:
         file                                    |_
@@ -36,20 +37,20 @@ class TestContributors extends Specification {
 
     def 'test alex anderson' () {
         expect:
-        !convertAndEvaluate('contribution/AlexAnderson').assertFails
+        !convertAndEvaluateWithJsEngine('contribution/AlexAnderson').assertFails
     }
 
     def 'test mario garcia' () {
         expect:
-        !convertAndEvaluate('contribution/MarioGarcia').assertFails
+        !convertAndEvaluateWithJsEngine('contribution/MarioGarcia').assertFails
     }
 
     @Unroll('Testing anonymous web #file')
     def 'test anonymous contributions in web' () {
         expect:
-        def result = convertAndEvaluate(file)
+        JsTestResult result = convertAndEvaluateWithJsEngine(file)
         !result.assertFails
-        result.gSconsole.contains(text)
+        result.console.contains(text)
 
         where:
         file                       | text
@@ -60,7 +61,7 @@ class TestContributors extends Specification {
 
     def 'bugs coming from monkfish'() {
         when:
-        def result = convertAndEvaluate('contribution/MonkFish',false,null,
+        def result = convertAndEvaluateWithJsEngine('contribution/MonkFish',false,null,
                 'gSobject.value = 0;',
                 'gSobject.value = 0;gSobject.two = function() {return 2;};')
 
@@ -70,29 +71,29 @@ class TestContributors extends Specification {
 
     def 'testing more web' () {
         expect:
-        !convertAndEvaluate('contribution/Anonymous3').assertFails
-        !convertAndEvaluate('contribution/Anonymous4').assertFails
-        !convertAndEvaluate('contribution/Anonymous5').assertFails
+        !convertAndEvaluateWithJsEngine('contribution/Anonymous3').assertFails
+        !convertAndEvaluateWithJsEngine('contribution/Anonymous4').assertFails
+        !convertAndEvaluateWithJsEngine('contribution/Anonymous5').assertFails
     }
 
     def 'testing mario extends'() {
         expect:
-        !convertAndEvaluate('contribution/MarioGarcia2').assertFails
+        !convertAndEvaluateWithJsEngine('contribution/MarioGarcia2').assertFails
     }
 
     def 'testing mario maps'() {
         expect:
-        !convertAndEvaluate('contribution/MarioGarcia3').assertFails
+        !convertAndEvaluateWithJsEngine('contribution/MarioGarcia3').assertFails
     }
 
     def 'twitter code found scoping closures'() {
         expect:
-        !convertAndEvaluate('contribution/Twitter1').assertFails
+        !convertAndEvaluateWithJsEngine('contribution/Twitter1').assertFails
     }
 
     def 'myself'() {
         expect:
-        !convertAndEvaluate(file).assertFails
+        !convertAndEvaluateWithJsEngine(file).assertFails
 
         where:
         file                       | _
@@ -102,17 +103,17 @@ class TestContributors extends Specification {
 
     def 'guillaume examples from talks'() {
         expect:
-        !convertAndEvaluate('contribution/Guillaume').assertFails
-        !convertAndEvaluate('contribution/GuillaumeClosuresComposition').assertFails
+        !convertAndEvaluateWithJsEngine('contribution/Guillaume').assertFails
+        !convertAndEvaluateWithJsEngine('contribution/GuillaumeClosuresComposition').assertFails
     }
 
     def 'ronny is'() {
         expect:
-        !convertAndEvaluate('contribution/Ronny').assertFails
+        !convertAndEvaluateWithJsEngine('contribution/Ronny').assertFails
     }
 
     def 'mscharhag closure composition'() {
         expect:
-        !convertAndEvaluate('contribution/Mscharhag').assertFails
+        !convertAndEvaluateWithJsEngine('contribution/Mscharhag').assertFails
     }
 }

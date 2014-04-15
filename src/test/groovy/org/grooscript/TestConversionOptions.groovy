@@ -177,7 +177,7 @@ class TestConversionOptions extends Specification {
         File file = new File(DESTINATION_FILE)
 
         then:
-        file.text == '0\n1\n2\n3\n4\n'
+        file.text == '0\r\n1\r\n2\r\n3\r\n4\r\n'
     }
 
     def 'define main context scope variables'() {

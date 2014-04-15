@@ -1,7 +1,8 @@
 package org.grooscript.util
 
-import org.grooscript.test.TestJavascriptEngine
+import org.grooscript.test.JavascriptEngine
 import org.grooscript.convert.GsConverter
+import org.grooscript.test.JsTestResult
 
 /**
  * JFL 29/08/12
@@ -10,7 +11,7 @@ class Util {
 
     static final USER_DIR = System.getProperty('user.dir')
     static final SEP = System.getProperty('file.separator')
-    static final LINE_JUMP = '\n'
+    static final LINE_JUMP = '\r\n'
     static final JS_EXTENSION = '.js'
     static final GROOVY_EXTENSION = '.groovy'
 
@@ -79,11 +80,10 @@ class Util {
      * Full process a script
      * @param script code to process
      * @param jsFile grooscript.js file
-     * @return map with exception, jsScript, assertFails, ...
      */
-    static Map fullProcessScript(String script, File jsFile) {
+    static JsTestResult fullProcessScript(String script, File jsFile) {
 
-        def result = [:]
+        def result = new JsTestResult()
 
         def jsScript = null
         try {
@@ -92,9 +92,9 @@ class Util {
             jsScript = converter.toJs(script)
 
             if (jsFile) {
-                result = TestJavascriptEngine.jsEvalWithFile(jsScript, jsFile)
+                result = JavascriptEngine.jsEvalWithFile(jsScript, jsFile)
             } else {
-                result = TestJavascriptEngine.jsEval(jsScript)
+                result = JavascriptEngine.jsEval(jsScript)
             }
 
         } catch (e) {
@@ -111,7 +111,7 @@ class Util {
      * @param script
      * @return map with exception,jsScript,assertFails,...
      */
-    static Map fullProcessScript(String script) {
+    static JsTestResult fullProcessScript(String script) {
         fullProcessScript(script, null)
     }
 

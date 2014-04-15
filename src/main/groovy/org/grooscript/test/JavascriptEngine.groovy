@@ -11,7 +11,7 @@ import org.grooscript.util.Util
 /**
  * JFL 27/08/12
  */
-class TestJavascriptEngine {
+class JavascriptEngine {
 
     /**
      * Launch a js script and returns result binding
@@ -19,19 +19,19 @@ class TestJavascriptEngine {
      * @param map of start binding
      * @return map of bindings in result
      */
-    static jsEval(script, map) {
+    static JsTestResult jsEval(script, map) {
         jsEval(script, map, null)
     }
 
     /**
      * Launch a js script and returns result binding
      * @param script to execute
-     * @param map of start binding
+     * @param bindMap of start binding
      * @param jsFile grooscript.js can be null
      * @return map of bindings in result
      */
-    static jsEval(script, map, jsFile) {
-        def resultMap = [:]
+    static JsTestResult jsEval(script, bindMap, jsFile) {
+        def testResult = new JsTestResult()
 
         if (script) {
             try {
@@ -51,8 +51,8 @@ class TestJavascriptEngine {
                 }
                 Bindings bind = engine.createBindings()
                 //Set the bindings
-                if (map) {
-                    map.each { bind.putAt(it.key, it.value) }
+                if (bindMap) {
+                    bindMap.each { bind.putAt(it.key, it.value) }
                 }
                 //Run javascript script
                 try {
@@ -74,17 +74,17 @@ class TestJavascriptEngine {
 
                 //Put binding result to resultMap
                 if (bind) {
-                    bind.each { resultMap.putAt(it.key, it.value) }
+                    bind.each { testResult.bind.putAt(it.key, it.value) }
                 }
-
-                //Set assertFails var to the map
-                resultMap.assertFails = resultMap.gSfails
+                testResult.jsScript = script
+                testResult.assertFails = testResult.bind.gSfails
+                testResult.console = testResult.bind.gSconsole
 
             } catch (e) {
                 throw new GrooScriptException("Fail in eval Js Script! - ${e.message}")
             }
         }
-        resultMap
+        testResult
     }
 
     static addJsLibraries(text) {
@@ -102,7 +102,7 @@ class TestJavascriptEngine {
      * @param script
      * @return
      */
-    static jsEval(script) {
+    static JsTestResult jsEval(script) {
         jsEval(script, null)
     }
 
@@ -112,7 +112,7 @@ class TestJavascriptEngine {
      * @param jsFile grooscript.js file
      * @return
      */
-    static jsEvalWithFile(script, File jsFile) {
+    static JsTestResult jsEvalWithFile(script, File jsFile) {
         jsEval(script, null, jsFile)
     }
 

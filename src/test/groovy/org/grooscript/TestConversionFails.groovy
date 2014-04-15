@@ -1,6 +1,7 @@
 package org.grooscript
 
 import org.grooscript.test.ConversionMixin
+import org.grooscript.test.JsTestResult
 import spock.lang.Specification
 
 /**
@@ -14,11 +15,11 @@ class TestConversionFails extends Specification {
 
     def 'test fail assertion' () {
         when:
-        def result = convertAndEvaluate('fail/assertFail')
+        JsTestResult result = convertAndEvaluateWithJsEngine('fail/assertFail')
 
         then:
         result.assertFails
-        result.gSconsole == 'WOTT - false'
+        result.console == 'WOTT - false'
     }
 
     def 'test fail compile' () {

@@ -1,5 +1,7 @@
 package org.grooscript.test
 
+import org.grooscript.JsGenerator
+
 import static org.grooscript.util.Util.*
 import org.grooscript.GrooScript
 import org.grooscript.convert.GsConverter
@@ -12,6 +14,7 @@ import org.grooscript.util.GsConsole
 class ConversionMixin {
 
     GsConverter converter = new GsConverter()
+    NodeJs nodeJs = new NodeJs()
 
     /**
      * Read a groovy file and returns javascript conversion object
@@ -20,9 +23,8 @@ class ConversionMixin {
      * @param options for the GsConverter
      * @param textSearch in the js conversion script
      * @param textReplace replace searched text with this one
-     * @return map with results [assertFails:(true or false),...]
      */
-    def convertAndEvaluate(nameOfFile, jsResultOnConsole = false, options = [:], textSearch = null, textReplace = null) {
+    JsTestResult convertAndEvaluateWithJsEngine(nameOfFile, jsResultOnConsole = false, options = [:], textSearch = null, textReplace = null) {
 
         String jsScript = convertFile(nameOfFile, options)
 
@@ -35,11 +37,11 @@ class ConversionMixin {
             GsConsole.message("jsScript Result->${LINE_JUMP}$jsScript")
         }
 
-        TestJavascriptEngine.jsEval(jsScript)
+        JavascriptEngine.jsEval(jsScript)
     }
 
     String convertFile(nameOfFile, options = [:]) {
-        def file = TestJavascriptEngine.getGroovyTestScript(nameOfFile)
+        def file = JavascriptEngine.getGroovyTestScript(nameOfFile)
         if (options) {
             options.each { key, value ->
                 converter."$key" = value
@@ -59,13 +61,22 @@ class ConversionMixin {
 
         String jsScript = converter.toJs(code)
 
-        def builderCode = GrooScript.convert(new File('src/main/groovy/org/grooscript/builder/HtmlBuilder.groovy').text)
+        def builderCode = GrooScript.convert(new File(JsGenerator.HTML_BUILDER_SOURCE).text)
         jsScript = builderCode + jsScript
 
         if (jsResultOnConsole) {
             GsConsole.message("jsScript Result->${LINE_JUMP}$jsScript")
         }
 
-        TestJavascriptEngine.jsEval(jsScript).assertFails
+        JavascriptEngine.jsEval(jsScript).assertFails
+    }
+
+    JsTestResult convertAndEvaluateWithNode(jsScript) {
+        nodeJs.evaluate(jsScript)
+    }
+
+    boolean convertAndEvaluate(String fileName, jsResultOnConsole = false, options = [:], textSearch = null, textReplace = null) {
+        def evaluationJsEngine = convertAndEvaluateWithJsEngine(fileName, jsResultOnConsole, options, textSearch, textReplace)
+        !evaluationJsEngine.assertFails && !convertAndEvaluateWithNode(evaluationJsEngine.jsScript).assertFails
     }
 }

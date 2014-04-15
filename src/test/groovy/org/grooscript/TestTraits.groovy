@@ -12,21 +12,21 @@ class TestTraits extends Specification {
 
     def 'initial traits support'() {
         expect:
-        !convertAndEvaluate('traits/Starting').assertFails
+        convertAndEvaluate('traits/Starting')
     }
 
     def 'abstract methods'() {
         expect:
-        !convertAndEvaluate('traits/AbstractMethods').assertFails
+        convertAndEvaluate('traits/AbstractMethods')
     }
 
     def 'private methods'() {
         expect:
-        !convertAndEvaluate('traits/PrivateMethods').assertFails
+        convertAndEvaluate('traits/PrivateMethods')
     }
 
     def 'inheritance and interfaces'() {
         expect:
-        !convertAndEvaluate('traits/Inheritance').assertFails
+        convertAndEvaluate('traits/Inheritance')
     }
 }

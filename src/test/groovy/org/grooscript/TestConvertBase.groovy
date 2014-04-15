@@ -1,6 +1,7 @@
 package org.grooscript
 
 import org.grooscript.convert.GsConverter
+import org.grooscript.test.JsTestResult
 import spock.lang.Specification
 import org.grooscript.util.Util
 
@@ -32,13 +33,12 @@ class TestConvertBase extends Specification {
 
     def 'full conversion results'() {
         when:
-        def result = Util.fullProcessScript("def a=0;println 'Hey';assert true")
+        JsTestResult result = Util.fullProcessScript("def a=0;println 'Hey';assert true")
 
         then:
-        result instanceof Map
-        result.gSconsole == 'Hey'
+        result.console == 'Hey'
         !result.assertFails
-        result.a == 0
+        result.bind.a == 0
         !result.exception
         result.jsScript == 'var a = 0;\ngs.println("Hey");\ngs.assert(true, null);\n'
     }

@@ -1,13 +1,12 @@
 package org.grooscript
 
 import org.grooscript.test.ConversionMixin
-import org.grooscript.test.TestJavascriptEngine
+import org.grooscript.test.JavascriptEngine
+import org.grooscript.test.JsTestResult
 import spock.lang.Specification
 
 /**
  * First tests for converts groovy code to javascript code
- * Following GroovyInAction Book
- * Chap 2. Groovy basics
  * JFL 27/08/12
  */
 @Mixin([ConversionMixin])
@@ -17,15 +16,14 @@ class TestGroovyBasics extends Specification {
 
         when:
         def jsScript = converter.toJs('assert true')
-        //println 'jsScript->'+jsScript
-        def result =  TestJavascriptEngine.jsEval(jsScript)
+        def result =  JavascriptEngine.jsEval(jsScript)
 
         then:
         !result.assertFails
 
         when:
         jsScript = converter.toJs('assert false')
-        result =  TestJavascriptEngine.jsEval(jsScript)
+        result =  JavascriptEngine.jsEval(jsScript)
 
         then:
         result.assertFails
@@ -33,106 +31,101 @@ class TestGroovyBasics extends Specification {
 
     def 'test Web Main example' () {
         expect:
-        !convertAndEvaluate('webMainExample').assertFails
+        convertAndEvaluate('webMainExample')
     }
 
     def 'variables and expressions'() {
-
         when:
-        def result = convertAndEvaluate('variablesAndExpressions')
+        JsTestResult result = convertAndEvaluateWithJsEngine('variablesAndExpressions')
 
         then:
         !result.assertFails
-        result.b == 3.2
-        result.a == 5
-        result.c == 'Hello!'
-
+        result.bind.b == 3.2
+        result.bind.a == 5
+        result.bind.c == 'Hello!'
     }
 
     def 'initial class'() {
         expect:
-        !convertAndEvaluate('initialClass').assertFails
+        convertAndEvaluate('initialClass')
     }
 
     def 'starting class stuff'() {
         when:
-        def result = convertAndEvaluate('startingClass')
+        JsTestResult result = convertAndEvaluateWithJsEngine('startingClass')
 
         then:
         !result.assertFails
-        result.gSconsole == 'Fan: GroovyRocks'
+        result.console == 'Fan: GroovyRocks'
     }
 
     def 'starting closure stuff'() {
         expect:
-        !convertAndEvaluate('startingClosuresWithClasses').assertFails
+        convertAndEvaluate('startingClosuresWithClasses')
     }
 
     def 'starting converting lists'() {
         expect:
-        !convertAndEvaluate('startingWorkOnLists').assertFails
+        convertAndEvaluate('startingWorkOnLists')
     }
 
     def 'list functions'() {
         expect:
-        !convertAndEvaluate('listFunctions').assertFails
+        convertAndEvaluate('listFunctions')
     }
 
     def 'some inheritance class'() {
         expect:
-        !convertAndEvaluate('someInheritance').assertFails
+        convertAndEvaluate('someInheritance')
     }
 
     def 'maps and more closures'() {
         expect:
-        !convertAndEvaluate('mappingAndClosuring').assertFails
+        convertAndEvaluate('mappingAndClosuring')
     }
 
     def 'control structures'() {
         expect:
-        !convertAndEvaluate('controlStructures').assertFails
+        convertAndEvaluate('controlStructures')
     }
 
     def 'regular expressions'() {
         expect:
-        !convertAndEvaluate('regularExpressionsBegin').assertFails
+        convertAndEvaluate('regularExpressionsBegin')
     }
 
     def 'working with strings'() {
         expect:
-        !convertAndEvaluate('workingWithStrings').assertFails
+        convertAndEvaluate('workingWithStrings')
     }
 
     def 'working with enums'() {
         expect:
-        !convertAndEvaluate('enums').assertFails
+        convertAndEvaluate('enums')
     }
 
     def 'static stuff in classes'() {
         expect:
-        !convertAndEvaluate('staticRealm').assertFails
+        convertAndEvaluate('staticRealm')
     }
 
     def 'sets'() {
         expect:
-        !convertAndEvaluate('sets').assertFails
+        convertAndEvaluate('sets')
     }
 
     def 'functions and closures'() {
         expect:
-        !convertAndEvaluate('functions').assertFails
+        convertAndEvaluate('functions')
     }
 
     def 'interfaces'() {
-        when: 'interface in code to convert'
-        def result = convertAndEvaluate('interfaces')
-
-        then: 'is ignored'
-        !result.assertFails
+        expect:
+        convertAndEvaluate('interfaces')
     }
 
     def 'test arithmetic'() {
         expect:
-        !convertAndEvaluate('arithmetic').assertFails
+        convertAndEvaluate('arithmetic')
     }
 }
