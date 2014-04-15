@@ -1,6 +1,6 @@
 package org.grooscript.asts
 
-import org.grooscript.test.TestJs
+import org.grooscript.test.TestJavascriptEngine
 import spock.lang.Specification
 import org.grooscript.util.Util
 
@@ -14,7 +14,7 @@ class TestAst extends Specification {
 
     def readAndConvert(nameOfFile,consoleOutput) {
 
-        def file = TestJs.getGroovyTestScript(nameOfFile)
+        def file = TestJavascriptEngine.getGroovyTestScript(nameOfFile)
         def result = Util.fullProcessScript(file.text)
 
         if (consoleOutput) {

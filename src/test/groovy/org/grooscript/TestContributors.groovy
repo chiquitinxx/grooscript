@@ -2,7 +2,6 @@ package org.grooscript
 
 import org.grooscript.test.ConversionMixin
 import spock.lang.Specification
-import org.grooscript.test.TestJs
 import spock.lang.Unroll
 
 /**
@@ -13,13 +12,13 @@ class TestContributors extends Specification {
 
     def 'test jochen' () {
         expect:
-        !readAndConvert('contribution/JochenTheodorou').assertFails
+        !convertAndEvaluate('contribution/JochenTheodorou').assertFails
     }
 
     @Unroll('Testing MrHaki #file')
     def 'test MrHaki' () {
         expect:
-        !readAndConvert(file).assertFails
+        !convertAndEvaluate(file).assertFails
 
         where:
         file                                    |_
@@ -37,18 +36,18 @@ class TestContributors extends Specification {
 
     def 'test alex anderson' () {
         expect:
-        !readAndConvert('contribution/AlexAnderson').assertFails
+        !convertAndEvaluate('contribution/AlexAnderson').assertFails
     }
 
     def 'test mario garcia' () {
         expect:
-        !readAndConvert('contribution/MarioGarcia').assertFails
+        !convertAndEvaluate('contribution/MarioGarcia').assertFails
     }
 
     @Unroll('Testing anonymous web #file')
     def 'test anonymous contributions in web' () {
         expect:
-        def result = readAndConvert(file)
+        def result = convertAndEvaluate(file)
         !result.assertFails
         result.gSconsole.contains(text)
 
@@ -61,7 +60,7 @@ class TestContributors extends Specification {
 
     def 'bugs coming from monkfish'() {
         when:
-        def result = readAndConvert('contribution/MonkFish',false,null,
+        def result = convertAndEvaluate('contribution/MonkFish',false,null,
                 'gSobject.value = 0;',
                 'gSobject.value = 0;gSobject.two = function() {return 2;};')
 
@@ -71,29 +70,29 @@ class TestContributors extends Specification {
 
     def 'testing more web' () {
         expect:
-        !readAndConvert('contribution/Anonymous3').assertFails
-        !readAndConvert('contribution/Anonymous4').assertFails
-        !readAndConvert('contribution/Anonymous5').assertFails
+        !convertAndEvaluate('contribution/Anonymous3').assertFails
+        !convertAndEvaluate('contribution/Anonymous4').assertFails
+        !convertAndEvaluate('contribution/Anonymous5').assertFails
     }
 
     def 'testing mario extends'() {
         expect:
-        !readAndConvert('contribution/MarioGarcia2').assertFails
+        !convertAndEvaluate('contribution/MarioGarcia2').assertFails
     }
 
     def 'testing mario maps'() {
         expect:
-        !readAndConvert('contribution/MarioGarcia3').assertFails
+        !convertAndEvaluate('contribution/MarioGarcia3').assertFails
     }
 
     def 'twitter code found scoping closures'() {
         expect:
-        !readAndConvert('contribution/Twitter1').assertFails
+        !convertAndEvaluate('contribution/Twitter1').assertFails
     }
 
     def 'myself'() {
         expect:
-        !readAndConvert(file).assertFails
+        !convertAndEvaluate(file).assertFails
 
         where:
         file                       | _
@@ -103,17 +102,17 @@ class TestContributors extends Specification {
 
     def 'guillaume examples from talks'() {
         expect:
-        !readAndConvert('contribution/Guillaume').assertFails
-        !readAndConvert('contribution/GuillaumeClosuresComposition').assertFails
+        !convertAndEvaluate('contribution/Guillaume').assertFails
+        !convertAndEvaluate('contribution/GuillaumeClosuresComposition').assertFails
     }
 
     def 'ronny is'() {
         expect:
-        !readAndConvert('contribution/Ronny').assertFails
+        !convertAndEvaluate('contribution/Ronny').assertFails
     }
 
     def 'mscharhag closure composition'() {
         expect:
-        !readAndConvert('contribution/Mscharhag').assertFails
+        !convertAndEvaluate('contribution/Mscharhag').assertFails
     }
 }

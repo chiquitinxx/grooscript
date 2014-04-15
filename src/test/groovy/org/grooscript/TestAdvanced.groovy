@@ -14,181 +14,181 @@ class TestAdvanced extends Specification {
 
     def 'test tree object' () {
         expect:
-        !readAndConvert('advanced/Tree').assertFails
+        !convertAndEvaluate('advanced/Tree').assertFails
     }
 
     def 'expando world' () {
         expect:
-        !readAndConvert('advanced/ExpandoWorld').assertFails
+        !convertAndEvaluate('advanced/ExpandoWorld').assertFails
     }
 
     def 'mystic table' () {
         expect:
-        !readAndConvert('advanced/MysticTable').assertFails
+        !convertAndEvaluate('advanced/MysticTable').assertFails
     }
 
     def 'summer function callings' () {
         expect:
-        !readAndConvert('advanced/summer').assertFails
+        !convertAndEvaluate('advanced/summer').assertFails
     }
 
     def 'regular expressions' () {
         expect:
-        !readAndConvert('advanced/RegularExpressions').assertFails
+        !convertAndEvaluate('advanced/RegularExpressions').assertFails
     }
 
     def 'random world' () {
         expect:
-        !readAndConvert('advanced/RandomWorld').assertFails
+        !convertAndEvaluate('advanced/RandomWorld').assertFails
     }
 
     def 'test Robot'() {
         expect:
-        !readAndConvert('advanced/SampleRobot').assertFails
+        !convertAndEvaluate('advanced/SampleRobot').assertFails
     }
 
     def 'closuring and maps again' () {
         expect:
-        !readAndConvert('advanced/ClosuringRevisited').assertFails
+        !convertAndEvaluate('advanced/ClosuringRevisited').assertFails
     }
 
     def 'sorting lists' () {
         expect:
-        !readAndConvert('advanced/Sorting').assertFails
+        !convertAndEvaluate('advanced/Sorting').assertFails
     }
 
     def 'features 0.1' () {
         expect:
-        !readAndConvert('features/ZeroOne').assertFails
+        !convertAndEvaluate('features/ZeroOne').assertFails
     }
 
     def 'mastering scope'() {
         expect:
-        !readAndConvert('advanced/MasterScoping').assertFails
+        !convertAndEvaluate('advanced/MasterScoping').assertFails
     }
 
     def 'test setters'() {
         expect:
-        !readAndConvert('advanced/Setters').assertFails
+        !convertAndEvaluate('advanced/Setters').assertFails
     }
 
     def 'test getters'() {
         expect:
-        !readAndConvert('advanced/Getters').assertFails
+        !convertAndEvaluate('advanced/Getters').assertFails
     }
 
     def 'test getter and setters'() {
         expect:
-        !readAndConvert('advanced/GettersAndSetters').assertFails
+        !convertAndEvaluate('advanced/GettersAndSetters').assertFails
     }
 
     def 'test missing method'() {
         expect:
-        !readAndConvert('advanced/MethodMissing').assertFails
+        !convertAndEvaluate('advanced/MethodMissing').assertFails
     }
 
     def 'web example'() {
         expect:
-        !readAndConvert('advanced/WebExample').assertFails
+        !convertAndEvaluate('advanced/WebExample').assertFails
     }
 
     def 'advanced web example'() {
         expect:
-        !readAndConvert('advanced/AdvancedWebExample').assertFails
+        !convertAndEvaluate('advanced/AdvancedWebExample').assertFails
     }
 
     def 'more string features'() {
         expect:
-        !readAndConvert('advanced/StringSecrets').assertFails
+        !convertAndEvaluate('advanced/StringSecrets').assertFails
     }
 
     def 'object comparation'() {
         expect:
-        !readAndConvert('advanced/Comparable').assertFails
+        !convertAndEvaluate('advanced/Comparable').assertFails
     }
 
     def 'more list and maps features'() {
         expect:
-        !readAndConvert('advanced/ListMapsAdvanced').assertFails
+        !convertAndEvaluate('advanced/ListMapsAdvanced').assertFails
     }
 
     def 'Get properties and methods of classes'() {
         expect:
-        !readAndConvert('advanced/PropertiesAndMethods').assertFails
+        !convertAndEvaluate('advanced/PropertiesAndMethods').assertFails
     }
 
     def 'Get tuple from object'() {
         expect:
-        !readAndConvert('advanced/GetTupleFromObject').assertFails
+        !convertAndEvaluate('advanced/GetTupleFromObject').assertFails
     }
 
     def 'test method pointer'() {
         expect:
-        !readAndConvert('advanced/MethodPointer').assertFails
+        !convertAndEvaluate('advanced/MethodPointer').assertFails
     }
 
     def 'test safe navigation'() {
         expect:
-        !readAndConvert('advanced/SafeNavigation').assertFails
+        !convertAndEvaluate('advanced/SafeNavigation').assertFails
     }
 
     def 'list ninja'() {
         expect:
-        !readAndConvert('advanced/ListNinja').assertFails
+        !convertAndEvaluate('advanced/ListNinja').assertFails
     }
 
     def 'maybe dsls'() {
         expect:
-        !readAndConvert('advanced/TryDsls').assertFails
+        !convertAndEvaluate('advanced/TryDsls').assertFails
     }
 
     def 'multiple conditions'() {
         expect:
-        !readAndConvert('advanced/MultipleConditions').assertFails
+        !convertAndEvaluate('advanced/MultipleConditions').assertFails
     }
 
     def 'method missing with this'() {
         expect:
-        !readAndConvert('advanced/MethodMissingTwo').assertFails
+        !convertAndEvaluate('advanced/MethodMissingTwo').assertFails
     }
 
     def 'curry, rcurry and ncurry'() {
         expect:
-        !readAndConvert('advanced/Curry').assertFails
+        !convertAndEvaluate('advanced/Curry').assertFails
     }
 
     def 'mixin annotation'() {
         expect:
-        !readAndConvert('advanced/MixinAst').assertFails
+        !convertAndEvaluate('advanced/MixinAst').assertFails
     }
 
     def 'variable number of arguments'() {
         expect:
-        !readAndConvert('advanced/VariableArguments').assertFails
+        !convertAndEvaluate('advanced/VariableArguments').assertFails
     }
 
     def 'ranges of chars'() {
         expect:
-        !readAndConvert('advanced/RangeChars').assertFails
+        !convertAndEvaluate('advanced/RangeChars').assertFails
     }
 
     def 'return values'() {
         expect:
-        !readAndConvert('advanced/ReturnValues').assertFails
+        !convertAndEvaluate('advanced/ReturnValues').assertFails
     }
 
     def 'test method pointer advanced'() {
         expect:
-        !readAndConvert('advanced/MethodPointerAdvanced').assertFails
+        !convertAndEvaluate('advanced/MethodPointerAdvanced').assertFails
     }
 
     def 'test callback this'() {
         expect:
-        !readAndConvert('advanced/CallbackThis').assertFails
+        !convertAndEvaluate('advanced/CallbackThis').assertFails
     }
 
     def 'test property missing'() {
         expect:
-        !readAndConvert('advanced/PropertyMissing').assertFails
+        !convertAndEvaluate('advanced/PropertyMissing').assertFails
     }
 }

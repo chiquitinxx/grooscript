@@ -22,7 +22,7 @@ class ConversionMixin {
      * @param textReplace replace searched text with this one
      * @return map with results [assertFails:(true or false),...]
      */
-    def readAndConvert(nameOfFile, jsResultOnConsole = false, options = [:], textSearch = null, textReplace = null) {
+    def convertAndEvaluate(nameOfFile, jsResultOnConsole = false, options = [:], textSearch = null, textReplace = null) {
 
         String jsScript = convertFile(nameOfFile, options)
 
@@ -35,11 +35,11 @@ class ConversionMixin {
             GsConsole.message("jsScript Result->${LINE_JUMP}$jsScript")
         }
 
-        TestJs.jsEval(jsScript)
+        TestJavascriptEngine.jsEval(jsScript)
     }
 
     String convertFile(nameOfFile, options = [:]) {
-        def file = TestJs.getGroovyTestScript(nameOfFile)
+        def file = TestJavascriptEngine.getGroovyTestScript(nameOfFile)
         if (options) {
             options.each { key, value ->
                 converter."$key" = value
@@ -66,6 +66,6 @@ class ConversionMixin {
             GsConsole.message("jsScript Result->${LINE_JUMP}$jsScript")
         }
 
-        TestJs.jsEval(jsScript).assertFails
+        TestJavascriptEngine.jsEval(jsScript).assertFails
     }
 }

@@ -1,7 +1,7 @@
 package org.grooscript
 
 import org.grooscript.test.ConversionMixin
-import org.grooscript.test.TestJs
+import org.grooscript.test.TestJavascriptEngine
 import spock.lang.Specification
 
 /**
@@ -18,14 +18,14 @@ class TestGroovyBasics extends Specification {
         when:
         def jsScript = converter.toJs('assert true')
         //println 'jsScript->'+jsScript
-        def result =  TestJs.jsEval(jsScript)
+        def result =  TestJavascriptEngine.jsEval(jsScript)
 
         then:
         !result.assertFails
 
         when:
         jsScript = converter.toJs('assert false')
-        result =  TestJs.jsEval(jsScript)
+        result =  TestJavascriptEngine.jsEval(jsScript)
 
         then:
         result.assertFails
@@ -33,13 +33,13 @@ class TestGroovyBasics extends Specification {
 
     def 'test Web Main example' () {
         expect:
-        !readAndConvert('webMainExample').assertFails
+        !convertAndEvaluate('webMainExample').assertFails
     }
 
     def 'variables and expressions'() {
 
         when:
-        def result = readAndConvert('variablesAndExpressions')
+        def result = convertAndEvaluate('variablesAndExpressions')
 
         then:
         !result.assertFails
@@ -51,12 +51,12 @@ class TestGroovyBasics extends Specification {
 
     def 'initial class'() {
         expect:
-        !readAndConvert('initialClass').assertFails
+        !convertAndEvaluate('initialClass').assertFails
     }
 
     def 'starting class stuff'() {
         when:
-        def result = readAndConvert('startingClass')
+        def result = convertAndEvaluate('startingClass')
 
         then:
         !result.assertFails
@@ -65,67 +65,67 @@ class TestGroovyBasics extends Specification {
 
     def 'starting closure stuff'() {
         expect:
-        !readAndConvert('startingClosuresWithClasses').assertFails
+        !convertAndEvaluate('startingClosuresWithClasses').assertFails
     }
 
     def 'starting converting lists'() {
         expect:
-        !readAndConvert('startingWorkOnLists').assertFails
+        !convertAndEvaluate('startingWorkOnLists').assertFails
     }
 
     def 'list functions'() {
         expect:
-        !readAndConvert('listFunctions').assertFails
+        !convertAndEvaluate('listFunctions').assertFails
     }
 
     def 'some inheritance class'() {
         expect:
-        !readAndConvert('someInheritance').assertFails
+        !convertAndEvaluate('someInheritance').assertFails
     }
 
     def 'maps and more closures'() {
         expect:
-        !readAndConvert('mappingAndClosuring').assertFails
+        !convertAndEvaluate('mappingAndClosuring').assertFails
     }
 
     def 'control structures'() {
         expect:
-        !readAndConvert('controlStructures').assertFails
+        !convertAndEvaluate('controlStructures').assertFails
     }
 
     def 'regular expressions'() {
         expect:
-        !readAndConvert('regularExpressionsBegin').assertFails
+        !convertAndEvaluate('regularExpressionsBegin').assertFails
     }
 
     def 'working with strings'() {
         expect:
-        !readAndConvert('workingWithStrings').assertFails
+        !convertAndEvaluate('workingWithStrings').assertFails
     }
 
     def 'working with enums'() {
         expect:
-        !readAndConvert('enums').assertFails
+        !convertAndEvaluate('enums').assertFails
     }
 
     def 'static stuff in classes'() {
         expect:
-        !readAndConvert('staticRealm').assertFails
+        !convertAndEvaluate('staticRealm').assertFails
     }
 
     def 'sets'() {
         expect:
-        !readAndConvert('sets').assertFails
+        !convertAndEvaluate('sets').assertFails
     }
 
     def 'functions and closures'() {
         expect:
-        !readAndConvert('functions').assertFails
+        !convertAndEvaluate('functions').assertFails
     }
 
     def 'interfaces'() {
         when: 'interface in code to convert'
-        def result = readAndConvert('interfaces')
+        def result = convertAndEvaluate('interfaces')
 
         then: 'is ignored'
         !result.assertFails
@@ -133,6 +133,6 @@ class TestGroovyBasics extends Specification {
 
     def 'test arithmetic'() {
         expect:
-        !readAndConvert('arithmetic').assertFails
+        !convertAndEvaluate('arithmetic').assertFails
     }
 }

@@ -1,6 +1,6 @@
 package org.grooscript.util
 
-import org.grooscript.test.TestJs
+import org.grooscript.test.TestJavascriptEngine
 import org.grooscript.convert.GsConverter
 
 /**
@@ -92,9 +92,9 @@ class Util {
             jsScript = converter.toJs(script)
 
             if (jsFile) {
-                result = TestJs.jsEvalWithFile(jsScript, jsFile)
+                result = TestJavascriptEngine.jsEvalWithFile(jsScript, jsFile)
             } else {
-                result = TestJs.jsEval(jsScript)
+                result = TestJavascriptEngine.jsEval(jsScript)
             }
 
         } catch (e) {

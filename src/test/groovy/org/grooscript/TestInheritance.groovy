@@ -20,7 +20,7 @@ class TestInheritance extends Specification {
 
     def 'check inheritance use in other files with convertDependencies'() {
         expect:
-        !readAndConvert('inheritance/Vehicles', true,
+        !convertAndEvaluate('inheritance/Vehicles', true,
                 [convertDependencies: true]).assertFails
     }
 }

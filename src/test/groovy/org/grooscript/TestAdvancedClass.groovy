@@ -12,32 +12,32 @@ class TestAdvancedClass extends Specification {
 
     def 'test class names' () {
         expect:
-        !readAndConvert('classes/Names').assertFails
+        !convertAndEvaluate('classes/Names').assertFails
     }
 
     def 'test instanceof basic'() {
         expect:
-        !readAndConvert('classes/InstanceOf').assertFails
+        !convertAndEvaluate('classes/InstanceOf').assertFails
     }
 
     def 'add methods and properties to classes'() {
         expect:
-        !readAndConvert('classes/AddingStuff').assertFails
+        !convertAndEvaluate('classes/AddingStuff').assertFails
     }
 
     def 'who knows categories'() {
         expect:
-        !readAndConvert('classes/Categories').assertFails
+        !convertAndEvaluate('classes/Categories').assertFails
     }
 
     def 'mixins to the hell'() {
         expect:
-        !readAndConvert('classes/Mixins').assertFails
+        !convertAndEvaluate('classes/Mixins').assertFails
     }
 
     def 'string buffer'() {
         when:
-        def result = readAndConvert('classes/StringBufferClass')
+        def result = convertAndEvaluate('classes/StringBufferClass')
 
         then:
         result.gSconsole == 'hello!'
@@ -46,46 +46,46 @@ class TestAdvancedClass extends Specification {
 
     def 'abstract class basic usage'() {
         expect:
-        !readAndConvert('classes/Abstract').assertFails
+        !convertAndEvaluate('classes/Abstract').assertFails
     }
 
     def 'using @Category'() {
         expect:
-        !readAndConvert('classes/AddCategories').assertFails
+        !convertAndEvaluate('classes/AddCategories').assertFails
     }
 
     def 'using supported types'() {
         expect:
-        !readAndConvert('classes/SupportedTypes').assertFails
+        !convertAndEvaluate('classes/SupportedTypes').assertFails
     }
 
     def 'using as keyword'() {
         expect:
-        !readAndConvert('classes/AsKeyword',).assertFails
+        !convertAndEvaluate('classes/AsKeyword',).assertFails
     }
 
     def 'using primitive arrays'() {
         expect:
-        !readAndConvert('classes/PrimitiveArrays').assertFails
+        !convertAndEvaluate('classes/PrimitiveArrays').assertFails
     }
 
     def 'starting @Delegate'() {
         expect:
-        !readAndConvert('classes/StartingDelegate').assertFails
+        !convertAndEvaluate('classes/StartingDelegate').assertFails
     }
 
     def 'more categories'() {
         expect:
-        !readAndConvert('classes/MoreCategories').assertFails
+        !convertAndEvaluate('classes/MoreCategories').assertFails
     }
 
     def 'date functions'() {
         expect:
-        !readAndConvert('classes/DateClass').assertFails
+        !convertAndEvaluate('classes/DateClass').assertFails
     }
 
     def 'default method call'() {
         expect:
-        !readAndConvert('classes/DefaultMethodCall').assertFails
+        !convertAndEvaluate('classes/DefaultMethodCall').assertFails
     }
 }

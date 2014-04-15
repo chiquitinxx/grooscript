@@ -14,7 +14,7 @@ class TestConversionFails extends Specification {
 
     def 'test fail assertion' () {
         when:
-        def result = readAndConvert('fail/assertFail')
+        def result = convertAndEvaluate('fail/assertFail')
 
         then:
         result.assertFails

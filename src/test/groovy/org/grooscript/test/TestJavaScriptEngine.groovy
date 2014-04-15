@@ -39,7 +39,7 @@ class TestJavaScriptEngine extends Specification {
 
     def 'short way for testing'() {
 
-        def map = TestJs.jsEval('a="Hello "+a;c=b*5;',[a: 'Jorge',b: 5])
+        def map = TestJavascriptEngine.jsEval('a="Hello "+a;c=b*5;',[a: 'Jorge',b: 5])
 
         expect:
         map.c==25
@@ -47,7 +47,7 @@ class TestJavaScriptEngine extends Specification {
 
     def 'function gSassert results'() {
 
-        def map = TestJs.jsEval("gs.assert(${value});",null)
+        def map = TestJavascriptEngine.jsEval("gs.assert(${value});",null)
 
         expect:
         map.gSfails == result
@@ -61,7 +61,7 @@ class TestJavaScriptEngine extends Specification {
 
     def 'speed javascript engine'() {
         when:
-        def result = readAndConvert('TestSpeed')
+        def result = convertAndEvaluate('TestSpeed')
         //println result.gSconsole
 
         then:
@@ -70,6 +70,6 @@ class TestJavaScriptEngine extends Specification {
 
     def 'problems with reserved words'() {
         expect:
-        !readAndConvert('ReservedWords').assertFails
+        !convertAndEvaluate('ReservedWords').assertFails
     }
 }

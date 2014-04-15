@@ -11,7 +11,7 @@ import org.grooscript.util.Util
 /**
  * JFL 27/08/12
  */
-class TestJs {
+class TestJavascriptEngine {
 
     /**
      * Launch a js script and returns result binding
