@@ -88,7 +88,7 @@ function GQueryImpl() {
             data: gs.toJavascript(params),
             url: url
         }).done(function(newData) {
-            onSuccess(gs.toGroovy(newData, objectResult));
+            onSuccess(gs.toGroovy(jQuery.parseJSON(newData), objectResult));
         })
         .fail(function(error) {
             onFailure(error);

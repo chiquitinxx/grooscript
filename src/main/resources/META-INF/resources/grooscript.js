@@ -2629,7 +2629,7 @@
     };
 
     gs.toJavascript = function(obj) {
-        if (gs.isGroovyObj(obj)) {
+        if (obj !== null && obj !== undefined && gs.isGroovyObj(obj)) {
             var result;
             if (obj !== null && obj !== undefined && typeof(obj) !== "function") {
                 if (obj instanceof Array) {

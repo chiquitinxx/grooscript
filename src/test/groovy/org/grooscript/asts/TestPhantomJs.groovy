@@ -1,8 +1,5 @@
 package org.grooscript.asts
 
-import com.sun.net.httpserver.HttpExchange
-import com.sun.net.httpserver.HttpHandler
-import com.sun.net.httpserver.HttpServer
 import org.codehaus.groovy.control.MultipleCompilationErrorsException
 import org.grooscript.FunctionalTest
 
@@ -12,7 +9,7 @@ import org.grooscript.FunctionalTest
  */
 class TestPhantomJs extends FunctionalTest {
 
-    String testResponse() {
+    String htmlResponse() {
         '<html><head><title>Title</title></head><body><p>Welcome</p></body></html>'
     }
 
@@ -189,6 +186,6 @@ class TestPhantomJs extends FunctionalTest {
     }
 
     void testWithoutAnnotation() {
-        PhantomJsTestImpl.doPhantomJsTest(FULL_ADRESS, 'function hello() {console.log("Hello!");}', 'hello')
+        PhantomJsTestImpl.doPhantomJsTest(HTML_ADRESS, 'function hello() {console.log("Hello!");}', 'hello')
     }
 }

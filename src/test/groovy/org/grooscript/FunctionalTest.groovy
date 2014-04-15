@@ -3,9 +3,6 @@ package org.grooscript
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
 import com.sun.net.httpserver.HttpServer
-import org.codehaus.groovy.control.MultipleCompilationErrorsException
-import org.grooscript.asts.PhantomJsTest
-import org.grooscript.asts.PhantomJsTestImpl
 
 /**
  * User: jorgefrancoleza
@@ -16,16 +13,19 @@ abstract class FunctionalTest extends GroovyTestCase {
     private static final PHANTOMJS_HOME = System.getProperty('PHANTOMJS_HOME') ?: '/Applications/phantomjs'
     private static final JS_LIBRARIES_PATH = 'src/main/resources/META-INF/resources'
     private static final PORT = 8000
-    private static final ACTION = '/test'
-    protected static final String FULL_ADRESS = "http://localhost:${PORT}${ACTION}"
+    private static final HTML_ACTION = '/test'
+    private static final JSON_ACTION = '/json'
+    protected static final String HTML_ADRESS = "http://localhost:${PORT}${HTML_ACTION}"
+    protected static final String JSON_ADRESS = "http://localhost:${PORT}${JSON_ACTION}"
 
     private HttpServer server
 
-    abstract String testResponse()
+    abstract String htmlResponse()
 
-    class MyHandler implements HttpHandler {
+    class TestActionHandler implements HttpHandler {
         String response
-        MyHandler(String response) {
+
+        TestActionHandler(String response) {
             this.response = response
         }
         public void handle(HttpExchange t) throws IOException {
@@ -39,10 +39,11 @@ abstract class FunctionalTest extends GroovyTestCase {
 
     private startServer() {
         server = HttpServer.create(new InetSocketAddress(PORT), 0)
-        server.createContext(ACTION, new MyHandler(testResponse()))
+        server.createContext(HTML_ACTION, new TestActionHandler(htmlResponse()))
+        server.createContext(JSON_ACTION, new JsonActionHandler())
         server.setExecutor(null) // creates a default executor
         server.start()
-        println 'Server started, responds to: ' + FULL_ADRESS
+        println 'Server started, responds to: ' + HTML_ADRESS
     }
 
     private stopServer() {
@@ -59,5 +60,34 @@ abstract class FunctionalTest extends GroovyTestCase {
 
     void tearDown() {
         stopServer()
+    }
+
+    protected script(text) {
+        "<script>${text}</script>\n"
+    }
+
+    protected jsFileText(fileName) {
+        GrooScript.classLoader.getResourceAsStream('META-INF/resources/' + fileName).text
+    }
+
+    class JsonActionHandler implements HttpHandler {
+        public void handle(HttpExchange t) throws IOException {
+            def response = '{"result": true, "number": 5, "name": "George"}'
+            t.sendResponseHeaders(200, response.length())
+            t.getResponseHeaders().add('Content-Type', 'application/json')
+            OutputStream os = t.getResponseBody()
+            os.write(response.getBytes())
+            os.close()
+        }
+    }
+
+    protected getJsonResultClass() {
+        '''
+        class Result {
+            boolean result
+            Integer number
+            String name
+        }
+        '''
     }
 }

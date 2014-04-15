@@ -31,6 +31,8 @@ describe('initial tests on gs', function(){
     });
 
     it('convert to javascript', function(){
+        assert.equal(gs.toJavascript(null), null);
+        assert.equal(gs.toJavascript(undefined), null);
         assert.equal(gs.toJavascript(5), 5);
         assert.equal(gs.toJavascript('hello'), 'hello');
         var list = gs.list([1, gs.map().add('hello', 'yes'), 3]);

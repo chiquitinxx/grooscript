@@ -9,7 +9,7 @@ import org.grooscript.JsGenerator
  */
 class TestFunctionalBinder extends FunctionalTest {
 
-    String testResponse() {
+    String htmlResponse() {
         def result = '<html><head><title>Title</title></head><body>'
         result += script(jsFileText('grooscript.js'))
         result += script(jsFileText('jquery.min.js'))
@@ -51,14 +51,6 @@ class TestFunctionalBinder extends FunctionalTest {
     }
     doTest()
 '''
-    }
-
-    private script(text) {
-        "<script>${text}</script>\n"
-    }
-
-    private jsFileText(fileName) {
-        GrooScript.classLoader.getResourceAsStream('META-INF/resources/' + fileName).text
     }
 
     private getBookClass() {
