@@ -235,4 +235,13 @@ class ConversionFactory {
     boolean isValidTraitMethodName(methodName) {
         !['$init$', '$static$init$'].contains(methodName)
     }
+
+    String reduceClassName(String name) {
+        def result = name
+        def i = result.lastIndexOf('.')
+        if (i > 0) {
+            result = result.substring(i + 1)
+        }
+        result
+    }
 }

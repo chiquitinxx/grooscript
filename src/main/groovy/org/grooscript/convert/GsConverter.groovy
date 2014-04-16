@@ -767,16 +767,7 @@ class GsConverter {
     }
 
     private processClassExpression(ClassExpression expression) {
-        out.addScript(translateClassName(expression.text))
-    }
-
-    private translateClassName(String name) {
-        def result = name
-        def i = result.lastIndexOf('.')
-        if (i > 0) {
-            result = result.substring(i + 1)
-        }
-        result
+        out.addScript(conversionFactory.reduceClassName(expression.text))
     }
 
     private processThrowStatement(ThrowStatement statement) {

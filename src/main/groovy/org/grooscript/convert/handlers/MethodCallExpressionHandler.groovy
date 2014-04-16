@@ -68,6 +68,9 @@ class MethodCallExpressionHandler extends BaseHandler {
                 expression.methodAsString=='forName') {
             out.addScript("${GS_CLASS_FOR_NAME}(")
             factory.visitNode(expression.arguments, false)
+            if (expression.arguments[0] instanceof ConstantExpression) {
+                out.addScript(", ${factory.reduceClassName(expression.arguments[0].text)}")
+            }
             out.addScript(')')
             addParameters = false
             //this.use {} Categories

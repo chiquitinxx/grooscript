@@ -13,27 +13,27 @@ class TestAdvancedClass extends Specification {
 
     def 'test class names' () {
         expect:
-        !convertAndEvaluateWithJsEngine('classes/Names').assertFails
+        convertAndEvaluate('classes/Names')
     }
 
     def 'test instanceof basic'() {
         expect:
-        !convertAndEvaluateWithJsEngine('classes/InstanceOf').assertFails
+        convertAndEvaluate('classes/InstanceOf')
     }
 
     def 'add methods and properties to classes'() {
         expect:
-        !convertAndEvaluateWithJsEngine('classes/AddingStuff').assertFails
+        convertAndEvaluate('classes/AddingStuff')
     }
 
     def 'who knows categories'() {
         expect:
-        !convertAndEvaluateWithJsEngine('classes/Categories').assertFails
+        convertAndEvaluate('classes/Categories')
     }
 
     def 'mixins to the hell'() {
         expect:
-        !convertAndEvaluateWithJsEngine('classes/Mixins').assertFails
+        convertAndEvaluate('classes/Mixins')
     }
 
     def 'string buffer'() {
@@ -47,46 +47,46 @@ class TestAdvancedClass extends Specification {
 
     def 'abstract class basic usage'() {
         expect:
-        !convertAndEvaluateWithJsEngine('classes/Abstract').assertFails
+        convertAndEvaluate('classes/Abstract')
     }
 
     def 'using @Category'() {
         expect:
-        !convertAndEvaluateWithJsEngine('classes/AddCategories').assertFails
+        convertAndEvaluate('classes/AddCategories')
     }
 
     def 'using supported types'() {
         expect:
-        !convertAndEvaluateWithJsEngine('classes/SupportedTypes').assertFails
+        convertAndEvaluate('classes/SupportedTypes')
     }
 
     def 'using as keyword'() {
         expect:
-        !convertAndEvaluateWithJsEngine('classes/AsKeyword',).assertFails
+        convertAndEvaluate('classes/AsKeyword')
     }
 
     def 'using primitive arrays'() {
         expect:
-        !convertAndEvaluateWithJsEngine('classes/PrimitiveArrays').assertFails
+        convertAndEvaluate('classes/PrimitiveArrays')
     }
 
     def 'starting @Delegate'() {
         expect:
-        !convertAndEvaluateWithJsEngine('classes/StartingDelegate').assertFails
+        convertAndEvaluate('classes/StartingDelegate')
     }
 
     def 'more categories'() {
         expect:
-        !convertAndEvaluateWithJsEngine('classes/MoreCategories').assertFails
+        convertAndEvaluate('classes/MoreCategories')
     }
 
     def 'date functions'() {
         expect:
-        !convertAndEvaluateWithJsEngine('classes/DateClass').assertFails
+        convertAndEvaluate('classes/DateClass')
     }
 
     def 'default method call'() {
         expect:
-        !convertAndEvaluateWithJsEngine('classes/DefaultMethodCall').assertFails
+        convertAndEvaluate('classes/DefaultMethodCall')
     }
 }

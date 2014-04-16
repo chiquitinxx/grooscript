@@ -1783,7 +1783,7 @@
     /////////////////////////////////////////////////////////////////
     // Misc Functions
     /////////////////////////////////////////////////////////////////
-    gs.classForName = function(name) {
+    gs.classForName = function(name, obj) {
         var result = null;
         try {
             var pos = name.indexOf(".");
@@ -1793,7 +1793,7 @@
             }
             result = eval(name);
         } catch (err) {
-            result = null;
+            result = obj;
         }
         return result;
     };

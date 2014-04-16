@@ -30,7 +30,7 @@ Can convert .groovy files or a text fragment as:
 
 Build
 -----
-Only GPars 1.0 and Groovy dependencies in the project, Gradle as build system. Need JDK 1.7 and PhantomJs installed to run tests. You have to define 'PHANTOMJS_PATH' system property. Using gradle wrapper, version 1.11.
+Only GPars 1.0 and Groovy dependencies in the project, Gradle as build system. It needs JDK 1.7, Node.js and PhantomJs installed to run tests. You have to define 'PHANTOMJS_PATH' system property. Using gradle wrapper, version 1.11.
 
 Create idea project:
 
