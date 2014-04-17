@@ -135,10 +135,6 @@ class ConversionFactory {
         instanceHandler
     }
 
-    boolean isValidTraitMethod(MethodNode methodNode) {
-        !['$init$', '$static$init$'].contains(methodNode.name) && methodNode.code instanceof BlockStatement
-    }
-
     boolean isTraitClass(String name) {
         name.contains('$Trait$')
     }

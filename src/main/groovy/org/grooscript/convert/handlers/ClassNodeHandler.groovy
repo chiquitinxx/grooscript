@@ -401,12 +401,16 @@ class ClassNodeHandler extends BaseHandler {
     private handleTrait(ClassNode classNode) {
         addClassVariableNamesToScope(classNode)
         ClassNode helperClassNode = org.codehaus.groovy.transform.trait.Traits.findHelpers(classNode).helper
-        helperClassNode.methods.findAll { factory.isValidTraitMethod(it) }.each {
-            staticMethod(it, GS_OBJECT, classNode.nameWithoutPackage, true)
-        }
-        def initMethod = helperClassNode.methods.find { it.name == '$init$' && it.code instanceof BlockStatement}
-        if (initMethod && !initMethod.code.isEmpty()) {
-            out.addScript("${classNode.nameWithoutPackage}.\$init\$(${GS_OBJECT});", true)
+        helperClassNode.methods.each {
+            if (it.name == '$init$') {
+                if (it.code instanceof BlockStatement && !it.code.isEmpty()) {
+                    out.addScript("${classNode.nameWithoutPackage}.\$init\$(${GS_OBJECT});", true)
+                }
+            } else if (it.name == '$static$init$') {
+
+            } else {
+                staticMethod(it, GS_OBJECT, classNode.nameWithoutPackage, true)
+            }
         }
     }
 

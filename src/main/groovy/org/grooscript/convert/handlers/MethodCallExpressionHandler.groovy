@@ -26,7 +26,7 @@ class MethodCallExpressionHandler extends BaseHandler {
         //Change println for javascript function
         if (methodName == 'println' || methodName == 'print') {
             out.addScript(GS_PRINTLN)
-            //Remove call method call from closures
+        //Remove call method call from closures
         } else if (methodName == 'call') {
             //println 'Calling!->'+expression.objectExpression
             addParameters = false
@@ -44,26 +44,26 @@ class MethodCallExpressionHandler extends BaseHandler {
                 factory.visitNode(expression.arguments, false)
                 out.addScript(']))')
             }
-            //Dont use dot(.) in super calls
+        //Dont use dot(.) in super calls
         } else if (expression.objectExpression instanceof VariableExpression &&
                 expression.objectExpression.name == 'super') {
             out.addScript("${SUPER_METHOD_BEGIN}${methodName}")
-            //Function times, with a number, have to put (number) in javascript
+        //Function times, with a number, have to put (number) in javascript
         } else if (['times', 'upto', 'step'].contains(methodName) && expression.objectExpression instanceof ConstantExpression) {
             out.addScript('(')
             factory.visitNode(expression.objectExpression)
             out.addScript(')')
             out.addScript(".${methodName}")
-            //With
+        //With
         } else if (methodName == 'with' && expression.arguments instanceof ArgumentListExpression &&
                 expression.arguments.getExpression(0) instanceof ClosureExpression) {
             factory.visitNode(expression.objectExpression)
             out.addScript(".${WITH}")
-            //Using Math library
+        //Using Math library
         } else if (expression.objectExpression instanceof ClassExpression &&
                 expression.objectExpression.type.name == 'java.lang.Math') {
             out.addScript("Math.${methodName}")
-            //Adding class.forName
+        //Adding class.forName
         } else if (expression.objectExpression instanceof ClassExpression &&
                 expression.objectExpression.type.name == 'java.lang.Class' &&
                 methodName == 'forName') {
@@ -74,7 +74,7 @@ class MethodCallExpressionHandler extends BaseHandler {
             }
             out.addScript(')')
             addParameters = false
-            //this.use {} Categories
+        //this.use {} Categories
         } else if (expression.objectExpression instanceof VariableExpression &&
                 expression.objectExpression.name == 'this' && methodName == 'use') {
             ArgumentListExpression args = expression.arguments
@@ -83,7 +83,7 @@ class MethodCallExpressionHandler extends BaseHandler {
             out.addScript("${GS_CATEGORY_USE}(\"${nameCategory}\",${nameCategory},")
             factory.visitNode(args.expressions[1])
             out.addScript(')')
-            //Mixin Classes
+        //Mixin Classes
         } else if (expression.objectExpression instanceof ClassExpression && methodName == 'mixin') {
             //println 'Mixin!'
             addParameters = false
@@ -94,7 +94,7 @@ class MethodCallExpressionHandler extends BaseHandler {
                 item << expr.type.nameWithoutPackage
             }.join(',')
             out.addScript('])')
-            //Mixin Objects
+        //Mixin Objects
         } else if (expression.objectExpression instanceof PropertyExpression &&
                 expression.objectExpression.property instanceof ConstantExpression &&
                 expression.objectExpression.property.text == 'metaClass' &&
@@ -107,7 +107,7 @@ class MethodCallExpressionHandler extends BaseHandler {
                 item << expr.type.nameWithoutPackage
             }.join(',')
             out.addScript('])')
-            //Spread method call [1,2,3]*.toString()
+        //Spread method call [1,2,3]*.toString()
         } else if (expression.isSpreadSafe()) {
             //println 'spreadsafe!'
             addParameters = false
@@ -115,7 +115,7 @@ class MethodCallExpressionHandler extends BaseHandler {
             out.addScript(".collect(function(it) { return ${GS_METHOD_CALL}(it,'${methodName}',${GS_LIST}([")
             factory.visitNode(expression.arguments, false)
             out.addScript(']));})')
-            //Call a method in this, method exist in main context
+        //Call a method in this, method exist in main context
         } else if (factory.isThis(expression.objectExpression) &&
                 context.firstVariableScopingHasMethod(methodName)) {
             out.addScript(methodName)
@@ -127,17 +127,16 @@ class MethodCallExpressionHandler extends BaseHandler {
             factory.visitNode(expression.arguments, false)
             out.addScript(')')
             addParameters = false
-            //Trait method
+        //Trait set method
         } else if(factory.isTraitClass(expression.objectExpression.type.name) &&
                 methodName.endsWith('$set')) {
-            String nameProperty = methodName.substring(methodName.indexOf('__') + 2, methodName.lastIndexOf('$'))
-            out.addScript("\$self.${nameProperty} = ")
+            out.addScript("\$self.${getNameTraitProperty(methodName)} = ")
             factory.visitNode(expression.arguments, false)
             addParameters = false
+        //Trait get method
         } else if(factory.isTraitClass(expression.objectExpression.type.name) &&
                 methodName.endsWith('$get')) {
-            String nameProperty = methodName.substring(methodName.indexOf('__') + 2, methodName.lastIndexOf('$'))
-            out.addScript("\$self.${nameProperty}")
+            out.addScript("\$self.${getNameTraitProperty(methodName)}")
             addParameters = false
         } else {
             //println 'Method->'+methodName+' - '+expression.arguments.class.simpleName + ' - ' + variableScoping
@@ -169,5 +168,9 @@ class MethodCallExpressionHandler extends BaseHandler {
 
     private putMethodName(MethodCallExpression expression) {
         factory.visitNode(expression.method)
+    }
+
+    private getNameTraitProperty(methodName) {
+        methodName.substring(0, methodName.lastIndexOf('$'))
     }
 }

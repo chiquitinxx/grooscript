@@ -34,4 +34,9 @@ class TestTraits extends Specification {
         expect:
         convertAndEvaluate('traits/Properties')
     }
+
+    def 'private fields'() {
+        expect:
+        convertAndEvaluate('traits/PrivateFields')
+    }
 }
