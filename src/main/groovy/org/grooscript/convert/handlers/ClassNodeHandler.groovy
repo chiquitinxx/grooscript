@@ -401,6 +401,13 @@ class ClassNodeHandler extends BaseHandler {
     private handleTrait(ClassNode classNode) {
         addClassVariableNamesToScope(classNode)
         ClassNode helperClassNode = org.codehaus.groovy.transform.trait.Traits.findHelpers(classNode).helper
+        helperClassNode.outerClass.interfaces?.findAll{ isTrait(it) }.each { ClassNode cn ->
+            handleTrait(cn)
+        }
+        addTraitMethods(classNode, helperClassNode)
+    }
+
+    private addTraitMethods(ClassNode classNode, ClassNode helperClassNode) {
         helperClassNode.methods.each {
             if (it.name == '$init$') {
                 if (it.code instanceof BlockStatement && !it.code.isEmpty()) {

@@ -44,4 +44,9 @@ class TestTraits extends Specification {
         expect:
         convertAndEvaluate('traits/Composition')
     }
+
+    def 'extending'() {
+        expect:
+        convertAndEvaluate('traits/Extending')
+    }
 }
