@@ -39,4 +39,9 @@ class TestTraits extends Specification {
         expect:
         convertAndEvaluate('traits/PrivateFields')
     }
+
+    def 'composition and order'() {
+        expect:
+        convertAndEvaluate('traits/Composition')
+    }
 }
