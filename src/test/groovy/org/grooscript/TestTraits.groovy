@@ -29,4 +29,9 @@ class TestTraits extends Specification {
         expect:
         convertAndEvaluate('traits/Inheritance')
     }
+
+    def 'properties'() {
+        expect:
+        convertAndEvaluate('traits/Properties')
+    }
 }

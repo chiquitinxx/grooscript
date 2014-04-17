@@ -45,7 +45,7 @@ class Functions {
         conversionFactory.context.actualScope.pop()
     }
 
-    private processFunctionOrMethodParameters(functionOrMethod, boolean isConstructor,boolean addItInParameter) {
+    void processFunctionOrMethodParameters(functionOrMethod, boolean isConstructor,boolean addItInParameter) {
 
         boolean first = true
         boolean lastParameterCanBeMore = false

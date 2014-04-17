@@ -1,6 +1,7 @@
 package org.grooscript.convert.handlers
 
 import org.codehaus.groovy.ast.InnerClassNode
+import org.codehaus.groovy.ast.stmt.BlockStatement
 
 /**
  * User: jorgefrancoleza
@@ -13,10 +14,14 @@ class InnerClassNodeHandler extends BaseHandler {
         def className = innerClassNode.outerClass.nameWithoutPackage
         out.addScript("${className} = function() {};", true)
 
-        innerClassNode.methods.findAll {factory.isValidTraitMethodName(it.name)}.each {
+        innerClassNode.methods.findAll { factory.isValidTraitMethod(it) }.each {
             if (!it.isAbstract()) {
-                factory.convertBasicFunction("${className}.${it.name}", it, false)
+                functions.processBasicFunction("${className}.${it.name}", it, false)
             }
+        }
+        def initMethod = innerClassNode.methods.find { it.name == '$init$' && it.code instanceof BlockStatement }
+        if (initMethod && !initMethod.code.isEmpty()) {
+            functions.processBasicFunction("${className}.\$init\$", initMethod, false)
         }
     }
 }

@@ -6,6 +6,7 @@ import org.codehaus.groovy.ast.expr.ListExpression
 import org.codehaus.groovy.ast.AnnotationNode
 import org.codehaus.groovy.ast.FieldNode
 import org.codehaus.groovy.ast.MethodNode
+import org.codehaus.groovy.ast.stmt.BlockStatement
 import org.grooscript.util.Util
 
 import static org.grooscript.JsNames.*
@@ -101,7 +102,7 @@ class ClassNodeHandler extends BaseHandler {
                     if (haveAnnotationNative(method.annotations)) {
                         putGsNativeMethod("${node.nameWithoutPackage}.${method.name}",method)
                     } else {
-                        factory.convertBasicFunction("${node.nameWithoutPackage}.${method.name}",method,false)
+                        functions.processBasicFunction("${node.nameWithoutPackage}.${method.name}",method,false)
                     }
                 }
             }
@@ -315,7 +316,7 @@ class ClassNodeHandler extends BaseHandler {
     private putGsNativeMethod(String name, MethodNode method) {
         out.addScript("${name} = function(")
         context.actualScope.push([])
-        factory.convertFunctionOrMethodParameters(method, false)
+        functions.processFunctionOrMethodParameters(method, false, false)
         context.actualScope.pop()
         out.addScript(context.nativeFunctions[method.name], true)
         out.indent--
@@ -400,9 +401,12 @@ class ClassNodeHandler extends BaseHandler {
     private handleTrait(ClassNode classNode) {
         addClassVariableNamesToScope(classNode)
         ClassNode helperClassNode = org.codehaus.groovy.transform.trait.Traits.findHelpers(classNode).helper
-
-        helperClassNode.methods.findAll { factory.isValidTraitMethodName(it.name) }.each {
+        helperClassNode.methods.findAll { factory.isValidTraitMethod(it) }.each {
             staticMethod(it, GS_OBJECT, classNode.nameWithoutPackage, true)
+        }
+        def initMethod = helperClassNode.methods.find { it.name == '$init$' && it.code instanceof BlockStatement}
+        if (initMethod && !initMethod.code.isEmpty()) {
+            out.addScript("${classNode.nameWithoutPackage}.\$init\$(${GS_OBJECT});", true)
         }
     }
 

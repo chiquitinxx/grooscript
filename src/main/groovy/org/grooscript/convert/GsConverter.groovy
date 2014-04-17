@@ -693,11 +693,15 @@ class GsConverter {
         if (withParenthesis) {
             out.addScript('(')
         }
-        out.addScript("${GS_MAP}()")
-        expression.expressions.each {
-            conversionFactory.visitNode(it)
-            if (withParenthesis) {
-                out.addScript(')')
+        if (expression.expressions.size() == 1 && expression.expressions[0] instanceof ConstantExpression) {
+            conversionFactory.visitNode(expression.expressions[0])
+        } else {
+            out.addScript("${GS_MAP}()")
+            expression.expressions.each {
+                conversionFactory.visitNode(it)
+                if (withParenthesis) {
+                    out.addScript(')')
+                }
             }
         }
     }

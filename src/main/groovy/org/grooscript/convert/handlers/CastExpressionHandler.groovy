@@ -4,6 +4,7 @@ import org.codehaus.groovy.ast.expr.CastExpression
 import org.codehaus.groovy.ast.expr.GStringExpression
 import org.codehaus.groovy.ast.expr.ListExpression
 import org.codehaus.groovy.ast.expr.MapExpression
+import org.codehaus.groovy.ast.expr.VariableExpression
 
 import static org.grooscript.JsNames.*
 
@@ -23,6 +24,10 @@ class CastExpressionHandler extends BaseHandler {
                 factory.visitNode(expression.expression)
             } else if (expression.expression instanceof GStringExpression) {
                 factory.visitNode(expression.expression)
+            } else if (expression.expression instanceof VariableExpression &&
+                factory.isTraitClass(expression.type.name) &&
+                expression.expression.variable == '$self') {
+                    out.addScript('$self')
             } else {
                 throw new Exception('Casting not supported for: ' +expression.type.name +
                         ' with value:' + expression.expression.type.name)
