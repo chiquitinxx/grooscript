@@ -49,4 +49,9 @@ class TestTraits extends Specification {
         expect:
         convertAndEvaluate('traits/Extending')
     }
+
+    def 'dynamic'() {
+        expect:
+        convertAndEvaluate('traits/Dynamic')
+    }
 }

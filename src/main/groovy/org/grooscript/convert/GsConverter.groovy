@@ -693,20 +693,16 @@ class GsConverter {
         if (withParenthesis) {
             out.addScript('(')
         }
-        if (expression.expressions.size() == 1 && expression.expressions[0] instanceof ConstantExpression) {
-            conversionFactory.visitNode(expression.expressions[0])
-        } else {
-            out.addScript("${GS_MAP}()")
-            expression.expressions.each {
-                conversionFactory.visitNode(it)
-                if (withParenthesis) {
-                    out.addScript(')')
-                }
-            }
+        expression.expressions.each {
+            conversionFactory.visitNode(it)
+        }
+        if (withParenthesis) {
+            out.addScript(')')
         }
     }
 
     private processNamedArgumentListExpression(NamedArgumentListExpression expression) {
+        out.addScript("${GS_MAP}()")
         expression.mapEntryExpressions.eachWithIndex { MapEntryExpression exp,i ->
             out.addScript('.add(')
             conversionFactory.visitNode(exp.keyExpression)
