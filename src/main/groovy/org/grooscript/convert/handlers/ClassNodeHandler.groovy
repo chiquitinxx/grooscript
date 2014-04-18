@@ -398,16 +398,16 @@ class ClassNodeHandler extends BaseHandler {
         org.codehaus.groovy.transform.trait.Traits.isTrait(classNode)
     }
 
-    private handleTrait(ClassNode classNode) {
+    private handleTrait(ClassNode classNode, notAddThisMethods = []) {
         addClassVariableNamesToScope(classNode)
         ClassNode helperClassNode = org.codehaus.groovy.transform.trait.Traits.findHelpers(classNode).helper
         helperClassNode.outerClass.interfaces?.findAll{ isTrait(it) }.each { ClassNode cn ->
-            handleTrait(cn)
+            handleTrait(cn, notAddThisMethods + helperClassNode.methods*.name)
         }
-        addTraitMethods(classNode, helperClassNode)
+        addTraitMethods(classNode, helperClassNode, notAddThisMethods)
     }
 
-    private addTraitMethods(ClassNode classNode, ClassNode helperClassNode) {
+    private addTraitMethods(ClassNode classNode, ClassNode helperClassNode, notAddThisMethods) {
         helperClassNode.methods.each {
             if (it.name == '$init$') {
                 if (it.code instanceof BlockStatement && !it.code.isEmpty()) {
@@ -416,7 +416,9 @@ class ClassNodeHandler extends BaseHandler {
             } else if (it.name == '$static$init$') {
 
             } else {
-                staticMethod(it, GS_OBJECT, classNode.nameWithoutPackage, true)
+                if (!(it.name in notAddThisMethods)) {
+                    staticMethod(it, GS_OBJECT, classNode.nameWithoutPackage, true)
+                }
             }
         }
     }
