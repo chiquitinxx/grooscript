@@ -2,7 +2,6 @@ package org.grooscript.convert.handlers
 
 import org.codehaus.groovy.ast.InnerClassNode
 import org.codehaus.groovy.ast.stmt.BlockStatement
-import org.codehaus.groovy.transform.trait.Traits
 
 /**
  * User: jorgefrancoleza
@@ -36,6 +35,6 @@ class InnerClassNodeHandler extends BaseHandler {
     private getNameOfTraitField(classNode, String methodName) {
         String propertyName = methodName.substring(3)
         propertyName = propertyName[0].toLowerCase() + propertyName.substring(1)
-        Traits.remappedFieldName(classNode, propertyName)
+        org.codehaus.groovy.transform.trait.Traits.remappedFieldName(classNode, propertyName)
     }
 }

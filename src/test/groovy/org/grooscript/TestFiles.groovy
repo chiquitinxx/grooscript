@@ -11,17 +11,23 @@ import spock.lang.Specification
 @Mixin([ConversionMixin])
 class TestFiles extends Specification {
 
+    Map options
+
+    def setup() {
+        options = [classPath: 'src/test/src']
+    }
+
     def 'initial inheritance on distinct files'() {
         when:
-        def result = convertFile('files/Car')
+        def result = convertFile('files/Car', options)
 
         then:
-        result
+        result.contains('function Vehicle()')
     }
 
     def 'check inheritance use in other files with convertDependencies'() {
         when:
-        def result = convertAndEvaluate('files/Vehicles',true, [classPath: 'src/test/resources', consoleInfo: true])
+        def result = convertAndEvaluate('files/Vehicles', true, options)
 
         then:
         notThrown(GrooScriptException)

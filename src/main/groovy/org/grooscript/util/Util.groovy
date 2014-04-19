@@ -34,6 +34,11 @@ class Util {
         "$USER_DIR${SEP}src${SEP}test${SEP}resources${SEP}"
     }
 
+    //Location of groovy test src examples
+    static getGroovyTestSrcPath() {
+        "$USER_DIR${SEP}src${SEP}test${SEP}src${SEP}"
+    }
+
     /**
      * Gets a Js file from js directory
      * @param name
@@ -71,6 +76,8 @@ class Util {
             File file = new File(getGroovyTestPath() + finalName)
             if (file && file.exists() && file.isFile()) {
                 result = file
+            } else {
+                result = new File(getGroovyTestSrcPath() + finalName)
             }
         }
         result
