@@ -82,7 +82,9 @@ class AstTreeGenerator {
                 listAstNodes.add(node.statementBlock)
 
                 node.classes?.each { ClassNode cl ->
-
+                    if (consoleInfo) {
+                        GsConsole.message('  Processing classNode: ' + cl.name)
+                    }
                     if (!(cl.name == scriptClassName) && cl.isPrimaryClassNode()) {
 
                         //If we dont want to convert dependencies in the result

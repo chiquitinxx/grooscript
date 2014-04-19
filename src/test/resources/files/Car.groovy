@@ -1,4 +1,4 @@
-package inheritance
+package files
 
 /**
  * User: jorgefrancoleza

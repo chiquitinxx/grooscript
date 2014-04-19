@@ -1,6 +1,7 @@
 package org.grooscript
 
 import org.grooscript.test.ConversionMixin
+import org.grooscript.util.GrooScriptException
 import spock.lang.Specification
 
 /**
@@ -8,19 +9,22 @@ import spock.lang.Specification
  * Date: 22/11/13
  */
 @Mixin([ConversionMixin])
-class TestInheritance extends Specification {
+class TestFiles extends Specification {
 
     def 'initial inheritance on distinct files'() {
         when:
-        def result = convertFile('inheritance/Car', [classPath: 'src/test/resources'])
+        def result = convertFile('files/Car')
 
         then:
         result
     }
 
     def 'check inheritance use in other files with convertDependencies'() {
-        expect:
-        !convertAndEvaluateWithJsEngine('inheritance/Vehicles', true,
-                [convertDependencies: true]).assertFails
+        when:
+        def result = convertAndEvaluate('files/Vehicles',true, [classPath: 'src/test/resources', consoleInfo: true])
+
+        then:
+        notThrown(GrooScriptException)
+        result
     }
 }
