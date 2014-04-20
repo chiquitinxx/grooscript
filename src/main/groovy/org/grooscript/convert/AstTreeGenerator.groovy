@@ -38,7 +38,7 @@ class AstTreeGenerator {
         //All the imports in a file are added to the source to be compiled, if not added, compiler fails
         def classesToConvert = []
         if (!convertDependencies) {
-            def matcher = text =~ /\bclass\s+(\w+)\s*\{/
+            def matcher = text =~ /\bclass\s+(\w+)/
             matcher.each {
                 classesToConvert << it[1]
             }
@@ -63,13 +63,7 @@ class AstTreeGenerator {
         }
         GroovyCodeSource codeSource = new GroovyCodeSource(text, scriptClassName + '.groovy', '/groovy/script')
         CompilerConfiguration conf = new CompilerConfiguration()
-        //Add classpath to configuration
-        if (classPath && classPath instanceof String) {
-            conf.setClasspath(classPath)
-        }
-        if (classPath && classPath instanceof Collection) {
-            conf.setClasspathList(classPath)
-        }
+        //Add customization to configuration
         if (customization) {
             withConfig(conf, customization)
         }

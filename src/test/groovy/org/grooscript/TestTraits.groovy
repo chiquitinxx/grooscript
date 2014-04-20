@@ -1,6 +1,8 @@
 package org.grooscript
 
 import org.grooscript.test.ConversionMixin
+import org.grooscript.util.Util
+import spock.lang.IgnoreIf
 import spock.lang.Specification
 
 /**
@@ -8,6 +10,7 @@ import spock.lang.Specification
  * Date: 22/11/13
  */
 @Mixin([ConversionMixin])
+@IgnoreIf({ !Util.groovyVersionAtLeast('2.3') })
 class TestTraits extends Specification {
 
     def 'initial traits support'() {

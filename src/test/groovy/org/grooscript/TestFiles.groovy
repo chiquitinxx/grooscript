@@ -1,6 +1,7 @@
 package org.grooscript
 
 import org.grooscript.test.ConversionMixin
+import org.grooscript.test.JavascriptEngine
 import org.grooscript.util.GrooScriptException
 import spock.lang.Specification
 
@@ -32,5 +33,25 @@ class TestFiles extends Specification {
         then:
         notThrown(GrooScriptException)
         result
+    }
+
+    def 'inheritance without convert dependencies'() {
+        given:
+        options << [convertDependencies: false]
+
+        when:
+        def jsCar = convertFile('files/Car', options)
+
+        then:
+        jsCar.contains('function Car()')
+        !jsCar.contains('function Vehicle()')
+
+        when:
+        def jsVehicle = convertFile('files/Vehicle', options)
+        def jsVehicles = convertFile('files/Vehicles', options)
+        def result = JavascriptEngine.jsEval(jsVehicle + jsCar + jsVehicles)
+
+        then:
+        !result.assertFails
     }
 }

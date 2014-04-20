@@ -1,5 +1,7 @@
 package org.grooscript
 
+import org.grooscript.util.Util
+import spock.lang.IgnoreIf
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -152,6 +154,7 @@ class TestConversionOptions extends Specification {
         file.text.startsWith("function ${FILE_BASIC_NAME}()")
     }
 
+    @IgnoreIf({ !Util.groovyVersionAtLeast('2.1') })
     def 'customization option with an ast transformation'() {
 
         given:
