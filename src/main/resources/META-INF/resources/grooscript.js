@@ -102,15 +102,15 @@
             }
             return result;
         },
-        invokeMethod: function(name,values) {
+        invokeMethod: function(name, values) {
             var i,newArgs = [];
             if (values !== null && values !== undefined) {
-                for (i=0; i < values.length ; i++) {
+                for (i=0; i < values.length; i++) {
                     newArgs[i] = values[i];
                 }
             }
             var f = this[name];
-            return f.apply(this,newArgs);
+            return f.apply(this, newArgs);
         },
         constructor : function() {
             return this;

@@ -99,10 +99,12 @@ class Functions {
 
         if (lastParameterCanBeMore) {
             Parameter lastParameter = functionOrMethod.parameters.last()
+            conversionFactory.out.addScript("if (arguments.length == 1 && arguments[0] instanceof Array) { " +
+                    "${lastParameter.name}=${GS_LIST}(arguments[0]); } else ", true)
             conversionFactory.out.addScript("if (arguments.length == ${functionOrMethod.parameters.size()}) { " +
-                    "${lastParameter.name}=${GS_LIST}([arguments[${functionOrMethod.parameters.size()} - 1]]); }", true)
+                    "${lastParameter.name}=${GS_LIST}([arguments[${functionOrMethod.parameters.size()} - 1]]); } else ", true)
             conversionFactory.out.addScript("if (arguments.length < ${functionOrMethod.parameters.size()}) { " +
-                    "${lastParameter.name}=${GS_LIST}([]); }", true)
+                    "${lastParameter.name}=${GS_LIST}([]); } else ", true)
             conversionFactory.out.addScript("if (arguments.length > ${functionOrMethod.parameters.size()}) {", true)
             conversionFactory.out.addScript("  ${lastParameter.name}=${GS_LIST}([${lastParameter.name}]);", true)
             conversionFactory.out.addScript("  for (${COUNT}=${functionOrMethod.parameters.size()};${COUNT} < arguments.length; ${COUNT}++) {", true)

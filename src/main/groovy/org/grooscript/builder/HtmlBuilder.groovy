@@ -13,8 +13,10 @@ class HtmlBuilder {
     }
 
     static String build(@DelegatesTo(HtmlBuilder) Closure closure) {
+        def mc = new ExpandoMetaClass(HtmlBuilder, false, true)
+        mc.initialize()
         def builder = new HtmlBuilder()
-
+        builder.metaClass = mc
         closure.delegate = builder
         closure()
 
@@ -26,7 +28,11 @@ class HtmlBuilder {
     }
 
     def methodMissing(String name, args) {
+        this.metaClass."${name}" = { ...ars -> tagSolver(name, ars)}
+        this.invokeMethod(name, args)
+    }
 
+    def tagSolver = { String name, args ->
         html += "<${name}"
         if (args && args.size() > 0 && !(args[0] instanceof String) && !(args[0] instanceof Closure)) {
             args[0].each { key, value ->

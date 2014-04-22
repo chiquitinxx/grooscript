@@ -4,11 +4,7 @@ function HtmlBuilder() {
   gSobject.clazz = { name: 'org.grooscript.builder.HtmlBuilder', simpleName: 'HtmlBuilder'};
   gSobject.clazz.superclass = { name: 'java.lang.Object', simpleName: 'Object'};
   gSobject.html = null;
-  gSobject.build = function(x0) { return HtmlBuilder.build(x0); }
-  gSobject['yield'] = function(text) {
-    return gSobject.html += text;
-  }
-  gSobject['methodMissing'] = function(name, args) {
+  gSobject.tagSolver = function(name, args) {
     gSobject.html += "<" + (name) + "";
     if ((((gs.bool(args)) && (gs.mc(args,"size",gs.list([])) > 0)) && (!gs.instanceOf((args [ 0]), "String"))) && (!gs.instanceOf((args [ 0]), "Closure"))) {
       gs.mc(args [ 0],"each",gs.list([function(key, value) {
@@ -31,6 +27,25 @@ function HtmlBuilder() {
       };
     };
     return gSobject.html += "</" + (name) + ">";
+  };
+  gSobject.build = function(x0) { return HtmlBuilder.build(x0); }
+  gSobject['yield'] = function(text) {
+    return gSobject.html += text;
+  }
+  gSobject['methodMissing'] = function(name, args) {
+    gs.sp(this,"" + (name) + "",function(ars) {
+      if (arguments.length == 1 && arguments[0] instanceof Array) { ars=gs.list(arguments[0]); } else 
+      if (arguments.length == 1) { ars=gs.list([arguments[1 - 1]]); } else 
+      if (arguments.length < 1) { ars=gs.list([]); } else 
+      if (arguments.length > 1) {
+        ars=gs.list([ars]);
+        for (gScount=1;gScount < arguments.length; gScount++) {
+          ars.add(arguments[gScount]);
+        }
+      }
+      return gs.mc(gSobject,"tagSolver",gs.list([name, ars]));
+    });
+    return gs.mc(this,"invokeMethod",gs.list([name, args]));
   }
   gSobject['HtmlBuilder0'] = function(it) {
     gSobject.html = "";
@@ -42,7 +57,10 @@ function HtmlBuilder() {
   return gSobject;
 };
 HtmlBuilder.build = function(closure) {
+  var mc = gs.expandoMetaClass(HtmlBuilder, false, true);
+  gs.mc(mc,"initialize",gs.list([]));
   var builder = HtmlBuilder();
+  gs.sp(builder,"metaClass",mc);
   gs.sp(closure,"delegate",builder);
   (closure.delegate!=undefined?gs.applyDelegate(closure,closure.delegate,[]):gs.executeCall(closure, gs.list([])));
   return gs.gp(builder,"html");

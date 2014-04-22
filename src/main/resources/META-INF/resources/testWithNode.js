@@ -4,7 +4,7 @@
 var gs = require('./grooscript.js');
 gs.consoleOutput = true;
 console.log('Ready to Test!');
-
+//gs.consoleInfo = true;
 /////////////////////////////////////////////////////////// Tests here
 
 
