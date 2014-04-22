@@ -6,6 +6,7 @@ import org.codehaus.groovy.ast.expr.ClosureExpression
 import org.codehaus.groovy.ast.expr.ConstantExpression
 import org.codehaus.groovy.ast.expr.MethodCallExpression
 import org.codehaus.groovy.ast.expr.PropertyExpression
+import org.codehaus.groovy.ast.expr.SpreadExpression
 import org.codehaus.groovy.ast.expr.VariableExpression
 
 import static org.grooscript.JsNames.*
@@ -34,15 +35,15 @@ class MethodCallExpressionHandler extends BaseHandler {
                 def nameFunc = expression.objectExpression.text
                 out.addScript("(${nameFunc}.delegate!=undefined?${GS_APPLY_DELEGATE}(${nameFunc},${nameFunc}.delegate,[")
                 factory.visitNode(expression.arguments, false)
-                out.addScript("]):${GS_EXECUTE_CALL}(${nameFunc}, ${GS_LIST}([")
+                out.addScript("]):${GS_EXECUTE_CALL}(${nameFunc}, [")
                 factory.visitNode(expression.arguments, false)
-                out.addScript("])))")
+                out.addScript("]))")
             } else {
                 out.addScript("${GS_EXECUTE_CALL}(")
                 factory.visitNode(expression.objectExpression)
-                out.addScript(", ${GS_LIST}([")
+                out.addScript(", [")
                 factory.visitNode(expression.arguments, false)
-                out.addScript(']))')
+                out.addScript('])')
             }
         //Dont use dot(.) in super calls
         } else if (expression.objectExpression instanceof VariableExpression &&
@@ -112,9 +113,9 @@ class MethodCallExpressionHandler extends BaseHandler {
             //println 'spreadsafe!'
             addParameters = false
             factory.visitNode(expression.objectExpression)
-            out.addScript(".collect(function(it) { return ${GS_METHOD_CALL}(it,'${methodName}',${GS_LIST}([")
+            out.addScript(".collect(function(it) { return ${GS_METHOD_CALL}(it,'${methodName}',[")
             factory.visitNode(expression.arguments, false)
-            out.addScript(']));})')
+            out.addScript(']);})')
         //Call a method in this, method exist in main context
         } else if (factory.isThis(expression.objectExpression) &&
                 context.firstVariableScopingHasMethod(methodName)) {
@@ -156,9 +157,16 @@ class MethodCallExpressionHandler extends BaseHandler {
             putMethodName(expression)
 
             //Parameters
-            out.addScript(",${GS_LIST}([")
-            factory.visitNode(expression.arguments, false)
-            out.addScript(']))')
+            out.addScript(",")
+            if (expression.arguments.expressions.size() == 1 &&
+                    expression.arguments.expressions.first() instanceof SpreadExpression) {
+                factory.visitNode(expression.arguments.expressions.first().expression)
+            } else {
+                out.addScript("[")
+                factory.visitNode(expression.arguments, false)
+                out.addScript("]")
+            }
+            out.addScript(')')
         }
 
         if (addParameters) {

@@ -6,23 +6,23 @@ function HtmlBuilder() {
   gSobject.html = null;
   gSobject.tagSolver = function(name, args) {
     gSobject.html += "<" + (name) + "";
-    if ((((gs.bool(args)) && (gs.mc(args,"size",gs.list([])) > 0)) && (!gs.instanceOf((args [ 0]), "String"))) && (!gs.instanceOf((args [ 0]), "Closure"))) {
-      gs.mc(args [ 0],"each",gs.list([function(key, value) {
+    if ((((gs.bool(args)) && (gs.mc(args,"size",[]) > 0)) && (!gs.instanceOf((args [ 0]), "String"))) && (!gs.instanceOf((args [ 0]), "Closure"))) {
+      gs.mc(args [ 0],"each",[function(key, value) {
         return gSobject.html += " " + (key) + "='" + (value) + "'";
-      }]));
+      }]);
     };
     gSobject.html += ">";
     if (gs.bool(args)) {
-      if ((gs.equals(gs.mc(args,"size",gs.list([])), 1)) && (gs.instanceOf((args [ 0]), "String"))) {
-        gs.mc(gSobject,"yield",gs.list([args [ 0]]));
+      if ((gs.equals(gs.mc(args,"size",[]), 1)) && (gs.instanceOf((args [ 0]), "String"))) {
+        gs.mc(gSobject,"yield",[args [ 0]]);
       } else {
-        var lastArg = gs.mc(args,"last",gs.list([]));
+        var lastArg = gs.mc(args,"last",[]);
         if (gs.instanceOf(lastArg, "Closure")) {
           gs.sp(lastArg,"delegate",this);
-          (lastArg.delegate!=undefined?gs.applyDelegate(lastArg,lastArg.delegate,[]):gs.executeCall(lastArg, gs.list([])));
+          (lastArg.delegate!=undefined?gs.applyDelegate(lastArg,lastArg.delegate,[]):gs.executeCall(lastArg, []));
         };
-        if ((gs.instanceOf(lastArg, "String")) && (gs.mc(args,"size",gs.list([])) > 1)) {
-          gs.mc(gSobject,"yield",gs.list([lastArg]));
+        if ((gs.instanceOf(lastArg, "String")) && (gs.mc(args,"size",[]) > 1)) {
+          gs.mc(gSobject,"yield",[lastArg]);
         };
       };
     };
@@ -43,9 +43,9 @@ function HtmlBuilder() {
           ars.add(arguments[gScount]);
         }
       }
-      return gs.mc(gSobject,"tagSolver",gs.list([name, ars]));
+      return gs.mc(gSobject,"tagSolver",[name, ars]);
     });
-    return gs.mc(this,"invokeMethod",gs.list([name, args]));
+    return gs.mc(this,"invokeMethod",[name, args]);
   }
   gSobject['HtmlBuilder0'] = function(it) {
     gSobject.html = "";
@@ -58,10 +58,10 @@ function HtmlBuilder() {
 };
 HtmlBuilder.build = function(closure) {
   var mc = gs.expandoMetaClass(HtmlBuilder, false, true);
-  gs.mc(mc,"initialize",gs.list([]));
+  gs.mc(mc,"initialize",[]);
   var builder = HtmlBuilder();
   gs.sp(builder,"metaClass",mc);
   gs.sp(closure,"delegate",builder);
-  (closure.delegate!=undefined?gs.applyDelegate(closure,closure.delegate,[]):gs.executeCall(closure, gs.list([])));
+  (closure.delegate!=undefined?gs.applyDelegate(closure,closure.delegate,[]):gs.executeCall(closure, []));
   return gs.gp(builder,"html");
 }

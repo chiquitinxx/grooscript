@@ -2023,10 +2023,8 @@
 
     // spread operator (*)
     gs.spread = function(item) {
-        if (item !== null && item !== undefined) {
-            if (item instanceof Array) {
-                this.values = item;
-            }
+        if (item && item instanceof Array) {
+            this.values = item;
         }
     };
 

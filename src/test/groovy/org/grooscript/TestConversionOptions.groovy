@@ -193,7 +193,7 @@ class TestConversionOptions extends Specification {
 
         then:
         result == '''var addToB = function(a) {
-  gs.mc(console,"log",gs.list(["Hello!"]));
+  gs.mc(console,"log",["Hello!"]);
   return gs.plus(a, b);
 };
 '''
