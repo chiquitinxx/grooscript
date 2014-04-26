@@ -58,9 +58,17 @@ class TestFiles extends Specification {
     def 'convert a @GsNative method in a dependency file'() {
         when:
         def converted = convertFile('files/UseGsNative', options)
-        println converted
 
         then:
         converted.contains('alert(\'Hello!\');')
+    }
+
+    def 'convert traits defined in other files'() {
+        when:
+        def converted = convertFile('files/Traits', options)
+
+        then:
+        converted.contains('MyTrait = function() {};')
+        converted.contains('function UsingTrait() {')
     }
 }
