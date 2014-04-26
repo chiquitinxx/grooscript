@@ -83,7 +83,7 @@ class ClassNodeHandler extends BaseHandler {
             //Ignoring fields
             //node?.fields?.each { println 'field->'+it  }
 
-            processClassMethods(node?.methods, node.nameWithoutPackage)
+            processClassMethods(node?.methods, node)
 
             //Constructors
             checkConstructors(node)
@@ -100,9 +100,9 @@ class ClassNodeHandler extends BaseHandler {
             if (!haveAnnotationNonConvert(method.annotations)) {
                 if (method.isStatic()) {
                     if (haveAnnotationNative(method.annotations)) {
-                        putGsNativeMethod("${node.nameWithoutPackage}.${method.name}",method)
+                        putGsNativeMethod("${node.nameWithoutPackage}.${method.name}", node, method)
                     } else {
-                        functions.processBasicFunction("${node.nameWithoutPackage}.${method.name}",method,false)
+                        functions.processBasicFunction("${node.nameWithoutPackage}.${method.name}", method, false)
                     }
                 }
             }
@@ -128,14 +128,14 @@ class ClassNodeHandler extends BaseHandler {
         checkAddCategory(node.nameWithoutPackage, node.annotations)
     }
 
-    private processClassMethods(List<MethodNode> methods, String nodeName) {
+    private processClassMethods(List<MethodNode> methods, ClassNode classNode) {
 
         context.processingClassMethods = true
         methods?.each { MethodNode methodNode ->
             if (!haveAnnotationNonConvert(methodNode.annotations) && !methodNode.isAbstract()) {
                 //Process the methods
                 if (haveAnnotationNative(methodNode.annotations) && !methodNode.isStatic()) {
-                    putGsNativeMethod("${GS_OBJECT}.${methodNode.name}", methodNode)
+                    putGsNativeMethod("${GS_OBJECT}.${methodNode.name}", classNode, methodNode)
                 } else if (!methodNode.isStatic()) {
                     if (methodNode.name == 'propertyMissing' && methodNode.parameters.length == 2) {
                         functions.processBasicFunction("${GS_OBJECT}['setPropertyMissing']", methodNode, false)
@@ -143,7 +143,7 @@ class ClassNodeHandler extends BaseHandler {
                         factory.visitNode(methodNode, false)
                     }
                 } else {
-                    staticMethod(methodNode, GS_OBJECT, nodeName)
+                    staticMethod(methodNode, GS_OBJECT, classNode.nameWithoutPackage)
                 }
             }
         }
@@ -313,12 +313,12 @@ class ClassNodeHandler extends BaseHandler {
         out.addScript("${GS_ADD_CATEGORY_ANNOTATION}('${categoryName}','${className}');", true)
     }
 
-    private putGsNativeMethod(String name, MethodNode method) {
+    private putGsNativeMethod(String name, ClassNode classNode, MethodNode method) {
         out.addScript("${name} = function(")
         context.actualScope.push([])
         functions.processFunctionOrMethodParameters(method, false, false)
         context.actualScope.pop()
-        out.addScript(context.nativeFunctions[method.name], true)
+        out.addScript(context.getNativeFunction(classNode, method.name), true)
         out.indent--
         out.removeTabScript()
         out.addScript('}', true)

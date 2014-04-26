@@ -1,5 +1,6 @@
 package org.grooscript.util
 
+import org.grooscript.convert.NativeFunction
 import org.grooscript.test.JavascriptEngine
 import org.grooscript.convert.GsConverter
 import org.grooscript.test.JsTestResult
@@ -122,21 +123,14 @@ class Util {
         fullProcessScript(script, null)
     }
 
-    /**
-     * Get map with native functions
-     * @param text to be converted
-     * @return map [name:code]
-     */
-    static Map getNativeFunctions(String text) {
+    static List<NativeFunction> getNativeFunctions(String text, String className = null) {
 
-        def mapResult = [:]
+        List<NativeFunction> listResult = []
 
         def seg = text
-
         def pat = /(?ms)@(GsNative|org\.grooscript\.GsNative).+\w+\s*\(.*\)\s*\{\s*(\/\*).*(\*\/\s*\})/
 
         seg.eachMatch(pat) { match ->
-            //println 'Item->'+match[0]
             def list = match[0].split('@GsNative')
 
             list.each { lines ->
@@ -147,12 +141,13 @@ class Util {
                     def function = (lines =~ /\w+\s*\(/)[0]
 
                     function = function.substring(0,function.length() - 1)
-                    mapResult.put(function.trim(), line.trim())
+                    listResult << new NativeFunction(
+                            className: className, code: line.trim(), methodName: function.trim())
                 }
             }
         }
 
-        mapResult
+        listResult
     }
 
     static boolean groovyVersionAtLeast(String version) {

@@ -1,6 +1,8 @@
 package org.grooscript.convert
 
+import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.expr.VariableExpression
+import org.grooscript.util.GsConsole
 
 /**
  * User: jorgefrancoleza
@@ -31,7 +33,7 @@ class Context {
     def prefixOperator = '', postfixOperator = ''
 
     //Where code of native functions stored, as a map. Used for GsNative annotation
-    def nativeFunctions
+    List<NativeFunction> nativeFunctions
 
     Context() {
         variableScoping.clear()
@@ -78,6 +80,24 @@ class Context {
         !expression.isThisExpression() && !allActualScopeContains(expression.name) &&
                 !variableScopingContains(expression.name) &&
                 (processingClosure || processingClassMethods)
+    }
+
+    String getNativeFunction(ClassNode classNode, String methodName) {
+        def nativeFunctionsWithClassName = nativeFunctions.findAll {
+            it.className == classNode.nameWithoutPackage && it.methodName == methodName}
+        if (nativeFunctionsWithClassName.size() == 1) {
+            return nativeFunctionsWithClassName.first().code
+        } else {
+            def natives = nativeFunctions.findAll {
+                it.methodName == methodName
+            }
+            if (natives.size() == 1) {
+                return natives.first().code
+            } else {
+                GsConsole.error("Don't find unique native code for method: ${methodName} in class: ${classNode.name}")
+                return ''
+            }
+        }
     }
 
     private tourStack(Stack stack,variableName) {

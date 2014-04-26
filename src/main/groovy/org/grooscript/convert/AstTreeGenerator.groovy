@@ -1,7 +1,6 @@
 package org.grooscript.convert
 
-import static org.codehaus.groovy.control.customizers.builder.CompilerCustomizationBuilder.withConfig
-
+import org.grooscript.util.Util
 import org.grooscript.util.GrooScriptException
 import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.MethodNode
@@ -10,6 +9,8 @@ import org.codehaus.groovy.control.CompilationUnit
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.grooscript.util.GsConsole
+
+import static org.codehaus.groovy.control.customizers.builder.CompilerCustomizationBuilder.withConfig
 
 /**
  * User: jorgefrancoleza
@@ -34,7 +35,6 @@ class AstTreeGenerator {
             GsConsole.message(' Classpath: ' + classPath)
             GsConsole.message(' Customization: ' + customization)
         }
-        //By default, convertDependencies = true
         //All the imports in a file are added to the source to be compiled, if not added, compiler fails
         def classesToConvert = []
         if (!convertDependencies) {
@@ -70,8 +70,31 @@ class AstTreeGenerator {
 
         CompilationUnit cu = compiledCode(conf, codeSource, classLoader, text)
 
+        [
+            listAstNodes(cu.ast.modules, scriptClassName, classesToConvert),
+            nativeFunctionsFromOtherSources(cu.ast.modules)
+        ]
+    }
+
+    private compiledCode(conf, codeSource, classLoader, text) {
+        try {
+            def compilationUnit = new CompilationUnit(conf, codeSource.codeSource, classLoader)
+            compilationUnit.addSource(codeSource.getName(), text)
+            compilationUnit.compile(CompilePhase.INSTRUCTION_SELECTION.phaseNumber)
+        } catch (e) {
+            GsConsole.error 'Compilation error in INSTRUCTION_SELECTION phase'
+            throw e
+        }
+
+        def compilationUnitFinal = new CompilationUnit(conf, codeSource.codeSource, classLoader)
+        compilationUnitFinal.addSource(codeSource.getName(), text)
+        compilationUnitFinal.compile(CompilePhase.SEMANTIC_ANALYSIS.phaseNumber)
+        compilationUnitFinal
+    }
+
+    private List listAstNodes(List<ModuleNode> modules, String scriptClassName, List classesToConvert) {
         // collect all the ASTNodes into the result, possibly ignoring the script body if desired
-        def list = cu.ast.modules.inject([]) { List listAstNodes, ModuleNode node ->
+        modules.inject([]) { List listAstNodes, ModuleNode node ->
             if (node.statementBlock) {
                 listAstNodes.add(node.statementBlock)
 
@@ -103,25 +126,21 @@ class AstTreeGenerator {
             }
             listAstNodes
         }
-        if (consoleInfo) {
-            GsConsole.message('Done converting string code to AST. Number of nodes: ' + list.size())
-        }
-        list
     }
 
-    private compiledCode(conf, codeSource, classLoader, text) {
-        try {
-            def compilationUnit = new CompilationUnit(conf, codeSource.codeSource, classLoader)
-            compilationUnit.addSource(codeSource.getName(), text)
-            compilationUnit.compile(CompilePhase.INSTRUCTION_SELECTION.phaseNumber)
-        } catch (e) {
-            GsConsole.error 'Compilation error in INSTRUCTION_SELECTION phase'
-            throw e
+    private List<NativeFunction> nativeFunctionsFromOtherSources(List<ModuleNode> modules) {
+        modules.inject([]) { List listNativeFunctions, ModuleNode moduleNode ->
+            if (moduleNode.description.startsWith('file:')) {
+                File file = new File(moduleNode.description.substring(5))
+                if (file && file.exists() && file.isFile()) {
+                    def className = null
+                    if (modules.classes.size() == 1) {
+                        className = modules.classes.first().nameWithoutPackage
+                    }
+                    listNativeFunctions = listNativeFunctions + Util.getNativeFunctions(file.text, className)
+                }
+            }
+            listNativeFunctions
         }
-
-        def compilationUnitFinal = new CompilationUnit(conf, codeSource.codeSource, classLoader)
-        compilationUnitFinal.addSource(codeSource.getName(), text)
-        compilationUnitFinal.compile(CompilePhase.SEMANTIC_ANALYSIS.phaseNumber)
-        compilationUnitFinal
     }
 }

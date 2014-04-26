@@ -43,7 +43,8 @@ class GsConverter {
                 if (consoleInfo) {
                     GsConsole.message('Getting ast from code...')
                 }
-                def astList = new AstTreeGenerator(consoleInfo: consoleInfo, convertDependencies: convertDependencies,
+                def (astList, nativeFunctions) = new AstTreeGenerator(consoleInfo: consoleInfo,
+                        convertDependencies: convertDependencies,
                         classPath: classPath, customization: customization).fromText(script)
 
                 if (consoleInfo) {
@@ -51,7 +52,7 @@ class GsConverter {
                 }
 
                 phase++
-                result = processAstListToJs(astList, Util.getNativeFunctions(script))
+                result = processAstListToJs(astList, nativeFunctions + Util.getNativeFunctions(script))
 
                 if (consoleInfo) {
                     GsConsole.message('Code processed.')

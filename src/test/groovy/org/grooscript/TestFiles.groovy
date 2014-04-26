@@ -54,4 +54,13 @@ class TestFiles extends Specification {
         then:
         !result.assertFails
     }
+
+    def 'convert a @GsNative method in a dependency file'() {
+        when:
+        def converted = convertFile('files/UseGsNative', options)
+        println converted
+
+        then:
+        converted.contains('alert(\'Hello!\');')
+    }
 }
