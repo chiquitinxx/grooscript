@@ -16,7 +16,7 @@ class TestFunctionalBinder extends FunctionalTest {
         result += script(jsFileText('grooscript-binder.js'))
         result += script(jsFileText('gQueryImpl.js'))
         result += script(GrooScript.convert(bookClass))
-        result += script('var book = Book(); var binder = Binder({gQuery: GQueryImpl()});')
+        result += script('var book = Book(); var binder = Binder();')
         result += script('$(document).ready(function() { binder.call(book); book.init()});')
         result += '<p>Author:<input type="text" id="author"></p>'
         result += '<p>Title:<input type="text" name="title"></p>'
@@ -24,7 +24,6 @@ class TestFunctionalBinder extends FunctionalTest {
         result += '<p><input type="radio" name="numberPages" id="smallSize" value="small">Small<input type="radio" name="numberPages" id="bigSize" value="big">Big</p>'
         result += '<p>Country:<select id="country"><option/><option value="spain">Spain</option><option value="eeuu">EE.UU.</option></select></p>'
         result += '<p><input type="button" id="do" value="Click!"/></p>'
-
         result += '</body></html>'
         result
     }

@@ -1,3 +1,4 @@
+//Grooscript Version 0.5-SNAPSHOT Apache 2 License
 (function() {
     var gs = function(obj) {
         if (obj instanceof gs) return obj;
@@ -519,7 +520,7 @@
                 if (!isMapProperty(ob)) {
                     count ++;
                     if (count > number) {
-                        result.add(ob, this[ob])
+                        result.add(ob, this[ob]);
                     }
                 }
             }
@@ -1275,7 +1276,7 @@
 
     Array.prototype.putAt = function(position, value) {
         this[position] = value;
-    }
+    };
 
     /////////////////////////////////////////////////////////////////
     //list - [] from groovy
@@ -1630,7 +1631,7 @@
     Number.prototype.byteValue = Number.prototype.doubleValue = Number.prototype.shortValue =
         Number.prototype.floatValue = Number.prototype.longValue = function() {
         return this;
-    }
+    };
 
     /////////////////////////////////////////////////////////////////
     //String functions
@@ -1770,8 +1771,8 @@
 
     String.prototype.plus = function(other) {
         var addText = 'null';
-        if (other != undefined && other != null) {
-            if (other['toString'] != undefined) {
+        if (other !== undefined && other !== null) {
+            if (other['toString'] !== undefined) {
                 addText = other.toString();
             } else {
                 addText = other;
@@ -1847,7 +1848,7 @@
     };
 
     gs.is = function(value1, value2) {
-        if (value1 != null && hasFunc(value1, 'is')) {
+        if (value1 !== null && hasFunc(value1, 'is')) {
             var count, params = gs.list([value2]);
             for (count = 2; count < arguments.length; count++) {
                 params.add(arguments[count]);
@@ -2059,9 +2060,9 @@
 
                 if (item[nameFunction] === undefined || item[nameFunction] === null || (typeof item[nameFunction] != "function")) {
                     if (item[nameProperty] === undefined &&
-                        item['setPropertyMissing'] !== undefined &&
-                        typeof item['setPropertyMissing'] === "function") {
-                        item['setPropertyMissing'](nameProperty, value);
+                        item.setPropertyMissing !== undefined &&
+                        typeof item.setPropertyMissing === "function") {
+                        item.setPropertyMissing(nameProperty, value);
                     } else {
                         item[nameProperty] = value;
                     }
@@ -2148,7 +2149,7 @@
                             }
                         }
 
-                        if (item['propertyMissing'] !== undefined && typeof item['propertyMissing'] === "function") {
+                        if (item.propertyMissing !== undefined && typeof item.propertyMissing === "function") {
                             return item.propertyMissing(nameProperty);
                         } else {
                             return item[nameProperty];
@@ -2533,9 +2534,9 @@
     ////////////////////////////////////////////////////////////
     gs.astDelegate = function (baseClass, nameField) {
         var currentDelegate = mapAddDelegate[baseClass];
-        if (currentDelegate == null || currentDelegate == undefined) {
+        if (currentDelegate === null || currentDelegate === undefined) {
             currentDelegate = [];
-        };
+        }
         currentDelegate[currentDelegate.length] = nameField;
         mapAddDelegate[baseClass] = currentDelegate;
     };
@@ -2696,11 +2697,10 @@
 
     gs.isGroovyObj = function(maybeGroovyObject) {
         return maybeGroovyObject !== null &&
-                (maybeGroovyObject['withz'] !== undefined &&
-                typeof(maybeGroovyObject['withz']) === "function")
-            ||
-            (maybeGroovyObject['clazz'] !== undefined &&
-                maybeGroovyObject['clazz'].name == 'java.util.LinkedHashMap')
+                (maybeGroovyObject.withz !== undefined &&
+                typeof(maybeGroovyObject.withz) === "function") ||
+            (maybeGroovyObject.clazz !== undefined &&
+                maybeGroovyObject.clazz.name == 'java.util.LinkedHashMap');
     };
 
 }).call(this);

@@ -119,3 +119,12 @@ task testJsConversions(type: org.grooscript.gradle.TestMochaTask) {
 testJsConversions.description = 'Run mocha javascript tests'
 
 test.dependsOn testJsConversions
+
+task uglifyGrooscript(type: org.grooscript.gradle.UglifyJsTask) {
+    source = 'src/main/resources/META-INF/resources/grooscript.js'
+    destination = 'src/main/resources/META-INF/resources/grooscript.min.js'
+}
+
+uglifyGrooscript.description = 'Compress grooscript.js to grooscript.min.js'
+
+test.dependsOn uglifyGrooscript

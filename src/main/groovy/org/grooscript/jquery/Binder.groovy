@@ -6,7 +6,7 @@ package org.grooscript.jquery
  */
 class Binder {
 
-    GQuery gQuery
+    GQuery gQuery = new GQueryImpl()
 
     def bindAllProperties(target, closure = null) {
         target.properties.each { name, value ->

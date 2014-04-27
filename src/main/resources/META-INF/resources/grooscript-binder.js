@@ -3,7 +3,7 @@ function Binder() {
   var gSobject = gs.inherit(gs.baseClass,'Binder');
   gSobject.clazz = { name: 'org.grooscript.jquery.Binder', simpleName: 'Binder'};
   gSobject.clazz.superclass = { name: 'java.lang.Object', simpleName: 'Object'};
-  gSobject.gQuery = null;
+  gSobject.gQuery = GQueryImpl();
   gSobject['bindAllProperties'] = function(target, closure) {
     if (closure === undefined) closure = null;
     return gs.mc(gs.gp(target,"properties"),"each",[function(name, value) {
