@@ -22,6 +22,7 @@ class ConversionFactory {
     Out out
     Functions functions
     def converter
+    Traits traits
 
     Map converters = [
             'VariableExpression': VariableExpressionHandler,
@@ -41,6 +42,7 @@ class ConversionFactory {
     ConversionFactory() {
         context = new Context()
         out = new Out()
+        traits = new Traits()
         functions = new Functions(conversionFactory: this)
     }
 
@@ -130,6 +132,7 @@ class ConversionFactory {
         BaseHandler instanceHandler = converters[className].newInstance()
         instanceHandler.out = out
         instanceHandler.context = context
+        instanceHandler.traits = traits
         instanceHandler.functions = functions
         instanceHandler.factory = this
         instanceHandler

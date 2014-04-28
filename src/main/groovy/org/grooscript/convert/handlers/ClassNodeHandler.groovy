@@ -385,23 +385,17 @@ class ClassNodeHandler extends BaseHandler {
     }
 
     private checkTraits(ClassNode classNode) {
-        if (Util.groovyVersionAtLeast('2.3')) {
-            classNode.interfaces.findAll {
-                isTrait(it)
-            }.each {
-                handleTrait(it)
-            }
+        classNode.interfaces.findAll {
+            traits.isTrait(it)
+        }.each {
+            handleTrait(it)
         }
-    }
-
-    private isTrait(ClassNode classNode) {
-        org.codehaus.groovy.transform.trait.Traits.isTrait(classNode)
     }
 
     private handleTrait(ClassNode classNode, notAddThisMethods = []) {
         addClassVariableNamesToScope(classNode)
         ClassNode helperClassNode = org.codehaus.groovy.transform.trait.Traits.findHelpers(classNode).helper
-        helperClassNode.outerClass.interfaces?.findAll{ isTrait(it) }.each { ClassNode cn ->
+        helperClassNode.outerClass.interfaces?.findAll{ traits.isTrait(it) }.each { ClassNode cn ->
             handleTrait(cn, notAddThisMethods + helperClassNode.methods*.name)
         }
         addTraitMethods(classNode, helperClassNode, notAddThisMethods)

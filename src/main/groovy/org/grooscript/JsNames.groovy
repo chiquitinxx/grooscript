@@ -8,6 +8,7 @@ class JsNames {
 
     static final GS_OBJECT = 'gSobject'
     static final GS_APPLY_TRAIT = 'gSaT'
+    static final GS_AS_TYPE = 'asType'
 
     static final GS = 'gs.'
     static final CLASS = 'clazz'

@@ -1,6 +1,7 @@
 package org.grooscript.convert.handlers
 
 import org.codehaus.groovy.ast.expr.CastExpression
+import org.codehaus.groovy.ast.expr.ConstructorCallExpression
 import org.codehaus.groovy.ast.expr.GStringExpression
 import org.codehaus.groovy.ast.expr.ListExpression
 import org.codehaus.groovy.ast.expr.MapExpression
@@ -14,6 +15,8 @@ import static org.grooscript.JsNames.*
  */
 class CastExpressionHandler extends BaseHandler {
 
+    private static final WRONG_NAMES = ['String', 'String;', 'List', 'Map']
+
     void handle(CastExpression expression) {
         if (expression.type.name == 'java.util.Set' && expression.expression instanceof ListExpression) {
             out.addScript("${GS_SET}(")
@@ -22,16 +25,25 @@ class CastExpressionHandler extends BaseHandler {
         } else {
             if (expression.expression instanceof MapExpression || expression.expression instanceof ListExpression) {
                 factory.visitNode(expression.expression)
+                addAsTypeFunction(expression)
             } else if (expression.expression instanceof GStringExpression) {
                 factory.visitNode(expression.expression)
+                addAsTypeFunction(expression)
             } else if (expression.expression instanceof VariableExpression &&
                 factory.isTraitClass(expression.type.name) &&
                 expression.expression.variable == '$self') {
                     out.addScript('$self')
             } else {
-                throw new Exception('Casting not supported for: ' +expression.type.name +
-                        ' with value:' + expression.expression.type.name)
+                factory.visitNode(expression.expression)
+                addAsTypeFunction(expression)
             }
+        }
+    }
+
+    private addAsTypeFunction(CastExpression expression) {
+        if (traits.isTrait(expression.type) ||
+                (!expression.type.nameWithoutPackage in WRONG_NAMES && !expression.type.isInterface())) {
+            out.addScript(".${GS_AS_TYPE}(${expression.type.nameWithoutPackage})")
         }
     }
 }

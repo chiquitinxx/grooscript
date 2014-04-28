@@ -91,9 +91,7 @@
             var result = gs.list([]), ob;
             for (ob in this) {
                 if (typeof this[ob] === "function") {
-
-                    if (ob!='getStatic' && ob!='withz' && ob!='getProperties' && ob!='getMethods' && ob!='constructor' &&
-                        !(isConstructor(ob, this[ob]))) {
+                    if (!isObjectProperty(ob) && !(isConstructor(ob, this[ob]))) {
                         var item = {
                             name: ob
                         };
@@ -115,14 +113,26 @@
         },
         constructor : function() {
             return this;
+        },
+        asType : function(type) {
+            if (hasFunc(type, 'gSaT')) {
+                type.gSaT(this);
+                return this;
+            } else {
+                return this;
+            }
         }
     };
+
+    function applyBaseClassFunctions(item) {
+        item.asType = gs.baseClass.asType
+    }
 
     function isObjectProperty(name) {
         return ['clazz','gSdefaultValue','leftShift',
             'minus','plus','equals','toString',
-            'clone','withz','getProperties',
-            'getMethods','invokeMethod','constructor'].indexOf(name) >= 0;
+            'clone','withz','getProperties','getStatic',
+            'getMethods','invokeMethod','constructor', 'asType'].indexOf(name) >= 0;
     }
 
     gs.expando = function() {
@@ -341,7 +351,7 @@
         var gSobject = new GsGroovyMap();
         //gs.inherit(gs.baseClass,'LinkedHashMap');
         expandWithMetaclass(gSobject, 'LinkedHashMap');
-
+        applyBaseClassFunctions(gSobject);
         if (arguments.length == 1 && arguments[0] instanceof Object) {
             gs.passMapToObject(arguments[0], gSobject);
         }
@@ -1303,6 +1313,7 @@
         var object = data;
 
         createClassNames(object, ['java.util.ArrayList']);
+        applyBaseClassFunctions(object);
 
         return object;
     };

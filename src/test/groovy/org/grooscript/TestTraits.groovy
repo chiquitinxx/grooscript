@@ -62,4 +62,9 @@ class TestTraits extends Specification {
         expect:
         convertAndEvaluate('traits/WithTraits')
     }
+
+    def 'as runtime'() {
+        expect:
+        convertAndEvaluate('traits/Runtime')
+    }
 }

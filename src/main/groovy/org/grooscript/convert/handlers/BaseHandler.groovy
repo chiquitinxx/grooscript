@@ -4,6 +4,7 @@ import org.grooscript.convert.Context
 import org.grooscript.convert.ConversionFactory
 import org.grooscript.convert.Functions
 import org.grooscript.convert.Out
+import org.grooscript.convert.Traits
 
 /**
  * User: jorgefrancoleza
@@ -15,4 +16,5 @@ class BaseHandler {
     Out out
     ConversionFactory factory
     Functions functions
+    Traits traits
 }
