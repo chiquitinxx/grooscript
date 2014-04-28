@@ -60,6 +60,10 @@ class MethodCallExpressionHandler extends BaseHandler {
                 expression.arguments.getExpression(0) instanceof ClosureExpression) {
             factory.visitNode(expression.objectExpression)
             out.addScript(".${WITH}")
+        //WithTraits
+        } else if (methodName == 'withTraits' && expression.arguments instanceof ArgumentListExpression) {
+            factory.visitNode(expression.objectExpression)
+            out.addScript(".${WITH_TRAITS}")
         //Using Math library
         } else if (expression.objectExpression instanceof ClassExpression &&
                 expression.objectExpression.type.name == 'java.lang.Math') {

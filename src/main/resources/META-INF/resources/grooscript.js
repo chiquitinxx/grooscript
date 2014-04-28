@@ -117,10 +117,15 @@
         asType : function(type) {
             if (hasFunc(type, 'gSaT')) {
                 type.gSaT(this);
-                return this;
-            } else {
-                return this;
             }
+            return this;
+        },
+        withTraits : function() {
+            var i;
+            for (i = 0; i < arguments.length; i++) {
+                arguments[i].gSaT(this);
+            }
+            return this;
         }
     };
 
@@ -132,7 +137,7 @@
         return ['clazz','gSdefaultValue','leftShift',
             'minus','plus','equals','toString',
             'clone','withz','getProperties','getStatic',
-            'getMethods','invokeMethod','constructor', 'asType'].indexOf(name) >= 0;
+            'getMethods','invokeMethod','constructor', 'asType', 'withTraits'].indexOf(name) >= 0;
     }
 
     gs.expando = function() {
@@ -2211,13 +2216,6 @@
             } else {
                 return item.gSjoin();
             }
-        }
-        if (methodName == 'withTraits') {
-            var i;
-            for (i = 0; i < values.length; i++) {
-                values[i].gSaT(item);
-            }
-            return item;
         }
 
         if (!hasFunc(item, methodName)) {

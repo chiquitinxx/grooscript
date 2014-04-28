@@ -13,6 +13,7 @@ class JsNames {
     static final GS = 'gs.'
     static final CLASS = 'clazz'
     static final WITH = 'withz'
+    static final WITH_TRAITS = 'withTraits'
     static final CONSTRUCTOR = 'constructor'
 
     static final GS_BASE_CLASS = "${GS}baseClass"
