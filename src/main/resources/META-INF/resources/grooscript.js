@@ -1000,7 +1000,6 @@
             acc = this[0];
             var i;
             for (i=1;i<this.length;i++) {
-                //if (typeof this[i] === "function") continue;
                 acc = arguments[0](acc,this[i]);
             }
 
@@ -2033,7 +2032,7 @@
     // Beans functions - From groovy beans
     /////////////////////////////////////////////////////////////////
     //If an object has a function by name
-    function hasFunc(item,name) {
+    function hasFunc(item, name) {
         if (item === null || item === undefined ||
             item[name] === undefined || item[name] === null || (typeof item[name] !== "function")) {
             return false;
@@ -2189,18 +2188,25 @@
             console.log('[INFO] gs.mc (' + item + ').' + methodName + ' params:' + values);
         }
 
-        if (typeof(item)=='string' && methodName=='split') {
+        if (typeof(item) == 'string' && methodName == 'split') {
             return item.tokenize(values[0]);
         }
-        if (typeof(item)=='string' && methodName=='length') {
+        if (typeof(item) == 'string' && methodName == 'length') {
             return item.length;
         }
-        if ((item instanceof Array) && methodName=='join') {
-            if (values.size()>0) {
+        if ((item instanceof Array) && methodName == 'join') {
+            if (values.size() > 0) {
                 return item.gSjoin(values[0]);
             } else {
                 return item.gSjoin();
             }
+        }
+        if (methodName == 'withTraits') {
+            var i;
+            for (i = 0; i < values.length; i++) {
+                values[i].gSaT(item);
+            }
+            return item;
         }
 
         if (!hasFunc(item, methodName)) {
