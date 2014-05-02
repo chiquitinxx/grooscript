@@ -3,7 +3,7 @@ package org.grooscript
 /**
  * Created by jorge on 13/04/14.
  *
- * Generate js files (grooscript-builder.js, grooscript-binder.js)
+ * Generate js files
  */
 class JsGenerator {
 
@@ -15,6 +15,9 @@ class JsGenerator {
 
     static final BINDER_SOURCE = 'src/main/groovy/org/grooscript/jquery/Binder.groovy'
     static final BINDER_FILE = 'src/main/resources/META-INF/resources/grooscript-binder.js'
+
+    static final GROOSCRIPT_FILE = 'src/main/resources/META-INF/resources/grooscript.js'
+    static final GROOSCRIPT_ALL_FILE = 'src/main/resources/META-INF/resources/grooscript-all.js'
 
     static generateHtmlBuilder() {
         File source = new File(HTML_BUILDER_SOURCE)
@@ -31,10 +34,15 @@ class JsGenerator {
         convertFile(source, JQUERY_FILE, [initialText: '//This script needs grooscript.js and jQuery to run'])
     }
 
+    static generateGrooscriptJsComplete() {
+        GrooScript.joinListOfFiles(GROOSCRIPT_FILE, BUILDER_FILE, JQUERY_FILE, BINDER_FILE, GROOSCRIPT_ALL_FILE)
+    }
+
     static void generateAll() {
         generateHtmlBuilder()
         generateJQuery()
         generateBinder()
+        generateGrooscriptJsComplete()
     }
 
     static convertFile(File file, String destinationFile, Map conversionOptions = [:]) {

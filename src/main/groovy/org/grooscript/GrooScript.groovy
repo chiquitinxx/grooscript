@@ -189,4 +189,22 @@ class GrooScript {
             GsConsole.error 'Source must be a directory'
         }
     }
+
+    static void joinListOfFiles(... params) {
+        if (params.size() < 3) {
+            GsConsole.error('Params are files to join and destination file')
+            return
+        }
+        File destinationFile = new File(params.last())
+        destinationFile.text = ''
+        def filesToJoin = params - params.last()
+        filesToJoin.each { sourceFile ->
+            def file = new File(sourceFile)
+            if (file.isFile()) {
+                destinationFile.append(file.text + LINE_JUMP)
+            } else {
+                GsConsole.error 'Error joining file ' + sourceFile
+            }
+        }
+    }
 }

@@ -117,7 +117,6 @@ class Util {
     /**
      * Full process a script
      * @param script
-     * @return map with exception,jsScript,assertFails,...
      */
     static JsTestResult fullProcessScript(String script) {
         fullProcessScript(script, null)

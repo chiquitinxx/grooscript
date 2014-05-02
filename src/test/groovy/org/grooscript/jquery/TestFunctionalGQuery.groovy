@@ -13,7 +13,7 @@ class TestFunctionalGQuery extends FunctionalTest {
 
     String htmlResponse() {
         def result = '<html><head><title>Title</title></head><body>'
-        result += script(jsFileText('grooscript.js'))
+        result += script(jsFileText('grooscript.min.js'))
         result += script(jsFileText('jquery.min.js'))
         result += script(jsFileText('gQueryImpl.js'))
         result += script(GrooScript.convert(jsonResultClass))
