@@ -10,6 +10,6 @@ interface GQuery {
     boolean existsName(String name)
     boolean existsGroup(String name)
     void bindEvent(String id, String name, Closure func)
-    void doRemoteCall(String url, String type, params, onSuccess, onFailure)
-    void doRemoteCall(String url, String type, params, onSuccess, onFailure, objectResult)
+    void doRemoteCall(String url, String type, params, Closure onSuccess, Closure onFailure)
+    void doRemoteCall(String url, String type, params, Closure onSuccess, Closure onFailure, objectResult)
 }

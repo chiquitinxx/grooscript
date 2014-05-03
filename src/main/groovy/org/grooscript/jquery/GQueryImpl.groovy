@@ -94,11 +94,12 @@ class GQueryImpl implements GQuery {
     */}
 
     @GsNative
-    void doRemoteCall(String url, String type, params, onSuccess, onFailure, objectResult = null) {/*
+    void doRemoteCall(String url, String type, params, Closure onSuccess, Closure onFailure, objectResult = null) {/*
         $.ajax({
             type: type, //GET or POST
             data: gs.toJavascript(params),
-            url: url
+            url: url,
+            dataType: 'text'
         }).done(function(newData) {
             onSuccess(gs.toGroovy(jQuery.parseJSON(newData), objectResult));
         })
