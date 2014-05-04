@@ -20,7 +20,7 @@ codenarc.configFile = new File('config/codenarc.groovy')
 
 dependencies {
     //compile 'org.codehaus.groovy:groovy:2.1.6'
-    compile 'org.codehaus.groovy:groovy:2.3.0-rc-2'
+    compile 'org.codehaus.groovy:groovy:2.3.0-rc-4'
     //runtime 'commons-cli:commons-cli:1.2'
     runtime 'org.apache.ivy:ivy:2.3.0'
     compile 'org.codehaus.gpars:gpars:1.1.0'
@@ -28,7 +28,7 @@ dependencies {
         exclude module: 'groovy-all'
     }
     //testCompile 'org.codehaus.groovy:groovy-test:2.1.6'
-    testCompile 'org.codehaus.groovy:groovy-test:2.3.0-rc-2'
+    testCompile 'org.codehaus.groovy:groovy-test:2.3.0-rc-4'
     codenarc 'org.codenarc:CodeNarc:0.21'
 }
 

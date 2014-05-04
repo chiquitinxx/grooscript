@@ -87,7 +87,7 @@ function GQueryImpl() {
             type: type, //GET or POST
             data: gs.toJavascript(params),
             url: url,
-            dataType: 'json'
+            dataType: 'text'
         }).done(function(newData) {
             onSuccess(gs.toGroovy(jQuery.parseJSON(newData), objectResult));
         })
