@@ -11,6 +11,7 @@ import org.codehaus.groovy.transform.ASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
 import org.grooscript.GrooScript
 import org.grooscript.convert.GsConverter
+import org.grooscript.util.Util
 
 import static org.grooscript.util.GsConsole.*
 
@@ -166,7 +167,7 @@ page.open('{{URL}}', function (status) {
                 def userHome = System.getProperty('user.home')
 
                 if (userHome) {
-                    def version = Class.forName('org.grooscript.GrooScript').package.implementationVersion
+                    def version = Util.grooscriptVersion
 
                     def path = userHome + File.separator + '.grooscript' + (version ? File.separator + version : '')
                     def folder = new File(path)

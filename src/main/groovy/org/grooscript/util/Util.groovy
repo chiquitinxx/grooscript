@@ -150,6 +150,14 @@ class Util {
     }
 
     static boolean groovyVersionAtLeast(String version) {
-        Class.forName('groovy.lang.GString').package.implementationVersion >= version
+        groovyVersion >= version
+    }
+
+    static String getGroovyVersion() {
+        Class.forName('groovy.lang.GString').package.implementationVersion
+    }
+
+    static String getGrooscriptVersion() {
+        Class.forName('org.grooscript.GrooScript').package.implementationVersion
     }
 }
