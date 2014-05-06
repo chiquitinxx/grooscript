@@ -23,7 +23,9 @@ dependencies {
     compile 'org.codehaus.groovy:groovy:2.3.0'
     //runtime 'commons-cli:commons-cli:1.2'
     runtime 'org.apache.ivy:ivy:2.3.0'
-    compile 'org.codehaus.gpars:gpars:1.2.0'
+    compile('org.codehaus.gpars:gpars:1.2.0') {
+        exclude module: 'groovy-all'
+    }
     testCompile('org.spockframework:spock-core:0.7-groovy-2.0') {
         exclude module: 'groovy-all'
     }
