@@ -99,7 +99,7 @@ page.open('{{URL}}', function (status) {
         phantom.exit(1);
     } else {
         page.libraryPath = '{{LIBRARY_PATH}}'
-        if (page.injectJs('jquery.min.js') && page.injectJs('grooscript.js')) {
+        if (page.injectJs('jquery.min.js') && page.injectJs('grooscript.min.js')) {
             //console.log('Evaluating code...');
             evaluateAfterSeconds({{SECONDS}});
         } else {
@@ -175,7 +175,7 @@ page.open('{{URL}}', function (status) {
                         message 'Using js local files in ' + path, HEAD
                     } else {
                         folder.mkdirs()
-                        ['grooscript.js', 'jquery.min.js'].each { fileName ->
+                        ['grooscript.min.js', 'jquery.min.js'].each { fileName ->
                             new File(path + File.separator + fileName).text =
                                 GrooScript.classLoader.getResourceAsStream('META-INF/resources/' + fileName).text
                         }
@@ -188,7 +188,7 @@ page.open('{{URL}}', function (status) {
                 exception "Error looking for js files: ${e.message}", HEAD
             }
             if (!jsHome) {
-                assert false, 'Need define property JS_LIBRARIES_PATH, folder with grooscript.js and jquery.min.js'
+                assert false, 'Need define property JS_LIBRARIES_PATH, folder with grooscript.min.js and jquery.min.js'
             }
         }
         jsHome
