@@ -161,16 +161,19 @@ page.open('{{URL}}', function (status) {
     static String getJsLibrariesPath() {
 
         String jsHome = System.getProperty('JS_LIBRARIES_PATH')
-        if (!System.getProperty('JS_LIBRARIES_PATH')) {
+        if (!jsHome) {
 
             try {
                 def userHome = System.getProperty('user.home')
 
                 if (userHome) {
                     def version = Util.grooscriptVersion
-
-                    def path = userHome + File.separator + '.grooscript' + (version ? File.separator + version : '')
-                    def folder = new File(path)
+                    def folder = new File(userHome + File.separator + '.grooscript')
+                    if (!folder.exists()) {
+                        folder.mkdirs()
+                    }
+                    def path = userHome + File.separator + '.grooscript' + File.separator + version
+                    folder = new File(path)
                     if (folder.exists()) {
                         message 'Using js local files in ' + path, HEAD
                     } else {

@@ -3,6 +3,8 @@ package org.grooscript
 import org.grooscript.test.ConversionMixin
 import org.grooscript.test.JavascriptEngine
 import org.grooscript.util.GrooScriptException
+import org.grooscript.util.Util
+import spock.lang.IgnoreIf
 import spock.lang.Specification
 
 /**
@@ -63,6 +65,7 @@ class TestFiles extends Specification {
         converted.contains('alert(\'Hello!\');')
     }
 
+    @IgnoreIf({ !Util.groovyVersionAtLeast('2.3') })
     def 'convert traits defined in other files'() {
         when:
         def converted = convertFile('files/Traits', options)
