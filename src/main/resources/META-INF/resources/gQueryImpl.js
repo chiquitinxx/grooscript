@@ -95,6 +95,12 @@ function GQueryImpl() {
             onFailure(error);
         });
   }
+  gSobject.onReady = function(func) {
+    $(document).ready(func);
+  }
+  gSobject.html = function(selector, text) {
+    $(selector).text(text);
+  }
   if (arguments.length == 1) {gs.passMapToObject(arguments[0],gSobject);};
   
   return gSobject;

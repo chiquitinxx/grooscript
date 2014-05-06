@@ -12,4 +12,6 @@ interface GQuery {
     void bindEvent(String id, String name, Closure func)
     void doRemoteCall(String url, String type, params, Closure onSuccess, Closure onFailure)
     void doRemoteCall(String url, String type, params, Closure onSuccess, Closure onFailure, objectResult)
+    void onReady(Closure func)
+    void html(String selector, String text)
 }

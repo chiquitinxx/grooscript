@@ -9,20 +9,18 @@ import org.grooscript.JsGenerator
  */
 class TestFunctionalGQuery extends FunctionalTest {
 
-    private static final FILE_NAME = 'test.html'
-
     String htmlResponse() {
         def result = '<html><head><title>Title</title></head><body>'
         result += script(jsFileText('grooscript.min.js'))
         result += script(jsFileText('jquery.min.js'))
         result += script(jsFileText('gQueryImpl.js'))
         result += script(GrooScript.convert(jsonResultClass))
-        result += script('var gQuery = GQueryImpl();')
-        result += script('$(document).ready(function() { gQuery.doRemoteCall("'+JSON_ADRESS+'", "GET", null, ' +
-                'function(res) { result = res },' +
+        result += script('var gQuery = GQueryImpl(); gQuery.onReady(function() { gQuery.doRemoteCall("'+JSON_ADRESS+'", "GET", null, ' +
+                'function(res) { gQuery.html(".result", "OK"); result = res },' +
                 'function(fail) { result = "FAIL!"}, Result); });')
         result += '<p class="result"></p>'
         result += '</body></html>'
+        println result
         result
     }
 
@@ -39,6 +37,7 @@ class TestFunctionalGQuery extends FunctionalTest {
         assert result.number == 5
         assert result.name == 'George'
         assert result.class.name == 'Result'
+        assert $('.result').html() == 'OK', "Wrong result ${$('.result').html()}"
     }
     doTest()
 '''

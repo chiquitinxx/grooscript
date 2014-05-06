@@ -107,4 +107,14 @@ class GQueryImpl implements GQuery {
             onFailure(error);
         });
     */}
+
+    @GsNative
+    void onReady(Closure func) {/*
+        $(document).ready(func);
+    */}
+
+    @GsNative
+    void html(String selector, String text) {/*
+        $(selector).text(text);
+    */}
 }
