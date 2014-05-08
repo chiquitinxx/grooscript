@@ -101,14 +101,10 @@ class GQueryImpl implements GQuery {
             url: url,
             dataType: 'text'
         }).done(function(newData) {
-            if (onSuccess) {
-                onSuccess(gs.toGroovy(jQuery.parseJSON(newData), objectResult));
-            }
+            onSuccess(gs.toGroovy(jQuery.parseJSON(newData), objectResult));
         })
         .fail(function(error) {
-            if (onFailure) {
-                onFailure(error);
-            }
+            onFailure(error);
         });
     */}
 
@@ -119,6 +115,6 @@ class GQueryImpl implements GQuery {
 
     @GsNative
     void html(String selector, String text) {/*
-        $(selector).html(text);
+        $(selector).text(text);
     */}
 }
