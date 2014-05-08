@@ -89,17 +89,21 @@ function GQueryImpl() {
             url: url,
             dataType: 'text'
         }).done(function(newData) {
-            onSuccess(gs.toGroovy(jQuery.parseJSON(newData), objectResult));
+            if (onSuccess) {
+                onSuccess(gs.toGroovy(jQuery.parseJSON(newData), objectResult));
+            }
         })
         .fail(function(error) {
-            onFailure(error);
+            if (onFailure) {
+                onFailure(error);
+            }
         });
   }
   gSobject.onReady = function(func) {
     $(document).ready(func);
   }
   gSobject.html = function(selector, text) {
-    $(selector).text(text);
+    $(selector).html(text);
   }
   if (arguments.length == 1) {gs.passMapToObject(arguments[0],gSobject);};
   
