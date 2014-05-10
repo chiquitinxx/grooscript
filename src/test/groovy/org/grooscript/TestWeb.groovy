@@ -21,4 +21,9 @@ class TestWeb extends Specification {
         !convertAndEvaluateWithJsEngine('web/HideFunction', false, [:], 'var add', 'function bValue() {' +
                 ' return 4;}; var add').assertFails
     }
+
+    def 'test traits'() {
+        expect:
+        convertAndEvaluate('web/Traits')
+    }
 }
