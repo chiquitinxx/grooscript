@@ -6,4 +6,18 @@ package files
  */
 class Vehicle {
     def engine
+    def engineStarted = false
+
+    def start() {
+        if (isStarted()) {
+            return 'Already started'
+        } else {
+            engineStarted = true
+            return 'Starting...'
+        }
+    }
+
+    boolean isStarted() {
+        engineStarted
+    }
 }

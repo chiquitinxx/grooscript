@@ -37,11 +37,9 @@ class ClassNodeHandler extends BaseHandler {
             if (node.superClass.name != 'java.lang.Object') {
                 //println 'Allowed!'+ node.superClass.class.name
                 out.addScript("var ${GS_OBJECT} = ${node.superClass.nameWithoutPackage}();", true)
+
                 //We add to this class scope variables of fathers
-                if (!context.inheritedVariables[node.superClass.name]) {
-                    context.inheritedVariables.put(node.superClass.name, context.variableScoping.peek())
-                }
-                context.variableScoping.peek().addAll(context.inheritedVariables[node.superClass.name])
+                addSuperClassesToScope(node.superClass)
             } else {
                 out.addScript("var ${GS_OBJECT} = ${GS_INHERIT}(${GS_BASE_CLASS},'${node.nameWithoutPackage}');", true)
             }
@@ -77,11 +75,6 @@ class ClassNodeHandler extends BaseHandler {
                     }
                 }
             }
-
-            //Save variables from this class for use in 'son' classes
-            context.inheritedVariables.put(node.name, context.variableScoping.peek())
-            //Ignoring fields
-            //node?.fields?.each { println 'field->'+it  }
 
             processClassMethods(node?.methods, node)
 
@@ -323,6 +316,13 @@ class ClassNodeHandler extends BaseHandler {
         out.addScript ')'
 
         out.addScript('; }', true)
+    }
+
+    private addSuperClassesToScope(ClassNode node) {
+        addClassVariableNamesToScope(node)
+        if (node.superClass.isPrimaryClassNode() && node.superClass.name != 'java.lang.Object') {
+            addSuperClassesToScope(node.superClass)
+        }
     }
 
     private addClassVariableNamesToScope(ClassNode node) {

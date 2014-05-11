@@ -6,4 +6,8 @@ package files
  */
 class Car extends Vehicle {
     def company
+
+    def carStarted() {
+        isStarted()
+    }
 }

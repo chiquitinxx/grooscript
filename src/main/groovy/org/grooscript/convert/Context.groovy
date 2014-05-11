@@ -23,8 +23,6 @@ class Context {
     boolean processingClassMethods = false
     boolean lookingForReturnStatementInIf = false
 
-    def inheritedVariables = [:]
-
     //Control switch inside switch
     def switchCount = 0
     def addClosureSwitchInitialization = false
