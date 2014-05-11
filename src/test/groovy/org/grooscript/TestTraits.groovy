@@ -67,4 +67,9 @@ class TestTraits extends Specification {
         expect:
         convertAndEvaluate('traits/Runtime')
     }
+
+    def 'use GsNative in traits'() {
+        expect:
+        convertAndEvaluate('traits/Native')
+    }
 }

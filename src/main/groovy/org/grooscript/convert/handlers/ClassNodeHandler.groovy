@@ -99,8 +99,8 @@ class ClassNodeHandler extends BaseHandler {
         node?.methods?.each { MethodNode method ->
             if (!haveAnnotationNonConvert(method.annotations)) {
                 if (method.isStatic()) {
-                    if (haveAnnotationNative(method.annotations)) {
-                        putGsNativeMethod("${node.nameWithoutPackage}.${method.name}", node, method)
+                    if (functions.haveAnnotationNative(method.annotations)) {
+                        functions.putGsNativeMethod("${node.nameWithoutPackage}.${method.name}", node, method)
                     } else {
                         functions.processBasicFunction("${node.nameWithoutPackage}.${method.name}", method, false)
                     }
@@ -134,8 +134,8 @@ class ClassNodeHandler extends BaseHandler {
         methods?.each { MethodNode methodNode ->
             if (!haveAnnotationNonConvert(methodNode.annotations) && !methodNode.isAbstract()) {
                 //Process the methods
-                if (haveAnnotationNative(methodNode.annotations) && !methodNode.isStatic()) {
-                    putGsNativeMethod("${GS_OBJECT}.${methodNode.name}", classNode, methodNode)
+                if (functions.haveAnnotationNative(methodNode.annotations) && !methodNode.isStatic()) {
+                    functions.putGsNativeMethod("${GS_OBJECT}.${methodNode.name}", classNode, methodNode)
                 } else if (!methodNode.isStatic()) {
                     if (methodNode.name == 'propertyMissing' && methodNode.parameters.length == 2) {
                         functions.processBasicFunction("${GS_OBJECT}['setPropertyMissing']", methodNode, false)
@@ -181,17 +181,6 @@ class ClassNodeHandler extends BaseHandler {
             }
         }
         return exit
-    }
-
-    private haveAnnotationNative(annotations) {
-        boolean exit = false
-        annotations.each { AnnotationNode it ->
-            //If native then exit
-            if (it.getClassNode().nameWithoutPackage == 'GsNative') {
-                exit = true
-            }
-        }
-        exit
     }
 
     private haveAnnotationGroovyImmutable(annotations) {
@@ -311,17 +300,6 @@ class ClassNodeHandler extends BaseHandler {
 
     private addCategoryToClass(categoryName, className) {
         out.addScript("${GS_ADD_CATEGORY_ANNOTATION}('${categoryName}','${className}');", true)
-    }
-
-    private putGsNativeMethod(String name, ClassNode classNode, MethodNode method) {
-        out.addScript("${name} = function(")
-        context.actualScope.push([])
-        functions.processFunctionOrMethodParameters(method, false, false)
-        context.actualScope.pop()
-        out.addScript(context.getNativeFunction(classNode, method.name), true)
-        out.indent--
-        out.removeTabScript()
-        out.addScript('}', true)
     }
 
     /**

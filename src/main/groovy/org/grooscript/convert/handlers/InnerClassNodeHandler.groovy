@@ -1,6 +1,8 @@
 package org.grooscript.convert.handlers
 
+import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.InnerClassNode
+import org.codehaus.groovy.ast.MethodNode
 import org.codehaus.groovy.ast.stmt.BlockStatement
 
 import static org.grooscript.JsNames.*
@@ -16,19 +18,22 @@ class InnerClassNodeHandler extends BaseHandler {
         def className = innerClassNode.outerClass.nameWithoutPackage
         createConstructorWithApplyTryFunction(innerClassNode, className)
 
-        innerClassNode.methods.findAll { !it.isAbstract() }.each {
-            if (it.code instanceof BlockStatement) {
-                if (!it.code.isEmpty()) {
-                    functions.processBasicFunction("${className}.${it.name}", it, false)
+        innerClassNode.methods.findAll { !it.isAbstract() }.each { methodNode ->
+            if (methodNode.code instanceof BlockStatement) {
+                if (!methodNode.code.isEmpty()) {
+                    functions.processBasicFunction("${className}.${methodNode.name}", methodNode, false)
+                } else {
+                    if (functions.haveAnnotationNative(methodNode.annotations)) {
+                        functions.putGsNativeMethod("${className}.${methodNode.name}", innerClassNode, methodNode)
+                    }
                 }
             } else {
-                if (it.name.startsWith('get')) {
-                    out.addScript("${className}.${it.name} = function(\$self) {" +
-                            " return \$self.${getNameOfTraitField(innerClassNode.outerClass, it.name)}; }", true)
-                }
-                if (it.name.startsWith('set')) {
-                    out.addScript("${className}.${it.name} = function(\$self, value) {" +
-                            " \$self.${getNameOfTraitField(innerClassNode.outerClass, it.name)} = value; }", true)
+                if (methodNode.name.startsWith('get')) {
+                    out.addScript("${className}.${methodNode.name} = function(\$self) {" +
+                            " return \$self.${getNameOfTraitField(innerClassNode.outerClass, methodNode.name)}; }", true)
+                } else if (methodNode.name.startsWith('set')) {
+                    out.addScript("${className}.${methodNode.name} = function(\$self, value) {" +
+                            " \$self.${getNameOfTraitField(innerClassNode.outerClass, methodNode.name)} = value; }", true)
                 }
             }
         }

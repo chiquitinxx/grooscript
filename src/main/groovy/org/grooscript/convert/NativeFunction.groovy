@@ -8,4 +8,8 @@ class NativeFunction {
     String className
     String methodName
     String code
+
+    String toString() {
+        "${className} - ${methodName}"
+    }
 }

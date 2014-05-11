@@ -1,5 +1,8 @@
 package org.grooscript.convert
 
+import org.codehaus.groovy.ast.AnnotationNode
+import org.codehaus.groovy.ast.ClassNode
+import org.codehaus.groovy.ast.MethodNode
 import org.codehaus.groovy.ast.Parameter
 import org.codehaus.groovy.ast.stmt.BlockStatement
 import org.grooscript.util.GsConsole
@@ -112,5 +115,27 @@ class Functions {
             conversionFactory.out.addScript("  }", true)
             conversionFactory.out.addScript("}", true)
         }
+    }
+
+    boolean haveAnnotationNative(annotations) {
+        boolean exit = false
+        annotations.each { AnnotationNode it ->
+            //If native then exit
+            if (it.getClassNode().nameWithoutPackage == 'GsNative') {
+                exit = true
+            }
+        }
+        exit
+    }
+
+    void putGsNativeMethod(String name, ClassNode classNode, MethodNode method) {
+        conversionFactory.out.addScript("${name} = function(")
+        conversionFactory.context.actualScope.push([])
+        conversionFactory.functions.processFunctionOrMethodParameters(method, false, false)
+        conversionFactory.context.actualScope.pop()
+        conversionFactory.out.addScript(conversionFactory.context.getNativeFunction(classNode, method.name), true)
+        conversionFactory.out.indent--
+        conversionFactory.out.removeTabScript()
+        conversionFactory.out.addScript('}', true)
     }
 }
