@@ -2222,14 +2222,19 @@
 
             if (methodName.startsWith('get') || methodName.startsWith('set')) {
                 var varName = methodName.charAt(3).toLowerCase() + methodName.slice(4);
-                var properties = item.getProperties();
-                if (properties.containsKey(varName)) {
+                if (item[varName] !== undefined && !hasFunc(item, varName)) {
                     if (methodName.startsWith('get')) {
                         return gs.gp(item, varName);
                     } else {
                         return gs.sp(item, varName, values[0]);
                     }
+                }
+            }
 
+            if (methodName.startsWith('is')) {
+                var varName = methodName.charAt(2).toLowerCase() + methodName.slice(3);
+                if (item[varName] !== undefined && !hasFunc(item, varName)) {
+                    return gs.gp(item, varName);
                 }
             }
 

@@ -191,4 +191,9 @@ class TestAdvanced extends Specification {
         expect:
         convertAndEvaluate('advanced/PropertyMissing')
     }
+
+    def 'test get boolean properties with is functions'() {
+        expect:
+        convertAndEvaluate('advanced/BooleanProperties')
+    }
 }
