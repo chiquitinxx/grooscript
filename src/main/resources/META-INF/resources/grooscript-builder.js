@@ -45,7 +45,7 @@ function HtmlBuilder() {
       }
       return gs.mc(gSobject,"tagSolver",[name, ars]);
     });
-    return gs.mc(this,"invokeMethod",[name, args]);
+    return gs.mc(this,"invokeMethod",[name, args], gSobject);
   }
   gSobject['HtmlBuilder0'] = function(it) {
     gSobject.html = "";

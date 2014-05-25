@@ -2197,8 +2197,12 @@
         }
     };
 
+    function exFn(we, mn, it, val) {
+        return we[mn].apply(it, joinParameters(it, val));
+    }
+
     //Control all method calls
-    gs.mc = function(item, methodName, values) {
+    gs.mc = function(item, methodName, values, objectVar) {
 
         if (gs.consoleInfo && console) {
             console.log('[INFO] gs.mc (' + item + ').' + methodName + ' params:' + values);
@@ -2216,6 +2220,13 @@
             } else {
                 return item.gSjoin();
             }
+        }
+
+        if (objectVar) {
+            try {
+                //First, try to execute function in object
+                return gs.mc(objectVar, methodName, values);
+            } catch(e) {}
         }
 
         if (!hasFunc(item, methodName)) {
@@ -2247,7 +2258,7 @@
                 if (categories.length > 0) {
                     whereExecutes = categorySearching(methodName);
                     if (whereExecutes !== null) {
-                        return whereExecutes[methodName].apply(item, joinParameters(item, values));
+                        return exFn(whereExecutes, methodName, item, values);
                     }
                 }
 
@@ -2257,7 +2268,7 @@
                     if (annotatedCategories[ob] == item.clazz.simpleName) {
                         var categoryItem = gs.myCategories[ob]();
                         if (categoryItem[methodName] && typeof categoryItem[methodName] === "function") {
-                            return categoryItem[methodName].apply(item, joinParameters(item, values));
+                            return exFn(categoryItem, methodName, item, values);
                         }
                     }
                 }
@@ -2266,7 +2277,7 @@
                 if (mixins.length > 0) {
                     whereExecutes = mixinSearching(item, methodName);
                     if (whereExecutes !== null) {
-                        return whereExecutes[methodName].apply(item, joinParameters(item, values));
+                        return exFn(whereExecutes, methodName, item, values);
                     }
                 }
 
@@ -2274,7 +2285,7 @@
                 if (mixinsObjects.length > 0) {
                     whereExecutes = mixinObjectsSearching(item, methodName);
                     if (whereExecutes !== null) {
-                        return whereExecutes[methodName].apply(item, joinParameters(item, values));
+                        return exFn(whereExecutes, methodName, item, values);
                     }
                 }
                 //Lets check mc in @Delegate
@@ -2286,7 +2297,7 @@
                             var prop = addDelegate[i];
                             var target = item[prop][methodName];
                             if (target !== undefined) {
-                                return item[prop][methodName].apply(item, joinParameters(item, values));
+                                return exFn(item[prop], methodName, item, values);
                             }
                         }
                     }

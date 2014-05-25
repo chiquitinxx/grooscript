@@ -144,7 +144,7 @@ class MethodCallExpressionHandler extends BaseHandler {
             out.addScript("\$self.${getNameTraitProperty(methodName)}")
             addParameters = false
         } else {
-            //println 'Method->'+methodName+' - '+expression.arguments.class.simpleName + ' - ' + variableScoping
+            //println 'Method->'+methodName+' - '+expression.arguments.class.simpleName + context.inMainContext()
             addParameters = false
 
             out.addScript("${GS_METHOD_CALL}(")
@@ -169,6 +169,10 @@ class MethodCallExpressionHandler extends BaseHandler {
                 out.addScript("[")
                 factory.visitNode(expression.arguments, false)
                 out.addScript("]")
+            }
+            if (factory.isThis(expression.objectExpression) && !context.mainContext &&
+                    context.insideClass && !context.currentVariableScopingHasMethod(methodName)) {
+                out.addScript(", ${GS_OBJECT}")
             }
             out.addScript(')')
         }

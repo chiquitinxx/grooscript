@@ -13,7 +13,7 @@ class TestContributors extends Specification {
 
     def 'test jochen' () {
         expect:
-        !convertAndEvaluateWithJsEngine('contribution/JochenTheodorou').assertFails
+        convertAndEvaluate('contribution/JochenTheodorou')
     }
 
     @Unroll('Testing MrHaki #file')
@@ -37,12 +37,12 @@ class TestContributors extends Specification {
 
     def 'test alex anderson' () {
         expect:
-        !convertAndEvaluateWithJsEngine('contribution/AlexAnderson').assertFails
+        convertAndEvaluate('contribution/AlexAnderson')
     }
 
     def 'test mario garcia' () {
         expect:
-        !convertAndEvaluateWithJsEngine('contribution/MarioGarcia').assertFails
+        convertAndEvaluate('contribution/MarioGarcia')
     }
 
     @Unroll('Testing anonymous web #file')
@@ -71,29 +71,30 @@ class TestContributors extends Specification {
 
     def 'testing more web' () {
         expect:
-        !convertAndEvaluateWithJsEngine('contribution/Anonymous3').assertFails
-        !convertAndEvaluateWithJsEngine('contribution/Anonymous4').assertFails
-        !convertAndEvaluateWithJsEngine('contribution/Anonymous5').assertFails
+        convertAndEvaluate('contribution/Anonymous3')
+        convertAndEvaluate('contribution/Anonymous4')
+        convertAndEvaluate('contribution/Anonymous5')
     }
 
     def 'testing mario extends'() {
         expect:
-        !convertAndEvaluateWithJsEngine('contribution/MarioGarcia2').assertFails
+        convertAndEvaluate('contribution/MarioGarcia2')
     }
 
     def 'testing mario maps'() {
         expect:
-        !convertAndEvaluateWithJsEngine('contribution/MarioGarcia3').assertFails
+        convertAndEvaluate('contribution/MarioGarcia3')
     }
 
     def 'twitter code found scoping closures'() {
         expect:
-        !convertAndEvaluateWithJsEngine('contribution/Twitter1').assertFails
+        convertAndEvaluate('contribution/Twitter1')
     }
 
+    @Unroll('Testing mySelf #file')
     def 'myself'() {
         expect:
-        !convertAndEvaluateWithJsEngine(file).assertFails
+        convertAndEvaluate(file)
 
         where:
         file                       | _
@@ -101,19 +102,24 @@ class TestContributors extends Specification {
         'contribution/MySelf2'     | _
     }
 
+    def 'testing fail with this scope'() {
+        expect:
+        convertAndEvaluate('contribution/MySelf3')
+    }
+
     def 'guillaume examples from talks'() {
         expect:
-        !convertAndEvaluateWithJsEngine('contribution/Guillaume').assertFails
-        !convertAndEvaluateWithJsEngine('contribution/GuillaumeClosuresComposition').assertFails
+        convertAndEvaluate('contribution/Guillaume')
+        convertAndEvaluate('contribution/GuillaumeClosuresComposition')
     }
 
     def 'ronny is'() {
         expect:
-        !convertAndEvaluateWithJsEngine('contribution/Ronny').assertFails
+        convertAndEvaluate('contribution/Ronny')
     }
 
     def 'mscharhag closure composition'() {
         expect:
-        !convertAndEvaluateWithJsEngine('contribution/Mscharhag').assertFails
+        convertAndEvaluate('contribution/Mscharhag')
     }
 }

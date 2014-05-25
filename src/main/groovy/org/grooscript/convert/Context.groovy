@@ -98,6 +98,14 @@ class Context {
         }
     }
 
+    boolean isMainContext() {
+        variableScoping.peek().is(variableScoping.firstElement())
+    }
+
+    boolean isInsideClass() {
+        classNameStack.peek().is(classNameStack.firstElement())
+    }
+
     private tourStack(Stack stack,variableName) {
         if (stack.isEmpty()) {
             return false
