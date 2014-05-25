@@ -17,7 +17,7 @@ assert repeater(2).call('mrhaki') == 'mrhakimrhaki'
 
 assert repeater(2)('mrhaki') == 'mrhakimrhaki'
 
-def repeater = { times, transformer = { it } ->
+def newRepeater = { times, transformer = { it } ->
     { value ->
         def result = ''
         times.times { result+= transformer(value)}
@@ -25,7 +25,7 @@ def repeater = { times, transformer = { it } ->
     }
 }
 
-assert repeater(2).call('mrhaki') == 'mrhakimrhaki'
-assert repeater(2)('mrhaki') == 'mrhakimrhaki'
-assert repeater(2) { it.toUpperCase() } ('mrhaki') == 'MRHAKIMRHAKI'
-assert repeater(2, { it.reverse() })('mrhaki') == 'ikahrmikahrm'
+assert newRepeater(2).call('mrhaki') == 'mrhakimrhaki'
+assert newRepeater(2)('mrhaki') == 'mrhakimrhaki'
+assert newRepeater(2) { it.toUpperCase() } ('mrhaki') == 'MRHAKIMRHAKI'
+assert newRepeater(2, { it.reverse() })('mrhaki') == 'ikahrmikahrm'

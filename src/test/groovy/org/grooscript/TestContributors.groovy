@@ -19,7 +19,7 @@ class TestContributors extends Specification {
     @Unroll('Testing MrHaki #file')
     def 'test MrHaki' () {
         expect:
-        !convertAndEvaluateWithJsEngine(file).assertFails
+        convertAndEvaluate(file)
 
         where:
         file                                    |_
@@ -32,7 +32,6 @@ class TestContributors extends Specification {
         'contribution/MrHakiGetSetProperties'   |_
         'contribution/MrHakiSpread'             |_
         'contribution/MrHakiCategories'         |_
-
     }
 
     def 'test alex anderson' () {

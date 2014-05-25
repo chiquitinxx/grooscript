@@ -36,7 +36,8 @@ class ConversionFactory {
             'CastExpression': CastExpressionHandler,
             'ArrayExpression': ArrayExpressionHandler,
             'MethodPointerExpression': MethodPointerExpressionHandler,
-            'InnerClassNode': InnerClassNodeHandler
+            'InnerClassNode': InnerClassNodeHandler,
+            'DeclarationExpression': DeclarationExpressionHandler
     ]
 
     ConversionFactory() {

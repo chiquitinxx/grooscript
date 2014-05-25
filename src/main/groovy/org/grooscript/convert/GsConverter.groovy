@@ -277,48 +277,6 @@ class GsConverter {
         conversionFactory.visitNode(e)
     }
 
-    private processDeclarationExpression(DeclarationExpression expression) {
-        //println 'l->'+expression.leftExpression
-        //println 'r->'+expression.rightExpression
-        //println 'v->'+expression.getVariableExpression()
-
-        if (expression.isMultipleAssignmentDeclaration()) {
-            TupleExpression tuple = (TupleExpression)(expression.getLeftExpression())
-            def number = 0;
-            tuple.expressions.each { Expression expr ->
-                //println 'Multiple->'+expr
-                if (expr instanceof VariableExpression && expr.name!='_') {
-                    context.addToActualScope(expr.name)
-                    out.addScript('var ')
-                    conversionFactory.getConverter('VariableExpression').handle(expr, true)
-                    //processVariableExpression(expr, true)
-                    out.addScript(' = ')
-                    conversionFactory.visitNode(expression.rightExpression)
-                    out.addScript(".getAt(${number})")
-                    if (number < tuple.expressions.size()) {
-                        out.addScript(';')
-                    }
-                }
-                number++
-            }
-        } else {
-
-            context.addToActualScope(expression.variableExpression.name)
-
-            out.addScript('var ')
-            conversionFactory.getConverter('VariableExpression').handle(expression.variableExpression, true)
-            //processVariableExpression(expression.variableExpression, true)
-
-            if (!(expression.rightExpression instanceof EmptyExpression)) {
-                out.addScript(' = ')
-                conversionFactory.visitNode(expression.rightExpression)
-            } else {
-                out.addScript(' = null')
-            }
-
-        }
-    }
-
     private processConstantExpression(ConstantExpression expression) {
         //println 'ConstantExpression->'+expression.text+'< '+expression.nullExpression
         if (expression.value instanceof String) {
