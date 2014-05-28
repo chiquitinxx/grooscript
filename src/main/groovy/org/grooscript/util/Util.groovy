@@ -154,7 +154,7 @@ class Util {
     }
 
     static String getGroovyVersion() {
-        Class.forName('groovy.lang.GString').package.implementationVersion
+        GroovySystem.version
     }
 
     static String getGrooscriptVersion() {
