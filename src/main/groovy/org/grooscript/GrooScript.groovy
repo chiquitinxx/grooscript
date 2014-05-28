@@ -18,6 +18,7 @@ class GrooScript {
     static final String INITIAL_TEXT_OPTION = 'initialText'
     static final String FINAL_TEXT_OPTION = 'finalText'
     static final String RECURSIVE_OPTION = 'recursive'
+    static final String INCLUDE_JS_LIB = 'includeJsLib'
 
     static boolean debug = false
     static Map options = [:]

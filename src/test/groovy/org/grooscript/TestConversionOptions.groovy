@@ -236,6 +236,15 @@ class TestConversionOptions extends Specification {
         3           |6
     }
 
+    def 'test include js archive at the beginning of the conversion'() {
+        when:
+        GrooScript.setConversionProperty(GrooScript.INCLUDE_JS_LIB, 'grooscript')
+        def result = GrooScript.convert('println "Hello!"')
+
+        then:
+        result.startsWith(new File('src/main/resources/META-INF/resources/grooscript.js').text)
+    }
+
     private void expectedInitialValues() {
         assert GrooScript.recursive == false
         assert GrooScript.debug == false

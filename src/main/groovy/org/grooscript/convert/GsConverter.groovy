@@ -1,5 +1,7 @@
 package org.grooscript.convert
 
+import org.grooscript.GrooScript
+
 import static org.grooscript.JsNames.*
 
 import org.codehaus.groovy.ast.*
@@ -28,6 +30,7 @@ class GsConverter {
     List<String> mainContextScope
     String initialText
     String finalText
+    String includeJsLib
 
     /**
      * Converts Groovy script to Javascript
@@ -72,7 +75,13 @@ class GsConverter {
         completeJsResult(result)
     }
 
-    private completeJsResult(result) {
+    private completeJsResult(String result) {
+        if (includeJsLib) {
+            def file = GrooScript.classLoader.getResourceAsStream("META-INF/resources/${includeJsLib}.js")
+            if (file) {
+                result = file.text + '\n' + result
+            }
+        }
         if (initialText) {
             result = initialText + '\n' + result
         }

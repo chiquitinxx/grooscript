@@ -45,6 +45,7 @@ class TestConvertBase extends Specification {
 
     def 'use static class converter'() {
         when:
+        GrooScript.clearAllOptions()
         def result = GrooScript.convert('def a=0')
 
         then:
