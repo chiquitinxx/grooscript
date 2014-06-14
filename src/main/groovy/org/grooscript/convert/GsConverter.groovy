@@ -76,17 +76,17 @@ class GsConverter {
     }
 
     private completeJsResult(String result) {
-        if (includeJsLib) {
-            def file = GrooScript.classLoader.getResourceAsStream("META-INF/resources/${includeJsLib}.js")
-            if (file) {
-                result = file.text + '\n' + result
-            }
-        }
         if (initialText) {
             result = initialText + '\n' + result
         }
         if (finalText) {
             result = result + '\n' + finalText
+        }
+        if (includeJsLib) {
+            def file = GrooScript.classLoader.getResourceAsStream("META-INF/resources/${includeJsLib}.js")
+            if (file) {
+                result = file.text + '\n' + result
+            }
         }
         result
     }
