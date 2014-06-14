@@ -62,7 +62,7 @@ class TestFiles extends Specification {
         def converted = convertFile('files/UseGsNative', options)
 
         then:
-        converted.contains('alert(\'Hello!\');')
+        converted.contains('alert(message);')
     }
 
     @IgnoreIf({ !Util.groovyVersionAtLeast('2.3') })

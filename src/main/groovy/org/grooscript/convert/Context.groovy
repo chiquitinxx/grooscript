@@ -91,6 +91,8 @@ class Context {
             }
             if (natives.size() == 1) {
                 return natives.first().code
+            } else if (natives.size() > 1) {
+                return natives.first().code
             } else {
                 GsConsole.error("Don't find unique native code for method: ${methodName} in class: ${classNode.name}")
                 return ''
