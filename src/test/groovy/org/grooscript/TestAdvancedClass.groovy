@@ -91,9 +91,8 @@ class TestAdvancedClass extends Specification {
         convertAndEvaluate('classes/DefaultMethodCall')
     }
 
-    @Ignore
     def 'test inner classes'() {
         expect:
-        convertAndEvaluate('classes/Inner', true)
+        convertAndEvaluate('classes/Inner')
     }
 }
