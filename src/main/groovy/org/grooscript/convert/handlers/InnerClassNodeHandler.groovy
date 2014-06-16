@@ -1,5 +1,6 @@
 package org.grooscript.convert.handlers
 
+import org.codehaus.groovy.GroovyException
 import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.InnerClassNode
 import org.codehaus.groovy.ast.MethodNode
@@ -15,6 +16,19 @@ class InnerClassNodeHandler extends BaseHandler {
 
     void handle(InnerClassNode innerClassNode) {
 
+        if (factory.isTraitClass(innerClassNode.name)) {
+            handleTrait(innerClassNode)
+        } else {
+            handleInnerClass(innerClassNode)
+        }
+    }
+
+    private handleInnerClass(InnerClassNode innerClassNode) {
+        //println innerClassNode.nameWithoutPackage
+        throw new GroovyException('Not supporting conversions of inner classes atm.')
+    }
+
+    private handleTrait(InnerClassNode innerClassNode) {
         def className = innerClassNode.outerClass.nameWithoutPackage
         createConstructorWithApplyTryFunction(innerClassNode, className)
 

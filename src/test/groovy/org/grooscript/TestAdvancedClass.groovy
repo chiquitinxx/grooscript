@@ -2,6 +2,7 @@ package org.grooscript
 
 import org.grooscript.test.ConversionMixin
 import org.grooscript.test.JsTestResult
+import spock.lang.Ignore
 import spock.lang.Specification
 
 /**
@@ -88,5 +89,11 @@ class TestAdvancedClass extends Specification {
     def 'default method call'() {
         expect:
         convertAndEvaluate('classes/DefaultMethodCall')
+    }
+
+    @Ignore
+    def 'test inner classes'() {
+        expect:
+        convertAndEvaluate('classes/Inner', true)
     }
 }
