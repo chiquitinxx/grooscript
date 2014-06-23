@@ -745,7 +745,7 @@ class GsConverter {
     }
 
     private processStaticMethodCallExpression(StaticMethodCallExpression expression) {
-        out.addScript("${expression.ownerType.name}.${expression.method}")
+        out.addScript("${conversionFactory.reduceClassName(expression.ownerType.name)}.${expression.method}")
         conversionFactory.visitNode(expression.arguments)
     }
 

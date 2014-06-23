@@ -144,7 +144,7 @@ class MethodCallExpressionHandler extends BaseHandler {
             out.addScript("\$self.${getNameTraitProperty(methodName)}")
             addParameters = false
         } else {
-            //println 'Method->'+methodName+' - '+expression.arguments.class.simpleName + context.inMainContext()
+            //println 'Method->'+methodName+' - '+expression.arguments.class.simpleName
             addParameters = false
 
             out.addScript("${GS_METHOD_CALL}(")

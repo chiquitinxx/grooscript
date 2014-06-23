@@ -95,4 +95,9 @@ class TestAdvancedClass extends Specification {
         expect:
         convertAndEvaluate('classes/Inner')
     }
+
+    def 'test static properties'() {
+        expect:
+        convertAndEvaluate('classes/StaticProperties')
+    }
 }
