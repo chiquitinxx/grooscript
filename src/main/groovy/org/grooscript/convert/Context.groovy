@@ -22,6 +22,7 @@ class Context {
     boolean processingClosure = false
     boolean processingClassMethods = false
     boolean lookingForReturnStatementInIf = false
+    ClassNode staticProcessNode
 
     //Control switch inside switch
     def switchCount = 0

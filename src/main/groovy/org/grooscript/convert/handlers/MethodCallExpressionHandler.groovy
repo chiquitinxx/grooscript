@@ -153,7 +153,11 @@ class MethodCallExpressionHandler extends BaseHandler {
                     context.currentVariableScopingHasMethod(methodName)) {
                 out.addScript(GS_OBJECT)
             } else {
-                factory.visitNode(expression.objectExpression)
+                if (factory.isThis(expression.objectExpression) && context.staticProcessNode) {
+                    out.addScript(context.staticProcessNode.nameWithoutPackage)
+                } else {
+                    factory.visitNode(expression.objectExpression)
+                }
             }
 
             out.addScript(',')
@@ -171,7 +175,8 @@ class MethodCallExpressionHandler extends BaseHandler {
                 out.addScript("]")
             }
             if (factory.isThis(expression.objectExpression) && !context.mainContext &&
-                    context.insideClass && !context.currentVariableScopingHasMethod(methodName)) {
+                    context.insideClass && !context.currentVariableScopingHasMethod(methodName) &&
+                    !context.staticProcessNode) {
                 out.addScript(", ${GS_OBJECT}")
             }
             out.addScript(')')

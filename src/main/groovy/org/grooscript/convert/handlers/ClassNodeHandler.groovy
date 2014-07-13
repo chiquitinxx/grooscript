@@ -7,7 +7,6 @@ import org.codehaus.groovy.ast.AnnotationNode
 import org.codehaus.groovy.ast.FieldNode
 import org.codehaus.groovy.ast.MethodNode
 import org.codehaus.groovy.ast.stmt.BlockStatement
-import org.grooscript.util.Util
 
 import static org.grooscript.JsNames.*
 /**
@@ -90,6 +89,7 @@ class ClassNodeHandler extends BaseHandler {
 
         //Static methods
         node?.methods?.each { MethodNode method ->
+            context.staticProcessNode = node
             if (!haveAnnotationNonConvert(method.annotations)) {
                 if (method.isStatic()) {
                     if (functions.haveAnnotationNative(method.annotations)) {
@@ -99,6 +99,7 @@ class ClassNodeHandler extends BaseHandler {
                     }
                 }
             }
+            context.staticProcessNode = null
         }
 
         //Static properties
