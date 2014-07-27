@@ -1,4 +1,4 @@
-grooscript 0.5.2
+grooscript 0.5.3
 ================
 
 Converts your Groovy or Java code to JavaScript(Groovy 2.x to Javascript ECMAScript 5). You need groovy jar greater than 2.0 to make conversions.
@@ -9,7 +9,7 @@ Not a full groovy to javascript conversion. Some groovy and java features not su
 
 Can convert .java and .groovy files or a text fragment as:
 
-    @Grab('org.grooscript:grooscript:0.5.2')
+    @Grab('org.grooscript:grooscript:0.5.3')
 
     import org.grooscript.GrooScript
 
@@ -30,6 +30,15 @@ Can convert .java and .groovy files or a text fragment as:
 
     println result
 
+Tools
+-----
+
+Grails [plugin](http://grails.org/plugin/grooscript)
+
+Gradle [plugin](http://plugins.gradle.org/plugin/org.grooscript.conversion)
+
+Npmjs [package](https://www.npmjs.org/package/grooscript)
+
 Build
 -----
 Using gradle wrapper, version 2.0. Only GPars 1.2 and Groovy dependencies in the project, Gradle as build system.
@@ -47,7 +56,7 @@ Build project:
 Contact
 -------
 
-Twitter: [@grooscript](http://twitter.com/grooscript) [@jfrancoleza](http://twitter.com/jfrancoleza)
+Twitter: [@grooscript](http://twitter.com/grooscript)
 
 Email: <grooscript@gmail.com>
 
