@@ -156,7 +156,14 @@ class GsConverter {
 
             //Process blocks after
             listBlocks?.each { it->
+                context.processingBaseScript = false
                 conversionFactory.visitNode(it, false)
+                if (context.processingBaseScript) {
+                    out.indent --
+                    out.removeTabScript()
+                    out.addScript('});', true)
+                    context.processingBaseScript = false
+                }
             }
 
             result = out.resultScript
@@ -173,30 +180,35 @@ class GsConverter {
         def enumClasses = []
         def numberOfElements = 0
         while (numberOfElements < list.size()) {
-            list.each { ClassNode it ->
+            list.each { ClassNode classNode ->
                 //println 'it->'+it.name+' super - '+it.superClass.name
-                if (it.superClass.name == 'java.lang.Object')  {
-                    if (!finalList.contains(it.name)) {
+                if (classNode.superClass.name == 'java.lang.Object')  {
+                    if (!finalList.contains(classNode.name)) {
                         //println 'Adding '+it.name+' - '+it.isInterface()
-                        finalList.add(it.name)
+                        finalList.add(classNode.name)
                     }
                 } else {
-                    //Expando allowed
-                    if (it.superClass.name == 'groovy.lang.Script') {
-                        extraClasses.add(it.name)
+                    if (classNode.superClass.name == 'groovy.lang.Script' && !classNode.scriptBody) {
+                        finalList.add(classNode.name)
+                    } else if (classNode.superClass.name == 'groovy.lang.Script') {
+                        extraClasses.add(classNode.name)
+                    } else if (classNode.superClass.name == 'groovy.util.Expando') {
+                        finalList.add(classNode.name)
                     } else {
                         //If father in the list, we can add it
-                        if (finalList.contains(it.superClass.name)) {
+                        if (classNode.scriptBody) {
+                            extraClasses.add(classNode.name)
+                        } else if (finalList.contains(classNode.superClass.name)) {
                             //println 'Adding 2 '+it.name+' - '+it.isInterface()
-                            finalList.add(it.name)
+                            finalList.add(classNode.name)
                         } else {
                             //Looking for superclass, only accepts superclass a class in same script
-                            if (it.superClass.name.startsWith('java.') ||
-                                it.superClass.name.startsWith('groovy.')) {
-                                if (it.superClass.name == 'java.lang.Enum') {
-                                    enumClasses.add(it.name)
+                            if (classNode.superClass.name.startsWith('java.') ||
+                                classNode.superClass.name.startsWith('groovy.')) {
+                                if (classNode.superClass.name == 'java.lang.Enum') {
+                                    enumClasses.add(classNode.name)
                                 } else {
-                                    throw new Exception('Inheritance not Allowed on ' + it.name)
+                                    throw new Exception('Inheritance not Allowed on ' + classNode.name)
                                 }
                             }
                         }
@@ -209,7 +221,7 @@ class GsConverter {
             }
         }
         //Finally process classes in order
-        finalList.each { String nameClass ->
+        finalList.unique().each { String nameClass ->
             if (consoleInfo) {
                 GsConsole.message('  Processing class ' + nameClass)
             }
@@ -220,12 +232,12 @@ class GsConverter {
                 GsConsole.message('  Processing class done.')
             }
         }
-        //Expandos - Nothing to do!
-        extraClasses.each { String nameClass ->
-            //println 'Class->'+nameClass
-            processScriptClassNode(list.find { ClassNode it ->
+        //Scripts
+        extraClasses.unique().each { String nameClass ->
+            def classNode = list.find { ClassNode it ->
                 return it.name == nameClass
-            })
+            }
+            processScriptClassNode(classNode)
         }
         //Enums!
         enumClasses.each { String nameClass ->

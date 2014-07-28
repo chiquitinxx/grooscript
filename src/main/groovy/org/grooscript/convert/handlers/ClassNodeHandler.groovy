@@ -32,8 +32,7 @@ class ClassNodeHandler extends BaseHandler {
 
             //Limited allowed inheritance
             context.superNameStack.push(node.superClass.name)
-
-            if (node.superClass.name != 'java.lang.Object') {
+            if (node.superClass.name != 'java.lang.Object' && node.superClass.name != 'groovy.lang.Script') {
                 //println 'Allowed!'+ node.superClass.class.name
                 out.addScript("var ${GS_OBJECT} = ${node.superClass.nameWithoutPackage}();", true)
 

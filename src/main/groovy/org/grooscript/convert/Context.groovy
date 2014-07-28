@@ -21,6 +21,7 @@ class Context {
     Stack actualScope = new Stack()
     boolean processingClosure = false
     boolean processingClassMethods = false
+    boolean processingBaseScript = false
     boolean lookingForReturnStatementInIf = false
     ClassNode staticProcessNode
 
@@ -78,7 +79,7 @@ class Context {
     boolean isVariableWithMissingScope(VariableExpression expression) {
         !expression.isThisExpression() && !allActualScopeContains(expression.name) &&
                 !variableScopingContains(expression.name) &&
-                (processingClosure || processingClassMethods)
+                (processingClosure || processingClassMethods || processingBaseScript)
     }
 
     String getNativeFunction(ClassNode classNode, String methodName) {
