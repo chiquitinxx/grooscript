@@ -99,6 +99,8 @@ class TestContributors extends Specification {
         file                       | _
         'contribution/MySelf1'     | _
         'contribution/MySelf2'     | _
+        'contribution/MySelf3'     | _
+        'contribution/MySelf4'     | _
     }
 
     def 'testing fail with this scope'() {
