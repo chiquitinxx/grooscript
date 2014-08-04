@@ -33,3 +33,10 @@ assert out == 'one 2 4 2 6 3 one'
 
 assert 'one two'.tokenize() == ['one','two']
 assert 'one two'.split(" ")[0] == 'one'
+
+def strange = ''
+'123456789'.each {
+    strange += "${it}_"
+}
+
+assert strange == '1_2_3_4_5_6_7_8_9_'

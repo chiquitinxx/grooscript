@@ -30,7 +30,37 @@ function HtmlBuilder() {
   };
   gSobject.build = function(x0) { return HtmlBuilder.build(x0); }
   gSobject['yield'] = function(text) {
+    return gs.mc(text,"each",[function(ch) {
+      var gSswitch0 = ch;
+      if (gSswitch0 === "&") {
+        gSobject.html += "&amp;";
+        ;
+      } else if (gSswitch0 === "<") {
+        gSobject.html += "&lt;";
+        ;
+      } else if (gSswitch0 === ">") {
+        gSobject.html += "&gt;";
+        ;
+      } else if (gSswitch0 === "\"") {
+        gSobject.html += "&quot;";
+        ;
+      } else if (gSswitch0 === "'") {
+        gSobject.html += "&apos;";
+        ;
+      } else {
+        gSobject.html += ch;
+        ;
+      };
+    }]);
+  }
+  gSobject['yieldUnescaped'] = function(text) {
     return gSobject.html += text;
+  }
+  gSobject['comment'] = function(text) {
+    return gSobject.html += (gs.plus((gs.plus("<!--", text)), "-->"));
+  }
+  gSobject['newLine'] = function(it) {
+    return gSobject.html += "\n";
   }
   gSobject['methodMissing'] = function(name, args) {
     gs.sp(this,"" + (name) + "",function(ars) {

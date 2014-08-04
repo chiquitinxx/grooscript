@@ -24,7 +24,40 @@ class HtmlBuilder {
     }
 
     def yield(String text) {
+        text.each { ch ->
+            switch (ch) {
+                case '&':
+                    html += "&amp;"
+                    break
+                case '<':
+                    html += "&lt;"
+                    break
+                case '>':
+                    html += "&gt;"
+                    break
+                case '"':
+                    html += "&quot;"
+                    break
+                case '\'':
+                    html +=  "&apos;"
+                    break
+                default:
+                    html += ch
+                    break
+            }
+        }
+    }
+
+    def yieldUnescaped(String text) {
         html += text
+    }
+
+    def comment(String text) {
+        html += '<!--' + text + '-->'
+    }
+
+    def newLine() {
+        html += '\n'
     }
 
     def methodMissing(String name, args) {

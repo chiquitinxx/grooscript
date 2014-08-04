@@ -7,7 +7,7 @@ import spock.lang.Specification
  * User: jorgefrancoleza
  * Date: 08/06/13
  */
-@Mixin([ConversionMixin])
+@Mixin(ConversionMixin)
 class TestHtmlBuilder extends Specification {
 
     static final TEXT = 'text'
@@ -35,7 +35,7 @@ class TestHtmlBuilder extends Specification {
         ''', false)
     }
 
-    void 'works with tag options and t function'() {
+    void 'works with tag options and yield function'() {
         given:
         def result = HtmlBuilder.build {
             body {
@@ -47,6 +47,26 @@ class TestHtmlBuilder extends Specification {
 
         expect:
         result == "<body><p class='salute'>hello</p></body>"
+    }
+
+    void 'yield escaped chars'() {
+        given:
+        def result = HtmlBuilder.build {
+            yield '<hello " \' & >'
+        }
+
+        expect:
+        result == "&lt;hello &quot; &apos; &amp; &gt;"
+    }
+
+    void 'yield unescaped chars'() {
+        given:
+        def result = HtmlBuilder.build {
+            yieldUnescaped '<hello " \' & >'
+        }
+
+        expect:
+        result == '<hello " \' & >'
     }
 
     void 'works with code inside the closure'() {
@@ -73,5 +93,38 @@ class TestHtmlBuilder extends Specification {
 
         expect:
         result == "<p class='text'>Hello!</p>"
+    }
+
+    void 'test yield in js'() {
+        expect:
+        !checkBuilderCodeAssertsFails('''
+            def result = HtmlBuilder.build {
+                yield '<hello " \\' & >'
+            }
+
+            assert result == "&lt;hello &quot; &apos; &amp; &gt;"
+        ''')
+    }
+
+    void 'comment'() {
+        given:
+        def result = HtmlBuilder.build {
+            comment 'Is a <little> comment'
+        }
+
+        expect:
+        result == "<!--Is a <little> comment-->"
+    }
+
+    void 'new line'() {
+        given:
+        def result = HtmlBuilder.build {
+            p 'a'
+            newLine()
+            p 'b'
+        }
+
+        expect:
+        result == "<p>a</p>\n<p>b</p>"
     }
 }
