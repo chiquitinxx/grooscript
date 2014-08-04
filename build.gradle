@@ -12,7 +12,7 @@ sourceCompatibility = 1.6
 def appName = 'grooscript'
 
 ext {
-    groovyVersion = '2.3.5'
+    groovyVersion = '2.3.6'
 }
 
 repositories {
