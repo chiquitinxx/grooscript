@@ -69,15 +69,6 @@ function evaluateTest() {
             gSresult.tests[gSresult.number++] = test;
         };
 
-        function grooJQuery(selector, other) {
-            var result = window.jQuery(selector,other);
-            result.size = function() {
-                return this.length;
-            }
-            return result;
-        }
-        window.$ = grooJQuery;
-
         {{GROOSCRIPT}}
 
         try {
@@ -103,7 +94,7 @@ page.open('{{URL}}', function (status) {
             //console.log('Evaluating code...');
             evaluateAfterSeconds({{SECONDS}});
         } else {
-            console.log(' Result:FAIL Desc:Fail in inject.');
+            console.log(' Result: FAIL Desc: Fail in inject.');
             phantom.exit(1);
         }
     }
@@ -138,12 +129,12 @@ page.open('{{URL}}', function (status) {
         if (!url) {
             messageError = 'url not defined, use @PhantomJsTest(url=\'http://grooscript.org\')'
         }
-        def jsTest
+        def jsTest = ''
         if (!messageError) {
             GsConverter converter = new GsConverter()
 
             try {
-                converter.mainContextScope = ['$']
+                converter.mainContextScope = ['$', 'gs', 'window', 'document']
                 jsTest = converter.processAstListToJs([method])
             } catch (e) {
                 messageError = 'Error converting code ->' + e.message
@@ -205,7 +196,7 @@ page.open('{{URL}}', function (status) {
             if (messageError) {
                 assert false, 'PhantomJs Initial Error: ' + messageError
             }
-            def jsHome = org.grooscript.asts.PhantomJsTestImpl.getJsLibrariesPath()
+            def jsHome = jsLibrariesPath
             def phantomJsHome
             if (!System.getProperty('PHANTOMJS_HOME') && !System.getenv('PHANTOMJS_HOME')) {
                 assert false, 'Need define PHANTOMJS_HOME as property or environment variable; the PhantomJs folder'
@@ -278,7 +269,7 @@ page.open('{{URL}}', function (status) {
                     }
                 }
             }
-            message "Result \u001B[91mSUCCESS\u001B[0m.", HEAD
+            message "Result \u001B[92mSUCCESS\u001B[0m.", HEAD
         } catch (AssertionError ae) {
             message "Assert error. \u001B[91mFAIL\u001B[0m.", HEAD
             message "  ${ae.message}", HEAD
