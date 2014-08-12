@@ -1,7 +1,9 @@
 package org.grooscript.asts
 
+import groovy.json.JsonSlurper
 import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.ast.AnnotationNode
+import org.codehaus.groovy.ast.ClassHelper
 import org.codehaus.groovy.ast.MethodNode
 import org.codehaus.groovy.ast.builder.AstBuilder
 import org.codehaus.groovy.control.CompilePhase
@@ -42,6 +44,7 @@ function evaluateAfterSeconds(seconds) {
     setTimeout(function() {
         var result = evaluateTest();
         console.log('Number of tests: '+result.number);
+        console.log('GSRESULT:'+(result.result !== null ? JSON.stringify(result.result) : ''));
         if (result.number > 0) {
             var i;
             for (i=0;i<result.tests.length;i++) {
@@ -60,7 +63,7 @@ function evaluateTest() {
 
     return page.evaluate(function() {
 
-        var gSresult = { number:0 , tests: [], console: ''};
+        var gSresult = { number:0 , tests: [], console: '', result: null};
         gs.assert = function(value, text) {
             var test = { result: value, text: value.toString()};
             if (arguments.length == 2 && arguments[1]!=null && arguments[1]!=undefined) {
@@ -72,7 +75,14 @@ function evaluateTest() {
         {{GROOSCRIPT}}
 
         try {
-            {{FUNCTION_CALL}}
+            var returnResult = {{FUNCTION_CALL}}
+            try {
+                if (returnResult) {
+                    gSresult.result = gs.toJavascript(returnResult);
+                }
+            } catch (ee) {
+                gSresult.result = null;
+            }
         } catch (e) {
             var message = 'ERROR EXECUTING CODE: ' + e;
             console.log (message);
@@ -107,7 +117,7 @@ page.open('{{URL}}', function (status) {
         }
 
         MethodNode method = (MethodNode) nodes[1]
-        //Statement testCode = method.getCode()
+        method.returnType = ClassHelper.OBJECT_TYPE
 
         def messageError
         AnnotationNode annotationNode = (AnnotationNode) nodes[0]
@@ -142,9 +152,9 @@ page.open('{{URL}}', function (status) {
         }
 
         def textCode = "def listParams = [];\n${method.parameters.collect { "listParams << ${it.name}"}.join(';')};\n" +
-                "Class.forName('org.grooscript.asts.PhantomJsTestImpl').doPhantomJsTest('${url}', " +
+                "def result = Class.forName('org.grooscript.asts.PhantomJsTestImpl').doPhantomJsTest('${url}', " +
                 "\'\'\'" + jsTest + "\'\'\', '${method.name?:''}', ${waitSeconds}, '${capture?:''}',listParams, " +
-                "'${messageError?:''}', ${withInfo}); return null"
+                "'${messageError?:''}', ${withInfo}); return result;"
         method.declaringClass
         method.setCode new AstBuilder().buildFromString(CompilePhase.CLASS_GENERATION , textCode)
     }
@@ -188,10 +198,11 @@ page.open('{{URL}}', function (status) {
         jsHome
     }
 
-    static void doPhantomJsTest(String url, String testCode, String methodName, int waitSeconds = 0,
+    static def doPhantomJsTest(String url, String testCode, String methodName, int waitSeconds = 0,
                                 String capture = null, List parameters = null, String messageError = null,
                                 boolean withInfo = false) {
         def nameFile = 'phantomjs.js'
+        def result = null
         try {
             if (messageError) {
                 assert false, 'PhantomJs Initial Error: ' + messageError
@@ -264,6 +275,11 @@ page.open('{{URL}}', function (status) {
                         message line.substring(8), CONSOLE
                     } else if (line.contains('Result:OK')) {
                         assert true, line.substring(line.indexOf(' Desc:') + 6)
+                    } else if (line.toUpperCase().startsWith('GSRESULT:')) {
+                        if (line.substring(9).trim() != '') {
+                            def slurper = new JsonSlurper()
+                            result = slurper.parseText(line.substring(9))
+                        }
                     } else {
                         message line, HEAD
                     }
@@ -295,6 +311,7 @@ page.open('{{URL}}', function (status) {
                 file.delete()
             }
         }
+        result
     }
 
     static String getParametersText(List parameters) {

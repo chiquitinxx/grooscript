@@ -2,6 +2,7 @@ package org.grooscript.asts
 
 import org.codehaus.groovy.control.MultipleCompilationErrorsException
 import org.grooscript.FunctionalTest
+import spock.lang.Ignore
 
 /**
  * User: jorgefrancoleza
@@ -187,5 +188,36 @@ class TestPhantomJs extends FunctionalTest {
 
     void testWithoutAnnotation() {
         PhantomJsTestImpl.doPhantomJsTest(HTML_ADRESS, 'function hello() {console.log("Hello!");}', 'hello')
+    }
+
+    @PhantomJsTest(url = 'http://localhost:8000/test')
+    def returnMap() {
+        [list: [1,2], str: 'string', number: 9, dec: 8.34, jq: $('p').text()]
+    }
+
+    void testReturnMap() {
+        def result = returnMap()
+        assert result == [ list: [1,2], str: 'string', number: 9, dec: 8.34, jq: 'Welcome']
+    }
+
+    @PhantomJsTest(url = 'http://localhost:8000/test')
+    def returnString() {
+        $('body').html()
+    }
+
+    void testReturnString() {
+        def result = returnString()
+        assert result == '<p>Welcome</p>'
+    }
+
+    @Ignore
+    @PhantomJsTest(url = 'http://beta.groovy-lang.org/')
+    void testCountLinks() {
+        def links = $('a')
+        assert links.size() > 40, "Number of links in page are ${links.size()}"
+        def linksArray = links.toArray()
+        linksArray.each {
+            println it
+        }
     }
 }

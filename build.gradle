@@ -24,6 +24,7 @@ codenarc.configFile = new File('config/codenarc.groovy')
 
 dependencies {
     compile "org.codehaus.groovy:groovy:${groovyVersion}"
+    compile "org.codehaus.groovy:groovy-json:${groovyVersion}"
     runtime 'org.apache.ivy:ivy:2.3.0'
     compile('org.codehaus.gpars:gpars:1.2.1') {
         exclude module: 'groovy-all'
