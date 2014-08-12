@@ -11,7 +11,11 @@ enum Days {
     }
 }
 
-def a = Days.monday
+Days a = Days.monday
 
 assert a == Days.monday
 assert 'one' == Days.tellMeOne()
+assert Days.monday.name() == 'monday'
+assert a.name() == 'monday'
+assert a.ordinal() == 0
+assert Days.sunday.ordinal() == 6

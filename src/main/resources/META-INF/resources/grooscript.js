@@ -1,4 +1,4 @@
-//Grooscript Version 0.5.2 Apache 2 License
+//Grooscript Version 0.5.3 Apache 2 License
 (function() {
     var gs = function(obj) {
         if (obj instanceof gs) return obj;

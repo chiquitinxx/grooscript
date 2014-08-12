@@ -716,10 +716,11 @@ class GsConverter {
         //visitType node.superClass
 
         //Fields
-        def number = 1
+        def number = 0
         node?.fields?.each { it->
             if (!['MIN_VALUE', 'MAX_VALUE', '$VALUES'].contains(it.name)) {
-                out.addScript("${it.name} : ${number++},", true)
+                out.addScript("${it.name} : { ordinal: function() { return ${number++}}, " +
+                        "name: function() { return '${it.name}' } },", true)
                 context.variableScoping.peek().add(it.name)
             }
         }
