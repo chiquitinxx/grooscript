@@ -19,7 +19,7 @@ function HtmlBuilder() {
         var lastArg = gs.mc(args,"last",[]);
         if (gs.instanceOf(lastArg, "Closure")) {
           gs.sp(lastArg,"delegate",this);
-          (lastArg.delegate!=undefined?gs.applyDelegate(lastArg,lastArg.delegate,[]):gs.executeCall(lastArg, []));
+          (lastArg.delegate!=undefined?gs.applyDelegate(lastArg,lastArg.delegate,[]):gs.execCall(lastArg, this, []));
         };
         if ((gs.instanceOf(lastArg, "String")) && (gs.mc(args,"size",[]) > 1)) {
           gs.mc(gSobject,"yield",[lastArg]);
@@ -92,6 +92,6 @@ HtmlBuilder.build = function(closure) {
   var builder = HtmlBuilder();
   gs.sp(builder,"metaClass",mc);
   gs.sp(closure,"delegate",builder);
-  (closure.delegate!=undefined?gs.applyDelegate(closure,closure.delegate,[]):gs.executeCall(closure, []));
+  (closure.delegate!=undefined?gs.applyDelegate(closure,closure.delegate,[]):gs.execCall(closure, this, []));
   return gs.gp(builder,"html");
 }

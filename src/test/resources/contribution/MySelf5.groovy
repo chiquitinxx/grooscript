@@ -12,3 +12,17 @@ def doIt = { data ->
 }
 
 assert doIt(map) == 3
+
+def closure = { cl ->
+    cl()
+}
+
+def inDsl= { data ->
+    data.with {
+        closure {
+            a + b
+        }
+    }
+}
+
+assert inDsl(map) == 3

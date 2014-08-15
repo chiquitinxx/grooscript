@@ -35,13 +35,13 @@ class MethodCallExpressionHandler extends BaseHandler {
                 def nameFunc = expression.objectExpression.text
                 out.addScript("(${nameFunc}.delegate!=undefined?${GS_APPLY_DELEGATE}(${nameFunc},${nameFunc}.delegate,[")
                 factory.visitNode(expression.arguments, false)
-                out.addScript("]):${GS_EXECUTE_CALL}(${nameFunc}, [")
+                out.addScript("]):${GS_EXECUTE_CALL}(${nameFunc}, this, [")
                 factory.visitNode(expression.arguments, false)
                 out.addScript("]))")
             } else {
                 out.addScript("${GS_EXECUTE_CALL}(")
                 factory.visitNode(expression.objectExpression)
-                out.addScript(", [")
+                out.addScript(", this, [")
                 factory.visitNode(expression.arguments, false)
                 out.addScript('])')
             }

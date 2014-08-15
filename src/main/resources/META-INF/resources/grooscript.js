@@ -734,7 +734,6 @@
 
         //Maybe comes a second parameter with default value
         if (arguments.length==2) {
-            //console.log('uh->'+this[pos]);
             if (this[pos] === null || this[pos] === undefined) {
                 return arguments[1];
             } else {
@@ -2596,11 +2595,11 @@
         return result;
     };
 
-    gs.executeCall = function (func, params) {
+    gs.execCall = function (func, thisObject, params) {
         if (typeof func === 'object' && func['call'] !== undefined) {
             return func['call'].apply(func, params);
         } else {
-            return func.apply(func, params);
+            return func.apply(thisObject, params);
         }
     };
 
