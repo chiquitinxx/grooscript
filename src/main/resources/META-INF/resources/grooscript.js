@@ -77,7 +77,7 @@
     /////////////////////////////////////////////////////////////////
     gs.baseClass = {
         //The with function, with is a reserved word in JavaScript
-        withz : function(closure) { closure.apply(this, closure.arguments); },
+        withz : function(closure) { return closure.apply(this, closure.arguments); },
         getProperties : function() {
             var result = gs.map(), ob;
             for (ob in this) {
@@ -240,7 +240,7 @@
         object.isSet = true;
 
         object.withz = function(closure) {
-            interceptClosureCall(closure, this);
+            return interceptClosureCall(closure, this);
         };
 
         object.add = function(item) {
@@ -723,6 +723,8 @@
             }
             return result;
         };
+
+        this.withz = gs.baseClass.withz;
     }
 
     /////////////////////////////////////////////////////////////////
@@ -748,7 +750,7 @@
     };
 
     Array.prototype.withz = function(closure) {
-        interceptClosureCall(closure, this);
+        return interceptClosureCall(closure, this);
     };
 
     Array.prototype.size = function() {
@@ -1884,10 +1886,10 @@
     };
 
     function interceptClosureCall(func, param) {
-        if ((param instanceof Array) && func.length>1) {
-            func.apply(func,param);
+        if ((param instanceof Array) && func.length > 1) {
+            return func.apply(func, param);
         } else {
-            func(param);
+            return func(param);
         }
     }
 

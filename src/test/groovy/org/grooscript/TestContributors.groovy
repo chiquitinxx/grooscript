@@ -101,6 +101,7 @@ class TestContributors extends Specification {
         'contribution/MySelf2'     | _
         'contribution/MySelf3'     | _
         'contribution/MySelf4'     | _
+        'contribution/MySelf5'     | _
     }
 
     def 'testing fail with this scope'() {
