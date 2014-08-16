@@ -1,5 +1,6 @@
 package org.grooscript.convert.handlers
 
+import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.expr.ArgumentListExpression
 import org.codehaus.groovy.ast.expr.ClassExpression
 import org.codehaus.groovy.ast.expr.ClosureExpression
@@ -143,6 +144,14 @@ class MethodCallExpressionHandler extends BaseHandler {
                 methodName.endsWith('$get')) {
             out.addScript("\$self.${getNameTraitProperty(methodName)}")
             addParameters = false
+        //Static method
+        } else if(isStaticMethodCall(expression)) {
+            out.addScript("$GS_EXEC_STATIC(")
+            factory.visitNode(expression.objectExpression)
+            out.addScript(",'$methodName', this,[")
+            factory.visitNode(expression.arguments, false)
+            out.addScript('])')
+            addParameters = false
         } else {
             //println 'Method->'+methodName+' - '+expression.arguments.class.simpleName
             addParameters = false
@@ -193,5 +202,17 @@ class MethodCallExpressionHandler extends BaseHandler {
 
     private getNameTraitProperty(methodName) {
         methodName.substring(0, methodName.lastIndexOf('$'))
+    }
+
+    private boolean isStaticMethodCall(MethodCallExpression expression) {
+        boolean staticMethod = false
+        if (expression.objectExpression instanceof ClassExpression) {
+            ClassNode sourceObject = expression.objectExpression.type
+            def method = sourceObject.methods.find { it.name == expression.methodAsString}
+            if (method && method.isStatic()) {
+                staticMethod = true
+            }
+        }
+        staticMethod
     }
 }

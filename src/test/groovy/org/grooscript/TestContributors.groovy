@@ -102,11 +102,7 @@ class TestContributors extends Specification {
         'contribution/MySelf3'     | _
         'contribution/MySelf4'     | _
         'contribution/MySelf5'     | _
-    }
-
-    def 'testing fail with this scope'() {
-        expect:
-        convertAndEvaluate('contribution/MySelf3')
+        'contribution/MySelf6'     | _
     }
 
     def 'guillaume examples from talks'() {

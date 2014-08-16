@@ -36,6 +36,9 @@
     //Delegate
     var actualDelegate = null;
 
+    //Static this
+    var aStT = null;
+
     //@Delegate
     var mapAddDelegate = {};
 
@@ -103,7 +106,7 @@
         },
         invokeMethod: function(name, values) {
             var i,newArgs = [];
-            if (values !== null && values !== undefined) {
+            if (values) {
                 for (i=0; i < values.length; i++) {
                     newArgs[i] = values[i];
                 }
@@ -158,13 +161,13 @@
     };
 
     function expandWithMetaclass(item, objectName) {
-        if (globalMetaClass !== undefined && globalMetaClass[objectName] !== null && globalMetaClass[objectName] !== undefined) {
+        if (globalMetaClass && globalMetaClass[objectName]) {
             var obj,map = globalMetaClass[objectName];
             for (obj in map) {
 
                 //Static methods
                 var staticMap = map.getStatic();
-                if (staticMap !== null && staticMap !== undefined) {
+                if (staticMap) {
                     var objStatic;
                     for (objStatic in staticMap) {
                         if (objStatic != 'gSparent') {
@@ -1546,7 +1549,7 @@
             var list = gs.list([]);
             var i = 0;
 
-            while (data !== null && data !== undefined) {
+            while (data) {
                 if (data instanceof Array && data.length<2) {
                     list[i] = data[0];
                 } else {
@@ -1671,7 +1674,7 @@
     String.prototype.count = function(value) {
         var reg = new RegExp(value,'g');
         var result = this.match(reg);
-        if (result !== null && result !== undefined) {
+        if (result) {
             return result.length;
         } else {
             return 0;
@@ -1703,7 +1706,7 @@
 
     String.prototype.tokenize = function() {
         var str = " ";
-        if (arguments.length == 1 && arguments[0] !== null && arguments[0] !== undefined) {
+        if (arguments.length == 1 && arguments[0]) {
             str = arguments[0];
         }
         var list = this.split(str);
@@ -1906,7 +1909,7 @@
     };
 
     gs.bool = function(item) {
-        if (item !== null && item !== undefined && item.isEmpty !== undefined) {
+        if (item && item.isEmpty !== undefined) {
             return !item.isEmpty();
         } else {
             if (typeof(item) == 'number' && item === 0) {
@@ -1952,7 +1955,7 @@
         } else if (item.clazz) {
             var classInfo;
             classInfo = item.clazz;
-            while (classInfo !== null && classInfo !== undefined && !gotIt) {
+            while (classInfo && !gotIt) {
                 if (classInfoContainsName(classInfo, name)) {
                     gotIt = true;
                 } else {
@@ -2029,7 +2032,7 @@
 
     // in operator
     gs.gSin = function(item, group) {
-        if (group !== null && group !== undefined && (typeof group.contains === "function")) {
+        if (group && (typeof group.contains === "function")) {
             return group.contains(item);
         } else {
             return false;
@@ -2040,7 +2043,7 @@
     //This can be a closure
     gs.thisOrObject = function(thisItem, objectItem) {
         //this can only be used for our objects, our object must have withz function
-        if (thisItem.withz === undefined && objectItem !== null && objectItem !== undefined) {
+        if (thisItem.withz === undefined && objectItem) {
             return objectItem;
         } else {
             return thisItem;
@@ -2218,6 +2221,10 @@
             console.log('[INFO] gs.mc (' + item + ').' + methodName + ' params:' + values);
         }
 
+        if (item === null || item === undefined) {
+            throw 'gs.mc Calling method: ' + methodName + ' on null or undefined object.';
+        }
+
         if (typeof(item) == 'string' && methodName == 'split') {
             return item.tokenize(values[0]);
         }
@@ -2314,7 +2321,7 @@
                 }
 
                 //Lets check in delegate
-                if (actualDelegate !== null && actualDelegate[methodName] !== undefined) {
+                if (actualDelegate && actualDelegate[methodName]) {
                     return actualDelegate[methodName].apply(item, values);
                 }
                 if (actualDelegate !== null && item.methodMissing === undefined && actualDelegate.methodMissing !== undefined) {
@@ -2483,7 +2490,7 @@
         if (typeof(item) == 'string') {
             className = 'String';
         }
-        if (typeof(item) == 'object' && item.clazz !== undefined && item.clazz.simpleName !== undefined) {
+        if (typeof(item) == 'object' && item.clazz && item.clazz.simpleName) {
             className = item.clazz.simpleName;
         }
         if (className !== null) {
@@ -2652,13 +2659,17 @@
 
     //MISC Find scope of a var
     gs.fs = function(name, thisScope) {
-        if (thisScope !== undefined && thisScope[name] !== undefined) {
+        if (thisScope && thisScope[name] !== undefined) {
             return thisScope[name];
         } else {
             var value = gs.gp(thisScope, name);
             if (value === undefined) {
-                var func = new Function("return " + name);
-                return func();
+                if (aStT && aStT[name] !== undefined) {
+                    return aStT[name];
+                } else {
+                    var func = new Function("return " + name);
+                    return func();
+                }
             } else {
                 return value;
             }
@@ -2666,9 +2677,9 @@
     };
 
     gs.toJavascript = function(obj) {
-        if (obj !== null && obj !== undefined && gs.isGroovyObj(obj)) {
+        if (obj && gs.isGroovyObj(obj)) {
             var result;
-            if (obj !== null && obj !== undefined && typeof(obj) !== "function") {
+            if (obj && typeof(obj) !== "function") {
                 if (obj instanceof Array) {
                     result = [];
                     var i;
@@ -2697,7 +2708,7 @@
 
     gs.toGroovy = function(obj, objClass) {
         var result;
-        if (obj !== null && obj !== undefined && typeof(obj) !== "function") {
+        if (obj && typeof(obj) !== "function") {
             if (obj instanceof Array) {
                 result = gs.list([]);
                 var i;
@@ -2707,7 +2718,7 @@
             } else {
                 if (obj instanceof Object) {
                     var ob;
-                    if (objClass !== undefined && objClass !== null) {
+                    if (objClass) {
                         result = objClass();
                         for (ob in obj) {
                             result[ob] = gs.toGroovy(obj[ob]);
@@ -2742,6 +2753,14 @@
                 typeof(maybeGroovyObject.withz) === "function") ||
             (maybeGroovyObject.clazz !== undefined &&
                 maybeGroovyObject.clazz.name == 'java.util.LinkedHashMap');
+    };
+
+    gs.execStatic = function(obj, methodName, thisObject, params) {
+        var old = aStT;
+        aStT = thisObject;
+        var res = obj[methodName].apply(thisObject, params);
+        aStT = old;
+        return res;
     };
 
 }).call(this);

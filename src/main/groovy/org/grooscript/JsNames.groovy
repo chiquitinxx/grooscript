@@ -68,4 +68,5 @@ class JsNames {
     static final GS_MY_CATEGORIES = "${GS}myCategories"
     static final GS_AST_DELEGATE = "${GS}astDelegate"
     static final GS_EXECUTE_CALL = "${GS}execCall"
+    static final GS_EXEC_STATIC = "${GS}execStatic"
 }

@@ -140,4 +140,19 @@ describe('initial tests on gs', function(){
         assert.equal(gs.equals(groovyObject.b[0], gs.map({c: 5, d: 6})), true);
         assert.equal(groovyObject.b[0].clazz.name, 'java.util.LinkedHashMap');
     });
+
+    it('returns error calling gs.mc on undefined or null object', function() {
+        var failNull = function() {
+            return gs.mc(null, 'methodName', []);
+        };
+        var failUndefined = function() {
+            return gs.mc(undefined, 'methodName', []);
+        };
+        assert.throws(failNull, null, '');
+        assert.throws(failUndefined, null, '');
+        var noFail = function() {
+            return gs.mc('','isNumber',null);
+        }
+        assert.equal(noFail(), false);
+    });
 });
