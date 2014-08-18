@@ -10,7 +10,7 @@ import com.sun.net.httpserver.HttpServer
  */
 abstract class FunctionalTest extends GroovyTestCase {
 
-    private static final PHANTOMJS_HOME = System.getProperty('PHANTOMJS_HOME') ?: '/Applications/phantomjs'
+    private static final PHANTOMJS_HOME = './node_modules/phantomjs'
     private static final JS_LIBRARIES_PATH = 'src/main/resources/META-INF/resources'
     private static final PORT = 8000
     private static final HTML_ACTION = '/test'

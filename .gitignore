@@ -13,3 +13,4 @@ gSphantomJsTest.js
 *.class
 grooscript.min.js
 grooscript-all.js
+node_modules
