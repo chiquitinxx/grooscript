@@ -18,11 +18,9 @@ public class Numbers {
         bigDecimalNumber = new BigDecimal("10");
     }
 
-    public boolean validate() throws Exception {
-        if (intNumber != 5 || doubleNumber != 12.34 || bigDecimalNumber.intValue() != 10) {
-            return false;
-        } else {
-            return true;
-        }
+    public void validate() throws Exception {
+        assert intNumber == 5;
+        assert doubleNumber == 12.34;
+        assert bigDecimalNumber.intValue() == 10;
     }
 }

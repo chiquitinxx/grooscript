@@ -24,11 +24,11 @@ public class TestTypes {
     public void testNumbers() throws Exception {
 
         //First validate java code
-        assertEquals(new Numbers().validate(), true);
+        new Numbers().validate();
 
         //Convert and validate javascript converted code
         String result = GrooScript.convert(readFile("Numbers"));
-        result += "\r\ngs.assert(Numbers().validate() == true);";
+        result += "\r\nNumbers().validate();";
         JsTestResult testResult = JavascriptEngine.jsEval(result);
         assertEquals(false, testResult.getAssertFails());
     }
