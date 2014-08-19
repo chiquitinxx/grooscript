@@ -25,19 +25,20 @@ class ConversionFactory {
     Traits traits
 
     Map converters = [
-            'VariableExpression': VariableExpressionHandler,
-            'ClassNode': ClassNodeHandler,
-            'BinaryExpression': BinaryExpressionHandler,
-            'MethodCallExpression': MethodCallExpressionHandler,
-            'PropertyExpression': PropertyExpressionHandler,
-            'BlockStatement': BlockStatementHandler,
-            'MethodNode': MethodNodeHandler,
-            'ConstructorCallExpression': ConstructorCallExpressionHandler,
-            'CastExpression': CastExpressionHandler,
-            'ArrayExpression': ArrayExpressionHandler,
-            'MethodPointerExpression': MethodPointerExpressionHandler,
-            'InnerClassNode': InnerClassNodeHandler,
-            'DeclarationExpression': DeclarationExpressionHandler
+        'VariableExpression': VariableExpressionHandler,
+        'ClassNode': ClassNodeHandler,
+        'BinaryExpression': BinaryExpressionHandler,
+        'MethodCallExpression': MethodCallExpressionHandler,
+        'PropertyExpression': PropertyExpressionHandler,
+        'BlockStatement': BlockStatementHandler,
+        'MethodNode': MethodNodeHandler,
+        'ConstructorCallExpression': ConstructorCallExpressionHandler,
+        'CastExpression': CastExpressionHandler,
+        'ArrayExpression': ArrayExpressionHandler,
+        'MethodPointerExpression': MethodPointerExpressionHandler,
+        'InnerClassNode': InnerClassNodeHandler,
+        'DeclarationExpression': DeclarationExpressionHandler,
+        'ForStatement': ForStatementHandler
     ]
 
     ConversionFactory() {

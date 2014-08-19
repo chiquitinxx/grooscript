@@ -506,32 +506,6 @@ class GsConverter {
         out.addScript(')')
     }
 
-    private processForStatement(ForStatement statement) {
-
-        if (statement?.variable != ForStatement.FOR_LOOP_DUMMY) {
-            //We change this for in...  for a call lo closure each, that works fine in javascript
-            conversionFactory.visitNode(statement?.collectionExpression)
-            out.addScript('.each(function(')
-            conversionFactory.visitNode(statement.variable)
-
-        } else {
-            out.addScript 'for ('
-            conversionFactory.visitNode(statement?.collectionExpression)
-        }
-        out.addScript ') {'
-        out.indent++
-        out.addLine()
-
-        conversionFactory.visitNode(statement?.loopBlock)
-
-        out.indent--
-        out.removeTabScript()
-        out.addScript('}')
-        if (statement?.variable != ForStatement.FOR_LOOP_DUMMY) {
-            out.addScript(')')
-        }
-    }
-
     private processClosureListExpression(ClosureListExpression expression) {
         boolean first = true
         expression?.expressions?.each { it ->

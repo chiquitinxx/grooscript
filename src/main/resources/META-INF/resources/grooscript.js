@@ -350,7 +350,7 @@
             'inject','intersect','max','min',
             'putAll','putAt','reverseEach',
             'sort','spread','subMap','add','take','takeWhile',
-            'withDefault','count','drop',
+            'withDefault','count','drop','keySet',
             'put','size','isEmpty','remove','containsKey',
             'containsValue','values'].indexOf(name) >= 0;
     }
@@ -634,6 +634,16 @@
                     if (!gs.equals(this[ob],otherMap[ob])) {
                         result = false;
                     }
+                }
+            }
+            return result;
+        };
+
+        this.keySet = function() {
+            var result = gs.list([]), ob;
+            for (ob in this) {
+                if (!isMapProperty(ob)) {
+                    result.add(ob);
                 }
             }
             return result;
