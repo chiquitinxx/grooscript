@@ -130,13 +130,7 @@ task testUnit(type: Test) {
 
 testUnit.description = 'Run only conversion tests'
 
-task testJsConversions(type: org.grooscript.gradle.TestMochaTask) {
-    file = 'src/test/js/test.js'
-}
-
-testJsConversions.description = 'Run mocha javascript tests'
-
-test.dependsOn testJsConversions
+test.dependsOn gulp_tests
 
 test.dependsOn gulp_compress
 
