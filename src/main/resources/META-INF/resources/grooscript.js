@@ -330,10 +330,12 @@
 
         object.remove = function(value) {
             var index = this.indexOf(value);
-            if (index>=0) {
+            if (index >= 0) {
                 this.splice(index,1);
+                return true;
+            } else {
+                return false;
             }
-            return this;
         };
 
         return object;
@@ -829,6 +831,20 @@
             }
         }
         return gotIt;
+    };
+
+    Array.prototype.containsAll = function(list) {
+        var i, numberEq = 0;
+        for (i=0; i < list.length; i++) {
+            if (this.contains(list[i])) {
+                numberEq++;
+            }
+        }
+        if (numberEq == list.length) {
+            return true;
+        } else {
+            return false;
+        }
     };
 
     Array.prototype.each = function(closure) {

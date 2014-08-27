@@ -2,7 +2,6 @@ package org.grooscript.java;
 
 import org.grooscript.GrooScript;
 import org.grooscript.test.JavascriptEngine;
-import org.grooscript.test.JsTestResult;
 import org.grooscript.test.NodeJs;
 import org.junit.Test;
 import java.io.IOException;
@@ -37,11 +36,18 @@ public class TestTypes {
         evaluateInJavascript("Maps");
     }
 
+    @Test
+    public void testSets() throws Exception {
+        new Sets().validate();
+        evaluateInJavascript("Sets");
+    }
+
     final static Charset ENCODING = StandardCharsets.UTF_8;
 
     private void evaluateInJavascript(String nameClass) throws IOException {
         String result = GrooScript.convert(readFile(nameClass));
         result += "\r\n" + nameClass + "().validate();";
+        //System.out.println("**-"+result);
         //Javascript engine
         assertEquals(false, JavascriptEngine.jsEval(result).getAssertFails());
         //Node.js
