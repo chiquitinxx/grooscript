@@ -42,6 +42,12 @@ public class TestTypes {
         evaluateInJavascript("Sets");
     }
 
+    @Test
+    public void testLists() throws Exception {
+        new Lists().validate();
+        evaluateInJavascript("Lists");
+    }
+
     final static Charset ENCODING = StandardCharsets.UTF_8;
 
     private void evaluateInJavascript(String nameClass) throws IOException {

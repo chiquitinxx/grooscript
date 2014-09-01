@@ -10,6 +10,7 @@ import java.util.Set;
 public class Sets {
     public void validate() throws Exception {
         Set<String> set = new HashSet<String>();
+        set.clear();
 
         set.add("Hello");
         set.add("Hello");

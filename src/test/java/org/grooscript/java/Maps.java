@@ -10,6 +10,7 @@ import java.util.Map;
 public class Maps {
     public void validate() throws Exception {
         Map map = new HashMap();
+        map.clear();
 
         map.put("key1", "element 1");
         map.put("key2", "element 2");

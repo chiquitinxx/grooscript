@@ -350,7 +350,7 @@
             'each','eachWithIndex','every','find','findAll',
             'findResult','findResults','get','getAt','groupBy',
             'inject','intersect','max','min',
-            'putAll','putAt','reverseEach',
+            'putAll','putAt','reverseEach', 'clear',
             'sort','spread','subMap','add','take','takeWhile',
             'withDefault','count','drop','keySet',
             'put','size','isEmpty','remove','containsKey',
@@ -739,6 +739,15 @@
             return result;
         };
 
+        this.clear = function() {
+            var ob;
+            for (ob in this) {
+                if (!isMapProperty(ob)) {
+                    delete this[ob];
+                }
+            }
+        };
+
         this.withz = gs.baseClass.withz;
     }
 
@@ -775,8 +784,12 @@
         return this.length === 0;
     };
 
-    Array.prototype.add = function(element) {
-        this[this.length] = element;
+    Array.prototype.add = function(pos, element) {
+        if (element === undefined) {
+            this[this.length] = pos;
+        } else {
+            this[pos] = element;
+        }
         return this;
     };
 
@@ -1320,6 +1333,10 @@
 
     Array.prototype.putAt = function(position, value) {
         this[position] = value;
+    };
+
+    Array.prototype.clear = function() {
+        this.splice(0, this.length)
     };
 
     /////////////////////////////////////////////////////////////////
