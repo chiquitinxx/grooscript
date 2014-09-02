@@ -61,6 +61,14 @@ class MethodCallExpressionHandler extends BaseHandler {
                 expression.arguments.getExpression(0) instanceof ClosureExpression) {
             factory.visitNode(expression.objectExpression)
             out.addScript(".${WITH}")
+        //Equals
+        } else if (methodName == 'equals') {
+            addParameters = false
+            out.addScript("${GS_EQUALS}(")
+            factory.visitNode(expression.objectExpression)
+            out.addScript(',')
+            factory.visitNode(expression.arguments.getExpression(0))
+            out.addScript(')')
         //WithTraits
         } else if (methodName == 'withTraits' && expression.arguments instanceof ArgumentListExpression) {
             factory.visitNode(expression.objectExpression)
@@ -155,40 +163,7 @@ class MethodCallExpressionHandler extends BaseHandler {
         } else {
             //println 'Method->'+methodName+' - '+expression.arguments.class.simpleName
             addParameters = false
-
-            out.addScript("${GS_METHOD_CALL}(")
-            //Object
-            if (factory.isThis(expression.objectExpression) &&
-                    context.currentVariableScopingHasMethod(methodName)) {
-                out.addScript(GS_OBJECT)
-            } else {
-                if (factory.isThis(expression.objectExpression) && context.staticProcessNode) {
-                    out.addScript(context.staticProcessNode.nameWithoutPackage)
-                } else {
-                    factory.visitNode(expression.objectExpression)
-                }
-            }
-
-            out.addScript(',')
-            //MethodName
-            putMethodName(expression)
-
-            //Parameters
-            out.addScript(",")
-            if (expression.arguments.expressions.size() == 1 &&
-                    expression.arguments.expressions.first() instanceof SpreadExpression) {
-                factory.visitNode(expression.arguments.expressions.first().expression)
-            } else {
-                out.addScript("[")
-                factory.visitNode(expression.arguments, false)
-                out.addScript("]")
-            }
-            if (factory.isThis(expression.objectExpression) && !context.mainContext &&
-                    context.insideClass && !context.currentVariableScopingHasMethod(methodName) &&
-                    !context.staticProcessNode) {
-                out.addScript(", ${GS_OBJECT}")
-            }
-            out.addScript(')')
+            doFullMethodCall(methodName, expression)
         }
 
         if (addParameters) {
@@ -214,5 +189,41 @@ class MethodCallExpressionHandler extends BaseHandler {
             }
         }
         staticMethod
+    }
+
+    private doFullMethodCall(methodName, expression) {
+        out.addScript("${GS_METHOD_CALL}(")
+        //Object
+        if (factory.isThis(expression.objectExpression) &&
+                context.currentVariableScopingHasMethod(methodName)) {
+            out.addScript(GS_OBJECT)
+        } else {
+            if (factory.isThis(expression.objectExpression) && context.staticProcessNode) {
+                out.addScript(context.staticProcessNode.nameWithoutPackage)
+            } else {
+                factory.visitNode(expression.objectExpression)
+            }
+        }
+
+        out.addScript(',')
+        //MethodName
+        putMethodName(expression)
+
+        //Parameters
+        out.addScript(",")
+        if (expression.arguments.expressions.size() == 1 &&
+                expression.arguments.expressions.first() instanceof SpreadExpression) {
+            factory.visitNode(expression.arguments.expressions.first().expression)
+        } else {
+            out.addScript("[")
+            factory.visitNode(expression.arguments, false)
+            out.addScript("]")
+        }
+        if (factory.isThis(expression.objectExpression) && !context.mainContext &&
+                context.insideClass && !context.currentVariableScopingHasMethod(methodName) &&
+                !context.staticProcessNode) {
+            out.addScript(", ${GS_OBJECT}")
+        }
+        out.addScript(')')
     }
 }

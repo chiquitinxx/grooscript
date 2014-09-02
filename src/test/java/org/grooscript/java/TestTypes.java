@@ -48,6 +48,12 @@ public class TestTypes {
         evaluateInJavascript("Lists");
     }
 
+    @Test
+    public void testStrings() throws Exception {
+        new Strings().validate();
+        evaluateInJavascript("Strings");
+    }
+
     final static Charset ENCODING = StandardCharsets.UTF_8;
 
     private void evaluateInJavascript(String nameClass) throws IOException {
