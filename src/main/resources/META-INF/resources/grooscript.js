@@ -1,4 +1,4 @@
-//Grooscript Version 0.5.3 Apache 2 License
+//Grooscript Version 0.6-SNAPSHOT Apache 2 License
 (function() {
     var gs = function(obj) {
         if (obj instanceof gs) return obj;
@@ -2105,8 +2105,8 @@
     /////////////////////////////////////////////////////////////////
     //If an object has a function by name
     function hasFunc(item, name) {
-        if (item === null || item === undefined ||
-            item[name] === undefined || item[name] === null || (typeof item[name] !== "function")) {
+        if (item === null || item === undefined || item[name] === undefined ||
+            (typeof item[name] !== "function")) {
             return false;
         } else {
             return true;
@@ -2125,11 +2125,10 @@
             item.gSparent[nameProperty] = value;
         } else {
 
-            if (!hasFunc(item, 'setProperty')) {
-
+            if (!item['setProperty']) {
                 var nameFunction = 'set' + nameProperty.charAt(0).toUpperCase() + nameProperty.slice(1);
 
-                if (item[nameFunction] === undefined || item[nameFunction] === null || (typeof item[nameFunction] != "function")) {
+                if (!item[nameFunction]) {
                     if (item[nameProperty] === undefined &&
                         item.setPropertyMissing !== undefined &&
                         typeof item.setPropertyMissing === "function") {
@@ -2144,7 +2143,6 @@
                 item.setProperty(nameProperty,value);
             }
         }
-        //return value;
     };
 
     //Calling a setMethod
@@ -2183,12 +2181,14 @@
             if (item === null || item === undefined) {
                 return null;
             }
+        } else if (item == null || item === undefined) {
+            throw 'gs.gp Get property: ' + nameProperty + ' on null or undefined object.'
         }
 
-        if (!hasFunc(item, 'getProperty')) {
+        if (!item['getProperty']) {
             var nameFunction = 'get' + nameProperty.charAt(0).toUpperCase() + nameProperty.slice(1);
-            if (!hasFunc(item,nameFunction)) {
-                if (typeof item[nameProperty] === "function" && nameProperty == 'size') {
+            if (!item[nameFunction]) {
+                if (nameProperty == 'size' && typeof item[nameProperty] === "function") {
                     return item[nameProperty]();
                 } else {
                     if (item[nameProperty] !== undefined) {
@@ -2237,7 +2237,7 @@
 
     //Control property changes with ++,--
     gs.plusPlus = function(item, nameProperty, plus, before) {
-        var value = gs.gp(item,nameProperty);
+        var value = gs.gp(item, nameProperty);
         var newValue = value;
         if (plus) {
             gs.sp(item, nameProperty, value + 1);
@@ -2268,13 +2268,13 @@
             throw 'gs.mc Calling method: ' + methodName + ' on null or undefined object.';
         }
 
-        if (typeof(item) == 'string' && methodName == 'split') {
+        if (methodName == 'split' && typeof(item) == 'string') {
             return item.tokenize(values[0]);
         }
-        if (typeof(item) == 'string' && methodName == 'length') {
+        if (methodName == 'length' && typeof(item) == 'string') {
             return item.length;
         }
-        if ((item instanceof Array) && methodName == 'join') {
+        if (methodName == 'join' && (item instanceof Array)) {
             if (values.size() > 0) {
                 return item.gSjoin(values[0]);
             } else {
@@ -2289,7 +2289,7 @@
             } catch(e) {}
         }
 
-        if (!hasFunc(item, methodName)) {
+        if (!item[methodName]) {
 
             if (methodName.startsWith('get') || methodName.startsWith('set')) {
                 var varName = methodName.charAt(3).toLowerCase() + methodName.slice(4);
@@ -2533,7 +2533,7 @@
         if (typeof(item) == 'string') {
             className = 'String';
         }
-        if (typeof(item) == 'object' && item.clazz && item.clazz.simpleName) {
+        if (item.clazz && item.clazz.simpleName && typeof(item) == 'object') {
             className = item.clazz.simpleName;
         }
         if (className !== null) {
@@ -2646,7 +2646,7 @@
     };
 
     gs.execCall = function (func, thisObject, params) {
-        if (typeof func === 'object' && func['call'] !== undefined) {
+        if (func['call'] !== undefined && typeof func === 'object') {
             return func['call'].apply(func, params);
         } else {
             return func.apply(thisObject, params);
