@@ -25,12 +25,12 @@ class TestFiles extends Specification {
         def result = convertFile('files/Car', options)
 
         then:
-        result.contains('function Vehicle()')
+        !result.contains('function Vehicle()')
     }
 
     def 'check inheritance use in other files with convertDependencies'() {
         when:
-        def result = convertAndEvaluate('files/Vehicles', true, options)
+        def result = convertAndEvaluate('files/Vehicles', true, options << [convertDependencies: true])
 
         then:
         notThrown(GrooScriptException)
@@ -38,8 +38,6 @@ class TestFiles extends Specification {
     }
 
     def 'inheritance without convert dependencies'() {
-        given:
-        options << [convertDependencies: false]
 
         when:
         def jsCar = convertFile('files/Car', options)
@@ -59,7 +57,7 @@ class TestFiles extends Specification {
 
     def 'convert a @GsNative method in a dependency file'() {
         when:
-        def converted = convertFile('files/UseGsNative', options)
+        def converted = convertFile('files/UseGsNative', options << [convertDependencies: true])
 
         then:
         converted.contains('alert(message);')
@@ -68,7 +66,7 @@ class TestFiles extends Specification {
     @IgnoreIf({ !Util.groovyVersionAtLeast('2.3') })
     def 'convert traits defined in other files'() {
         when:
-        def converted = convertFile('files/Traits', options)
+        def converted = convertFile('files/Traits', options << [convertDependencies: true])
 
         then:
         converted.contains('MyTrait = function() {};')

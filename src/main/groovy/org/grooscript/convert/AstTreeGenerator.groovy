@@ -1,5 +1,6 @@
 package org.grooscript.convert
 
+import org.codehaus.groovy.ast.InnerClassNode
 import org.grooscript.util.Util
 import org.grooscript.util.GrooScriptException
 import org.codehaus.groovy.ast.ClassNode
@@ -38,9 +39,18 @@ class AstTreeGenerator {
         //All the imports in a file are added to the source to be compiled, if not added, compiler fails
         def classesToConvert = []
         if (!convertDependencies) {
-            def matcher = text =~ /\bclass\s+(\w+)/
+            ['class', 'enum'].each { type ->
+                def matcher = text =~ /\b${type}\s+(\w+)/
+                matcher.each {
+                    classesToConvert << it[1]
+                }
+            }
+        }
+        def traitsToConvert = []
+        if (!convertDependencies) {
+            def matcher = text =~ /\btrait\s+(\w+)/
             matcher.each {
-                classesToConvert << it[1]
+                traitsToConvert << it[1]
             }
         }
 
@@ -71,7 +81,7 @@ class AstTreeGenerator {
         CompilationUnit cu = compiledCode(conf, codeSource, classLoader, text)
 
         [
-            listAstNodes(cu.ast.modules, scriptClassName, classesToConvert),
+            listAstNodes(cu.ast.modules, scriptClassName, classesToConvert, traitsToConvert),
             nativeFunctionsFromOtherSources(cu.ast.modules)
         ]
     }
@@ -92,7 +102,8 @@ class AstTreeGenerator {
         compilationUnitFinal
     }
 
-    private List listAstNodes(List<ModuleNode> modules, String scriptClassName, List classesToConvert) {
+    private List listAstNodes(List<ModuleNode> modules, String scriptClassName,
+                              List classesToConvert, List traitsToConvert) {
         // collect all the ASTNodes into the result, possibly ignoring the script body if desired
         modules.inject([]) { List listAstNodes, ModuleNode node ->
             if (node.statementBlock) {
@@ -108,8 +119,16 @@ class AstTreeGenerator {
                         if (convertDependencies) {
                             listAstNodes << cl
                         } else {
-                            if (classesToConvert.contains(cl.nameWithoutPackage)) {
+                            if (classesToConvert.contains(cl.nameWithoutPackage)
+                                    || cl.isScript() || cl instanceof InnerClassNode) {
                                 listAstNodes << cl
+                            } else if (traitsToConvert) {
+                                if (traitsToConvert.contains(cl.nameWithoutPackage)) {
+                                    listAstNodes << cl
+                                } else if (cl.name.endsWith('Trait$Helper') &&
+                                    traitsToConvert.contains(cl.outerClass.nameWithoutPackage)) {
+                                        listAstNodes << cl
+                                }
                             }
                         }
                     } else {

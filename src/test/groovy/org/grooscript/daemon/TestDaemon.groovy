@@ -1,6 +1,7 @@
 package org.grooscript.daemon
 
 import org.grooscript.GrooScript
+import org.grooscript.convert.ConversionOptions
 import org.grooscript.util.GsConsole
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -84,7 +85,7 @@ class TestDaemon extends Specification {
     def 'test daemon with a conversion option'() {
         given:
         def daemon = GrooScript.startConversionDaemon([SOURCE_FOLDER] , DESTINATION_FOLDER,
-                ["${GrooScript.INITIAL_TEXT_OPTION}": '//Init'])
+                ["${ConversionOptions.INITIAL_TEXT.text}": '//Init'])
 
         when:
         waitAndStop(daemon, 2)

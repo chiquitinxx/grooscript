@@ -2,7 +2,6 @@ package org.grooscript
 
 import org.grooscript.test.ConversionMixin
 import org.grooscript.test.JsTestResult
-import spock.lang.Ignore
 import spock.lang.Specification
 
 /**

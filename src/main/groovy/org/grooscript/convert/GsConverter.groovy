@@ -24,31 +24,27 @@ class GsConverter {
     def consoleInfo = false
 
     //Conversion Options
-    boolean convertDependencies = true
-    Closure customization = null
-    def classPath = null
-    List<String> mainContextScope
-    String initialText
-    String finalText
-    String includeJsLib
+    Map conversionOptions
 
     /**
      * Converts Groovy script to Javascript
      * @param String script in groovy
      * @return String script in javascript
      */
-    def toJs(String script) {
+    def toJs(String script, Map options = null) {
         def result
         //Script not empty plz!
         def phase = 0
+        conversionOptions = options ?: GrooScript.defaultOptions
         if (script) {
             try {
                 if (consoleInfo) {
                     GsConsole.message('Getting ast from code...')
                 }
                 def (astList, nativeFunctions) = new AstTreeGenerator(consoleInfo: consoleInfo,
-                        convertDependencies: convertDependencies,
-                        classPath: classPath, customization: customization).fromText(script)
+                        convertDependencies: conversionOptions[ConversionOptions.DEPENDENCIES.text],
+                        classPath: conversionOptions[ConversionOptions.CLASSPATH.text],
+                        customization: conversionOptions[ConversionOptions.CUSTOMIZATION.text]).fromText(script)
 
                 if (consoleInfo) {
                     GsConsole.message('Processing AST...')
@@ -76,14 +72,15 @@ class GsConverter {
     }
 
     private completeJsResult(String result) {
-        if (initialText) {
-            result = initialText + '\n' + result
+        if (conversionOptions[ConversionOptions.INITIAL_TEXT.text]) {
+            result = conversionOptions[ConversionOptions.INITIAL_TEXT.text] + '\n' + result
         }
-        if (finalText) {
-            result = result + '\n' + finalText
+        if (conversionOptions[ConversionOptions.FINAL_TEXT.text]) {
+            result = result + '\n' + conversionOptions[ConversionOptions.FINAL_TEXT.text]
         }
-        if (includeJsLib) {
-            def file = GrooScript.classLoader.getResourceAsStream("META-INF/resources/${includeJsLib}.js")
+        if (conversionOptions[ConversionOptions.INCLUDE_JS_LIB.text]) {
+            def file = GrooScript.classLoader.getResourceAsStream(
+                    "META-INF/resources/${conversionOptions[ConversionOptions.INCLUDE_JS_LIB.text]}.js")
             if (file) {
                 result = file.text + '\n' + result
             }
@@ -107,8 +104,8 @@ class GsConverter {
             context.nativeFunctions = nativeFunctions
             out = conversionFactory.out
 
-            if (mainContextScope) {
-                mainContextScope.each { var ->
+            if (conversionOptions[ConversionOptions.MAIN_CONTEXT_SCOPE.text]) {
+                conversionOptions[ConversionOptions.MAIN_CONTEXT_SCOPE.text].each { var ->
                     context.addToActualScope(var)
                 }
             }
@@ -119,6 +116,7 @@ class GsConverter {
             def classList = []
             //We process blocks at the end
             def listBlocks = []
+
             list.each { it ->
                 //println '------------------------------------it->'+it
                 if (it instanceof BlockStatement) {
@@ -225,8 +223,8 @@ class GsConverter {
             if (consoleInfo) {
                 GsConsole.message('  Processing class ' + nameClass)
             }
-            conversionFactory.visitNode(list.find { ClassNode it ->
-                return it.name == nameClass
+            conversionFactory.visitNode(list.find { ClassNode node ->
+                return node.name == nameClass
             })
             if (consoleInfo) {
                 GsConsole.message('  Processing class done.')

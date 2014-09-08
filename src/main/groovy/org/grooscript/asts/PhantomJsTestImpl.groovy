@@ -144,7 +144,8 @@ page.open('{{URL}}', function (status) {
             GsConverter converter = new GsConverter()
 
             try {
-                converter.mainContextScope = ['$', 'gs', 'window', 'document']
+                converter.conversionOptions = GrooScript.defaultOptions
+                converter.conversionOptions.mainContextScope = ['$', 'gs', 'window', 'document']
                 jsTest = converter.processAstListToJs([method])
             } catch (e) {
                 messageError = 'Error converting code ->' + e.message

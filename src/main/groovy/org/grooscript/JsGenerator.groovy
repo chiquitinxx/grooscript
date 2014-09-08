@@ -45,11 +45,9 @@ class JsGenerator {
         generateGrooscriptJsComplete()
     }
 
-    static convertFile(File file, String destinationFile, Map conversionOptions = [:]) {
+    static convertFile(File file, String destinationFile, Map conversionOptions = null) {
         GrooScript.clearAllOptions()
-        conversionOptions.each { key, value ->
-            GrooScript.setConversionProperty(key, value)
-        }
+        GrooScript.options = conversionOptions ?: GrooScript.defaultOptions
         new File(destinationFile).text = GrooScript.convert(file.text)
         GrooScript.clearAllOptions()
     }

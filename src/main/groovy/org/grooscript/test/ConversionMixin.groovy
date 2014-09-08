@@ -40,15 +40,9 @@ class ConversionMixin {
         JavascriptEngine.jsEval(jsScript)
     }
 
-    String convertFile(nameOfFile, options = [:]) {
+    String convertFile(nameOfFile, options = null) {
         def file = JavascriptEngine.getGroovyTestScript(nameOfFile)
-        if (options) {
-            options.each { key, value ->
-                converter."$key" = value
-            }
-        }
-
-        converter.toJs(file.text)
+        converter.toJs(file.text, options)
     }
 
     boolean checkBuilderCodeAssertsFails(String code, jsResultOnConsole = false, options = [:]) {

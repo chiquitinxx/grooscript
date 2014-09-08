@@ -1,5 +1,7 @@
 package org.grooscript
 
+import org.grooscript.convert.ConversionOptions
+
 import static org.grooscript.util.Util.*
 
 import org.grooscript.convert.GsConverter
@@ -11,29 +13,15 @@ import org.grooscript.util.GsConsole
  */
 class GrooScript {
 
-    static final String CLASSPATH_OPTION = 'classPath'
-    static final String CONVERT_DEPENDENCIES_OPTION = 'convertDependencies'
-    static final String CUSTOMIZATION_OPTION = 'customization'
-    static final String MAIN_CONTEXT_SCOPE_OPTION = 'mainContextScope'
-    static final String INITIAL_TEXT_OPTION = 'initialText'
-    static final String FINAL_TEXT_OPTION = 'finalText'
-    static final String RECURSIVE_OPTION = 'recursive'
-    static final String INCLUDE_JS_LIB = 'includeJsLib'
-
     static boolean debug = false
-    static Map options = [:]
-    static boolean recursive = false
+    static Map options
 
     /**
-     * Get a new GsConverter with options applied
+     * Get a new GsConverter
      * @return GsConverter
      */
     static GsConverter getNewConverter() {
-        def converter = new GsConverter()
-        options.each { key, value ->
-            converter."${key}" = value
-        }
-        converter
+        new GsConverter()
     }
 
     /**
@@ -44,7 +32,7 @@ class GrooScript {
      */
     static String convert(String text) {
         if (text) {
-            return getNewConverter().toJs(text)
+            return newConverter.toJs(text, options)
         }
         throw new GrooScriptException('Nothing to Convert.')
     }
@@ -83,7 +71,7 @@ class GrooScript {
                         fileConvert(file, fDestination)
                     }
                 }
-                if (recursive) {
+                if (options && options[ConversionOptions.RECURSIVE.text]) {
                     fSource.eachDir { File dir ->
                         convert(dir.path, destination)
                     }
@@ -104,7 +92,7 @@ class GrooScript {
             if (source.isFile() && source.name.endsWith(GROOVY_EXTENSION)) {
                 //println 'Name file->'+source.name
                 def name = source.name.split(/\./)[0]
-                def jsResult = getNewConverter().toJs(source.text)
+                def jsResult = newConverter.toJs(source.text, options)
 
                 //println 'Result file->'+destination.path+System.getProperty('file.separator')+name+'.js'
                 def newFile = new File("${destination.path}$SEP$name$JS_EXTENSION")
@@ -128,11 +116,10 @@ class GrooScript {
      * @param value
      */
     static setConversionProperty(String name, value) {
-        if (name == RECURSIVE_OPTION) {
-            recursive = value
-        } else {
-            options[name] = value
+        if (!options) {
+            options = defaultOptions
         }
+        options[name] = value
     }
 
     /**
@@ -140,8 +127,7 @@ class GrooScript {
      * @return
      */
     static clearAllOptions() {
-        options = [:]
-        recursive = false
+        options = null
         debug = false
     }
 
@@ -206,6 +192,13 @@ class GrooScript {
             } else {
                 GsConsole.error 'Error joining file ' + sourceFile
             }
+        }
+    }
+
+    static Map getDefaultOptions() {
+        ConversionOptions.values().inject([:]) { map, value ->
+            map[value.text] = value.defaultValue
+            map
         }
     }
 }

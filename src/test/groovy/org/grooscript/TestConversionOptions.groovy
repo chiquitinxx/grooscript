@@ -1,5 +1,6 @@
 package org.grooscript
 
+import org.grooscript.convert.ConversionOptions
 import org.grooscript.util.Util
 import spock.lang.IgnoreIf
 import spock.lang.Specification
@@ -72,18 +73,18 @@ class TestConversionOptions extends Specification {
 
     def 'cat set options more than 1 time'() {
         when:
-        GrooScript.setConversionProperty(GrooScript.CLASSPATH_OPTION, FOLDER_NEED_DEPENDENCY)
-        GrooScript.setConversionProperty(GrooScript.CLASSPATH_OPTION, FOLDER_NEED_DEPENDENCY)
+        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, FOLDER_NEED_DEPENDENCY)
+        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, FOLDER_NEED_DEPENDENCY)
 
         then:
-        GrooScript.options.size() == 1
+        GrooScript.options[ConversionOptions.CLASSPATH.text] == FOLDER_NEED_DEPENDENCY
     }
 
     def 'check dependency resolution'() {
 
         given:
         setupNeedDirectory()
-        GrooScript.setConversionProperty(GrooScript.CLASSPATH_OPTION, FOLDER_NEED_DEPENDENCY)
+        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, FOLDER_NEED_DEPENDENCY)
 
         when: 'convert a class with need dependency'
         String result = GrooScript.convert("class A {};def need = new ${CLASS_NEED_DEPENDENCY}()")
@@ -92,8 +93,8 @@ class TestConversionOptions extends Specification {
         result.startsWith('function A()')
         result.endsWith("var need = ${CLASS_NEED_DEPENDENCY}();\n")
 
-        and: 'class need also converted'
-        result.contains("function ${CLASS_NEED_DEPENDENCY}()")
+        and: 'class need not converted, by default convert dependencies is false'
+        !result.contains("function ${CLASS_NEED_DEPENDENCY}()")
     }
 
     def 'testing convert dependencies option true'() {
@@ -102,28 +103,13 @@ class TestConversionOptions extends Specification {
         setupNeedDirectory()
 
         when:
-        GrooScript.setConversionProperty(GrooScript.CLASSPATH_OPTION, FOLDER_NEED_DEPENDENCY)
-        GrooScript.setConversionProperty(GrooScript.CONVERT_DEPENDENCIES_OPTION, true)
+        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, FOLDER_NEED_DEPENDENCY)
+        GrooScript.setConversionProperty(ConversionOptions.DEPENDENCIES.text, true)
         String result = GrooScript.convert("class B { ${CLASS_NEED_DEPENDENCY} c}")
 
         then: 'Need class converted'
         result.startsWith('function B()')
         result.contains('function Need()')
-    }
-
-    def 'testing convert dependencies option false'() {
-
-        given:
-        setupNeedDirectory()
-
-        when: 'we dont want dependencies classes in the javascript result, in this case Need class'
-        GrooScript.setConversionProperty(GrooScript.CLASSPATH_OPTION, FOLDER_NEED_DEPENDENCY)
-        GrooScript.setConversionProperty(GrooScript.CONVERT_DEPENDENCIES_OPTION, false)
-        String result = GrooScript.convert("class B { ${CLASS_NEED_DEPENDENCY} c}")
-
-        then: 'Need class not converted'
-        result.startsWith('function B()')
-        !result.contains('function Need()')
     }
 
     def 'can set classpath as List'() {
@@ -132,21 +118,21 @@ class TestConversionOptions extends Specification {
         setupNeedDirectory()
 
         when: 'we set classpath as list'
-        GrooScript.setConversionProperty(GrooScript.CLASSPATH_OPTION, [FOLDER_NEED_DEPENDENCY])
-        String result = GrooScript.convert("class B { def Need c}")
+        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, [FOLDER_NEED_DEPENDENCY])
+        String result = GrooScript.convert("class B { Need c = new Need() }")
 
         then: 'conversion done'
         result
-        result.contains('function Need()')
+        !result.contains('function Need()')
+        result.contains('c = Need();')
     }
 
-    def 'with conversion option convertDependencies=false on a file without dependencies'() {
+    def 'convert a file'() {
 
         given:
         setupNeedDirectory()
 
         when: 'no dependencies to convert in a file in a package'
-        GrooScript.setConversionProperty(GrooScript.CONVERT_DEPENDENCIES_OPTION, false)
         GrooScript.convert(FILE_BASIC_GROOVY_SOURCE, FOLDER_NEED_DEPENDENCY)
         def file = new File(FILE_BASIC_JS)
 
@@ -163,7 +149,7 @@ class TestConversionOptions extends Specification {
         }
 
         when:
-        GrooScript.setConversionProperty(GrooScript.CUSTOMIZATION_OPTION, customization)
+        GrooScript.setConversionProperty(ConversionOptions.CUSTOMIZATION.text, customization)
         GrooScript.convert('class A {  def say() { println aaaa }}')
 
         then:
@@ -186,7 +172,7 @@ class TestConversionOptions extends Specification {
     def 'define main context scope variables'() {
         given:
         def code = 'def addToB = { a ->  console.log("Hello!"); a + b }'
-        GrooScript.setConversionProperty(GrooScript.MAIN_CONTEXT_SCOPE_OPTION, ['b', 'console'])
+        GrooScript.setConversionProperty(ConversionOptions.MAIN_CONTEXT_SCOPE.text, ['b', 'console'])
 
         when:
         def result = GrooScript.convert(code)
@@ -212,9 +198,9 @@ class TestConversionOptions extends Specification {
         result == expectedResult
 
         where:
-        option                         | expectedResult
-        GrooScript.INITIAL_TEXT_OPTION | 'Text\nvar a = 0;\n'
-        GrooScript.FINAL_TEXT_OPTION   | 'var a = 0;\n\nText'
+        option                           | expectedResult
+        ConversionOptions.INITIAL_TEXT.text | 'Text\nvar a = 0;\n'
+        ConversionOptions.FINAL_TEXT.text   | 'var a = 0;\n\nText'
     }
 
     @Unroll
@@ -223,7 +209,7 @@ class TestConversionOptions extends Specification {
         createFolderWithSubfolderAndFilesInEachDir(SOURCE_DIR, sourceFiles)
 
         when:
-        GrooScript.setConversionProperty(GrooScript.RECURSIVE_OPTION, true)
+        GrooScript.setConversionProperty(ConversionOptions.RECURSIVE.text, true)
         GrooScript.convert(SOURCE_DIR, DESTINATION_DIR)
 
         then:
@@ -236,19 +222,22 @@ class TestConversionOptions extends Specification {
         3           |6
     }
 
+    @Unroll
     def 'test include js archive at the beginning of the conversion'() {
         when:
-        GrooScript.setConversionProperty(GrooScript.INCLUDE_JS_LIB, 'grooscript')
+        GrooScript.setConversionProperty(ConversionOptions.INCLUDE_JS_LIB.text, fileName)
         def result = GrooScript.convert('println "Hello!"')
 
         then:
-        result.startsWith(new File('src/main/resources/META-INF/resources/grooscript.js').text)
+        result.startsWith(new File("src/main/resources/META-INF/resources/${fileName}.js").text)
+
+        where:
+        fileName << ['grooscript', 'grooscript.min', 'grooscript-all']
     }
 
     private void expectedInitialValues() {
-        assert GrooScript.recursive == false
         assert GrooScript.debug == false
-        assert GrooScript.options == [:]
+        assert GrooScript.options == null
     }
 
     private setupNeedDirectory() {
