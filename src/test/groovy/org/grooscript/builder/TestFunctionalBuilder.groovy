@@ -20,7 +20,7 @@ class TestFunctionalBuilder extends FunctionalTest {
         result
     }
 
-    void testBuilderWorksWithGrooscriptAll() {
+    void testBuilderWorksWithGrooscriptTools() {
         assertScript '''
     @org.grooscript.asts.PhantomJsTest(url = 'http://localhost:8000/test', waitSeconds = 1)
     void doTest() {

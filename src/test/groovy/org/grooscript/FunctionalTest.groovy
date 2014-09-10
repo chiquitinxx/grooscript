@@ -67,7 +67,7 @@ abstract class FunctionalTest extends GroovyTestCase {
     }
 
     protected jsFileText(fileName) {
-        GrooScript.classLoader.getResourceAsStream('META-INF/resources/' + fileName).text
+        new File(JS_LIBRARIES_PATH + '/' + fileName).text
     }
 
     class JsonActionHandler implements HttpHandler {

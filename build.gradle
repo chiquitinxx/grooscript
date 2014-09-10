@@ -133,9 +133,7 @@ task testUnit(type: Test) {
 
 testUnit.description = 'Run only conversion tests'
 
-test.dependsOn gulp_tests
-
-test.dependsOn gulp_compress
+test.dependsOn gulp_compress, gulp_tests
 
 node {
     // Version of node to use.

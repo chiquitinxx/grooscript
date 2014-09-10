@@ -16,9 +16,9 @@ class TestPhantomJs extends FunctionalTest {
 
     @PhantomJsTest(url = 'http://localhost:8000/test')
     void countPTagsInPage() {
-        assert $('p').size() == 1,"Number of p's in page is ${$('p').size()}"
+        assert $('p').size() == 1, "Number of p's in page is ${$('p').size()}"
         def title = $("title")
-        assert title[0].text=='Title',"Title is ${title[0].text}"
+        assert title[0].text=='Title', "Title is ${title[0].text}"
         def ps = $('p')
         ps.each {
             println it
@@ -29,7 +29,7 @@ class TestPhantomJs extends FunctionalTest {
 
         System.properties.remove('JS_LIBRARIES_PATH')
 
-        def tempDirectory = new File(System.getProperty('user.home')+File.separator+'.grooscript')
+        def tempDirectory = new File(System.getProperty('user.home') + File.separator + '.grooscript')
         if (tempDirectory.exists() && tempDirectory.isDirectory()) {
             tempDirectory.deleteDir()
         }

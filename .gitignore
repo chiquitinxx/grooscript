@@ -11,7 +11,6 @@ Dependency.js
 initial.png
 gSphantomJsTest.js
 *.class
-grooscript.min.js
 grooscript-binder.js
 grooscript-builder.js
 gQueryImpl.js
