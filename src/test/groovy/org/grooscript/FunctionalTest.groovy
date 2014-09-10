@@ -53,8 +53,8 @@ abstract class FunctionalTest extends GroovyTestCase {
     }
 
     void setUp() {
-        System.setProperty('PHANTOMJS_HOME',PHANTOMJS_HOME)
-        System.setProperty('JS_LIBRARIES_PATH',JS_LIBRARIES_PATH)
+        System.setProperty('PHANTOMJS_HOME', PHANTOMJS_HOME)
+        System.setProperty('JS_LIBRARIES_PATH', JS_LIBRARIES_PATH)
         startServer()
     }
 

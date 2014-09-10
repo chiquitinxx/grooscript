@@ -1,5 +1,5 @@
-grooscript 0.5.3
-================
+grooscript 0.6-SNAPSHOT
+=======================
 
 Converts your Groovy or Java code to JavaScript(Groovy 2.x to Javascript ECMAScript 5). You need groovy jar greater than 2.0 to make conversions.
 
@@ -9,7 +9,7 @@ Not a full groovy to javascript conversion. Some groovy and java features not su
 
 Can convert .java and .groovy files or a text fragment as:
 
-    @Grab('org.grooscript:grooscript:0.5.3')
+    @Grab('org.grooscript:grooscript:0.6-SNAPSHOT')
 
     import org.grooscript.GrooScript
 
@@ -41,13 +41,17 @@ Npmjs [package](https://www.npmjs.org/package/grooscript)
 
 Build
 -----
-Using gradle wrapper, version 2.0. Only GPars 1.2 and Groovy dependencies in the project, Gradle as build system.
+Using gradle wrapper, version 2.1. Only GPars 1.2 and Groovy dependencies in the project, Gradle as build system.
 
-Create idea project:
+First time, you have to install Node.js stuff, maybe you have to run as administrator, do it with:
+
+    ./gradlew npmInstall
+
+Create IntelliJ IDEA project:
 
     ./gradlew idea
 
-It needs JDK 1.7, Node.js, mocha, uglify-js and PhantomJs installed to run tests. You have to define 'PHANTOMJS_PATH' system property.
+It needs JDK 1.7+.
 
 Build project:
 

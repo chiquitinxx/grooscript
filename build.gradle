@@ -3,9 +3,12 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.moowork.gradle:gradle-node-plugin:0.6'
         classpath 'be.filipblondeel.gradle:gradle-gulp-plugin:0.1'
     }
+}
+
+plugins {
+    id "com.moowork.node" version "0.6"
 }
 
 apply plugin: 'idea'
@@ -56,7 +59,7 @@ jar {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.0'
+    gradleVersion = '2.1'
 }
 
 //Sonar repository stuff
