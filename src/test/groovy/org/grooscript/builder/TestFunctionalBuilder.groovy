@@ -11,8 +11,9 @@ class TestFunctionalBuilder extends FunctionalTest {
 
     String htmlResponse() {
         def result = '<html><head><title>Title</title></head><body>'
-        result += script(jsFileText('grooscript-all.js'))
+        result += script(jsFileText('grooscript.min.js'))
         result += script(jsFileText('jquery.min.js'))
+        result += script(jsFileText('grooscript-tools.js'))
         result += script(GrooScript.convert(startFunction))
         result += script('$(document).ready(function() { $("body").append(getGrooviers()); });')
         result += '</body></html>'
@@ -30,8 +31,8 @@ class TestFunctionalBuilder extends FunctionalTest {
     }
 
     void setUp() {
+        JsGenerator.generateGrooscriptToolsJs()
         super.setUp()
-        JsGenerator.generateAll()
     }
 
     private getStartFunction() {

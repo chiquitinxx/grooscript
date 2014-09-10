@@ -16,8 +16,7 @@ class JsGenerator {
     static final BINDER_SOURCE = 'src/main/groovy/org/grooscript/jquery/Binder.groovy'
     static final BINDER_FILE = 'src/main/resources/META-INF/resources/grooscript-binder.js'
 
-    static final GROOSCRIPT_FILE = 'src/main/resources/META-INF/resources/grooscript.js'
-    static final GROOSCRIPT_ALL_FILE = 'src/main/resources/META-INF/resources/grooscript-all.js'
+    static final GROOSCRIPT_TOOLS_FILE = 'src/main/resources/META-INF/resources/grooscript-tools.js'
 
     static generateHtmlBuilder() {
         File source = new File(HTML_BUILDER_SOURCE)
@@ -34,15 +33,15 @@ class JsGenerator {
         convertFile(source, JQUERY_FILE, [initialText: '//This script needs grooscript.js and jQuery to run'])
     }
 
-    static generateGrooscriptJsComplete() {
-        GrooScript.joinListOfFiles(GROOSCRIPT_FILE, BUILDER_FILE, JQUERY_FILE, BINDER_FILE, GROOSCRIPT_ALL_FILE)
+    static generateGrooscriptJsToolsComplete() {
+        GrooScript.joinListOfFiles(BUILDER_FILE, JQUERY_FILE, BINDER_FILE, GROOSCRIPT_TOOLS_FILE)
     }
 
-    static void generateAll() {
+    static void generateGrooscriptToolsJs() {
         generateHtmlBuilder()
         generateJQuery()
         generateBinder()
-        generateGrooscriptJsComplete()
+        generateGrooscriptJsToolsComplete()
     }
 
     static convertFile(File file, String destinationFile, Map conversionOptions = null) {

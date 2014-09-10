@@ -8,6 +8,6 @@ import spock.lang.Specification
 class JsGeneratorSpec extends Specification {
     def 'test generation of js files'() {
         expect:
-        JsGenerator.generateAll()
+        JsGenerator.generateGrooscriptToolsJs()
     }
 }

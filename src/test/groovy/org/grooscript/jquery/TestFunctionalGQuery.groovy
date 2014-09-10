@@ -13,7 +13,7 @@ class TestFunctionalGQuery extends FunctionalTest {
         def result = '<html><head><title>Title</title></head><body>'
         result += script(jsFileText('grooscript.min.js'))
         result += script(jsFileText('jquery.min.js'))
-        result += script(jsFileText('gQueryImpl.js'))
+        result += script(jsFileText('grooscript-tools.js'))
         result += script(GrooScript.convert(jsonResultClass))
         result += script('var gQuery = GQueryImpl(); gQuery.onReady(function() { gQuery.doRemoteCall("'+JSON_ADRESS+'", "GET", null, ' +
                 'function(res) { gQuery.html(".result", "OK"); result = res },' +
@@ -25,8 +25,8 @@ class TestFunctionalGQuery extends FunctionalTest {
     }
 
     void setUp() {
+        JsGenerator.generateGrooscriptToolsJs()
         super.setUp()
-        JsGenerator.generateJQuery()
     }
 
     void testDoJsonRemoteCall() {

@@ -13,8 +13,7 @@ class TestFunctionalBinder extends FunctionalTest {
         def result = '<html><head><title>Title</title></head><body>'
         result += script(jsFileText('grooscript.js'))
         result += script(jsFileText('jquery.min.js'))
-        result += script(jsFileText('grooscript-binder.js'))
-        result += script(jsFileText('gQueryImpl.js'))
+        result += script(jsFileText('grooscript-tools.js'))
         result += script(GrooScript.convert(bookClass))
         result += script('var book = Book(); var binder = Binder();')
         result += script('$(document).ready(function() { binder.call(book); book.init()});')
@@ -29,9 +28,8 @@ class TestFunctionalBinder extends FunctionalTest {
     }
 
     void setUp() {
+        JsGenerator.generateGrooscriptToolsJs()
         super.setUp()
-        JsGenerator.generateJQuery()
-        JsGenerator.generateBinder()
     }
 
     void testBindPropertiesAndClick() {

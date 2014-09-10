@@ -232,7 +232,7 @@ class TestConversionOptions extends Specification {
         result.startsWith(new File("src/main/resources/META-INF/resources/${fileName}.js").text)
 
         where:
-        fileName << ['grooscript', 'grooscript.min', 'grooscript-all']
+        fileName << ['grooscript', 'grooscript.min']
     }
 
     private void expectedInitialValues() {

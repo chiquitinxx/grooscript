@@ -12,5 +12,8 @@ initial.png
 gSphantomJsTest.js
 *.class
 grooscript.min.js
-grooscript-all.js
+grooscript-binder.js
+grooscript-builder.js
+gQueryImpl.js
 node_modules
+grooscript-tools.js
