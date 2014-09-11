@@ -15,6 +15,7 @@ class Util {
     static final LINE_JUMP = '\r\n'
     static final JS_EXTENSION = '.js'
     static final GROOVY_EXTENSION = '.groovy'
+    static final JAVA_EXTENSION = '.java'
 
     //Where Js stuff is
     static getJsPath() {

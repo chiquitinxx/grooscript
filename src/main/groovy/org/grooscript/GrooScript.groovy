@@ -89,7 +89,8 @@ class GrooScript {
             GsConsole.debug("    Converting file ${source.absolutePath}...")
         }
         try {
-            if (source.isFile() && source.name.endsWith(GROOVY_EXTENSION)) {
+            if (source.isFile() &&
+                    (source.name.endsWith(GROOVY_EXTENSION) || source.name.endsWith(JAVA_EXTENSION))) {
                 //println 'Name file->'+source.name
                 def name = source.name.split(/\./)[0]
                 def jsResult = newConverter.toJs(source.text, options)
