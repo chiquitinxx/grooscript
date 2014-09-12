@@ -8,6 +8,7 @@ class Medusa {
     static number = 0
     public static thing = ''
     def frozen = false
+    private static final DATA = 'data'
 
     static tellMeNumber() {
         return number
@@ -20,6 +21,10 @@ class Medusa {
     def isFrozen() {
         def number = tellMeNumber()
         frozen
+    }
+
+    def getData() {
+        DATA
     }
 }
 
@@ -40,3 +45,5 @@ assert med2.tellMeNumber() == 3
 med2.frozen = true
 assert med2.isFrozen()
 assert !med1.isFrozen()
+
+assert med1.data == 'data'

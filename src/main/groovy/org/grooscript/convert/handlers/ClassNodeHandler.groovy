@@ -64,8 +64,7 @@ class ClassNodeHandler extends BaseHandler {
             //Add fields not added as properties
             node.fields.each { FieldNode field ->
                 checkDelegateAnnotation(field, node.nameWithoutPackage)
-
-                if (field.owner.name == node.name && (field.isPublic()|| !node.properties.any { it.name == field.name})) {
+                if (isOnlyFieldOfClassNode(field, node)) {
                     if (!field.isStatic()) {
                         addPropertyToClass(field,false)
                     } else {
@@ -102,8 +101,15 @@ class ClassNodeHandler extends BaseHandler {
         }
 
         //Static properties
-        node?.properties?.each { it-> //println 'Property->'+it; println 'initialExpresion->'+it.initialExpression
+        node?.properties?.each { it->
             if (it.isStatic()) {
+                out.addScript(node.nameWithoutPackage)
+                addPropertyToClass(it, true)
+            }
+        }
+        //Static fields
+        node?.fields?.each { it->
+            if (it.isStatic() && isOnlyFieldOfClassNode(it, node)) {
                 out.addScript(node.nameWithoutPackage)
                 addPropertyToClass(it, true)
             }
@@ -418,5 +424,9 @@ class ClassNodeHandler extends BaseHandler {
         classNode.interfaces.each {
             writeInterface(it)
         }
+    }
+
+    private isOnlyFieldOfClassNode(FieldNode fieldNode, ClassNode classNode) {
+        fieldNode.owner.name == classNode.name && !classNode.properties.any { it.name == fieldNode.name}
     }
 }
