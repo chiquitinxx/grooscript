@@ -35,6 +35,8 @@ class Context {
     //Where code of native functions stored, as a map. Used for GsNative annotation
     List<NativeFunction> nativeFunctions
 
+    String currentClassMethodConverting = null
+
     Context() {
         variableScoping.clear()
         variableScoping.push([])

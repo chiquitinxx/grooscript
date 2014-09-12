@@ -104,4 +104,9 @@ class TestAdvancedClass extends Specification {
         expect:
         convertAndEvaluate('classes/StaticMethods')
     }
+
+    def 'test this uses'() {
+        expect:
+        convertAndEvaluate('classes/This')
+    }
 }

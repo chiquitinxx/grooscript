@@ -43,7 +43,12 @@ class PropertyExpressionHandler extends BaseHandler {
             out.addScript(".${CLASS}")
         } else {
 
-            if (!(expression instanceof AttributeExpression)) {
+            if (isKnownProperty(expression)) {
+                factory.processObjectExpressionFromProperty(expression)
+                out.addScript('[')
+                factory.processPropertyExpressionFromProperty(expression)
+                out.addScript(']')
+            } else {
                 out.addScript("${GS_GET_PROPERTY}(")
                 if (expression.objectExpression instanceof VariableExpression &&
                         expression.objectExpression.name == 'this') {
@@ -62,12 +67,13 @@ class PropertyExpressionHandler extends BaseHandler {
                 }
 
                 out.addScript(')')
-            } else {
-                factory.processObjectExpressionFromProperty(expression)
-                out.addScript('[')
-                factory.processPropertyExpressionFromProperty(expression)
-                out.addScript(']')
             }
         }
+    }
+
+    private isKnownProperty(PropertyExpression propertyExpression) {
+        propertyExpression instanceof AttributeExpression ||
+            (propertyExpression.propertyAsString &&
+                    context.currentClassMethodConverting == "get${propertyExpression.propertyAsString.capitalize()}")
     }
 }

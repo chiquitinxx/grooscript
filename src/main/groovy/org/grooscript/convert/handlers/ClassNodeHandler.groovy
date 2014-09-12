@@ -131,6 +131,7 @@ class ClassNodeHandler extends BaseHandler {
 
         context.processingClassMethods = true
         methods?.each { MethodNode methodNode ->
+            context.currentClassMethodConverting = methodNode.name
             if (!haveAnnotationNonConvert(methodNode.annotations) && !methodNode.isAbstract()) {
                 //Process the methods
                 if (functions.haveAnnotationNative(methodNode.annotations) && !methodNode.isStatic()) {
@@ -145,6 +146,7 @@ class ClassNodeHandler extends BaseHandler {
                     staticMethod(methodNode, GS_OBJECT, classNode.nameWithoutPackage)
                 }
             }
+            context.currentClassMethodConverting = null
         }
         context.processingClassMethods = false
     }
