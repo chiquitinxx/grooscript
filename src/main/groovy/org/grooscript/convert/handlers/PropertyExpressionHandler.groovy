@@ -44,10 +44,7 @@ class PropertyExpressionHandler extends BaseHandler {
         } else {
 
             if (isKnownProperty(expression)) {
-                factory.processObjectExpressionFromProperty(expression)
-                out.addScript('[')
-                factory.processPropertyExpressionFromProperty(expression)
-                out.addScript(']')
+                factory.processKnownPropertyExpression(expression)
             } else {
                 out.addScript("${GS_GET_PROPERTY}(")
                 if (expression.objectExpression instanceof VariableExpression &&

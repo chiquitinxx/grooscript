@@ -101,24 +101,33 @@ class BinaryExpressionHandler extends BaseHandler {
                     (expression.operation.text in ['=', '+=', '-=']) &&
                     !(expression.leftExpression instanceof AttributeExpression)) {
 
-                PropertyExpression pe = (PropertyExpression)expression.leftExpression
-                out.addScript("${GS_SET_PROPERTY}(")
-                upgradedExpresion(pe.objectExpression)
-                out.addScript(',')
-                upgradedExpresion(pe.property)
-                out.addScript(',')
-                if (expression.operation.text == '+=') {
-                    factory.visitNode(expression.leftExpression)
-                    out.addScript(' + ')
-                } else if (expression.operation.text == '-=') {
-                    factory.visitNode(expression.leftExpression)
-                    out.addScript(' - ')
-                }
-                upgradedExpresion(expression.rightExpression)
-                out.addScript(')')
+                if (expression.leftExpression.objectExpression instanceof VariableExpression &&
+                        expression.leftExpression.objectExpression.variable == 'this' &&
+                        expression.leftExpression.propertyAsString &&
+                        context.currentClassMethodConverting ==
+                            "set${expression.leftExpression.propertyAsString.capitalize()}") {
+                    factory.processKnownPropertyExpression(expression.leftExpression)
+                    out.addScript(" ${expression.operation.text} ")
+                    upgradedExpresion(expression.rightExpression)
+                } else {
 
+                    PropertyExpression pe = (PropertyExpression) expression.leftExpression
+                    out.addScript("${GS_SET_PROPERTY}(")
+                    upgradedExpresion(pe.objectExpression)
+                    out.addScript(',')
+                    upgradedExpresion(pe.property)
+                    out.addScript(',')
+                    if (expression.operation.text == '+=') {
+                        factory.visitNode(expression.leftExpression)
+                        out.addScript(' + ')
+                    } else if (expression.operation.text == '-=') {
+                        factory.visitNode(expression.leftExpression)
+                        out.addScript(' - ')
+                    }
+                    upgradedExpresion(expression.rightExpression)
+                    out.addScript(')')
+                }
             } else {
-                //println ' other->'+expression.text
                 //If we are assigning a variable, and don't exist in scope, we add to it
                 if (expression.operation.text=='=' && expression.leftExpression instanceof VariableExpression
                         && !context.allActualScopeContains(expression.leftExpression.name) &&

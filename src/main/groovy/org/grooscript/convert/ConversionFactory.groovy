@@ -97,6 +97,13 @@ class ConversionFactory {
         }
     }
 
+    void processKnownPropertyExpression(PropertyExpression expression) {
+        processObjectExpressionFromProperty(expression)
+        out.addScript('[')
+        processPropertyExpressionFromProperty(expression)
+        out.addScript(']')
+    }
+
     void processObjectExpressionFromProperty(PropertyExpression expression) {
         if (expression.objectExpression instanceof ClassExpression) {
             out.addScript(expression.objectExpression.type.nameWithoutPackage)
