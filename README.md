@@ -65,5 +65,3 @@ Twitter: [@grooscript](http://twitter.com/grooscript)
 Email: <grooscript@gmail.com>
 
 Please all feedback welcome, thanks!
-
-[ ![Codeship Status for chiquitinxx/grooscript](https://www.codeship.io/projects/c0755af0-1e7d-0132-5001-26ae8067ef5f/status)](https://www.codeship.io/projects/35539)
