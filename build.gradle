@@ -136,7 +136,7 @@ task testUnit(type: Test) {
 
 testUnit.description = 'Run only conversion tests'
 
-assemble.dependsOn gulp_compress
+compileJava.dependsOn gulp_compress
 test.dependsOn gulp_tests
 
 node {
