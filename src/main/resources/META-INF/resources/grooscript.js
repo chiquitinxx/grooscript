@@ -2148,34 +2148,6 @@
         }
     };
 
-    //Calling a setMethod
-    function setMethod(item,methodName,value) {
-
-        if (!hasFunc(item,methodName)) {
-
-            var nameProperty = methodName.charAt(3).toLowerCase() + methodName.slice(4);
-            item[nameProperty] = value;
-        } else {
-            item[methodName](value);
-        }
-
-    }
-
-    //Calling a getMethod
-    function getMethod(item,methodName) {
-
-        if (!hasFunc(item,methodName)) {
-
-            var nameProperty = methodName.charAt(3).toLowerCase() + methodName.slice(4);
-            var res = function () { return item[nameProperty];};
-            return res;
-
-        } else {
-            return item[methodName];
-        }
-
-    }
-
     //Get a property of a class
     gs.gp = function(item, nameProperty) {
 
