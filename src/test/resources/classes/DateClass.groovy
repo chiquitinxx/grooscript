@@ -13,3 +13,6 @@ assert yesterday + 1 == today
 
 assert today.before(tomorrow)
 assert today.after(yesterday)
+
+today.setTime(0)
+assert today.before(yesterday)

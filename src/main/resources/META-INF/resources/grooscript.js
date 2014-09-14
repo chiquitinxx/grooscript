@@ -1442,6 +1442,9 @@
         gSobject.withz = gs.baseClass.withz;
 
         gSobject.time = gSobject.getTime();
+        gSobject.setTime = function(milis) {
+            gSobject.time = milis;
+        };
 
         gSobject.year = gSobject.getFullYear();
         gSobject.month = gSobject.getMonth();
