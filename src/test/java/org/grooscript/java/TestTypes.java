@@ -22,10 +22,8 @@ public class TestTypes {
 
     @Test
     public void testNumbers() throws Exception {
-
         //First validate java code
         new Numbers().validate();
-
         //Convert and validate javascript converted code
         evaluateInJavascript("Numbers");
     }
@@ -52,6 +50,12 @@ public class TestTypes {
     public void testStrings() throws Exception {
         new Strings().validate();
         evaluateInJavascript("Strings");
+    }
+
+    @Test
+    public void testDates() throws Exception {
+        new Dates().validate();
+        evaluateInJavascript("Dates");
     }
 
     final static Charset ENCODING = StandardCharsets.UTF_8;
