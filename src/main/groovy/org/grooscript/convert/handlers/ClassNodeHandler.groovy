@@ -140,7 +140,7 @@ class ClassNodeHandler extends BaseHandler {
                     if (methodNode.name == 'propertyMissing' && methodNode.parameters.length == 2) {
                         functions.processBasicFunction("${GS_OBJECT}['setPropertyMissing']", methodNode, false)
                     } else {
-                        factory.visitNode(methodNode, false)
+                        conversionFactory.visitNode(methodNode, false)
                     }
                 } else {
                     staticMethod(methodNode, GS_OBJECT, classNode.nameWithoutPackage)
@@ -202,7 +202,7 @@ class ClassNodeHandler extends BaseHandler {
             if (numberArguments == 1) {
                 has1parameterConstructor = true
             }
-            factory.visitNode(it, true)
+            conversionFactory.visitNode(it, true)
 
             addConditionConstructorExecution(numberArguments, it.parameters)
         }
@@ -241,7 +241,7 @@ class ClassNodeHandler extends BaseHandler {
 
         if (fieldOrProperty.initialExpression) {
             out.addScript("${previous}.${fieldOrProperty.name} = ")
-            factory.visitNode(fieldOrProperty.initialExpression)
+            conversionFactory.visitNode(fieldOrProperty.initialExpression)
             out.addScript(';', true)
         } else {
             out.addScript("${previous}.${fieldOrProperty.name} = null;", true)

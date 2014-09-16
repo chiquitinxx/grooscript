@@ -12,20 +12,20 @@ class ForStatementHandler extends BaseHandler {
         context.variableScoping.push([])
         if (statement?.variable != ForStatement.FOR_LOOP_DUMMY) {
             //We change this for in...  for a call lo closure each, that works fine in javascript
-            factory.visitNode(statement?.collectionExpression)
+            conversionFactory.visitNode(statement?.collectionExpression)
             out.addScript('.each(function(')
-            factory.visitNode(statement.variable)
+            conversionFactory.visitNode(statement.variable)
             context.addToActualScope(statement.variable.name)
 
         } else {
             out.addScript 'for ('
-            factory.visitNode(statement?.collectionExpression)
+            conversionFactory.visitNode(statement?.collectionExpression)
         }
         out.addScript ') {'
         out.indent++
         out.addLine()
 
-        factory.visitNode(statement?.loopBlock)
+        conversionFactory.visitNode(statement?.loopBlock)
 
         out.indent--
         out.removeTabScript()

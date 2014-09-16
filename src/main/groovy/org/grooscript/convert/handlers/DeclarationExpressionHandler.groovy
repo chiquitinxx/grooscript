@@ -23,10 +23,10 @@ class DeclarationExpressionHandler extends BaseHandler {
             context.addToActualScope(expression.variableExpression.name)
 
             out.addScript('var ')
-            factory.getConverter('VariableExpression').handle(expression.variableExpression, true)
+            conversionFactory.getConverter('VariableExpression').handle(expression.variableExpression, true)
             out.addScript(' = ' + expression.leftExpression.type.nameWithoutPackage + '();', true)
 
-            factory.getConverter('VariableExpression').handle(expression.variableExpression, true)
+            conversionFactory.getConverter('VariableExpression').handle(expression.variableExpression, true)
             out.addScript('.withz(function() {')
             out.indent ++
             context.processingBaseScript = true
@@ -41,9 +41,9 @@ class DeclarationExpressionHandler extends BaseHandler {
                 if (expr instanceof VariableExpression && expr.name!='_') {
                     context.addToActualScope(expr.name)
                     out.addScript('var ')
-                    factory.getConverter('VariableExpression').handle(expr, true)
+                    conversionFactory.getConverter('VariableExpression').handle(expr, true)
                     out.addScript(' = ')
-                    factory.visitNode(expression.rightExpression)
+                    conversionFactory.visitNode(expression.rightExpression)
                     out.addScript(".getAt(${number})")
                     if (number < tuple.expressions.size()) {
                         out.addScript(';')
@@ -55,11 +55,11 @@ class DeclarationExpressionHandler extends BaseHandler {
             context.addToActualScope(expression.variableExpression.name)
 
             out.addScript('var ')
-            factory.getConverter('VariableExpression').handle(expression.variableExpression, true)
+            conversionFactory.getConverter('VariableExpression').handle(expression.variableExpression, true)
 
             if (!(expression.rightExpression instanceof EmptyExpression)) {
                 out.addScript(' = ')
-                factory.visitNode(expression.rightExpression)
+                conversionFactory.visitNode(expression.rightExpression)
             } else {
                 out.addScript(' = null')
             }

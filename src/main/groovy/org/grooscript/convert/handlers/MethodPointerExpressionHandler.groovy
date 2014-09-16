@@ -11,14 +11,14 @@ import static org.grooscript.JsNames.*
 class MethodPointerExpressionHandler extends BaseHandler {
 
     void handle(MethodPointerExpression expression) {
-        if (factory.isThis(expression.expression) &&
+        if (conversionFactory.isThis(expression.expression) &&
                 context.currentVariableScopingHasMethod(expression.methodName.text)) {
             out.addScript(GS_OBJECT)
         } else {
-            factory.visitNode(expression.expression)
+            conversionFactory.visitNode(expression.expression)
         }
         out.addScript('[')
-        factory.visitNode(expression.methodName)
+        conversionFactory.visitNode(expression.methodName)
         out.addScript(']')
     }
 }

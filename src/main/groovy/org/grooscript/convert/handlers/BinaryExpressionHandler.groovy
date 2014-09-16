@@ -23,9 +23,9 @@ class BinaryExpressionHandler extends BaseHandler {
             out.addScript("${GS_RANGE_FROM_LIST}(")
             upgradedExpresion(expression.leftExpression)
             out.addScript(", ")
-            factory.visitNode(expression.rightExpression.getFrom())
+            conversionFactory.visitNode(expression.rightExpression.getFrom())
             out.addScript(", ")
-            factory.visitNode(expression.rightExpression.getTo())
+            conversionFactory.visitNode(expression.rightExpression.getTo())
             out.addScript(')')
             //leftShift and rightShift function
         } else if (expression.operation.text == '<<' || expression.operation.text == '>>') {
@@ -43,7 +43,7 @@ class BinaryExpressionHandler extends BaseHandler {
             //If is a regular expresion /fgsg/, comes like a contantExpresion fgsg, we keep /'s for javascript
             if (expression.rightExpression instanceof ConstantExpression) {
                 out.addScript('/')
-                factory.visitNode(expression.rightExpression, false)
+                conversionFactory.visitNode(expression.rightExpression, false)
                 out.addScript('/')
             } else {
                 upgradedExpresion(expression.rightExpression)
@@ -59,7 +59,7 @@ class BinaryExpressionHandler extends BaseHandler {
             //If is a regular expresion /fgsg/, comes like a contantExpresion fgsg, we keep /'s for javascript
             if (expression.rightExpression instanceof ConstantExpression) {
                 out.addScript('/')
-                factory.visitNode(expression.rightExpression, false)
+                conversionFactory.visitNode(expression.rightExpression, false)
                 out.addScript('/')
             } else {
                 upgradedExpresion(expression.rightExpression)
@@ -106,7 +106,7 @@ class BinaryExpressionHandler extends BaseHandler {
                         expression.leftExpression.propertyAsString &&
                         context.currentClassMethodConverting ==
                             "set${expression.leftExpression.propertyAsString.capitalize()}") {
-                    factory.processKnownPropertyExpression(expression.leftExpression)
+                    conversionFactory.processKnownPropertyExpression(expression.leftExpression)
                     out.addScript(" ${expression.operation.text} ")
                     upgradedExpresion(expression.rightExpression)
                 } else {
@@ -118,10 +118,10 @@ class BinaryExpressionHandler extends BaseHandler {
                     upgradedExpresion(pe.property)
                     out.addScript(',')
                     if (expression.operation.text == '+=') {
-                        factory.visitNode(expression.leftExpression)
+                        conversionFactory.visitNode(expression.leftExpression)
                         out.addScript(' + ')
                     } else if (expression.operation.text == '-=') {
-                        factory.visitNode(expression.leftExpression)
+                        conversionFactory.visitNode(expression.leftExpression)
                         out.addScript(' - ')
                     }
                     upgradedExpresion(expression.rightExpression)
@@ -139,7 +139,7 @@ class BinaryExpressionHandler extends BaseHandler {
                 //Left
                 if (expression.operation.text in ['&&', '||']) {
                     out.addScript '('
-                    factory.handExpressionInBoolean(expression.leftExpression)
+                    conversionFactory.handExpressionInBoolean(expression.leftExpression)
                     out.addScript ')'
                 } else {
                     upgradedExpresion(expression.leftExpression)
@@ -151,7 +151,7 @@ class BinaryExpressionHandler extends BaseHandler {
                 //println 'Right->'+expression.rightExpression
                 if (expression.operation.text in ['&&','||']) {
                     out.addScript '('
-                    factory.handExpressionInBoolean(expression.rightExpression)
+                    conversionFactory.handExpressionInBoolean(expression.rightExpression)
                     out.addScript ')'
                 } else {
                     upgradedExpresion(expression.rightExpression)
@@ -168,7 +168,7 @@ class BinaryExpressionHandler extends BaseHandler {
         if (expresion instanceof BinaryExpression) {
             out.addScript('(')
         }
-        factory.visitNode(expresion)
+        conversionFactory.visitNode(expresion)
         if (expresion instanceof BinaryExpression) {
             out.addScript(')')
         }

@@ -1,13 +1,10 @@
 package org.grooscript.convert
 
 import org.codehaus.groovy.ast.ASTNode
-import org.codehaus.groovy.ast.MethodNode
-import org.codehaus.groovy.ast.Parameter
 import org.codehaus.groovy.ast.expr.*
 import org.codehaus.groovy.ast.stmt.*
 import org.grooscript.convert.handlers.*
 import org.grooscript.util.GrooScriptException
-import org.grooscript.util.GsConsole
 
 import static org.grooscript.JsNames.*
 
@@ -38,7 +35,9 @@ class ConversionFactory {
         'MethodPointerExpression': MethodPointerExpressionHandler,
         'InnerClassNode': InnerClassNodeHandler,
         'DeclarationExpression': DeclarationExpressionHandler,
-        'ForStatement': ForStatementHandler
+        'ForStatement': ForStatementHandler,
+        'ConstructorNode': ConstructorNodeHandler,
+        'AssertStatement': AssertStatementHandler,
     ]
 
     ConversionFactory() {
@@ -143,7 +142,7 @@ class ConversionFactory {
         instanceHandler.context = context
         instanceHandler.traits = traits
         instanceHandler.functions = functions
-        instanceHandler.factory = this
+        instanceHandler.conversionFactory = this
         instanceHandler
     }
 

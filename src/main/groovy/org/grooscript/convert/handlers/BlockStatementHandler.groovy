@@ -31,7 +31,7 @@ class BlockStatementHandler extends BaseHandler {
                     def position
                     context.returnScoping.push(false)
                     if (addReturn && ((number++) == block.getStatements().size())
-                            && factory.statementThatCanReturn(statement)) {
+                            && conversionFactory.statementThatCanReturn(statement)) {
 
                         //this statement can be a complex statement with a return
                         //Go looking for a return statement in last statement
@@ -66,7 +66,7 @@ class BlockStatementHandler extends BaseHandler {
     private void visitStatement(Statement statement) {
 
         //println "statement (${statement.class.simpleName})->"+statement+' - '+statement.text
-        factory.visitNode(statement)
+        conversionFactory.visitNode(statement)
 
         //Adds ;
         if (out.resultScript) {

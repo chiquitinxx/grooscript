@@ -13,7 +13,7 @@ class InnerClassNodeHandler extends BaseHandler {
 
     void handle(InnerClassNode innerClassNode) {
 
-        if (factory.isTraitClass(innerClassNode.name)) {
+        if (conversionFactory.isTraitClass(innerClassNode.name)) {
             handleTrait(innerClassNode)
         } else {
             handleInnerClass(innerClassNode)
@@ -21,7 +21,7 @@ class InnerClassNodeHandler extends BaseHandler {
     }
 
     private handleInnerClass(InnerClassNode innerClassNode) {
-        factory.getConverter('ClassNode').handle(innerClassNode)
+        conversionFactory.getConverter('ClassNode').handle(innerClassNode)
     }
 
     private handleTrait(InnerClassNode innerClassNode) {

@@ -21,7 +21,7 @@ class GsConverter {
     Functions functions
 
     //Adds a console info if activated
-    def consoleInfo = false
+    boolean consoleInfo = false
 
     //Conversion Options
     Map conversionOptions
@@ -31,8 +31,8 @@ class GsConverter {
      * @param String script in groovy
      * @return String script in javascript
      */
-    def toJs(String script, Map options = null) {
-        def result
+    String toJs(String script, Map options = null) {
+        String result
         //Script not empty plz!
         def phase = 0
         conversionOptions = options ?: GrooScript.defaultOptions
@@ -71,7 +71,7 @@ class GsConverter {
         completeJsResult(result)
     }
 
-    private completeJsResult(String result) {
+    private String completeJsResult(String result) {
         if (conversionOptions[ConversionOptions.INITIAL_TEXT.text]) {
             result = conversionOptions[ConversionOptions.INITIAL_TEXT.text] + '\n' + result
         }
@@ -93,7 +93,7 @@ class GsConverter {
      * @param list
      * @return
      */
-    def processAstListToJs(list, nativeFunctions = null) {
+    String processAstListToJs(list, nativeFunctions = null) {
         def result
         if (list && list.size() > 0) {
             //println '-----------------Size('+list.size+')->'+list
@@ -171,7 +171,7 @@ class GsConverter {
 
     //Process list of classes in correct order, inheritance order
     //Save list of variables for inheritance
-    private processClassList(List<ClassNode> list) {
+    private void processClassList(List<ClassNode> list) {
 
         def finalList = []
         def extraClasses = []
@@ -270,30 +270,13 @@ class GsConverter {
 
     }
 
-    private processConstructorNode(ConstructorNode method, isConstructor) {
-        conversionFactory.getConverter('MethodNode').handle(method, isConstructor)
-    }
-
-    private processAssertStatement(AssertStatement statement) {
-        Expression e = statement.booleanExpression
-        out.addScript(GS_ASSERT)
-        out.addScript('(')
-        conversionFactory.visitNode(e)
-        if (statement.getMessageExpression() && !(statement.messageExpression instanceof EmptyExpression)) {
-            out.addScript(', ')
-            conversionFactory.visitNode(statement.messageExpression)
-        }
-        out.addScript(')')
-    }
-
     private processBooleanExpression(BooleanExpression expression) {
         //Groovy truth is a bit different, empty collections return false, we fix that here
         conversionFactory.handExpressionInBoolean(expression.expression)
     }
 
     private processExpressionStatement(ExpressionStatement statement) {
-        Expression e = statement.expression
-        conversionFactory.visitNode(e)
+        conversionFactory.visitNode(statement.expression)
     }
 
     private processConstantExpression(ConstantExpression expression) {

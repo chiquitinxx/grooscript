@@ -24,7 +24,7 @@ class PropertyExpressionHandler extends BaseHandler {
                 } else {
                     //I had to add variable = ... cause gSmetaClass changing object and sometimes variable don't change
                     out.addScript("(${expression.objectExpression.name} = ${GS_META_CLASS}(")
-                    factory.visitNode(expression.objectExpression)
+                    conversionFactory.visitNode(expression.objectExpression)
                     out.addScript('))')
                 }
             } else {
@@ -35,28 +35,28 @@ class PropertyExpressionHandler extends BaseHandler {
                             "or Java types (${expression.objectExpression.type.name})")
                 }
                 out.addScript("${GS_META_CLASS}(")
-                factory.visitNode(expression.objectExpression)
+                conversionFactory.visitNode(expression.objectExpression)
                 out.addScript(')')
             }
         } else if (expression.property instanceof ConstantExpression && expression.property.value == 'class') {
-            factory.visitNode(expression.objectExpression)
+            conversionFactory.visitNode(expression.objectExpression)
             out.addScript(".${CLASS}")
         } else {
 
             if (isKnownProperty(expression)) {
-                factory.processKnownPropertyExpression(expression)
+                conversionFactory.processKnownPropertyExpression(expression)
             } else {
                 out.addScript("${GS_GET_PROPERTY}(")
                 if (expression.objectExpression instanceof VariableExpression &&
                         expression.objectExpression.name == 'this') {
                     out.addScript("${GS_THIS_OR_OBJECT}(this,${GS_OBJECT})")
                 } else {
-                    factory.processObjectExpressionFromProperty(expression)
+                    conversionFactory.processObjectExpressionFromProperty(expression)
                 }
 
                 out.addScript(',')
 
-                factory.processPropertyExpressionFromProperty(expression)
+                conversionFactory.processPropertyExpressionFromProperty(expression)
 
                 //If is a safe expression as item?.data, we add one more parameter
                 if (expression.isSafe()) {

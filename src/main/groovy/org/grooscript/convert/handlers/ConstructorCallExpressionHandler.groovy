@@ -23,7 +23,7 @@ class ConstructorCallExpressionHandler extends BaseHandler {
             }
         } else if (expression.type.name=='java.lang.String') {
             if (expression.arguments.getExpressions().size() > 0) {
-                factory.visitNode(expression.arguments)
+                conversionFactory.visitNode(expression.arguments)
             } else {
                 out.addScript("''")
             }
@@ -54,6 +54,6 @@ class ConstructorCallExpressionHandler extends BaseHandler {
             def name = expression.type.nameWithoutPackage
             out.addScript(name)
         }
-        factory.visitNode(expression.arguments)
+        conversionFactory.visitNode(expression.arguments)
     }
 }

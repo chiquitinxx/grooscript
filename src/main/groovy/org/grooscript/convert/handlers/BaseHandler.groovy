@@ -11,10 +11,9 @@ import org.grooscript.convert.Traits
  * Date: 16/01/14
  */
 class BaseHandler {
-
     Context context
     Out out
-    ConversionFactory factory
+    ConversionFactory conversionFactory
     Functions functions
     Traits traits
 }
