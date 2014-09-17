@@ -35,7 +35,7 @@ class BlockStatementHandler extends BaseHandler {
 
                         //this statement can be a complex statement with a return
                         //Go looking for a return statement in last statement
-                        position = out.getSavePoint()
+                        position = out.savePoint
                     }
                     if (addReturn && (number - 1) == block.getStatements().size() &&
                             !context.lookingForReturnStatementInIf && statement instanceof IfStatement) {

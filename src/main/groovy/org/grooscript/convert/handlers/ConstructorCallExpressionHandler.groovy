@@ -15,11 +15,12 @@ class ConstructorCallExpressionHandler extends BaseHandler {
         //Super expression in constructor is allowed
         if (expression?.isSuperCall()) {
             def name = context.superNameStack.peek()
-            //println 'processNotExpression name->'+name
+            //println 'isSuperCall name->'+name
             if (name == 'java.lang.Object') {
                 out.addScript("this.${CONSTRUCTOR}")
             } else {
-                out.addScript("this.${name}${expression.arguments.expressions.size()}")
+                out.addScript("${GS_OBJECT}.${conversionFactory.reduceClassName(name)}" +
+                        "${expression.arguments.expressions.size()}")
             }
         } else if (expression.type.name=='java.lang.String') {
             if (expression.arguments.getExpressions().size() > 0) {

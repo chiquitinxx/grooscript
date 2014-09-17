@@ -46,7 +46,7 @@ class Out {
      * @param position
      * @return
      */
-    private addScriptAt(text,position) {
+    void addScriptAt(text,position) {
         resultScript = resultScript.substring(0,position) + text + resultScript.substring(position)
     }
 
@@ -54,7 +54,7 @@ class Out {
      * Get actual position in javascript output
      * @return
      */
-    private getSavePoint() {
+    def getSavePoint() {
         return resultScript.size()
     }
 
