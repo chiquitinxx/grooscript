@@ -121,4 +121,9 @@ class TestContributors extends Specification {
         expect:
         convertAndEvaluate('contribution/Mscharhag')
     }
+
+    def 'jason winnebeck interface safe'() {
+        expect:
+        convertAndEvaluate('contribution/JasonWinnebeck')
+    }
 }
