@@ -38,6 +38,9 @@ class ConversionFactory {
         'ForStatement': ForStatementHandler,
         'ConstructorNode': ConstructorNodeHandler,
         'AssertStatement': AssertStatementHandler,
+        'BooleanExpression': BooleanExpressionHandler,
+        'ConstantExpression': ConstantExpressionHandler,
+        'ExpressionStatement': ExpressionStatementHandler,
     ]
 
     ConversionFactory() {
@@ -71,7 +74,7 @@ class ConversionFactory {
                 converter."process${className}"(node)
             }
         } else {
-            if (otherParam) {
+            if (otherParam != null) {
                 getConverter(className).handle(node, otherParam)
             } else {
                 getConverter(className).handle(node)
