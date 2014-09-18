@@ -1,12 +1,12 @@
 {
     "name"          : "grooscript",
-    "description"   : "Library to work with code converted from groovy.",
+    "description"   : "Module to work with code converted from groovy.",
     "homepage"      : "http://grooscript.org",
     "keywords"      : ["groovy", "converter"],
     "author"        : "Jorge Franco <grooscript@gmail.com>",
     "repository"    : {"type": "git", "url": "git://github.com/chiquitinxx/grooscript.git"},
     "main"          : "grooscript.js",
-    "version"       : "0.6",
+    "version"       : "0.6.0",
     "licenses": [
         {
             "type": "APACHE2",

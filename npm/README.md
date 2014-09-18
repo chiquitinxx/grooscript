@@ -1,7 +1,7 @@
 grooscript 0.6
 ==============
 
-This library contains all functions needed to work with grooscript generated code. [Grooscript](http://grooscript.org) is a library that converts groovy code to javascript.
+This module contains javascript file to work with grooscript generated code. [Grooscript](http://grooscript.org) is a library that converts groovy code to javascript.
 
     var gs = require('grooscript');
 
