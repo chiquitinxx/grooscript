@@ -20,7 +20,7 @@ apply plugin: 'com.moowork.node'
 apply plugin: 'gulp'
 
 group = 'org.grooscript'
-version = '0.6-SNAPSHOT'
+version = '0.6'
 
 sourceCompatibility = 1.6
 
