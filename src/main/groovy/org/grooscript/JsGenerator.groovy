@@ -13,19 +13,11 @@ class JsGenerator {
     static final JQUERY_SOURCE = 'src/main/groovy/org/grooscript/jquery/GQueryImpl.groovy'
     static final JQUERY_FILE = 'src/main/resources/META-INF/resources/gQueryImpl.js'
 
-    static final BINDER_SOURCE = 'src/main/groovy/org/grooscript/jquery/Binder.groovy'
-    static final BINDER_FILE = 'src/main/resources/META-INF/resources/grooscript-binder.js'
-
     static final GROOSCRIPT_TOOLS_FILE = 'src/main/resources/META-INF/resources/grooscript-tools.js'
 
     static generateHtmlBuilder() {
         File source = new File(HTML_BUILDER_SOURCE)
         convertFile(source, BUILDER_FILE, [initialText: '//This script needs grooscript.js to run'])
-    }
-
-    static generateBinder() {
-        File source = new File(BINDER_SOURCE)
-        convertFile(source, BINDER_FILE, [initialText: '//This script needs grooscript.js and jQuery to run'])
     }
 
     static generateJQuery() {
@@ -34,13 +26,12 @@ class JsGenerator {
     }
 
     static generateGrooscriptJsToolsComplete() {
-        GrooScript.joinListOfFiles(BUILDER_FILE, JQUERY_FILE, BINDER_FILE, GROOSCRIPT_TOOLS_FILE)
+        GrooScript.joinListOfFiles(BUILDER_FILE, JQUERY_FILE, GROOSCRIPT_TOOLS_FILE)
     }
 
     static void generateGrooscriptToolsJs() {
         generateHtmlBuilder()
         generateJQuery()
-        generateBinder()
         generateGrooscriptJsToolsComplete()
     }
 

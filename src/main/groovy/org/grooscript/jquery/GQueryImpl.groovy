@@ -89,8 +89,8 @@ class GQueryImpl implements GQuery {
     */}
 
     @GsNative
-    void bindEvent(String id, String name, Closure func) {/*
-        $('#'+id).on(name, func);
+    void onEvent(String selector, String nameEvent, Closure func) {/*
+        $(selector).on(nameEvent, func);
     */}
 
     @GsNative
@@ -121,4 +121,85 @@ class GQueryImpl implements GQuery {
     void html(String selector, String text) {/*
         $(selector).html(text);
     */}
+
+    void attachMethodsToDomEvents(obj) {
+        obj.metaClass.methods.each { method ->
+            if (method.name.endsWith('Click')) {
+                def shortName = method.name.substring(0, method.name.length() - 5)
+                if (existsId(shortName)) {
+                    onEvent('#'+shortName, 'click', obj.&"${method.name}")
+                }
+            }
+            if (method.name.endsWith('Submit')) {
+                def shortName = method.name.substring(0, method.name.length() - 6)
+                if (existsId(shortName)) {
+                    onEvent('#'+shortName, 'submit', obj.&"${method.name}" << { it.preventDefault() })
+                }
+            }
+            if (method.name.endsWith('Change')) {
+                def shortName = method.name.substring(0, method.name.length() - 6)
+                if (existsId(shortName)) {
+                    onChange('#'+shortName, obj.&"${method.name}")
+                }
+            }
+        }
+    }
+
+    @GsNative
+    void onChange(String id, Closure closure) {/*
+        var sourceDom = $('#' + id);
+
+        if (sourceDom.is(":text")) {
+            sourceDom.bind('input', function() {
+                closure($(this).val());
+            });
+        } else if (sourceDom.is('textarea')) {
+            sourceDom.bind('input propertychange', function() {
+                closure($(this).val());
+            });
+        } else if (sourceDom.is(":checkbox")) {
+            sourceDom.change(function() {
+                closure($(this).is(':checked'));
+            });
+        } else if (sourceDom.is(":radio")) {
+            sourceDom.change(function() {
+                closure($(this).val());
+            });
+        } else if (sourceDom.is("select")) {
+            sourceDom.bind('change', function() {
+                closure($(this).val());
+            });
+        } else {
+            console.log('Not supporting onChange for id ' + id);
+        }
+    */}
+
+    @GsNative
+    void focusEnd(String selector) {/*
+        var sourceDom = $(selector);
+
+        if (sourceDom) {
+            if (sourceDom.is(":text") || sourceDom.is('textarea')) {
+                var originalValue = sourceDom.val();
+                sourceDom.val('');
+                sourceDom.blur().focus().val(originalValue);
+            } else {
+                sourceDom.focus();
+            }
+        }
+    */}
+
+    void bindAllProperties(target) {
+        target.properties.each { name, value ->
+            if (existsId(name)) {
+                bind("#$name", target, name)
+            }
+            if (existsName(name)) {
+                bind("[name='$name']", target, name)
+            }
+            if (existsGroup(name)) {
+                bind("input:radio[name=${name}]", target, name)
+            }
+        }
+    }
 }

@@ -410,9 +410,8 @@ class ClassNodeHandler extends BaseHandler {
         }
         if (node.interfaces) {
             out.addScript("${GS_OBJECT}.${CLASS}.interfaces = [")
-            node.interfaces.each { ClassNode interfaz ->
-                writeInterface(interfaz)
-            }
+            def allInterfaces = getAllInterfaces(node, [])
+            out.addScript(allInterfaces.collect { jsObjectNames(it) }.join(', '))
             out.addScript('];', true)
         }
     }
@@ -421,11 +420,12 @@ class ClassNodeHandler extends BaseHandler {
         "{ name: '${node.name}', simpleName: '${node.nameWithoutPackage}'}"
     }
 
-    private writeInterface(ClassNode classNode) {
-        out.addScript(jsObjectNames(classNode) + ', ')
+    private getAllInterfaces(ClassNode classNode, list) {
         classNode.interfaces.each {
-            writeInterface(it)
+            list << it
+            getAllInterfaces(it, list)
         }
+        list
     }
 
     private isOnlyFieldOfClassNode(FieldNode fieldNode, ClassNode classNode) {
