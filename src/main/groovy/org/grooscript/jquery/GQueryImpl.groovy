@@ -139,7 +139,7 @@ class GQueryImpl implements GQuery {
             if (method.name.endsWith('Change')) {
                 def shortName = method.name.substring(0, method.name.length() - 6)
                 if (existsId(shortName)) {
-                    onChange('#'+shortName, obj.&"${method.name}")
+                    onChange(shortName, obj.&"${method.name}")
                 }
             }
         }
