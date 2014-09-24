@@ -8,10 +8,10 @@ import java.lang.annotation.RetentionPolicy
 import java.lang.annotation.Target
 
 /**
- * JFL 10/11/12
+ * JFL 25/09/14
  */
 @Retention(RetentionPolicy.SOURCE)
-@Target([ElementType.METHOD])
-@GroovyASTTransformationClass(['org.grooscript.asts.Native'])
-public @interface GsNative {
+@Target([ElementType.TYPE])
+@GroovyASTTransformationClass(['org.grooscript.asts.GQueryImpl'])
+public @interface GQuery {
 }
