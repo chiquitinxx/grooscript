@@ -19,15 +19,13 @@ apply plugin: 'codenarc'
 apply plugin: 'com.moowork.node'
 apply plugin: 'gulp'
 
-group = 'org.grooscript'
-version = '0.6.1-SNAPSHOT'
-
 sourceCompatibility = 1.6
 
-def appName = 'grooscript'
+version = '0.6.1-SNAPSHOT'
 
 ext {
-    groovyVersion = '2.3.6'
+    appName = 'grooscript'
+    groovyVersion = '2.3.7'
 }
 
 repositories {
