@@ -55,7 +55,15 @@ class AstTreeGenerator {
         }
 
         def scriptClassName = 'script' + System.currentTimeMillis()
-        GroovyClassLoader classLoader = new GroovyClassLoader()
+        CompilerConfiguration conf = new CompilerConfiguration()
+        //Add customization to configuration
+        if (customization) {
+            withConfig(conf, customization)
+        }
+
+        GroovyClassLoader classLoader =
+                new GroovyClassLoader(Thread.currentThread().getContextClassLoader(), conf)
+
         //Add classpath to classloader
         if (classPath) {
             //Classpath must be a String or a list
@@ -72,11 +80,6 @@ class AstTreeGenerator {
             }
         }
         GroovyCodeSource codeSource = new GroovyCodeSource(text, scriptClassName + '.groovy', '/groovy/script')
-        CompilerConfiguration conf = new CompilerConfiguration()
-        //Add customization to configuration
-        if (customization) {
-            withConfig(conf, customization)
-        }
 
         CompilationUnit cu = compiledCode(conf, codeSource, classLoader, text)
 
