@@ -5,7 +5,9 @@ import org.grooscript.test.JavascriptEngine
 import org.grooscript.util.GrooScriptException
 import org.grooscript.util.Util
 import spock.lang.IgnoreIf
+import spock.lang.Shared
 import spock.lang.Specification
+import spock.lang.Unroll
 
 /**
  * User: jorgefrancoleza
@@ -28,16 +30,15 @@ class TestFiles extends Specification {
         !result.contains('function Vehicle()')
     }
 
-    def 'check inheritance use in other files with convertDependencies'() {
+    def 'check inheritance use in other files throw error cause father not converted'() {
         when:
-        def result = convertAndEvaluate('files/Vehicles', true, options << [convertDependencies: true])
+        convertAndEvaluate('files/Vehicles', false, options)
 
         then:
-        notThrown(GrooScriptException)
-        result
+        thrown(GrooScriptException)
     }
 
-    def 'inheritance without convert dependencies'() {
+    def 'convert all inheritance files'() {
 
         when:
         def jsCar = convertFile('files/Car', options)
@@ -55,21 +56,22 @@ class TestFiles extends Specification {
         !result.assertFails
     }
 
-    def 'convert a @GsNative method in a dependency file'() {
+    @IgnoreIf({ !Util.groovyVersionAtLeast('2.3') })
+    def 'convert a class with a trait in other file'() {
         when:
-        def converted = convertFile('files/UseGsNative', options << [convertDependencies: true])
+        def converted = convertFile('files/UsingTrait', options)
 
         then:
-        converted.contains('alert(message);')
+        converted.contains('gSobject.hello = function() { return MyTrait.hello(gSobject); }')
+        converted.contains('return "Bye!";')
     }
 
-    @IgnoreIf({ !Util.groovyVersionAtLeast('2.3') })
-    def 'convert traits defined in other files'() {
+    @Unroll
+    def 'convert a file with AST'() {
         when:
-        def converted = convertFile('files/Traits', options << [convertDependencies: true])
+        def converted = convertFile('files/Train', options)
 
         then:
-        converted.contains('MyTrait = function() {};')
-        converted.contains('function UsingTrait() {')
+        converted.contains('inMovement')
     }
 }

@@ -20,7 +20,6 @@ import static org.codehaus.groovy.control.customizers.builder.CompilerCustomizat
 class AstTreeGenerator {
 
     def consoleInfo
-    def convertDependencies
     def classPath
     def customization
 
@@ -32,26 +31,22 @@ class AstTreeGenerator {
     def fromText(String text) {
         if (consoleInfo) {
             GsConsole.message('Converting string code to AST')
-            GsConsole.message(' Option convertDependencies: ' + convertDependencies)
             GsConsole.message(' Classpath: ' + classPath)
             GsConsole.message(' Customization: ' + customization)
         }
         //All the imports in a file are added to the source to be compiled, if not added, compiler fails
         def classesToConvert = []
-        if (!convertDependencies) {
-            ['class', 'enum'].each { type ->
-                def matcher = text =~ /\b${type}\s+(\w+)/
-                matcher.each {
-                    classesToConvert << it[1]
-                }
+        ['class', 'enum'].each { type ->
+            def matcher = text =~ /\b${type}\s+(\w+)/
+            matcher.each {
+                classesToConvert << it[1]
             }
         }
+        //Traits
         def traitsToConvert = []
-        if (!convertDependencies) {
-            def matcher = text =~ /\btrait\s+(\w+)/
-            matcher.each {
-                traitsToConvert << it[1]
-            }
+        def matcher = text =~ /\btrait\s+(\w+)/
+        matcher.each {
+            traitsToConvert << it[1]
         }
 
         def scriptClassName = 'script' + System.currentTimeMillis()
@@ -61,12 +56,20 @@ class AstTreeGenerator {
             withConfig(conf, customization)
         }
 
-        GroovyClassLoader classLoader =
-                new GroovyClassLoader(Thread.currentThread().getContextClassLoader(), conf)
+        def parent = new GroovyClassLoader()
+        addClassPathToGroovyClassLoader(parent)
+        GroovyClassLoader classLoader = new GroovyClassLoader(parent, conf)
+        addClassPathToGroovyClassLoader(classLoader)
+        CompilationUnit cu = compiledCode(conf, scriptClassName, classLoader, text)
 
-        //Add classpath to classloader
+        [
+            listAstNodes(cu.ast.modules, scriptClassName, classesToConvert, traitsToConvert),
+            nativeFunctionsFromOtherSources(cu.ast.modules)
+        ]
+    }
+
+    private addClassPathToGroovyClassLoader(classLoader) {
         if (classPath) {
-            //Classpath must be a String or a list
             if (!(classPath instanceof String || classPath instanceof Collection)) {
                 throw new GrooScriptException('The classpath must be a String or a List')
             }
@@ -79,28 +82,20 @@ class AstTreeGenerator {
                 classLoader.addClasspath(classPath)
             }
         }
-        GroovyCodeSource codeSource = new GroovyCodeSource(text, scriptClassName + '.groovy', '/groovy/script')
-
-        CompilationUnit cu = compiledCode(conf, codeSource, classLoader, text)
-
-        [
-            listAstNodes(cu.ast.modules, scriptClassName, classesToConvert, traitsToConvert),
-            nativeFunctionsFromOtherSources(cu.ast.modules)
-        ]
     }
 
-    private compiledCode(conf, codeSource, classLoader, text) {
+    private CompilationUnit compiledCode(conf, scriptClassName, classLoader, String text) {
         try {
-            def compilationUnit = new CompilationUnit(conf, codeSource.codeSource, classLoader)
-            compilationUnit.addSource(codeSource.getName(), text)
+            def compilationUnit = new CompilationUnit(conf, null, classLoader)
+            compilationUnit.addSource(scriptClassName, text)
             compilationUnit.compile(CompilePhase.INSTRUCTION_SELECTION.phaseNumber)
         } catch (e) {
             GsConsole.error 'Compilation error in INSTRUCTION_SELECTION phase'
             throw e
         }
 
-        def compilationUnitFinal = new CompilationUnit(conf, codeSource.codeSource, classLoader)
-        compilationUnitFinal.addSource(codeSource.getName(), text)
+        def compilationUnitFinal = new CompilationUnit(conf, null, classLoader)
+        compilationUnitFinal.addSource(scriptClassName, text)
         compilationUnitFinal.compile(CompilePhase.SEMANTIC_ANALYSIS.phaseNumber)
         compilationUnitFinal
     }
@@ -118,20 +113,15 @@ class AstTreeGenerator {
                     }
                     if (!(cl.name == scriptClassName) && cl.isPrimaryClassNode()) {
 
-                        //If we dont want to convert dependencies in the result
-                        if (convertDependencies) {
+                        if (classesToConvert.contains(cl.nameWithoutPackage)
+                                || cl.isScript() || cl instanceof InnerClassNode) {
                             listAstNodes << cl
-                        } else {
-                            if (classesToConvert.contains(cl.nameWithoutPackage)
-                                    || cl.isScript() || cl instanceof InnerClassNode) {
+                        } else if (traitsToConvert) {
+                            if (traitsToConvert.contains(cl.nameWithoutPackage)) {
                                 listAstNodes << cl
-                            } else if (traitsToConvert) {
-                                if (traitsToConvert.contains(cl.nameWithoutPackage)) {
+                            } else if (cl.name.endsWith('Trait$Helper') &&
+                                traitsToConvert.contains(cl.outerClass.nameWithoutPackage)) {
                                     listAstNodes << cl
-                                } else if (cl.name.endsWith('Trait$Helper') &&
-                                    traitsToConvert.contains(cl.outerClass.nameWithoutPackage)) {
-                                        listAstNodes << cl
-                                }
                             }
                         }
                     } else {

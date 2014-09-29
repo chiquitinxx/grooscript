@@ -93,23 +93,8 @@ class TestConversionOptions extends Specification {
         result.startsWith('function A()')
         result.endsWith("var need = ${CLASS_NEED_DEPENDENCY}();\n")
 
-        and: 'class need not converted, by default convert dependencies is false'
+        and: 'class need not converted'
         !result.contains("function ${CLASS_NEED_DEPENDENCY}()")
-    }
-
-    def 'testing convert dependencies option true'() {
-
-        given:
-        setupNeedDirectory()
-
-        when:
-        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, FOLDER_NEED_DEPENDENCY)
-        GrooScript.setConversionProperty(ConversionOptions.DEPENDENCIES.text, true)
-        String result = GrooScript.convert("class B { ${CLASS_NEED_DEPENDENCY} c}")
-
-        then: 'Need class converted'
-        result.startsWith('function B()')
-        result.contains('function Need()')
     }
 
     def 'can set classpath as List'() {

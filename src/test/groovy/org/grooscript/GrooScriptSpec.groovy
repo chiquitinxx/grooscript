@@ -11,14 +11,13 @@ class GrooScriptSpec extends Specification {
 
     def 'conversion options'() {
         expect:
-        ConversionOptions.values().size() == 8
+        ConversionOptions.values().size() == 7
     }
 
     def 'default options'() {
         expect:
         GrooScript.defaultOptions == [
             classPath: null,
-            convertDependencies: false,
             customization: null,
             mainContextScope: null,
             initialText: null,

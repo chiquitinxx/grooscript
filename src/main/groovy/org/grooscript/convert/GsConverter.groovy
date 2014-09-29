@@ -42,7 +42,6 @@ class GsConverter {
                     GsConsole.message('Getting ast from code...')
                 }
                 def (astList, nativeFunctions) = new AstTreeGenerator(consoleInfo: consoleInfo,
-                        convertDependencies: conversionOptions[ConversionOptions.DEPENDENCIES.text],
                         classPath: conversionOptions[ConversionOptions.CLASSPATH.text],
                         customization: conversionOptions[ConversionOptions.CUSTOMIZATION.text]).fromText(script)
 

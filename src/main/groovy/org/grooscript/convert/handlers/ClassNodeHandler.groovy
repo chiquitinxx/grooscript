@@ -163,7 +163,7 @@ class ClassNodeHandler extends BaseHandler {
             params << 'x'+number
             paramsCall << 'x'+number
         }
-        if (withSelf) {
+        if (withSelf && params) {
             params.remove(0)
             paramsCall[0] = objectName
         }
@@ -374,18 +374,20 @@ class ClassNodeHandler extends BaseHandler {
         classNode.interfaces.findAll {
             traits.isTrait(it)
         }.each {
-            handleTrait(it)
+            handleTrait(it, ['getMetaClass', 'setMetaClass', 'invokeMethod'])
         }
     }
 
     private handleTrait(ClassNode classNode, notAddThisMethods = []) {
         addClassVariableNamesToScope(classNode)
         ClassNode helperClassNode = org.codehaus.groovy.transform.trait.Traits.findHelpers(classNode).helper
-        helperClassNode.outerClass.interfaces?.findAll{ traits.isTrait(it) }.each { ClassNode cn ->
+        helperClassNode.outerClass?.interfaces?.findAll{ traits.isTrait(it) }.each { ClassNode cn ->
             handleTrait(cn, notAddThisMethods + helperClassNode.methods*.name)
         }
         addTraitMethods(classNode, helperClassNode, notAddThisMethods)
     }
+
+    private static final METHODS_THAT_MAYBE_NOT_DEFINED_IN_TRAIT = ['getProperty', 'setProperty']
 
     private addTraitMethods(ClassNode classNode, ClassNode helperClassNode, notAddThisMethods) {
         helperClassNode.methods.each {
@@ -396,8 +398,15 @@ class ClassNodeHandler extends BaseHandler {
             } else if (it.name == '$static$init$') {
 
             } else {
-                if (!(it.name in notAddThisMethods)) {
+                if (!(it.name in notAddThisMethods) && !it.synthetic) {
+                    if (it.name in METHODS_THAT_MAYBE_NOT_DEFINED_IN_TRAIT) {
+                        out.addScript("if (${classNode.nameWithoutPackage}['${it.name}']) {", true)
+                        out.addScript(out.TAB)
+                    }
                     staticMethod(it, GS_OBJECT, classNode.nameWithoutPackage, true)
+                    if (it.name in METHODS_THAT_MAYBE_NOT_DEFINED_IN_TRAIT) {
+                        out.addScript('}', true)
+                    }
                 }
             }
         }

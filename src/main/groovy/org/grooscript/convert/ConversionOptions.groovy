@@ -7,7 +7,6 @@ package org.grooscript.convert
 enum ConversionOptions {
 
     CLASSPATH('classPath', null),
-    DEPENDENCIES('convertDependencies', false),
     CUSTOMIZATION('customization', null),
     MAIN_CONTEXT_SCOPE('mainContextScope', null),
     INITIAL_TEXT('initialText', null),
