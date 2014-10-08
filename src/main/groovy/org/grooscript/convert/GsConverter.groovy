@@ -67,23 +67,6 @@ class GsConverter {
             }
         }
 
-        completeJsResult(result)
-    }
-
-    private String completeJsResult(String result) {
-        if (conversionOptions[ConversionOptions.INITIAL_TEXT.text]) {
-            result = conversionOptions[ConversionOptions.INITIAL_TEXT.text] + '\n' + result
-        }
-        if (conversionOptions[ConversionOptions.FINAL_TEXT.text]) {
-            result = result + '\n' + conversionOptions[ConversionOptions.FINAL_TEXT.text]
-        }
-        if (conversionOptions[ConversionOptions.INCLUDE_JS_LIB.text]) {
-            def file = GrooScript.classLoader.getResourceAsStream(
-                    "META-INF/resources/${conversionOptions[ConversionOptions.INCLUDE_JS_LIB.text]}.js")
-            if (file) {
-                result = file.text + '\n' + result
-            }
-        }
         result
     }
 

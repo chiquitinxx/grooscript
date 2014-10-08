@@ -28,6 +28,6 @@ interface GQuery {
     void onChange(String id, Closure closure)
     //Focus dom object, on input put cursor at the end
     void focusEnd(String selector)
-    //Bind all properties of an object to dom elements, fint dom elements by id or name
+    //Bind all properties of an object to dom elements, find dom elements by id or name
     void bindAllProperties(target)
 }
