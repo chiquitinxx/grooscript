@@ -150,7 +150,11 @@ class GrooScript {
         if (file.exists()) {
             file.delete()
         }
-        file.write(content)
+        if (file.createNewFile()) {
+            file.text = content
+        } else {
+            throw new GrooScriptException("Cannot create file ${file.absolutePath}")
+        }
     }
 
     /**
