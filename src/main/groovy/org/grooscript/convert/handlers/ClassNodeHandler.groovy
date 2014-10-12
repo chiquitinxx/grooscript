@@ -85,9 +85,9 @@ class ClassNodeHandler extends BaseHandler {
             out.addScript("return ${GS_OBJECT};")
         }
 
+        context.staticProcessNode = node
         //Static methods
         node?.methods?.each { MethodNode method ->
-            context.staticProcessNode = node
             if (!haveAnnotationNonConvert(method.annotations)) {
                 if (method.isStatic()) {
                     if (functions.haveAnnotationNative(method.annotations)) {
@@ -97,7 +97,6 @@ class ClassNodeHandler extends BaseHandler {
                     }
                 }
             }
-            context.staticProcessNode = null
         }
 
         //Static properties
@@ -114,6 +113,7 @@ class ClassNodeHandler extends BaseHandler {
                 addPropertyToClass(it, true)
             }
         }
+        context.staticProcessNode = null
 
         //Remove variable class names from the list
         context.variableScoping.pop()
@@ -232,7 +232,7 @@ class ClassNodeHandler extends BaseHandler {
         }
     }
 
-    private addPropertyToClass(fieldOrProperty,isStatic) {
+    private addPropertyToClass(fieldOrProperty, isStatic) {
 
         def previous = GS_OBJECT
         if (isStatic) {

@@ -7,6 +7,9 @@ package classes
 
 class WithStaticMethods {
     static list = ['me', 'groovy']
+    static closures = ['one': {
+        go 'goOne'
+    }]
 
     static sayHello() {
         def result = []
@@ -26,3 +29,16 @@ WithStaticMethods.sayHello().each {
 }
 
 assert list == ['ME', 'GROOVY']
+
+class Go {
+    def go(value) {
+        value
+    }
+
+    def processClosure(cl) {
+        cl.delegate = this
+        cl()
+    }
+}
+
+assert new Go().processClosure(WithStaticMethods.closures['one']) == 'goOne'
