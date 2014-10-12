@@ -37,8 +37,9 @@ class GrooScriptSpec extends Specification {
         expect:
         new File(destinationFile).exists()
 
-        and:
+        cleanup:
         new File(destinationFile).delete()
+        new File(FOLDER).deleteDir()
 
         where:
         destinationFile << [BIG_JS_FILE, "$FOLDER/$BIG_JS_FILE"]

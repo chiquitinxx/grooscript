@@ -149,6 +149,10 @@ class GrooScript {
     private static void saveFile(File file, String content) {
         if (file.exists()) {
             file.delete()
+        } else {
+            if (file.parent) {
+                new File(file.parent).mkdirs()
+            }
         }
         if (file.createNewFile()) {
             file.text = content
