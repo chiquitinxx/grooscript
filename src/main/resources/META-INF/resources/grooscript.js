@@ -2198,7 +2198,11 @@
                         if (item.propertyMissing !== undefined && typeof item.propertyMissing === "function") {
                             return item.propertyMissing(nameProperty);
                         } else {
-                            return item[nameProperty];
+                            if (actualDelegate !== null && actualDelegate !== item) {
+                                return gs.gp(actualDelegate, nameProperty);
+                            } else {
+                                return item[nameProperty];
+                            }
                         }
                     }
                 }
