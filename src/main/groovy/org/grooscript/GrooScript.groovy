@@ -136,10 +136,13 @@ class GrooScript {
                 result = result + '\n' + options[ConversionOptions.FINAL_TEXT.text]
             }
             if (options[ConversionOptions.INCLUDE_JS_LIB.text]) {
-                def file = GrooScript.classLoader.getResourceAsStream(
-                        "META-INF/resources/${options[ConversionOptions.INCLUDE_JS_LIB.text]}.js")
-                if (file) {
-                    result = file.text + '\n' + result
+                def files = options[ConversionOptions.INCLUDE_JS_LIB.text].split(',').reverse()
+                files.each { fileName ->
+                    def file = GrooScript.classLoader.getResourceAsStream(
+                            "META-INF/resources/${fileName.trim()}.js")
+                    if (file) {
+                        result = file.text + '\n' + result
+                    }
                 }
             }
         }

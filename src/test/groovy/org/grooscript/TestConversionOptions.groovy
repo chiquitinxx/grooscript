@@ -220,6 +220,16 @@ class TestConversionOptions extends Specification {
         fileName << ['grooscript', 'grooscript.min']
     }
 
+    def 'test include two js archives at the beginning of the conversion'() {
+        when:
+        GrooScript.setConversionProperty(ConversionOptions.INCLUDE_JS_LIB.text, 'grooscript.min, grooscript-tools')
+        def result = GrooScript.convert('println "Hello!"')
+
+        then:
+        result.startsWith(new File("src/main/resources/META-INF/resources/grooscript.min.js").text)
+        result.contains(new File("src/main/resources/META-INF/resources/grooscript-tools.js").text)
+    }
+
     private void expectedInitialValues() {
         assert GrooScript.debug == false
         assert GrooScript.options == null
