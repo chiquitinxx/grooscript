@@ -21,6 +21,10 @@ class CastExpressionHandler extends BaseHandler {
             out.addScript("${GS_SET}(")
             conversionFactory.visitNode(expression.expression)
             out.addScript(')')
+        } else if (expression.type.name == 'char') {
+            out.addScript("${GS_AS_CHAR}(")
+            conversionFactory.visitNode(expression.expression)
+            out.addScript(')')
         } else {
             if (expression.expression instanceof MapExpression || expression.expression instanceof ListExpression) {
                 conversionFactory.visitNode(expression.expression)

@@ -108,3 +108,19 @@ multiGString.eachLine { line, count ->
         assert line == 'Clojure'
     }
 }
+
+assert "hello".inject('') { acc, val ->
+    acc += val
+} == 'hello'
+
+assert "bye"[1] == 'y'
+
+def ml = '''
+1
+2'''
+
+assert ml[0] == '\n'
+assert ml[1] == '1'
+assert ml[2] == '\n'
+
+assert 'a' as char == 97

@@ -4,9 +4,6 @@ import org.grooscript.test.ConversionMixin
 import spock.lang.Specification
 
 /**
- * First test for converts groovy code to javascript code
- * Following GroovyInAction Book
- * Chap 2. Groovy basics
  * JFL 27/08/12
  */
 @Mixin([ConversionMixin])

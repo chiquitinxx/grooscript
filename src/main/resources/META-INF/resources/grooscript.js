@@ -1779,6 +1779,11 @@
         list.each(closure);
     };
 
+    String.prototype.inject = function(initial, closure) {
+        var list = gs.list(this.split(''));
+        return list.inject(initial, closure);
+    };
+
     function getItemsMultiline(text) {
         var items = text.split('\n');
         if (items.length > 1 && items[items.length-1] === '') {
@@ -2783,6 +2788,10 @@
         var res = obj[methodName].apply(thisObject, params);
         aStT = old;
         return res;
+    };
+
+    gs.asChar = function(value) {
+        return value.charCodeAt(0);
     };
 
 }).call(this);
