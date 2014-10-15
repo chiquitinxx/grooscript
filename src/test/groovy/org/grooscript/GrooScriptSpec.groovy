@@ -91,6 +91,26 @@ class GrooScriptSpec extends Specification {
         new File(BIG_JS_FILE).delete()
     }
 
+    def 'evaluate js code'() {
+        when:
+        def testResult = GrooScript.evaluateGroovyCode('println "Hello!"')
+
+        then:
+        testResult.console == 'Hello!'
+        !testResult.exception
+        !testResult.assertFails
+    }
+
+    def 'evaluate js code with tools'() {
+        when:
+        def testResult = GrooScript.evaluateGroovyCode('println HtmlBuilder.build { p "Hello!" }', 'grooscript-tools')
+
+        then:
+        testResult.console == '<p>Hello!</p>'
+        !testResult.exception
+        !testResult.assertFails
+    }
+
     def setup() {
         JsGenerator.generateGrooscriptToolsJs()
     }

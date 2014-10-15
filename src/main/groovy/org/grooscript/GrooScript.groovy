@@ -1,6 +1,9 @@
 package org.grooscript
 
 import org.grooscript.convert.ConversionOptions
+import org.grooscript.test.JavascriptEngine
+import org.grooscript.test.JsTestResult
+import org.grooscript.util.Util
 
 import static org.grooscript.util.Util.*
 
@@ -254,5 +257,28 @@ class GrooScript {
             map[value.text] = value.defaultValue
             map
         }
+    }
+
+    /**
+     * Evaluate a piece of groovy code
+     * @param code that will be evaluated using grooscript.min
+     * @param comma separated js libs to add for evaluation
+     * @return JsTestResult
+     */
+    static JsTestResult evaluateGroovyCode(String code, String jsLibs = null) {
+        String jsCode = GrooScript.convert(code)
+
+        jsCode = getJsLibText('grooscript.min') + JavascriptEngine.addEvaluationVars(jsCode)
+        if (jsLibs) {
+            jsLibs.split(',').each { nameLib ->
+                jsCode = getJsLibText(nameLib) + jsCode
+            }
+        }
+
+        JavascriptEngine.evaluateJsCode(jsCode)
+    }
+
+    static String getJsLibText(String nameJsLib) {
+        GrooScript.classLoader.getResourceAsStream('META-INF/resources/' + nameJsLib + '.js').text
     }
 }

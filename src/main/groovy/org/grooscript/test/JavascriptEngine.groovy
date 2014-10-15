@@ -31,68 +31,31 @@ class JavascriptEngine {
      * @return map of bindings in result
      */
     static JsTestResult jsEval(script, bindMap, jsFile) {
-        def testResult = new JsTestResult()
-
+        def testResult
         if (script) {
-            try {
-
-                String finalScript
-                if (jsFile) {
-                    finalScript = jsFile.text + script
-                } else {
-                    finalScript = addJsLibraries(script)
-                }
-
-                //Load script manager
-                ScriptEngineManager factory = new ScriptEngineManager()
-                ScriptEngine engine = factory.getEngineByName('JavaScript')
-                if (!engine) {
-                    throw new GrooScriptException('Not engine available!')
-                }
-                Bindings bind = engine.createBindings()
-                //Set the bindings
-                if (bindMap) {
-                    bindMap.each { bind.putAt(it.key, it.value) }
-                }
-                //Run javascript script
-                try {
-                    engine.eval(finalScript, bind)
-                } catch (e) {
-                    String message = e.message
-                    GsConsole.error("Evaluation engine error (Lines: ${finalScript.readLines().size()}): ${message}")
-                    if (message.contains('at line number')) {
-                        def number = message.substring(message.indexOf('at line number') + 14) as int
-                        if (number > 1) {
-                            def actualLine = number - 2
-                            finalScript.readLines()[actualLine .. number + 2].each { line ->
-                                GsConsole.info " ${actualLine++}: $line"
-                            }
-                        }
-                    }
-                    throw e
-                }
-
-                //Put binding result to resultMap
-                if (bind) {
-                    bind.each { testResult.bind.putAt(it.key, it.value) }
-                }
-                testResult.jsScript = script
-                testResult.assertFails = testResult.bind.gSfails
-                testResult.console = testResult.bind.gSconsole
-
-            } catch (e) {
-                throw new GrooScriptException("Fail evaluating Js Script! - ${e.message}")
+            String finalScript
+            if (jsFile) {
+                finalScript = jsFile.text + script
+            } else {
+                finalScript = addJsLibraries(script)
             }
+
+            testResult = evaluateJsCode(finalScript, bindMap)
+            testResult.jsScript = script
         }
         testResult
     }
 
     static addJsLibraries(text) {
-        def result = text
         //We get gscript functions file
         File file = Util.getJsFile('grooscript.js')
         //Add that file to javascript code
-        result = file.text + '\ngs.consoleOutput = false;\n' + result
+        def result = file.text + addEvaluationVars(text)
+        result
+    }
+
+    static addEvaluationVars(text) {
+        def result = '\ngs.consoleOutput = false;\n' + text
         result = result + '\nvar gSfails = gs.fails;var gSconsole = gs.consoleData;\n'
         result
     }
@@ -118,5 +81,60 @@ class JavascriptEngine {
 
     static File getGroovyTestScript(String name) {
         Util.getGroovyTestScriptFile(name)
+    }
+
+    static evaluateJsCode(String jsCode, bindMap = null) {
+        def testResult = new JsTestResult()
+
+        if (jsCode) {
+            try {
+                //Load script manager
+                ScriptEngine engine = javascriptEngine
+                Bindings bind = engine.createBindings()
+                //Set the bindings
+                if (bindMap) {
+                    bindMap.each { bind.putAt(it.key, it.value) }
+                }
+                //Run javascript script
+                try {
+                    engine.eval(jsCode, bind)
+                } catch (e) {
+                    String message = e.message
+                    GsConsole.error("Evaluation engine error (Lines: ${jsCode.readLines().size()}): ${message}")
+                    if (message.contains('at line number')) {
+                        def number = message.substring(message.indexOf('at line number') + 14) as int
+                        if (number > 1) {
+                            def actualLine = number - 2
+                            jsCode.readLines()[actualLine .. number + 2].each { line ->
+                                GsConsole.info " ${actualLine++}: $line"
+                            }
+                        }
+                    }
+                    throw e
+                }
+
+                //Put binding result to resultMap
+                if (bind) {
+                    bind.each { testResult.bind.putAt(it.key, it.value) }
+                }
+                testResult.jsScript = jsCode
+                testResult.assertFails = testResult.bind.gSfails
+                testResult.console = testResult.bind.gSconsole
+
+            } catch (e) {
+                throw new GrooScriptException("Fail evaluating Js Script! - ${e.message}")
+                e.printStackTrace()
+            }
+        }
+        testResult
+    }
+
+    private static getJavascriptEngine() {
+        ScriptEngineManager factory = new ScriptEngineManager()
+        ScriptEngine engine = factory.getEngineByName('JavaScript')
+        if (!engine) {
+            throw new GrooScriptException('JavaScript engine not available!')
+        }
+        engine
     }
 }
