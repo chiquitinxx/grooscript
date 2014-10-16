@@ -34,7 +34,7 @@
     var mixinsObjects = [];
 
     //Delegate
-    var actualDelegate = null;
+    var delegates = [];
 
     //Static this
     var aStT = null;
@@ -2154,7 +2154,7 @@
     };
 
     //Get a property of a class
-    gs.gp = function(item, nameProperty) {
+    gs.gp = function(item, nameProperty, inDelegates) {
 
         //It's a get with safe operator as item?.data
         if (arguments.length == 3) {
@@ -2203,8 +2203,8 @@
                         if (item.propertyMissing !== undefined && typeof item.propertyMissing === "function") {
                             return item.propertyMissing(nameProperty);
                         } else {
-                            if (actualDelegate !== null && actualDelegate !== item) {
-                                return gs.gp(actualDelegate, nameProperty);
+                            if (!inDelegates && delegates.length > 0) {
+                                return findPropertyInDelegates(nameProperty, item);
                             } else {
                                 return item[nameProperty];
                             }
@@ -2218,6 +2218,20 @@
             return item.getProperty(nameProperty);
         }
     };
+
+    function findPropertyInDelegates(nameProperty, item) {
+        var i = delegates.length;
+        var found = false;
+        var result;
+        while (i > 0 && !found && item ) {
+            i = i - 1;
+            result = gs.gp(delegates[i], nameProperty, true);
+            if (result !== undefined) {
+                found = true;
+            }
+        }
+        return result;
+    }
 
     //Control property changes with ++,--
     gs.plusPlus = function(item, nameProperty, plus, before) {
@@ -2348,16 +2362,17 @@
                 }
 
                 //Lets check in delegate
-                if (actualDelegate && actualDelegate[methodName]) {
-                    return actualDelegate[methodName].apply(item, values);
-                }
-                if (actualDelegate !== null && item.methodMissing === undefined && actualDelegate.methodMissing !== undefined) {
-                    return gs.mc(actualDelegate, methodName, values);
+                if (delegates.length > 0) {
+                    var delegateFunc = delegatesFunc(methodName);
+                    if (delegateFunc) {
+                        return delegateFunc[methodName].apply(item, values);
+                    }
                 }
 
                 if (item.methodMissing) {
                     return item.methodMissing(methodName, values);
-
+                } else if (delegates.length > 0 && delegatesFunc('methodMissing')) {
+                    return gs.mc(delegatesFunc('methodMissing'), methodName, values);
                 } else {
                     //Maybe there is a function in the script with the name of the method
                     //In Node.js 'this.xxFunction()' in the main context fails
@@ -2375,6 +2390,19 @@
             return f.apply(item, values);
         }
     };
+
+    function delegatesFunc(nameMethod) {
+        var result = null;
+        if (delegates.length > 0) {
+            var i;
+            for (i = delegates.length - 1; i >= 0 && !result; i--) {
+                if (delegates[i][nameMethod]) {
+                    result = delegates[i];
+                }
+            }
+        }
+        return result;
+    }
 
     function joinParameters(item, items) {
         var listParameters = [item],i;
@@ -2620,12 +2648,9 @@
     // Delegate
     ////////////////////////////////////////////////////////////
     gs.applyDelegate = function(func, delegate, params) {
-        var oldDelegate = actualDelegate;
-        //console.log('setting delegate');
-        actualDelegate = delegate;
+        delegates[delegates.length] = delegate;
         var result = func.apply(delegate, params);
-        //console.log('desetting delegate');
-        actualDelegate = oldDelegate;
+        delegates.pop();
         return result;
     };
 
