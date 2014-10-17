@@ -126,4 +126,9 @@ class TestContributors extends Specification {
         expect:
         convertAndEvaluate('contribution/JasonWinnebeck')
     }
+
+    def 'dinko assignation returns value assigned'() {
+        expect:
+        convertAndEvaluate('contribution/Dinko')
+    }
 }
