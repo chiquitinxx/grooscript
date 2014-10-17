@@ -1,4 +1,4 @@
-package org.grooscript
+package org.grooscript.convert
 
 import org.grooscript.test.ConversionMixin
 import org.grooscript.test.JsTestResult
@@ -16,15 +16,16 @@ class TestConversionFails extends Specification {
     def 'test fail assertion' () {
         when:
         JsTestResult result = convertAndEvaluateWithJsEngine('fail/assertFail')
+        println result.jsScript
 
         then:
         result.assertFails
-        result.console == 'WOTT - false'
+        result.console == 'WOTT - false\nAssertion fails: (1 == 2) - false'
     }
 
     def 'test fail compile' () {
         when:
-        def result = converter.toJs("a='Hello")
+        converter.toJs("a='Hello")
 
         then:
         Exception e = thrown()

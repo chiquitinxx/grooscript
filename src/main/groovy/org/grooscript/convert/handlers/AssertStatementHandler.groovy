@@ -1,7 +1,7 @@
 package org.grooscript.convert.handlers
 
-import org.codehaus.groovy.ast.expr.EmptyExpression
-import org.codehaus.groovy.ast.expr.Expression
+import org.codehaus.groovy.ast.expr.BooleanExpression
+import org.codehaus.groovy.ast.expr.ConstantExpression
 import org.codehaus.groovy.ast.stmt.AssertStatement
 
 import static org.grooscript.JsNames.GS_ASSERT
@@ -13,13 +13,20 @@ import static org.grooscript.JsNames.GS_ASSERT
 class AssertStatementHandler extends BaseHandler {
 
     void handle(AssertStatement statement) {
-        Expression expression = statement.booleanExpression
+        BooleanExpression expression = statement.booleanExpression
         out.addScript(GS_ASSERT)
         out.addScript('(')
         conversionFactory.visitNode(expression)
-        if (statement.getMessageExpression() && !(statement.messageExpression instanceof EmptyExpression)) {
+        if (statement.messageExpression &&
+               !(statement.messageExpression instanceof ConstantExpression &&
+                       statement.messageExpression.value == null)) {
             out.addScript(', ')
             conversionFactory.visitNode(statement.messageExpression)
+        } else {
+            out.addScript(', "')
+            out.addScript('Assertion fails: ' +
+                    expression.text.replaceAll('"','\\\\"').replaceAll(/\n/,'\\n'))
+            out.addScript('"')
         }
         out.addScript(')')
     }
