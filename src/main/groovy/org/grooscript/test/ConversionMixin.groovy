@@ -71,6 +71,9 @@ class ConversionMixin {
 
     boolean convertAndEvaluate(String fileName, jsResultOnConsole = false, options = [:], textSearch = null, textReplace = null) {
         def evaluationJsEngine = convertAndEvaluateWithJsEngine(fileName, jsResultOnConsole, options, textSearch, textReplace)
+        if (evaluationJsEngine.assertFails) {
+            println evaluationJsEngine.console
+        }
         !evaluationJsEngine.assertFails && !convertAndEvaluateWithNode(evaluationJsEngine.jsScript).assertFails
     }
 }

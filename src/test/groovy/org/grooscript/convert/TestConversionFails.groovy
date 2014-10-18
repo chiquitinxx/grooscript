@@ -16,7 +16,6 @@ class TestConversionFails extends Specification {
     def 'test fail assertion' () {
         when:
         JsTestResult result = convertAndEvaluateWithJsEngine('fail/assertFail')
-        println result.jsScript
 
         then:
         result.assertFails

@@ -22,16 +22,15 @@ class MethodCallExpressionHandler extends BaseHandler {
 
     void handle(MethodCallExpression expression) {
         //println "MCE ${expression.objectExpression} - ${expression.methodAsString}"
-        def addParameters = true
         String methodName = expression.methodAsString
 
         //Change println for javascript function
         if (methodName == 'println' || methodName == 'print') {
             out.addScript(GS_PRINTLN)
+            addParameters(expression)
         //Remove call method call from closures
         } else if (methodName == 'call') {
             //println 'Calling!->'+expression.objectExpression
-            addParameters = false
             if (expression.objectExpression instanceof VariableExpression) {
                 def nameFunc = expression.objectExpression.text
                 out.addScript("(${nameFunc}.delegate!=undefined?${GS_APPLY_DELEGATE}(${nameFunc},${nameFunc}.delegate,[")
@@ -50,20 +49,24 @@ class MethodCallExpressionHandler extends BaseHandler {
         } else if (expression.objectExpression instanceof VariableExpression &&
                 expression.objectExpression.name == 'super') {
             out.addScript("${SUPER_METHOD_BEGIN}${methodName}")
+            addParameters(expression)
         //Function times, with a number, have to put (number) in javascript
         } else if (['times', 'upto', 'step'].contains(methodName) && expression.objectExpression instanceof ConstantExpression) {
             out.addScript('(')
             conversionFactory.visitNode(expression.objectExpression)
             out.addScript(')')
             out.addScript(".${methodName}")
+            addParameters(expression)
         //With
         } else if (methodName == 'with' && expression.arguments instanceof ArgumentListExpression &&
                 expression.arguments.getExpression(0) instanceof ClosureExpression) {
             conversionFactory.visitNode(expression.objectExpression)
             out.addScript(".${WITH}")
+            context.insideWith = true
+            addParameters(expression)
+            context.insideWith = false
         //Equals
         } else if (methodName == 'equals') {
-            addParameters = false
             out.addScript("${GS_EQUALS}(")
             conversionFactory.visitNode(expression.objectExpression)
             out.addScript(',')
@@ -73,10 +76,12 @@ class MethodCallExpressionHandler extends BaseHandler {
         } else if (methodName == 'withTraits' && expression.arguments instanceof ArgumentListExpression) {
             conversionFactory.visitNode(expression.objectExpression)
             out.addScript(".${WITH_TRAITS}")
+            addParameters(expression)
         //Using Math library
         } else if (expression.objectExpression instanceof ClassExpression &&
                 expression.objectExpression.type.name == 'java.lang.Math') {
             out.addScript("Math.${methodName}")
+            addParameters(expression)
         //Adding class.forName
         } else if (expression.objectExpression instanceof ClassExpression &&
                 expression.objectExpression.type.name == 'java.lang.Class' &&
@@ -87,12 +92,10 @@ class MethodCallExpressionHandler extends BaseHandler {
                 out.addScript(", ${conversionFactory.reduceClassName(expression.arguments[0].text)}")
             }
             out.addScript(')')
-            addParameters = false
         //this.use {} Categories
         } else if (expression.objectExpression instanceof VariableExpression &&
                 expression.objectExpression.name == 'this' && methodName == 'use') {
             ArgumentListExpression args = expression.arguments
-            addParameters = false
             def nameCategory = args.expressions[0].type.nameWithoutPackage
             out.addScript("${GS_CATEGORY_USE}(\"${nameCategory}\",${nameCategory},")
             conversionFactory.visitNode(args.expressions[1])
@@ -100,7 +103,6 @@ class MethodCallExpressionHandler extends BaseHandler {
         //Mixin Classes
         } else if (expression.objectExpression instanceof ClassExpression && methodName == 'mixin') {
             //println 'Mixin!'
-            addParameters = false
             out.addScript("${GS_MIXIN_CLASS}('${expression.objectExpression.type.nameWithoutPackage}',")
             out.addScript('[')
             ArgumentListExpression args = expression.arguments
@@ -113,7 +115,6 @@ class MethodCallExpressionHandler extends BaseHandler {
                 expression.objectExpression.property instanceof ConstantExpression &&
                 expression.objectExpression.property.text == 'metaClass' &&
                 methodName == 'mixin') {
-            addParameters = false
             out.addScript("${GS_MIXIN_OBJECT}(${expression.objectExpression.objectExpression.text},")
             out.addScript('[')
             ArgumentListExpression args = expression.arguments
@@ -124,7 +125,6 @@ class MethodCallExpressionHandler extends BaseHandler {
         //Spread method call [1,2,3]*.toString()
         } else if (expression.isSpreadSafe()) {
             //println 'spreadsafe!'
-            addParameters = false
             conversionFactory.visitNode(expression.objectExpression)
             out.addScript(".collect(function(it) { return ${GS_METHOD_CALL}(it,'${methodName}',[")
             conversionFactory.visitNode(expression.arguments, false)
@@ -133,6 +133,7 @@ class MethodCallExpressionHandler extends BaseHandler {
         } else if (conversionFactory.isThis(expression.objectExpression) &&
                 context.firstVariableScopingHasMethod(methodName)) {
             out.addScript(methodName)
+            addParameters(expression)
         //is function
         } else if (methodName == 'is') {
             out.addScript("${GS_IS}(")
@@ -140,18 +141,15 @@ class MethodCallExpressionHandler extends BaseHandler {
             out.addScript(',')
             conversionFactory.visitNode(expression.arguments, false)
             out.addScript(')')
-            addParameters = false
         //Trait set method
         } else if(conversionFactory.isTraitClass(expression.objectExpression.type.name) &&
                 methodName.endsWith('$set')) {
             out.addScript("\$self.${getNameTraitProperty(methodName)} = ")
             conversionFactory.visitNode(expression.arguments, false)
-            addParameters = false
         //Trait get method
         } else if(conversionFactory.isTraitClass(expression.objectExpression.type.name) &&
                 methodName.endsWith('$get')) {
             out.addScript("\$self.${getNameTraitProperty(methodName)}")
-            addParameters = false
         //Static method
         } else if(isStaticMethodCall(expression)) {
             out.addScript("$GS_EXEC_STATIC(")
@@ -159,16 +157,14 @@ class MethodCallExpressionHandler extends BaseHandler {
             out.addScript(",'$methodName', this,[")
             conversionFactory.visitNode(expression.arguments, false)
             out.addScript('])')
-            addParameters = false
         } else {
             //println 'Method->'+methodName+' - '+expression.arguments.class.simpleName
-            addParameters = false
             doFullMethodCall(methodName, expression)
         }
+    }
 
-        if (addParameters) {
-            conversionFactory.visitNode(expression.arguments)
-        }
+    private addParameters(expression) {
+        conversionFactory.visitNode(expression.arguments)
     }
 
     private putMethodName(MethodCallExpression expression) {

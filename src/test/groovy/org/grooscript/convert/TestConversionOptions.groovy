@@ -127,11 +127,12 @@ class TestConversionOptions extends Specification {
     }
 
     @IgnoreIf({ !Util.groovyVersionAtLeast('2.1') })
-    def 'customization option with an ast transformation'() {
+    @Unroll
+    def 'customization option with a type check customization'() {
 
         given:
         def customization = {
-            ast(groovy.transform.TypeChecked)
+            ast(astChecking)
         }
 
         when:
@@ -140,6 +141,9 @@ class TestConversionOptions extends Specification {
 
         then:
         thrown(Exception)
+
+        where:
+        astChecking << [groovy.transform.TypeChecked, groovy.transform.CompileStatic]
     }
 
     def 'test join js files in one file'() {
@@ -184,7 +188,7 @@ class TestConversionOptions extends Specification {
         result == expectedResult
 
         where:
-        option                           | expectedResult
+        option                              | expectedResult
         ConversionOptions.INITIAL_TEXT.text | 'Text\nvar a = 0;\n'
         ConversionOptions.FINAL_TEXT.text   | 'var a = 0;\n\nText'
     }
@@ -202,10 +206,10 @@ class TestConversionOptions extends Specification {
         destinationDirContainsFiles(DESTINATION_DIR, destinationFiles)
 
         where:
-        sourceFiles |destinationFiles
-        0           |0
-        1           |2
-        3           |6
+        sourceFiles | destinationFiles
+        0           | 0
+        1           | 2
+        3           | 6
     }
 
     @Unroll

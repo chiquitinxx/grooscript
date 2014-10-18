@@ -32,6 +32,8 @@ class TestContributors extends Specification {
         'contribution/MrHakiGetSetProperties'   |_
         'contribution/MrHakiSpread'             |_
         'contribution/MrHakiCategories'         |_
+        'contribution/MrHakiTraits1'            |_
+        'contribution/MrHakiTraits2'            |_
     }
 
     def 'test alex anderson' () {

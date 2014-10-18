@@ -15,6 +15,8 @@ import static org.grooscript.JsNames.*
  */
 class BinaryExpressionHandler extends BaseHandler {
 
+    private static final ASSIGN_OPERATORS = ['=', '+=', '-=']
+    
     void handle(BinaryExpression expression) {
 
         //println 'Binary->'+expression.text + ' - '+expression.operation.text
@@ -98,7 +100,7 @@ class BinaryExpressionHandler extends BaseHandler {
 
             //Execute setter if available
             if (expression.leftExpression instanceof PropertyExpression &&
-                    (expression.operation.text in ['=', '+=', '-=']) &&
+                    (expression.operation.text in ASSIGN_OPERATORS) &&
                     !(expression.leftExpression instanceof AttributeExpression)) {
 
                 if (expression.leftExpression.objectExpression instanceof VariableExpression &&
@@ -117,45 +119,35 @@ class BinaryExpressionHandler extends BaseHandler {
                     out.addScript(',')
                     upgradedExpresion(pe.property)
                     out.addScript(',')
-                    if (expression.operation.text == '+=') {
-                        conversionFactory.visitNode(expression.leftExpression)
-                        out.addScript(' + ')
-                    } else if (expression.operation.text == '-=') {
-                        conversionFactory.visitNode(expression.leftExpression)
-                        out.addScript(' - ')
-                    }
-                    upgradedExpresion(expression.rightExpression)
+                    assignExpressionValue(expression)
                     out.addScript(')')
                 }
+            //Unknown variable inside a with block
+            } else if (expression.leftExpression instanceof VariableExpression &&
+                    (expression.operation.text in ASSIGN_OPERATORS) &&
+                    !context.allActualScopeContains(expression.leftExpression.name) &&
+                    !context.variableScopingContains(expression.leftExpression.name) &&
+                    context.insideWith) {
+                out.addScript("${GS_SET_PROPERTY}(this, '${expression.leftExpression.name}',")
+                assignExpressionValue(expression)
+                out.addScript(')')
             } else {
                 //If we are assigning a variable, and don't exist in scope, we add to it
-                if (expression.operation.text=='=' && expression.leftExpression instanceof VariableExpression
-                        && !context.allActualScopeContains(expression.leftExpression.name) &&
+                if (expression.operation.text in ASSIGN_OPERATORS && 
+                        expression.leftExpression instanceof VariableExpression && 
+                        !context.allActualScopeContains(expression.leftExpression.name) &&
                         !context.variableScopingContains(expression.leftExpression.name)) {
                     context.addToActualScope(expression.leftExpression.name)
                 }
 
                 //If is a boolean operation, we have to apply groovyTruth
                 //Left
-                if (expression.operation.text in ['&&', '||']) {
-                    out.addScript '('
-                    conversionFactory.handExpressionInBoolean(expression.leftExpression)
-                    out.addScript ')'
-                } else {
-                    upgradedExpresion(expression.leftExpression)
-                }
+                applyGroovyTruthIfNecesary(expression.operation, expression.leftExpression)
                 //Operator
-                //println 'Operator->'+expression.operation.text
                 out.addScript(' '+expression.operation.text+' ')
                 //Right
-                //println 'Right->'+expression.rightExpression
-                if (expression.operation.text in ['&&','||']) {
-                    out.addScript '('
-                    conversionFactory.handExpressionInBoolean(expression.rightExpression)
-                    out.addScript ')'
-                } else {
-                    upgradedExpresion(expression.rightExpression)
-                }
+                applyGroovyTruthIfNecesary(expression.operation, expression.rightExpression)
+
                 if (expression.operation.text=='[') {
                     out.addScript(']')
                 }
@@ -180,5 +172,26 @@ class BinaryExpressionHandler extends BaseHandler {
         out.addScript(', ')
         upgradedExpresion(expression.rightExpression)
         out.addScript(')')
+    }
+
+    private assignExpressionValue(expression) {
+        if (expression.operation.text == '+=') {
+            conversionFactory.visitNode(expression.leftExpression)
+            out.addScript(' + ')
+        } else if (expression.operation.text == '-=') {
+            conversionFactory.visitNode(expression.leftExpression)
+            out.addScript(' - ')
+        }
+        upgradedExpresion(expression.rightExpression)
+    }
+    
+    private applyGroovyTruthIfNecesary(operation, expression) {
+        if (operation.text in ['&&', '||']) {
+            out.addScript '('
+            conversionFactory.handExpressionInBoolean(expression)
+            out.addScript ')'
+        } else {
+            upgradedExpresion(expression)
+        }        
     }
 }
