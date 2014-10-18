@@ -9,4 +9,5 @@ class JsTestResult {
     String console
     String exception
     String jsScript
+    String jsCode
 }

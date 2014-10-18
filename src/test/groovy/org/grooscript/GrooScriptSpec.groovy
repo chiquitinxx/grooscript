@@ -97,6 +97,7 @@ class GrooScriptSpec extends Specification {
 
         then:
         testResult.console == 'Hello!'
+        testResult.jsCode == 'gs.println("Hello!");\n'
         !testResult.exception
         !testResult.assertFails
     }
