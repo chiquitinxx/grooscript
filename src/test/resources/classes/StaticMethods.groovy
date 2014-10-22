@@ -42,3 +42,20 @@ class Go {
 }
 
 assert new Go().processClosure(WithStaticMethods.closures['one']) == 'goOne'
+
+class MyGo {
+
+    def map = [a: 3]
+    def two() {
+        2
+    }
+
+    static start() {
+        MyGo map = new MyGo()
+        [launch: { ->
+            map.map.a * map.two()
+        }]
+    }
+}
+
+assert MyGo.start().launch() == 6

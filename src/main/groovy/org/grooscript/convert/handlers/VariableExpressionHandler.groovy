@@ -13,10 +13,10 @@ class VariableExpressionHandler extends BaseHandler {
     void handle(VariableExpression expression, isDeclaringVariable = false) {
         //println "name:${expression.name} - scope:${variableScoping.peek()} - ${expression.isThisExpression()}"
         if (context.variableScoping.peek().contains(expression.name) &&
-                !(context.actualScopeContains(expression.name))) {
-            out.addScript(addPrefixOrPostfixIfNeeded("${GS_OBJECT}."+expression.name))
+                !(context.allActualScopeContains(expression.name))) {
+                out.addScript(addPrefixOrPostfixIfNeeded("${GS_OBJECT}."+expression.name))
         } else if (context.variableStaticScoping.peek().contains(expression.name) &&
-                !(context.actualScopeContains(expression.name))) {
+                !(context.allActualScopeContains(expression.name))) {
             out.addScript(addPrefixOrPostfixIfNeeded(context.classNameStack.peek()+'.'+expression.name))
         } else {
             if (context.isVariableWithMissingScope(expression) && !isDeclaringVariable) {
