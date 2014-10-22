@@ -54,14 +54,6 @@ class Context {
         }
     }
 
-    def actualScopeContains(variableName) {
-        if (!actualScope.isEmpty()) {
-            return actualScope.peek().contains(variableName)
-        } else {
-            return false
-        }
-    }
-
     def variableScopingContains(variableName) {
         tourStack(variableScoping, variableName)
     }
