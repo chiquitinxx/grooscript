@@ -353,9 +353,10 @@ class GsConverter {
 
         out.addScript("function(")
 
+        def wasProcessingClosure = context.processingClosure
         context.processingClosure = true
         functions.putFunctionParametersAndBody(expression, false, addItDefault)
-        context.processingClosure = false
+        context.processingClosure = wasProcessingClosure
 
         out.indent--
         out.removeTabScript()

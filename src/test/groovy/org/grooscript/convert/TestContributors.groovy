@@ -106,6 +106,7 @@ class TestContributors extends Specification {
         'contribution/MySelf5'     | _
         'contribution/MySelf6'     | _
         'contribution/MySelf7'     | _
+        'contribution/MySelf8'     | _
     }
 
     def 'guillaume examples from talks'() {

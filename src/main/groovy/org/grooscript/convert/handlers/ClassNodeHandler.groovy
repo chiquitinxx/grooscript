@@ -129,6 +129,7 @@ class ClassNodeHandler extends BaseHandler {
 
     private processClassMethods(List<MethodNode> methods, ClassNode classNode) {
 
+        def wasProcessingClassMethods = context.processingClassMethods
         context.processingClassMethods = true
         methods?.each { MethodNode methodNode ->
             context.currentClassMethodConverting = methodNode.name
@@ -148,7 +149,7 @@ class ClassNodeHandler extends BaseHandler {
             }
             context.currentClassMethodConverting = null
         }
-        context.processingClassMethods = false
+        context.processingClassMethods = wasProcessingClassMethods
     }
 
     private staticMethod(MethodNode methodNode, String objectName, String nodeName, boolean withSelf = false) {
