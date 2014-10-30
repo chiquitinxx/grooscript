@@ -133,4 +133,9 @@ class TestContributors extends Specification {
         expect:
         convertAndEvaluate('contribution/Dinko')
     }
+
+    def 'menehtbeo found big bug'() {
+        expect:
+        convertAndEvaluate('contribution/Menehtbeo')
+    }
 }

@@ -155,4 +155,9 @@ describe('initial tests on gs', function(){
         }
         assert.equal(noFail(), false);
     });
+
+    it('add number and strings', function() {
+        assert.equal(gs.plus(5, 'hello'), '5hello');
+        assert.equal(gs.plus('hello', 5), 'hello5');
+    });
 });

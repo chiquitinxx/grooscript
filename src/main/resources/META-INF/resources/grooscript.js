@@ -2057,16 +2057,11 @@
     // + operator
     gs.plus = function(a, b) {
         if (!hasFunc(a, 'plus')) {
-            if (!hasFunc(b, 'plus')) {
-                if ((typeof a == 'number') && (typeof b == 'number') && ( a+b < 1)) {
-                    return ((a*1000)+(b*1000))/1000;
-                } else {
-                    return a + b;
-                }
+            if ((typeof a == 'number') && (typeof b == 'number') && (a + b < 1)) {
+                return ((a * 1000) + (b * 1000)) / 1000;
             } else {
-                return b.plus(a);
+                return a + b;
             }
-
         } else {
             return a.plus(b);
         }
