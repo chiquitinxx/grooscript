@@ -214,7 +214,8 @@ class GQueryList {
         return $(selector);
     */}
 
-    def methodMissing(String name, args) {
-        list."$name"(args)
-    }
+    @GsNative
+    def methodMissing(String name, args) {/*
+        return gSobject.list[name].apply(gSobject.list, args);
+    */}
 }

@@ -23,6 +23,10 @@ class TestConversionOptions extends Specification {
     private static final DESTINATION_DIR = 'destination'
     private static final DESTINATION_FILE = 'destination.js'
 
+    def setupSpec() {
+        JsGenerator.generateGrooscriptToolsJs()
+    }
+
     def setup() {
         GrooScript.clearAllOptions()
         new File(SOURCE_DIR).mkdir()
@@ -226,9 +230,6 @@ class TestConversionOptions extends Specification {
     }
 
     def 'test include two js archives at the beginning of the conversion'() {
-        given:
-        JsGenerator.generateGrooscriptToolsJs()
-
         when:
         GrooScript.setConversionProperty(ConversionOptions.INCLUDE_JS_LIB.text, 'grooscript.min, grooscript-tools')
         def result = GrooScript.convert('println "Hello!"')

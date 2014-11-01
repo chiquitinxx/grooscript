@@ -112,8 +112,12 @@ class GrooScriptSpec extends Specification {
         !testResult.assertFails
     }
 
-    def setup() {
+    def setupSpec() {
         JsGenerator.generateGrooscriptToolsJs()
+    }
+
+    def setup() {
+        GrooScript.clearAllOptions()
     }
 
     private static final FOLDER = 'folder'
