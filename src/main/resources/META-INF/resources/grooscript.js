@@ -2382,7 +2382,11 @@
 
         } else {
             var f = item[methodName];
-            return f.apply(item, values);
+            if (f['apply']) {
+                return f.apply(item, values);
+            } else {
+                return gs.execCall(f, item, values);
+            }
         }
     };
 
