@@ -117,11 +117,6 @@ class GQueryImpl implements GQuery {
         $(document).ready(func);
     */}
 
-    @GsNative
-    void html(String selector, String text) {/*
-        $(selector).html(text);
-    */}
-
     void attachMethodsToDomEvents(obj) {
         obj.metaClass.methods.each { method ->
             if (method.name.endsWith('Click')) {
@@ -201,5 +196,25 @@ class GQueryImpl implements GQuery {
                 bind("input:radio[name=${name}]", target, name)
             }
         }
+    }
+
+    def call(selector) {
+        new GQueryList(selector)
+    }
+}
+
+class GQueryList {
+    def list
+    GQueryList(selector) {
+        list = jqueryList(selector)
+    }
+
+    @GsNative
+    def jqueryList(String selector) {/*
+        return $(selector);
+    */}
+
+    def methodMissing(String name, args) {
+        list."$name"(args)
     }
 }

@@ -20,8 +20,6 @@ interface GQuery {
     void doRemoteCall(String url, String type, params, Closure onSuccess, Closure onFailure, objectResult)
     //Launch closure when page loaded
     void onReady(Closure func)
-    //Set html text in a selector
-    void html(String selector, String text)
     //Atach methods of an object to dom elements with that id (Click, Submit, Change)
     void attachMethodsToDomEvents(target)
     //Launch closure on input change event, closure receive a param with the new value

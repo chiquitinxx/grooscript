@@ -14,13 +14,9 @@ class TestFunctionalGQuery extends FunctionalTest {
         result += script(jsFileText('grooscript.min.js'))
         result += script(jsFileText('jquery.min.js'))
         result += script(jsFileText('grooscript-tools.js'))
-        result += script(GrooScript.convert(jsonResultClass))
-        result += script('var gQuery = GQueryImpl(); gQuery.onReady(function() { gQuery.doRemoteCall("'+JSON_ADRESS+'", "GET", null, ' +
-                'function(res) { gQuery.html(".result", "OK"); result = res },' +
-                'function(fail) { result = "FAIL!"}, Result); });')
+        result += script(GrooScript.convert(jsonResultClass + doRemoteCallCode))
         result += '<p class="result"></p>'
         result += '</body></html>'
-        println result
         result
     }
 
@@ -41,5 +37,22 @@ class TestFunctionalGQuery extends FunctionalTest {
     }
     doTest()
 '''
+    }
+
+    private getDoRemoteCallCode() {
+        """
+import org.grooscript.jquery.GQueryImpl
+
+def result = new Result()
+def gQuery = new GQueryImpl()
+gQuery.onReady {
+    gQuery.doRemoteCall('${JSON_ADRESS}', 'GET', null, { res ->
+        gQuery('.result').html('OK')
+        result = res
+    }, {
+        result = 'FAIL!'
+    }, Result)
+}
+"""
     }
 }

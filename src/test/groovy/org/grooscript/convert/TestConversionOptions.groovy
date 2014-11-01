@@ -1,7 +1,7 @@
 package org.grooscript.convert
 
 import org.grooscript.GrooScript
-import org.grooscript.convert.ConversionOptions
+import org.grooscript.JsGenerator
 import org.grooscript.util.Util
 import spock.lang.IgnoreIf
 import spock.lang.Specification
@@ -226,6 +226,9 @@ class TestConversionOptions extends Specification {
     }
 
     def 'test include two js archives at the beginning of the conversion'() {
+        given:
+        JsGenerator.generateGrooscriptToolsJs()
+
         when:
         GrooScript.setConversionProperty(ConversionOptions.INCLUDE_JS_LIB.text, 'grooscript.min, grooscript-tools')
         def result = GrooScript.convert('println "Hello!"')
