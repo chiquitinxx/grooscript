@@ -236,7 +236,8 @@ class TestConversionOptions extends Specification {
 
         then:
         result.startsWith(new File("src/main/resources/META-INF/resources/grooscript.min.js").text)
-        result.contains(new File("src/main/resources/META-INF/resources/grooscript-tools.js").text)
+        result.contains('function HtmlBuilder')
+        result.contains('function GQueryImpl')
     }
 
     private void expectedInitialValues() {
