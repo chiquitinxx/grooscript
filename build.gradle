@@ -21,7 +21,7 @@ apply plugin: 'gulp'
 
 sourceCompatibility = 1.6
 
-version = '0.6.2-SNAPSHOT'
+version = '0.6.2'
 group = 'org.grooscript'
 
 ext {

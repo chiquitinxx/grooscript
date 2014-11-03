@@ -1,4 +1,4 @@
-grooscript 0.6.1
+grooscript 0.6.2
 ================
 
 Converts your Groovy or Java code to JavaScript(Groovy 2.x to Javascript ECMAScript 5). You need groovy jar greater than 2.0 to make conversions.
@@ -9,7 +9,7 @@ Not a full groovy to javascript conversion. Some groovy and java features not su
 
 Can convert .java and .groovy files or a text fragment as:
 
-    @Grab('org.grooscript:grooscript:0.6.1')
+    @Grab('org.grooscript:grooscript:0.6.2')
 
     import org.grooscript.GrooScript
 
