@@ -12,7 +12,7 @@ class GrooScriptSpec extends Specification {
 
     def 'conversion options'() {
         expect:
-        ConversionOptions.values().size() == 7
+        ConversionOptions.values().size() == 8
     }
 
     def 'default options'() {
@@ -25,6 +25,7 @@ class GrooScriptSpec extends Specification {
             finalText: null,
             includeJsLib: null,
             recursive: false,
+            useJsLib: null
         ]
     }
 

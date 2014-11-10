@@ -283,4 +283,17 @@ class GrooScript {
     static String getJsLibText(String nameJsLib) {
         GrooScript.classLoader.getResourceAsStream('META-INF/resources/' + nameJsLib + '.js').text
     }
+
+    static useJsLib(String lib) {
+        new AllAllowedClass()
+    }
+}
+
+class AllAllowedClass {
+    def propertyMissing(String name) {
+        new AllAllowedClass()
+    }
+    def methodMissing(String name, args) {
+        return null
+    }
 }

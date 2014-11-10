@@ -18,7 +18,7 @@ class ConversionFactory {
     Context context
     Out out
     Functions functions
-    def converter
+    GsConverter converter
     Traits traits
 
     Map converters = [
@@ -67,7 +67,9 @@ class ConversionFactory {
 
     void visitNode(node, otherParam = null) {
         String className = node.class.simpleName
-        if (!converters[className]) {
+        if (captureConversion(node)) {
+            processCapturedConversion(node, otherParam)
+        } else if (!converters[className]) {
             if (otherParam != null) {
                 converter."process${className}"(node, otherParam)
             } else {
@@ -160,5 +162,45 @@ class ConversionFactory {
             result = result.substring(i + 1)
         }
         result
+    }
+
+    //Each package could have own conversion handlers, just here for demo
+    private packages = []
+
+    private boolean captureConversion(node) {
+        if (converter.conversionOptions[ConversionOptions.USE_JS_LIB.text] == 'google') {
+            if (node instanceof DeclarationExpression &&
+                    node.rightExpression instanceof StaticMethodCallExpression &&
+                    node.rightExpression.method == 'useJsLib' &&
+                    node.rightExpression.ownerType.name == 'org.grooscript.GrooScript') {
+                packages << node.rightExpression.arguments[0].value
+                return true
+            }
+            if (node instanceof MethodCallExpression &&
+                    node.objectExpression instanceof PropertyExpression &&
+                    node.objectExpression.text in packages) {
+                return true
+            }
+        }
+        false
+    }
+
+    private processCapturedConversion(node, otherParam) {
+        println 'Captured processing...'
+        if (converter.conversionOptions[ConversionOptions.USE_JS_LIB.text] == 'google') {
+            if (node instanceof DeclarationExpression &&
+                    node.rightExpression instanceof StaticMethodCallExpression &&
+                    node.rightExpression.method == 'useJsLib' &&
+                    node.rightExpression.ownerType.name == 'org.grooscript.GrooScript') {
+                out.addScript("goog.require('${node.rightExpression.arguments[0].value}')")
+            }
+            if (node instanceof MethodCallExpression &&
+                    node.objectExpression instanceof PropertyExpression &&
+                    node.objectExpression.text in packages) {
+                out.addScript("${node.objectExpression.text}.${node.methodAsString}(")
+                convert(node.arguments, false)
+                out.addScript(")")
+            }
+        }
     }
 }

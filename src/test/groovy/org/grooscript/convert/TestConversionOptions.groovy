@@ -240,6 +240,28 @@ class TestConversionOptions extends Specification {
         result.contains('function GQueryImpl')
     }
 
+    def 'test use google closure tools library'() {
+        when:
+        GrooScript.setConversionProperty(ConversionOptions.USE_JS_LIB.text, 'google')
+        def result = GrooScript.convert '''
+import static org.grooscript.GrooScript.useJsLib
+
+def goog = useJsLib('goog.crypt.base64')
+
+def input = "Lorem ipsum dolor sit amet"
+def output = goog.crypt.base64.encodeString input
+println "Original string: $input"
+println "Encoded base64 string: $output"
+'''
+        then:
+        result == '''goog.require('goog.crypt.base64');
+var input = "Lorem ipsum dolor sit amet";
+var output = goog.crypt.base64.encodeString(input);
+gs.println("Original string: " + (input) + "");
+gs.println("Encoded base64 string: " + (output) + "");
+'''
+    }
+
     private void expectedInitialValues() {
         assert GrooScript.debug == false
         assert GrooScript.options == null

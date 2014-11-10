@@ -12,7 +12,8 @@ enum ConversionOptions {
     INITIAL_TEXT('initialText', null),
     FINAL_TEXT('finalText', null),
     RECURSIVE('recursive', false),
-    INCLUDE_JS_LIB('includeJsLib', null)
+    INCLUDE_JS_LIB('includeJsLib', null),
+    USE_JS_LIB('useJsLib', null)
 
     String text
     def defaultValue
