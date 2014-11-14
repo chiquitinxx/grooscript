@@ -217,28 +217,14 @@ page.open('{{URL}}', function (status) {
             }
             message "Starting Test in ${url}", HEAD
 
-            //Save the file
-            def finalText
-            finalText = PHANTOM_JS_TEXT
-            finalText = finalText.replace('{{URL}}', url)
-            finalText = finalText.replace('{{GROOSCRIPT}}', testCode)
-            finalText = finalText.replace('{{SECONDS}}', waitSeconds as String)
-
-            if (capture) {
-                finalText = finalText.replace('{{CAPTURE}}', "console.log('Capturing...');page.render('$capture');\n")
-            } else {
-                finalText = finalText.replace('{{CAPTURE}}', '')
-            }
-
             def sysOp = System.getProperty('os.name')
             if (sysOp && sysOp.toUpperCase().contains('WINDOWS')) {
                 jsHome = jsHome.replace('\\', '/')
                 jsHome = (jsHome.indexOf(':') == 1 ? jsHome.substring(2) : jsHome)
             }
 
-            finalText = finalText.replace('{{LIBRARY_PATH}}', jsHome)
-            finalText = finalText.replace('{{FUNCTION_CALL}}', "${methodName}(${getParametersText(parameters)});")
-            new File(nameFile).text = finalText
+            //Save the file
+            new File(nameFile).text = getScriptText(url, testCode, waitSeconds, capture, jsHome, methodName, parameters)
 
             //Execute PhantomJs
             String command = phantomJsHome
@@ -282,7 +268,8 @@ page.open('{{URL}}', function (status) {
                             result = slurper.parseText(line.substring(9))
                         }
                     } else {
-                        message line, HEAD
+                        if (line.trim())
+                            message line, HEAD
                     }
                 }
             }
@@ -303,11 +290,10 @@ page.open('{{URL}}', function (status) {
             if (withInfo) {
                 message '**************************************************** BEGIN JS TEST', HEAD
                 file.text.eachLine { line ->
-                    message line, HEAD
+                    println line
                 }
                 message '**************************************************** END JS TEST', HEAD
             }
-            //new File('out.js').text = file.text
             if (file && file.exists()) {
                 file.delete()
             }
@@ -315,7 +301,7 @@ page.open('{{URL}}', function (status) {
         result
     }
 
-    static String getParametersText(List parameters) {
+    private static String getParametersText(List parameters) {
         def parametersText = ''
         if (parameters) {
             parametersText = parameters.collect { value ->
@@ -327,5 +313,23 @@ page.open('{{URL}}', function (status) {
             }.join(',')
         }
         return parametersText
+    }
+
+    private static getScriptText(url, testCode, waitSeconds, capture, jsHome, methodName, parameters) {
+        def scriptText
+        scriptText = PHANTOM_JS_TEXT
+        scriptText = scriptText.replace('{{URL}}', url)
+        scriptText = scriptText.replace('{{GROOSCRIPT}}', testCode)
+        scriptText = scriptText.replace('{{SECONDS}}', waitSeconds as String)
+
+        if (capture) {
+            scriptText = scriptText.replace('{{CAPTURE}}', "console.log('Capturing...');page.render('$capture');\n")
+        } else {
+            scriptText = scriptText.replace('{{CAPTURE}}', '')
+        }
+
+        scriptText = scriptText.replace('{{LIBRARY_PATH}}', jsHome)
+        scriptText = scriptText.replace('{{FUNCTION_CALL}}', "${methodName}(${getParametersText(parameters)});")
+        scriptText
     }
 }
