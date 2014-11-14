@@ -1,14 +1,12 @@
 plugins {
-    id "com.moowork.node" version "0.6"
+    id "com.moowork.node" version "0.7"
     id "com.moowork.gulp" version "0.1"
+    id "com.bmuschko.nexus" version "2.1.1"
 }
 
 apply plugin: 'idea'
 apply plugin: 'groovy'
-apply plugin: 'maven'
-apply plugin: 'signing'
 apply plugin: 'codenarc'
-apply plugin: 'com.moowork.node'
 
 sourceCompatibility = 1.6
 
@@ -55,67 +53,36 @@ task wrapper(type: Wrapper) {
     gradleVersion = '2.1'
 }
 
-//Sonar repository stuff
-/*task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from 'build/docs/javadoc'
-}
- 
-task sourcesJar(type: Jar) {
-    from sourceSets.main.allSource
-    classifier = 'sources'
-}
+modifyPom {
+    project {
+        name 'Grooscript'
+        description 'Grooscript converts your groovy code to javascript'
+        url 'http://grooscript.org/'
+        inceptionYear '2012'
 
-artifacts {
-    archives jar
-	archives javadocJar
-    archives sourcesJar
-}
-	
-signing {
-    sign configurations.archives
-}
+        scm {
+            url 'scm:git@github.com:chiquitinxx/grooscript.git'
+            connection 'scm:git@github.com:chiquitinxx/grooscript.git'
+            developerConnection 'scm:git@github.com:chiquitinxx/grooscript.git'
+        }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
- 
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-              authentication(userName: sonatypeUsername, password: sonatypePassword)
+        licenses {
+            license {
+                name 'The Apache Software License, Version 2.0'
+                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution 'repo'
             }
- 
-            pom.project {
-               name 'Grooscript'
-               packaging 'jar'
-               description 'Grooscript converts your groovy code to javascript'
-               url 'http://grooscript.org/'
- 
-               scm {
-                   url 'scm:git@github.com:chiquitinxx/grooscript.git'
-                   connection 'scm:git@github.com:chiquitinxx/grooscript.git'
-                   developerConnection 'scm:git@github.com:chiquitinxx/grooscript.git'
-               }
- 
-               licenses {
-                   license {
-                       name 'The Apache Software License, Version 2.0'
-                       url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                       distribution 'repo'
-                   }
-               }
- 
-               developers {
-                   developer {
-                       id 'chiquitinxx'
-                       name 'Jorge Franco'
-                   }
-               }
-           }
+        }
+
+        developers {
+            developer {
+                id 'chiquitinxx'
+                name 'Jorge Franco'
+                email 'jorge.franco.leza@gmail.com'
+            }
         }
     }
-}*/
-//End Sonar
+}
 
 task testUnit(type: Test) {
     exclude 'org/grooscript/asts/TestPhantom*'
