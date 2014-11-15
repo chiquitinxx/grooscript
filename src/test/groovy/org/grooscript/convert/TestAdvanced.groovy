@@ -193,9 +193,4 @@ class TestAdvanced extends Specification {
         expect:
         convertAndEvaluate('advanced/BooleanProperties')
     }
-
-    def 'test observable'() {
-        expect:
-        convertAndEvaluate('rx/observable', true)
-    }
 }

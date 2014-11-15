@@ -51,6 +51,10 @@ class Observable {
         }
     }
 
+    void removeSubscribers() {
+        subscribers = []
+    }
+
     private processFunction(data, cl) {
         try {
             cl(data)
