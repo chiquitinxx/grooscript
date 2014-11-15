@@ -1,7 +1,7 @@
-package org.grooscript.rx
+package rx
 
 /**
- * Created by jorgefrancoleza on 14/11/14.
+ * Created by jorgefrancoleza on 15/11/14.
  */
 class Observable {
 
@@ -60,3 +60,12 @@ class Observable {
     }
 }
 
+def result = []
+Observable.from([1, 5, 9, 12, 3, 8]).
+        filter { it < 5 }.
+        map { 'H' * it }.
+        subscribe { event ->
+            result << event
+        }
+
+assert result == ['H', 'HHH']
