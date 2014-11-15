@@ -904,16 +904,20 @@
     };
     //Remove only 1 item from the list
     Array.prototype.remove = function(indexOrValue) {
-        var index = -1;
+        var result = false,index = -1;
         if (typeof indexOrValue == 'number') {
             index = indexOrValue;
+            result = this[index];
         } else {
             index = this.indexOf(indexOrValue);
+            if (index >= 0) {
+                result = true;
+            }
         }
         if (index>=0) {
             this.splice(index,1);
         }
-        return this;
+        return result;
     };
 
     //Maybe too much complex, not much inspired
