@@ -1,7 +1,6 @@
 package org.grooscript.daemon
 
-import static groovyx.gpars.dataflow.Dataflow.task
-
+import org.grooscript.GrooScript
 import org.grooscript.util.GsConsole
 
 /**
@@ -10,41 +9,32 @@ import org.grooscript.util.GsConsole
  */
 class ConversionDaemon {
 
-    def source
-    String destinationFolder
-    Map conversionOptions = [:]
-    def doAfter = null
-    boolean recursive = false
+    static numberConversions = 0
 
-    ConvertActor convertActor
-
-    /**
-     * Start the daemon
-     * @return
-     */
-    public void start() {
-        if (source && destinationFolder) {
-            task {
-                convertActor = new ConvertActor(source: source, destinationFolder: destinationFolder,
-                    conversionOptions: conversionOptions, doAfter: doAfter, recursive: recursive).start()
-                convertActor << source
-            }.then {
-                GsConsole.message('Daemon Started.')
+    static conversionClosure = { source, String destination, conversionOptions, filesChanged ->
+        if (filesChanged) {
+            GrooScript.clearAllOptions()
+            conversionOptions.each { key, value ->
+                GrooScript.setConversionProperty(key, value)
             }
-        } else {
-            GsConsole.error('Daemon need source and destinationFolder to run.')
+            if (destination.endsWith('.js')) {
+                GrooScript.convert(source, destination)
+            } else {
+                GrooScript.convert(filesChanged, destination)
+            }
+            GsConsole.info "[${numberConversions++}] Conversion daemon has converted files."
         }
     }
 
-    /**
-     * Stop the daemon if active
-     * @return
-     */
-    public void stop() {
-        if (convertActor && convertActor.isActive()) {
-            convertActor << ConvertActor.FINISH
-        } else {
-            GsConsole.info('Stopping a non running daemon.')
-        }
+    static Closure newAction(List<String> source, String destination, Map conversionOptions) {
+        conversionClosure.curry(source, destination, conversionOptions)
+    }
+
+    static FilesDaemon start(List<String> source, String destination, Map conversionOptions) {
+        def filesDaemon = new FilesDaemon(source,
+                newAction(source, destination, conversionOptions),
+                [actionOnStartup: true, recursive: conversionOptions.recursive ?: false])
+        filesDaemon.start()
+        filesDaemon
     }
 }
