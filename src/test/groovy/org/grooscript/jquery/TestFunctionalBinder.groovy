@@ -16,7 +16,7 @@ class TestFunctionalBinder extends FunctionalTest {
         result += script(jsFileText('grooscript-tools.js'))
         result += script(GrooScript.convert(bookClass))
         result += script('var book = Book(); var gQuery = GQueryImpl();')
-        result += script('$(document).ready(function() { gQuery.bindAllProperties(book); gQuery.attachMethodsToDomEvents(book); book.init()});')
+        result += script('$(document).ready(function() { gQuery.bindAll(book); book.init()});')
         result += '<p>Author:<input type="text" id="author"></p>'
         result += '<p>Title:<input type="text" name="title"></p>'
         result += '<p><input type="checkbox" id="hasEbook">Has Ebook</p>'

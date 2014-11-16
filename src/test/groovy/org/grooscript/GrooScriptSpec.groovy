@@ -111,10 +111,6 @@ class GrooScriptSpec extends Specification {
         testResult.jsScript.contains 'Apache 2 License'
     }
 
-    def setupSpec() {
-        JsGenerator.generateGrooscriptToolsJs()
-    }
-
     def setup() {
         GrooScript.clearAllOptions()
     }

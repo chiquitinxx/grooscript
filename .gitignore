@@ -14,6 +14,7 @@ gSphantomJsTest.js
 grooscript.min.js
 grooscript-binder.js
 grooscript-builder.js
+observable.js
 gQueryImpl.js
 node_modules
 grooscript-tools.js

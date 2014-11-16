@@ -23,10 +23,6 @@ class TestConversionOptions extends Specification {
     private static final DESTINATION_DIR = 'destination'
     private static final DESTINATION_FILE = 'destination.js'
 
-    def setupSpec() {
-        JsGenerator.generateGrooscriptToolsJs()
-    }
-
     def setup() {
         GrooScript.clearAllOptions()
         new File(SOURCE_DIR).mkdir()

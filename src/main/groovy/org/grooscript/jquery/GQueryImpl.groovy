@@ -1,6 +1,7 @@
 package org.grooscript.jquery
 
 import org.grooscript.asts.GsNative
+import org.grooscript.rx.Observable
 
 /**
  * Created by jorge on 15/02/14.
@@ -196,6 +197,19 @@ class GQueryImpl implements GQuery {
                 bind("input:radio[name=${name}]", target, name)
             }
         }
+    }
+
+    void bindAll(target) {
+        bindAllProperties(target)
+        attachMethodsToDomEvents(target)
+    }
+
+    Observable observeEvent(String selector, String nameEvent, Map data = [:]) {
+        def observable = Observable.listen()
+        this.call(selector).on(nameEvent, data, { event ->
+            observable.produce(event)
+        })
+        observable
     }
 
     def call(selector) {

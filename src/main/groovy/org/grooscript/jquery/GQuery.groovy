@@ -1,5 +1,7 @@
 package org.grooscript.jquery
 
+import org.grooscript.rx.Observable
+
 /**
  * Created by jorge on 13/04/14.
  */
@@ -28,4 +30,9 @@ interface GQuery {
     void focusEnd(String selector)
     //Bind all properties of an object to dom elements, find dom elements by id or name
     void bindAllProperties(target)
+    //Bind all
+    void bindAll(target)
+    //Returns an Observable from a event
+    Observable observeEvent(String selector, String nameEvent)
+    Observable observeEvent(String selector, String nameEvent, Map data)
 }

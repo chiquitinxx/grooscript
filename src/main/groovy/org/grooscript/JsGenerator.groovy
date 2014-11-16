@@ -13,25 +13,34 @@ class JsGenerator {
     static final JQUERY_SOURCE = 'src/main/groovy/org/grooscript/jquery/GQueryImpl.groovy'
     static final JQUERY_FILE = 'src/main/resources/META-INF/resources/gQueryImpl.js'
 
+    static final OBSERVABLE_SOURCE = 'src/main/groovy/org/grooscript/rx/Observable.groovy'
+    static final OBSERVABLE_FILE = 'src/main/resources/META-INF/resources/observable.js'
+
     static final GROOSCRIPT_TOOLS_FILE = 'src/main/resources/META-INF/resources/grooscript-tools.js'
 
     static generateHtmlBuilder() {
         File source = new File(HTML_BUILDER_SOURCE)
-        convertFile(source, BUILDER_FILE, [initialText: '//This script needs grooscript.js to run'])
+        convertFile(source, BUILDER_FILE)
+    }
+
+    static generateObservable() {
+        File source = new File(OBSERVABLE_SOURCE)
+        convertFile(source, OBSERVABLE_FILE)
     }
 
     static generateJQuery() {
         File source = new File(JQUERY_SOURCE)
-        convertFile(source, JQUERY_FILE, [initialText: '//This script needs grooscript.js and jQuery to run'])
+        convertFile(source, JQUERY_FILE)
     }
 
     static generateGrooscriptJsToolsComplete() {
-        GrooScript.joinListOfFiles(BUILDER_FILE, JQUERY_FILE, GROOSCRIPT_TOOLS_FILE)
+        GrooScript.joinListOfFiles(BUILDER_FILE, OBSERVABLE_FILE, JQUERY_FILE, GROOSCRIPT_TOOLS_FILE)
     }
 
     static void generateGrooscriptToolsJs() {
         generateHtmlBuilder()
         generateJQuery()
+        generateObservable()
         generateGrooscriptJsToolsComplete()
     }
 
