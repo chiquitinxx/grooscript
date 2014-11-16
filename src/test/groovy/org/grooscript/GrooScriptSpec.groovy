@@ -23,7 +23,7 @@ class GrooScriptSpec extends Specification {
             mainContextScope: null,
             initialText: null,
             finalText: null,
-            includeJsLib: null,
+            addGsLib: null,
             recursive: false,
         ]
     }
@@ -60,19 +60,19 @@ class GrooScriptSpec extends Specification {
 
     def 'not repeating js conversion options when converting to a file'() {
         given:
-        def jsLibCount = 0
+        def jqueryLibCount = 0
         def initialTextCount = 0
         def finalTextCount = 0
         GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, SOURCES_CLASSPATH)
         GrooScript.setConversionProperty(ConversionOptions.INITIAL_TEXT.text, INITIAL)
         GrooScript.setConversionProperty(ConversionOptions.FINAL_TEXT.text, FINAL)
-        GrooScript.setConversionProperty(ConversionOptions.INCLUDE_JS_LIB.text, 'grooscript-tools')
+        GrooScript.setConversionProperty(ConversionOptions.ADD_GS_LIB.text, 'jquery.min')
         GrooScript.convert(SOURCES_FOLDER, BIG_JS_FILE)
 
         when:
         new File(BIG_JS_FILE).eachLine { line ->
-            if (line.startsWith('function HtmlBuilder() {')) {
-                jsLibCount++
+            if (line.startsWith('/*! jQuery v1.11.1')) {
+                jqueryLibCount++
             }
             if (line.startsWith(INITIAL)) {
                 initialTextCount++
@@ -83,7 +83,7 @@ class GrooScriptSpec extends Specification {
         }
 
         then:
-        jsLibCount == 1
+        jqueryLibCount == 1
         initialTextCount == 1
         finalTextCount == 1
 
@@ -102,14 +102,13 @@ class GrooScriptSpec extends Specification {
         !testResult.assertFails
     }
 
-    def 'evaluate js code with tools'() {
+    def 'evaluate js code another gs lib'() {
         when:
-        def testResult = GrooScript.evaluateGroovyCode('println HtmlBuilder.build { p "Hello!" }', 'grooscript-tools')
+        def testResult = GrooScript.evaluateGroovyCode('println "Hello!"', 'grooscript')
 
         then:
-        testResult.console == '<p>Hello!</p>'
-        !testResult.exception
-        !testResult.assertFails
+        testResult.console == 'Hello!'
+        testResult.jsScript.contains 'Apache 2 License'
     }
 
     def setupSpec() {

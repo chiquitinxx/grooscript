@@ -3,7 +3,6 @@ package org.grooscript
 import org.grooscript.convert.ConversionOptions
 import org.grooscript.test.JavascriptEngine
 import org.grooscript.test.JsTestResult
-import org.grooscript.util.Util
 
 import static org.grooscript.util.Util.*
 
@@ -138,8 +137,8 @@ class GrooScript {
             if (options[ConversionOptions.FINAL_TEXT.text]) {
                 result = result + '\n' + options[ConversionOptions.FINAL_TEXT.text]
             }
-            if (options[ConversionOptions.INCLUDE_JS_LIB.text]) {
-                def files = options[ConversionOptions.INCLUDE_JS_LIB.text].split(',').reverse()
+            if (options[ConversionOptions.ADD_GS_LIB.text]) {
+                def files = options[ConversionOptions.ADD_GS_LIB.text].split(',').reverse()
                 files.each { fileName ->
                     def file = GrooScript.classLoader.getResourceAsStream(
                             "META-INF/resources/${fileName.trim()}.js")

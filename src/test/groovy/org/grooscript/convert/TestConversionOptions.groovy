@@ -217,9 +217,9 @@ class TestConversionOptions extends Specification {
     }
 
     @Unroll
-    def 'test include js archive at the beginning of the conversion'() {
+    def 'test add grooscript js archive at the beginning of the conversion'() {
         when:
-        GrooScript.setConversionProperty(ConversionOptions.INCLUDE_JS_LIB.text, fileName)
+        GrooScript.setConversionProperty(ConversionOptions.ADD_GS_LIB.text, fileName)
         def result = GrooScript.convert('println "Hello!"')
 
         then:
@@ -229,15 +229,14 @@ class TestConversionOptions extends Specification {
         fileName << ['grooscript', 'grooscript.min']
     }
 
-    def 'test include two js archives at the beginning of the conversion'() {
+    def 'test add two grooscript js archives at the beginning of the conversion'() {
         when:
-        GrooScript.setConversionProperty(ConversionOptions.INCLUDE_JS_LIB.text, 'grooscript.min, grooscript-tools')
+        GrooScript.setConversionProperty(ConversionOptions.ADD_GS_LIB.text, 'grooscript.min, jquery.min')
         def result = GrooScript.convert('println "Hello!"')
 
         then:
         result.startsWith(new File("src/main/resources/META-INF/resources/grooscript.min.js").text)
-        result.contains('function HtmlBuilder')
-        result.contains('function GQueryImpl')
+        result.contains(new File("src/main/resources/META-INF/resources/jquery.min.js").text)
     }
 
     private void expectedInitialValues() {
