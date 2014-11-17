@@ -206,7 +206,7 @@ class GQueryImpl implements GQuery {
 
     Observable observeEvent(String selector, String nameEvent, Map data = [:]) {
         def observable = Observable.listen()
-        this.call(selector).on(nameEvent, data, { event ->
+        call(selector).on(nameEvent, data, { event ->
             observable.produce(event)
         })
         observable
