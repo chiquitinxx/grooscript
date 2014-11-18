@@ -67,26 +67,26 @@ class HtmlBuilder {
 
     def tagSolver = { String name, args ->
         htmCd += "<${name}"
-        if (args && args.size() > 0 && !(args[0] instanceof String) && !(args[0] instanceof Closure)) {
+        if (args?.size() > 0 && !(args[0] instanceof String) && !(args[0] instanceof Closure)) {
             args[0].each { key, value ->
                 htmCd += " ${key}='${value}'"
             }
         }
         htmCd += '>'
-        if (args) {
-            if (args.size() == 1 && args[0] instanceof String) {
-                yield args[0]
-            } else {
-                def lastArg = args.last()
-                if (lastArg instanceof Closure) {
-                    lastArg.delegate = this
-                    lastArg()
-                }
-                if (lastArg instanceof String && args.size() > 1) {
-                    yield lastArg
-                }
+
+        if (args?.size() == 1 && args[0] instanceof String) {
+            yield args[0]
+        } else {
+            def lastArg = args.last()
+            if (lastArg instanceof Closure) {
+                lastArg.delegate = this
+                lastArg()
+            }
+            if (lastArg instanceof String && args.size() > 1) {
+                yield lastArg
             }
         }
+        
         htmCd += "</${name}>"
     }
 }
