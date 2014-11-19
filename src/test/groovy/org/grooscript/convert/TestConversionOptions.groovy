@@ -3,6 +3,7 @@ package org.grooscript.convert
 import org.grooscript.GrooScript
 import org.grooscript.JsGenerator
 import org.grooscript.util.Util
+import spock.lang.Ignore
 import spock.lang.IgnoreIf
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -240,6 +241,7 @@ class TestConversionOptions extends Specification {
         result.contains('function GQueryImpl')
     }
 
+    @Ignore
     def 'test use google closure tools library'() {
         when:
         GrooScript.setConversionProperty(ConversionOptions.USE_JS_LIB.text, 'google')
@@ -259,6 +261,32 @@ var input = "Lorem ipsum dolor sit amet";
 var output = goog.crypt.base64.encodeString(input);
 gs.println("Original string: " + (input) + "");
 gs.println("Encoded base64 string: " + (output) + "");
+'''
+    }
+
+    def 'test require dojo'() {
+        when:
+        GrooScript.setConversionProperty(ConversionOptions.USE_JS_LIB.text, 'dojo')
+        def result = GrooScript.convert '''
+import static org.grooscript.packages.DojoPackage.require
+
+require("dojo/cldr/monetary") {
+    ["EUR", "USD", "GBP", "JPY"].each {
+        def cldrMonetaryData = dojo.cldr.monetary.getData(it)
+        println "Places: $cldrMonetaryData.places"
+        println "Round: $cldrMonetaryData.round"
+    }
+}
+'''
+        then:
+        //TODO continue here
+        result == '''require(["dojo/cldr/monetary"], function(monetary) {
+  gs.mc(gs.list(["EUR" , "USD" , "GBP" , "JPY"]),"each",[function(it) {
+    var cldrMonetaryData = monetary.getData(it);
+    gs.println("Places: " + (gs.gp(cldrMonetaryData,"places")) + "");
+    return gs.println("Round: " + (gs.gp(cldrMonetaryData,"round")) + "");
+  }]);
+});
 '''
     }
 

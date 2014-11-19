@@ -32,8 +32,6 @@ class Out {
      * @return
      */
     private addScript(text, addNewLineChar = false) {
-        //println 'adding ->'+text
-        //indent.times { resultScript += TAB }
         resultScript += text
         if (addNewLineChar) {
             addLine()

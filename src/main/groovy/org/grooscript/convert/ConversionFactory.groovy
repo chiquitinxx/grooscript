@@ -4,6 +4,7 @@ import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.ast.expr.*
 import org.codehaus.groovy.ast.stmt.*
 import org.grooscript.convert.handlers.*
+import org.grooscript.convert.packages.DojoHandler
 import org.grooscript.util.GrooScriptException
 
 import static org.grooscript.JsNames.*
@@ -67,8 +68,8 @@ class ConversionFactory {
 
     void visitNode(node, otherParam = null) {
         String className = node.class.simpleName
-        if (captureConversion(node)) {
-            processCapturedConversion(node, otherParam)
+        if (capturePackageConversion(node)) {
+            processPackageConversion(node, otherParam)
         } else if (!converters[className]) {
             if (otherParam != null) {
                 converter."process${className}"(node, otherParam)
@@ -165,10 +166,20 @@ class ConversionFactory {
     }
 
     //Each package could have own conversion handlers, just here for demo
-    private packages = []
+    private handler
 
-    private boolean captureConversion(node) {
-        if (converter.conversionOptions[ConversionOptions.USE_JS_LIB.text] == 'google') {
+    private getPackageHandler() {
+        if (!handler && converter.conversionOptions[ConversionOptions.USE_JS_LIB.text] == 'dojo') {
+            handler = new DojoHandler(factory: this)
+        }
+        handler
+    }
+
+    private boolean capturePackageConversion(node) {
+        packageHandler?.handle(node)
+        /*if (converter.conversionOptions[ConversionOptions.USE_JS_LIB.text] == 'google') {
+
+
             if (node instanceof DeclarationExpression &&
                     node.rightExpression instanceof StaticMethodCallExpression &&
                     node.rightExpression.method == 'useJsLib' &&
@@ -182,12 +193,16 @@ class ConversionFactory {
                 return true
             }
         }
-        false
+        false*/
     }
 
-    private processCapturedConversion(node, otherParam) {
+    private processPackageConversion(node, otherParam) {
         println 'Captured processing...'
-        if (converter.conversionOptions[ConversionOptions.USE_JS_LIB.text] == 'google') {
+        packageHandler?.process(node)
+
+        /*if (converter.conversionOptions[ConversionOptions.USE_JS_LIB.text] == 'google') {
+
+
             if (node instanceof DeclarationExpression &&
                     node.rightExpression instanceof StaticMethodCallExpression &&
                     node.rightExpression.method == 'useJsLib' &&
@@ -201,6 +216,6 @@ class ConversionFactory {
                 convert(node.arguments, false)
                 out.addScript(")")
             }
-        }
+        }*/
     }
 }
