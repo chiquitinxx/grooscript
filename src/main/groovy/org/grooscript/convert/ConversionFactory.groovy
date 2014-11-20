@@ -5,6 +5,7 @@ import org.codehaus.groovy.ast.expr.*
 import org.codehaus.groovy.ast.stmt.*
 import org.grooscript.convert.handlers.*
 import org.grooscript.convert.packages.DojoHandler
+import org.grooscript.convert.packages.PackageHandler
 import org.grooscript.util.GrooScriptException
 
 import static org.grooscript.JsNames.*
@@ -21,6 +22,7 @@ class ConversionFactory {
     Functions functions
     GsConverter converter
     Traits traits
+    PackageHandler packageHandler
 
     Map converters = [
         'VariableExpression': VariableExpressionHandler,
@@ -68,8 +70,8 @@ class ConversionFactory {
 
     void visitNode(node, otherParam = null) {
         String className = node.class.simpleName
-        if (capturePackageConversion(node)) {
-            processPackageConversion(node, otherParam)
+        if (packageHandler && packageHandler.handle(node)) {
+            packageHandler.process(node)
         } else if (!converters[className]) {
             if (otherParam != null) {
                 converter."process${className}"(node, otherParam)
@@ -163,59 +165,5 @@ class ConversionFactory {
             result = result.substring(i + 1)
         }
         result
-    }
-
-    //Each package could have own conversion handlers, just here for demo
-    private handler
-
-    private getPackageHandler() {
-        if (!handler && converter.conversionOptions[ConversionOptions.USE_JS_LIB.text] == 'dojo') {
-            handler = new DojoHandler(factory: this)
-        }
-        handler
-    }
-
-    private boolean capturePackageConversion(node) {
-        packageHandler?.handle(node)
-        /*if (converter.conversionOptions[ConversionOptions.USE_JS_LIB.text] == 'google') {
-
-
-            if (node instanceof DeclarationExpression &&
-                    node.rightExpression instanceof StaticMethodCallExpression &&
-                    node.rightExpression.method == 'useJsLib' &&
-                    node.rightExpression.ownerType.name == 'org.grooscript.GrooScript') {
-                packages << node.rightExpression.arguments[0].value
-                return true
-            }
-            if (node instanceof MethodCallExpression &&
-                    node.objectExpression instanceof PropertyExpression &&
-                    node.objectExpression.text in packages) {
-                return true
-            }
-        }
-        false*/
-    }
-
-    private processPackageConversion(node, otherParam) {
-        println 'Captured processing...'
-        packageHandler?.process(node)
-
-        /*if (converter.conversionOptions[ConversionOptions.USE_JS_LIB.text] == 'google') {
-
-
-            if (node instanceof DeclarationExpression &&
-                    node.rightExpression instanceof StaticMethodCallExpression &&
-                    node.rightExpression.method == 'useJsLib' &&
-                    node.rightExpression.ownerType.name == 'org.grooscript.GrooScript') {
-                out.addScript("goog.require('${node.rightExpression.arguments[0].value}')")
-            }
-            if (node instanceof MethodCallExpression &&
-                    node.objectExpression instanceof PropertyExpression &&
-                    node.objectExpression.text in packages) {
-                out.addScript("${node.objectExpression.text}.${node.methodAsString}(")
-                convert(node.arguments, false)
-                out.addScript(")")
-            }
-        }*/
     }
 }

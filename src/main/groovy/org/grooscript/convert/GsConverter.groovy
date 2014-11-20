@@ -1,6 +1,9 @@
 package org.grooscript.convert
 
 import org.grooscript.GrooScript
+import org.grooscript.convert.packages.DojoHandler
+import org.grooscript.convert.packages.GoogleHandler
+import org.grooscript.convert.packages.PackageHandler
 
 import static org.grooscript.JsNames.*
 
@@ -78,13 +81,12 @@ class GsConverter {
     String processAstListToJs(list, nativeFunctions = null) {
         def result
         if (list && list.size() > 0) {
-            //println '-----------------Size('+list.size+')->'+list
-            conversionFactory = new ConversionFactory()
-            conversionFactory.converter = this
+            conversionFactory = new ConversionFactory(converter: this)
             functions = conversionFactory.functions
             context = conversionFactory.context
             context.nativeFunctions = nativeFunctions
             out = conversionFactory.out
+            conversionFactory.packageHandler = packageHandler
 
             if (conversionOptions[ConversionOptions.MAIN_CONTEXT_SCOPE.text]) {
                 conversionOptions[ConversionOptions.MAIN_CONTEXT_SCOPE.text].each { var ->
@@ -149,6 +151,16 @@ class GsConverter {
             result = out.resultScript
         }
         result
+    }
+
+    private PackageHandler getPackageHandler() {
+        if (conversionOptions[ConversionOptions.USE_JS_LIB.text] == 'dojo') {
+            return new DojoHandler(factory: conversionFactory)
+        }
+        if (conversionOptions[ConversionOptions.USE_JS_LIB.text] == 'google') {
+            return new GoogleHandler(factory: conversionFactory)
+        }
+        return null
     }
 
     //Process list of classes in correct order, inheritance order

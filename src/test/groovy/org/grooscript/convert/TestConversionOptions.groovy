@@ -3,7 +3,6 @@ package org.grooscript.convert
 import org.grooscript.GrooScript
 import org.grooscript.JsGenerator
 import org.grooscript.util.Util
-import spock.lang.Ignore
 import spock.lang.IgnoreIf
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -241,7 +240,6 @@ class TestConversionOptions extends Specification {
         result.contains('function GQueryImpl')
     }
 
-    @Ignore
     def 'test use google closure tools library'() {
         when:
         GrooScript.setConversionProperty(ConversionOptions.USE_JS_LIB.text, 'google')
@@ -279,7 +277,6 @@ require("dojo/cldr/monetary") {
 }
 '''
         then:
-        //TODO continue here
         result == '''require(["dojo/cldr/monetary"], function(monetary) {
   gs.mc(gs.list(["EUR" , "USD" , "GBP" , "JPY"]),"each",[function(it) {
     var cldrMonetaryData = monetary.getData(it);
