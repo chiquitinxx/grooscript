@@ -124,3 +124,6 @@ assert ml[1] == '1'
 assert ml[2] == '\n'
 
 assert 'a' as char == 97
+assert '26' as int == 13 * 2
+assert '7'.toInteger() * 2 == 14
+assert '-7'.toInteger() + 3 == -4
