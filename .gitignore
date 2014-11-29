@@ -18,3 +18,5 @@ observable.js
 gQueryImpl.js
 node_modules
 grooscript-tools.js
+.gradle/*
+build/*
