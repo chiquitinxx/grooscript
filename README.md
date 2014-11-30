@@ -41,6 +41,7 @@ Npmjs [package](https://www.npmjs.org/package/grooscript)
 
 Build
 -----
+Previous requirements: JDK 1.7+
 Using gradle wrapper, version 2.1. Only GPars 1.2 and Groovy dependencies in the project, Gradle as build system.
 
 First time, you have to install Node.js stuff, maybe you have to run as administrator, do it with:
@@ -50,8 +51,6 @@ First time, you have to install Node.js stuff, maybe you have to run as administ
 Create IntelliJ IDEA project:
 
     ./gradlew idea
-
-It needs JDK 1.7+.
 
 Build project:
 
