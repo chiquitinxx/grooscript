@@ -9,6 +9,7 @@ Not a full groovy to javascript conversion. Some groovy and java features not su
 
 Can convert .java and .groovy files or a text fragment as:
 
+```groovy
     @Grab('org.grooscript:grooscript:0.6.2')
 
     import org.grooscript.GrooScript
@@ -29,6 +30,7 @@ Can convert .java and .groovy files or a text fragment as:
         assert amazing.who.size()==1'''
 
     println result
+```
 
 Tools
 -----
