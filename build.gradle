@@ -46,6 +46,7 @@ jar {
     }
     exclude 'META-INF/resources/**/grooscript-b*.js',
             'META-INF/resources/**/test*.js',
+            'META-INF/resources/**/obser*.js',
             'META-INF/resources/**/gQ*.js'
 }
 
