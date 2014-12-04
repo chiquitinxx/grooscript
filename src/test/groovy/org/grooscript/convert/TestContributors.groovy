@@ -141,4 +141,9 @@ class TestContributors extends Specification {
         expect:
         convertAndEvaluate('contribution/Menehtbeo')
     }
+
+    def 'yellowsnow list groupBy'() {
+        expect:
+        convertAndEvaluate('contribution/Yellowsnow')
+    }
 }

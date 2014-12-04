@@ -1335,6 +1335,20 @@
         return result;
     };
 
+    Array.prototype.groupBy = function(closure) {
+        var result = gs.map();
+        for (i=0;i<this.length;i++) {
+            var r = closure(this[i]);
+            var l = result[r];
+            if (l) {
+                l.add(this[i]);
+            } else {
+                result.add(r, gs.list().add(this[i]));
+            }
+        }
+        return result;
+    };
+
     Array.prototype.putAt = function(position, value) {
         this[position] = value;
     };
