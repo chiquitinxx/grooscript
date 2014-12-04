@@ -2075,7 +2075,7 @@
         }
     };
 
-    // ** operator
+    // mod operator
     gs.mod = function(a, b) {
         if (!hasFunc(a, 'mod')) {
             return a % b;

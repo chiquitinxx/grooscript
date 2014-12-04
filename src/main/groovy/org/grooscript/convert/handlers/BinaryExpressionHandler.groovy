@@ -124,6 +124,11 @@ class BinaryExpressionHandler extends BaseHandler {
                 out.addScript("${GS_SET_PROPERTY}(this, '${expression.leftExpression.name}',")
                 assignExpressionValue(expression)
                 out.addScript(')')
+            } else if (expression.operation.text == '[') {
+                upgradedExpresion(expression.leftExpression)
+                out.addScript('[')
+                upgradedExpresion(expression.rightExpression)
+                out.addScript(']')
             } else {
                 //If we are assigning a variable, and don't exist in scope, we add to it
                 if (expression.operation.text in ASSIGN_OPERATORS && 
@@ -140,10 +145,6 @@ class BinaryExpressionHandler extends BaseHandler {
                 out.addScript(' '+expression.operation.text+' ')
                 //Right
                 applyGroovyTruthIfNecesary(expression.operation, expression.rightExpression)
-
-                if (expression.operation.text=='[') {
-                    out.addScript(']')
-                }
             }
         }
     }
