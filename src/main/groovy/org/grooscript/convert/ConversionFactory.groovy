@@ -41,6 +41,8 @@ class ConversionFactory {
         'BooleanExpression': BooleanExpressionHandler,
         'ConstantExpression': ConstantExpressionHandler,
         'ExpressionStatement': ExpressionStatementHandler,
+        'UnaryMinusExpression': UnaryMinusExpressionHandler,
+        'UnaryPlusExpression': UnaryPlusExpressionHandler,
     ]
 
     ConversionFactory() {
