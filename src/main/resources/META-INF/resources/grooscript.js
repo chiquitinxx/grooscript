@@ -2051,14 +2051,36 @@
     // * operator
     gs.multiply = function(a, b) {
         if (!hasFunc(a, 'multiply')) {
-            if (!hasFunc(b, 'multiply')) {
-                return a * b;
-            } else {
-                return b.multiply(a);
-            }
-
+            return a * b;
         } else {
             return a.multiply(b);
+        }
+    };
+
+    // / operator
+    gs.div = function(a, b) {
+        if (!hasFunc(a, 'div')) {
+            return a / b;
+        } else {
+            return a.div(b);
+        }
+    };
+
+    // ** operator
+    gs.power = function(a, b) {
+        if (!hasFunc(a, 'power')) {
+            return Math.pow(a, b);
+        } else {
+            return a.power(b);
+        }
+    };
+
+    // ** operator
+    gs.mod = function(a, b) {
+        if (!hasFunc(a, 'mod')) {
+            return a % b;
+        } else {
+            return a.mod(b);
         }
     };
 

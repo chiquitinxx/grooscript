@@ -128,4 +128,9 @@ class TestGroovyBasics extends Specification {
         expect:
         convertAndEvaluate('arithmetic')
     }
+
+    def 'operator overloading'() {
+        expect:
+        convertAndEvaluate('operatorOverload')
+    }
 }

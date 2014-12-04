@@ -16,6 +16,17 @@ import static org.grooscript.JsNames.*
 class BinaryExpressionHandler extends BaseHandler {
 
     private static final ASSIGN_OPERATORS = ['=', '+=', '-=']
+    private static final OPERATORS = [
+            '+': GS_PLUS,
+            '-': GS_MINUS,
+            '*': GS_MULTIPLY,
+            '/': GS_DIV,
+            '==': GS_EQUALS,
+            '<=>': GS_SPACE_SHIP,
+            'in': GS_IN,
+            '**': GS_POWER,
+            '%': GS_MOD,
+    ]
     
     void handle(BinaryExpression expression) {
 
@@ -29,7 +40,7 @@ class BinaryExpressionHandler extends BaseHandler {
             out.addScript(", ")
             conversionFactory.visitNode(expression.rightExpression.getTo())
             out.addScript(')')
-            //leftShift and rightShift function
+        //leftShift and rightShift function
         } else if (expression.operation.text == '<<' || expression.operation.text == '>>') {
             def nameFunction = expression.operation.text == '<<' ? 'leftShift' : 'rightShift'
             out.addScript("${GS_METHOD_CALL}(")
@@ -68,15 +79,6 @@ class BinaryExpressionHandler extends BaseHandler {
             }
 
             out.addScript(')')
-            //Equals
-        } else if (expression.operation.text == '==') {
-            writeFunctionWithLeftAndRight(GS_EQUALS, expression)
-            //in
-        } else if (expression.operation.text == 'in') {
-            writeFunctionWithLeftAndRight(GS_IN, expression)
-            //Spaceship operator <=>
-        } else if (expression.operation.text == '<=>') {
-            writeFunctionWithLeftAndRight(GS_SPACE_SHIP, expression)
             //instanceof
         } else if (expression.operation.text == 'instanceof') {
             out.addScript("${GS_INSTANCE_OF}(")
@@ -84,18 +86,9 @@ class BinaryExpressionHandler extends BaseHandler {
             out.addScript(', "')
             upgradedExpresion(expression.rightExpression)
             out.addScript('")')
-            //Multiply
-        } else if (expression.operation.text == '*') {
-            writeFunctionWithLeftAndRight(GS_MULTIPLY, expression)
-            //Power
-        } else if (expression.operation.text == '**') {
-            writeFunctionWithLeftAndRight('Math.pow', expression)
-            //Plus
-        } else if (expression.operation.text == '+') {
-            writeFunctionWithLeftAndRight(GS_PLUS, expression)
-            //Minus
-        } else if (expression.operation.text == '-') {
-            writeFunctionWithLeftAndRight(GS_MINUS, expression)
+        //Basic operators
+        } else if (expression.operation.text in OPERATORS.keySet()) {
+            writeFunctionWithLeftAndRight(OPERATORS[expression.operation.text], expression)
         } else {
 
             //Execute setter if available
