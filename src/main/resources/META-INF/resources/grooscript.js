@@ -129,6 +129,12 @@
                 arguments[i].gSaT(this);
             }
             return this;
+        },
+        getClass : function() {
+            return this.clazz;
+        },
+        getMetaClass : function() {
+            return gs.metaClass(this);
         }
     };
 
@@ -139,7 +145,7 @@
     function isObjectProperty(name) {
         return ['clazz','gSdefaultValue','leftShift',
             'minus','plus','equals','toString',
-            'clone','withz','getProperties','getStatic',
+            'clone','withz','getProperties','getStatic', 'getClass', 'getMetaClass',
             'getMethods','invokeMethod','constructor', 'asType', 'withTraits'].indexOf(name) >= 0;
     }
 

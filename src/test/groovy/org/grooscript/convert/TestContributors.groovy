@@ -146,4 +146,9 @@ class TestContributors extends Specification {
         expect:
         convertAndEvaluate('contribution/Yellowsnow')
     }
+
+    def 'chrismil46 class stuff'() {
+        expect:
+        convertAndEvaluate('contribution/ChrisMiles')
+    }
 }
