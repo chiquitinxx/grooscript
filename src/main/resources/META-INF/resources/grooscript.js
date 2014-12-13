@@ -2394,13 +2394,13 @@
                 //Lets check mc in @Delegate
                 if (item.clazz !== undefined) {
                     var addDelegate = mapAddDelegate[item.clazz.simpleName];
-                    if (addDelegate !== null && addDelegate !== undefined) {
+                    if (addDelegate) {
                         var i;
                         for (i = 0; i < addDelegate.length; i++) {
                             var prop = addDelegate[i];
                             var target = item[prop][methodName];
                             if (target !== undefined) {
-                                return exFn(item[prop], methodName, item, values);
+                                return exFn(item[prop], methodName, item[prop], values);
                             }
                         }
                     }

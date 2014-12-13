@@ -20,3 +20,11 @@ def superCar = new SuperCar(engine: new Engine(cv: 100))
 
 assert superCar.start() == 'starting...'
 assert superCar.cv == 100
+
+class PrivateMap {
+    @Delegate
+    Map internalMap = [:]
+}
+
+def myMap = new PrivateMap()
+assert myMap.size() == 0
