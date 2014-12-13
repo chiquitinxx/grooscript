@@ -1,13 +1,15 @@
 package org.grooscript.asts
-
-import org.codehaus.groovy.control.MultipleCompilationErrorsException
-import org.grooscript.FunctionalTest
-import spock.lang.Ignore
-
 /**
  * User: jorgefrancoleza
  * Date: 15/08/13
  */
+
+import org.codehaus.groovy.control.MultipleCompilationErrorsException
+import org.grooscript.FunctionalTest
+
+import static org.grooscript.util.Util.SEP
+import static org.grooscript.util.Util.USER_HOME
+
 class TestPhantomJs extends FunctionalTest {
 
     String htmlResponse() {
@@ -29,7 +31,7 @@ class TestPhantomJs extends FunctionalTest {
 
         System.properties.remove('JS_LIBRARIES_PATH')
 
-        def tempDirectory = new File(System.getProperty('user.home') + File.separator + '.grooscript')
+        def tempDirectory = new File(USER_HOME + SEP + '.grooscript')
         if (tempDirectory.exists() && tempDirectory.isDirectory()) {
             tempDirectory.deleteDir()
         }
@@ -208,16 +210,5 @@ class TestPhantomJs extends FunctionalTest {
     void testReturnString() {
         def result = returnString()
         assert result == '<p>Welcome</p>'
-    }
-
-    @Ignore
-    @PhantomJsTest(url = 'http://beta.groovy-lang.org/')
-    void testCountLinks() {
-        def links = $('a')
-        assert links.size() > 40, "Number of links in page are ${links.size()}"
-        def linksArray = links.toArray()
-        linksArray.each {
-            println it
-        }
     }
 }

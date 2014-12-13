@@ -1,11 +1,13 @@
 package org.grooscript.convert
 
 import org.grooscript.GrooScript
-import org.grooscript.JsGenerator
 import org.grooscript.util.Util
 import spock.lang.IgnoreIf
 import spock.lang.Specification
 import spock.lang.Unroll
+
+import static org.grooscript.util.Util.LINE_SEPARATOR as LS
+import static org.grooscript.util.Util.SEP
 
 /**
  * User: jorgefrancoleza
@@ -17,7 +19,6 @@ class TestConversionOptions extends Specification {
     private static final FILE_BASIC_GROOVY_SOURCE = "src/test/resources/classes/${FILE_BASIC_NAME}.groovy"
     private static final FOLDER_NEED_DEPENDENCY = "need"
     private static final CLASS_NEED_DEPENDENCY = "Need"
-    private static final SEP = System.getProperty('file.separator')
     private static final FILE_BASIC_JS = "${FOLDER_NEED_DEPENDENCY}${SEP}${FILE_BASIC_NAME}.js"
     private static final SOURCE_DIR = 'source'
     private static final DESTINATION_DIR = 'destination'
@@ -156,7 +157,7 @@ class TestConversionOptions extends Specification {
         File file = new File(DESTINATION_FILE)
 
         then:
-        file.text == '0\r\n1\r\n2\r\n3\r\n4\r\n'
+        file.text == "0${LS}1${LS}2${LS}3${LS}4${LS}"
     }
 
     def 'define main context scope variables'() {

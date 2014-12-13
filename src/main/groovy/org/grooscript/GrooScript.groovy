@@ -8,7 +8,6 @@ import static org.grooscript.util.Util.*
 
 import org.grooscript.convert.GsConverter
 import org.grooscript.util.GrooScriptException
-import org.grooscript.daemon.ConversionDaemon
 import org.grooscript.util.GsConsole
 /**
  * JFL 09/11/12
@@ -201,7 +200,7 @@ class GrooScript {
             }
             source.eachFile { File file ->
                 if (file.isFile() && file.name.toLowerCase().endsWith(JS_EXTENSION)) {
-                    newFile.append(file.text + LINE_JUMP)
+                    newFile.append(file.text + LINE_SEPARATOR)
                 }
             }
         } else {
@@ -220,7 +219,7 @@ class GrooScript {
         filesToJoin.each { sourceFile ->
             def file = new File(sourceFile)
             if (file.isFile()) {
-                destinationFile.append(file.text + LINE_JUMP)
+                destinationFile.append(file.text + LINE_SEPARATOR)
             } else {
                 GsConsole.error 'Error joining file ' + sourceFile
             }

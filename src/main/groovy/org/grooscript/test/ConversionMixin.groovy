@@ -34,7 +34,7 @@ class ConversionMixin {
         }
 
         if (jsResultOnConsole) {
-            GsConsole.message("jsScript Result->${LINE_JUMP}$jsScript")
+            GsConsole.message("jsScript Result->${LINE_SEPARATOR}$jsScript")
         }
 
         JavascriptEngine.jsEval(jsScript)
@@ -59,7 +59,7 @@ class ConversionMixin {
         jsScript = builderCode + jsScript
 
         if (jsResultOnConsole) {
-            GsConsole.message("jsScript Result->${LINE_JUMP}$jsScript")
+            GsConsole.message("jsScript Result->${LINE_SEPARATOR}$jsScript")
         }
 
         JavascriptEngine.jsEval(jsScript).assertFails

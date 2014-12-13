@@ -16,6 +16,8 @@ import org.grooscript.convert.GsConverter
 import org.grooscript.util.Util
 
 import static org.grooscript.util.GsConsole.*
+import static org.grooscript.util.Util.SEP
+import static org.grooscript.util.Util.USER_HOME
 
 /**
  * User: jorgefrancoleza
@@ -166,23 +168,23 @@ page.open('{{URL}}', function (status) {
         if (!jsHome) {
 
             try {
-                def userHome = System.getProperty('user.home')
+                def userHome = USER_HOME
 
                 if (userHome) {
                     def version = Util.grooscriptVersion
-                    def folder = new File(userHome + File.separator + '.grooscript')
+                    def folder = new File(userHome + SEP + '.grooscript')
                     if (!folder.exists()) {
                         folder.mkdirs()
                     }
-                    def path = userHome + File.separator + '.grooscript' + File.separator + version
+                    def path = userHome + SEP + '.grooscript' + SEP + version
                     folder = new File(path)
                     if (folder.exists()) {
                         message 'Using js local files in ' + path, HEAD
                     } else {
                         folder.mkdirs()
                         ['grooscript.min.js', 'jquery.min.js'].each { fileName ->
-                            new File(path + File.separator + fileName).text =
-                                GrooScript.classLoader.getResourceAsStream('META-INF/resources/' + fileName).text
+                            new File(path + SEP + fileName).text =
+                                GrooScript.classLoader.getResourceAsStream("META-INF${SEP}resources${SEP}" + fileName).text
                         }
                     }
                     jsHome = path
@@ -209,7 +211,7 @@ page.open('{{URL}}', function (status) {
                 assert false, 'PhantomJs Initial Error: ' + messageError
             }
             def jsHome = jsLibrariesPath
-            def phantomJsHome
+            String phantomJsHome
             if (!System.getProperty('PHANTOMJS_HOME') && !System.getenv('PHANTOMJS_HOME')) {
                 assert false, 'Need define PHANTOMJS_HOME as property or environment variable; the PhantomJs folder'
             } else {
@@ -219,7 +221,7 @@ page.open('{{URL}}', function (status) {
 
             def sysOp = System.getProperty('os.name')
             if (sysOp && sysOp.toUpperCase().contains('WINDOWS')) {
-                jsHome = jsHome.replace('\\', '/')
+                jsHome = jsHome.replace('\\', SEP)
                 jsHome = (jsHome.indexOf(':') == 1 ? jsHome.substring(2) : jsHome)
             }
 
@@ -229,9 +231,9 @@ page.open('{{URL}}', function (status) {
             //Execute PhantomJs
             String command = phantomJsHome
             if (sysOp && sysOp.toUpperCase().contains('WINDOWS')) {
-                command += "${File.separator}phantomjs.exe " + nameFile
+                command += "${SEP}phantomjs.exe " + nameFile
             } else {
-                command += "${File.separator}bin${File.separator}phantomjs " + nameFile
+                command += "${SEP}bin${SEP}phantomjs " + nameFile
             }
 
             if (withInfo) {

@@ -10,35 +10,26 @@ import org.grooscript.test.JsTestResult
  */
 class Util {
 
-    static final USER_DIR = System.getProperty('user.dir')
+    static final USER_HOME = System.getProperty('user.home')
     static final SEP = System.getProperty('file.separator')
-    static final LINE_JUMP = '\r\n'
+    static final LINE_SEPARATOR = System.getProperty('line.separator')
     static final JS_EXTENSION = '.js'
     static final GROOVY_EXTENSION = '.groovy'
     static final JAVA_EXTENSION = '.java'
 
     //Where Js stuff is
-    static getJsPath() {
-        def path = "$USER_DIR${SEP}src${SEP}main${SEP}resources${SEP}META-INF${SEP}resources${SEP}"
-        def file = new File(path)
-        if (!file || !file.exists() || !file.isDirectory()) {
-            path = "$USER_DIR${SEP}web${SEP}scripts${SEP}"
-        }
-        file = new File(path)
-        if (!file || !file.exists() || !file.isDirectory()) {
-            path = "$USER_DIR${SEP}webapp${SEP}web${SEP}scripts${SEP}"
-        }
-        path
+    static String getJsPath() {
+        "src${SEP}main${SEP}resources${SEP}META-INF${SEP}resources${SEP}"
     }
 
     //Location of groovy script examples
-    static getGroovyTestPath() {
-        "$USER_DIR${SEP}src${SEP}test${SEP}resources${SEP}"
+    static String getGroovyTestPath() {
+        "src${SEP}test${SEP}resources${SEP}"
     }
 
     //Location of groovy test src examples
-    static getGroovyTestSrcPath() {
-        "$USER_DIR${SEP}src${SEP}test${SEP}src${SEP}"
+    static String getGroovyTestSrcPath() {
+        "src${SEP}test${SEP}src${SEP}"
     }
 
     /**
@@ -46,7 +37,7 @@ class Util {
      * @param name
      * @return
      */
-    static getJsFile(String name) {
+    static File getJsFile(String name) {
         def result
         if (name) {
             def finalName = name
@@ -67,7 +58,7 @@ class Util {
      * @param name
      * @return
      */
-    static getGroovyTestScriptFile(String name) {
+    static File getGroovyTestScriptFile(String name) {
         def result
         if (name) {
             def finalName = name

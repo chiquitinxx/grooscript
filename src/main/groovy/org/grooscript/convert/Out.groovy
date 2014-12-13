@@ -1,5 +1,6 @@
 package org.grooscript.convert
 
+import static org.grooscript.util.Util.LINE_SEPARATOR as LS
 /**
  * User: jorgefrancoleza
  * Date: 16/01/14
@@ -16,10 +17,9 @@ class Out {
      * @param line
      * @return
      */
-    private addLine() {
-        //println "sc(${script}) line(${line})"
+    private void addLine() {
         if (resultScript) {
-            resultScript += '\n'
+            resultScript += LS
         } else {
             resultScript = ''
         }
@@ -31,9 +31,7 @@ class Out {
      * @param text
      * @return
      */
-    private addScript(text, addNewLineChar = false) {
-        //println 'adding ->'+text
-        //indent.times { resultScript += TAB }
+    private void addScript(text, addNewLineChar = false) {
         resultScript += text
         if (addNewLineChar) {
             addLine()
@@ -54,7 +52,7 @@ class Out {
      * Get actual position in javascript output
      * @return
      */
-    def getSavePoint() {
+    int getSavePoint() {
         return resultScript.size()
     }
 
@@ -66,7 +64,7 @@ class Out {
         resultScript = resultScript[0..resultScript.size()-1-TAB.size()]
     }
 
-    def block(String text = '', Closure cl) {
+    void block(String text = '', Closure cl) {
         addScript(text + '{')
         indent ++
         addLine()

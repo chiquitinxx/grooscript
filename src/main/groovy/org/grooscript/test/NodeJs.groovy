@@ -2,7 +2,7 @@ package org.grooscript.test
 
 import org.grooscript.util.GsConsole
 
-import static org.grooscript.util.Util.LINE_JUMP
+import static org.grooscript.util.Util.LINE_SEPARATOR
 
 /**
  * Created by jorge on 15/04/14.
@@ -11,9 +11,9 @@ class NodeJs {
 
     private static final FILE_NAME = 'nodeJsTest.js'
     private static final FILE_HEAD = "var gs = require('./src/main/resources/META-INF/resources/grooscript.js');" +
-            "${LINE_JUMP}gs.consoleOutput = false;${LINE_JUMP}"
+            "${LINE_SEPARATOR}gs.consoleOutput = false;${LINE_SEPARATOR}"
     private static final SEPARATOR = '#'
-    private static final FILE_FOOT = "${LINE_JUMP}console.log(gs.fails + '${SEPARATOR}' + gs.consoleData);"
+    private static final FILE_FOOT = "${LINE_SEPARATOR}console.log(gs.fails + '${SEPARATOR}' + gs.consoleData);"
     private static final MAX_TIMEOUT = 3000L
 
     JsTestResult evaluate(String jsCode) {
