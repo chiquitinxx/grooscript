@@ -1,0 +1,184 @@
+= link:{index-file}[Grooscript] documentation
+
+*Groovy to javascript transpiler*
+
+== Introduction
+
+Be aware javascript isn't Java or Groovy, lot of differences between them. The main idea of this project is use
+Groovy strengths in the browser, not create a full conversion. I'm looking for use groovy code in the server and the client,
+work in a single environment, use groovy and java tools and IDE's.
+
+Grooscript is a library that converts your groovy code to javascript. I've tried that converted code doesn't contains
+strange code or magical things. So you can use and follow that converted javascript code. This code needs +grooscript.js+
+or +grooscript.min.js+ to run in a javascript environment.
+
+The typical flow is:
+
+- Create awesome groovy or java code.
+- Test it with https://code.google.com/p/spock/[Spock] :)
+- Converts code to javascript.
+- Add that converted files to your html or js project.
+- Then, work in your groovy code and use javascript when you want to.
+
+Grooscript offer some tools to help you, a https://github.com/chiquitinxx/grooscript-gradle-plugin[gradle]
+plugin, a https://github.com/chiquitinxx/grails-grooscript[grails] plugin and a node.js
+https://www.npmjs.org/package/grooscript[npm].
+
+== Getting started
+
+You can create a groovy script to make a conversion and see the converted code in your console:
+
+[source,groovy]
+[subs="verbatim,attributes"]
+--
+@Grab('org.grooscript:grooscript:{grooscript-version}')
+
+import org.grooscript.GrooScript
+
+def result = GrooScript.convert '''
+    def sayHello = { println "Hello ${it}!" }
+    ['Groovy','JavaScript','GrooScript'].each sayHello'''
+
+println result
+--
+
+If you want to make conversions in your groovy / java project, you need link:jars/grooscript-{grooscript-version}.jar[grooscript.jar].
+You can get from mavenCentral +org.grooscript:grooscript:{grooscript-version}+ in your project's dependencies. Also need grooscript.js,
+inside the jar or download from link:downloads.html[here] to run the converted code in your javascript environment.
+
+Also, you can convert groovy or java files to javascript:
+
+[source,groovy]
+--
+import org.grooscript.GrooScript
+
+//Convert some file's or folder's, generate .js files with same name of each source file.
+GrooScript.convert('path/to/file/or/folder', 'path/to/destination/folder')
+GrooScript.convert(['file', 'folder', ...], 'path/to/destination/folder')
+//Also can convert all source files to one javascript file
+GrooScript.convert('any/number/of/sources', 'path/file.js')
+--
+
+But, the gradle plugin helps a lot, and I recommend you to use it. link:starting_gradle.html[Guide]
+
+== Conversion
+
+For convert groovy code to javascript, that groovy code is compiled. Then javascript code is generated
+visiting generated AST tree. You can try link:conversions.html[online] conversions at grooscript site.
+
+=== Options
+
+To help in conversion process, you can set some conversion options. To set conversion options:
+
+[source,groovy]
+--
+//Set a conversion property
+GrooScript.setConversionProperty('recursive', true)
+GrooScript.setConversionProperty('customization', {
+    ast(CompileStatic)
+})
+//Applied to next conversions
+--
+
+include::conversion_options.adoc[]
+
+=== General support
+
+* Interfaces - totally ignored and not converted
+
+[source,groovy]
+--
+include::../src/test/resources/doc/Inheritance.groovy[tags=interface,indent=0]
+--
+
+* Inheritance
+
+[source,groovy]
+--
+include::../src/test/resources/doc/Inheritance.groovy[tags=inheritance,indent=0]
+--
+<1> super is allowed in constructors
+<2> super in not allowed out of constructors
+
+=== Java support
+
+=== Groovy support
+
+== Converted code
+
+== PhantomJs tests
+
+include::phantomjstest.adoc[]
+
+== Annotations
+
+Grooscript offer three annotations to add in your groovy code.
+
+=== GsNative
+
+You can annotate groovy methods with @GsNative. The javascript code of that method will be the code inside comment,
+between /* and */. I use a lot this feature to insert javascript code in the groovy code. So when I run the code
+in groovy nothing happens (tests pass), but the javascript code runs in converted code.
+
+[source,groovy]
+--
+import org.grooscript.asts.GsNative
+
+class Numbers {
+
+    @GsNative
+    def getFive() {/*
+        $('something').andMoreJsCode();
+        return 5;
+    */}
+
+    def getSix() {
+        6
+    }
+}
+--
+
+=== GsNotConvert
+
+You can annotate your classes and methods with @GsNotConvert and that code will not be converted to javascript.
+
+[source,groovy]
+--
+import org.grooscript.asts.GsNotConvert
+
+@GsNotConvert
+class ClassNotConvert {
+    def a
+}
+
+class A {
+    @GsNotConvert
+    def methodNotConvert() {
+        println 'No!'
+    }
+
+    def hello() {
+        println 'Hello!'
+    }
+}
+--
+
+=== GQuery
+
+== Helper Tools
+
+include::tools.adoc[]
+
+== Tricks
+
+== Tools
+
+=== Gradle plugin
+
+=== Grails plugin
+
+=== Npm package
+
+== Guides
+
+== Acknowledgements

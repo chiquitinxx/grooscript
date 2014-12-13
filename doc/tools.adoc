@@ -1,0 +1,48 @@
+Grooscript comes with some tools. This tools are some classes that you can use in your groovy code. If you convert
+code that use this tools, you need the js code of that tools. This code is in +grooscript-tools.js+ file. You
+can find it inside the jar or you can link:downloads.html[download] it.
+
+This tools are little helpers, with only a bit lines of code, don't expect full libraries. I have introduced
+this libraries because I think that are interesting in you javascript development. Progress in this tools
+depends of people's feedback.
+
+=== HtmlBuilder
+
+Groovy itself comes with more than one html builder, and from last versions of groovy there is a new
+http://beta.groovy-lang.org/docs/groovy-2.3.7/html/documentation/markup-template-engine.html[template engine].
+Is a fast and modern engine, and my tool has some things from it.
+
+I like this builders to create html code, using a dsl is a very powerful way to create pages or templates.
+You can use variables or groovy code inside the builder to convert your templates into code. Let's see an
+example:
+
+[source,groovy]
+--
+yieldUnescaped '<!DOCTYPE html>'
+html {
+  head {
+    title('Title of the page')
+    link(rel: 'stylesheet', href: '/css/bootstrap.min.css')
+  }
+  body {
+    div(class: 'container') {
+      ul {
+        //persons is a list of persons that is used to generate the final HTML
+        persons.each { person ->
+          li {
+            a(href:"/person/$person.id", "$person.lastName $person.firstName")
+          }
+        }
+      }
+
+      div {
+        a(href:'/person/add', 'Add new person')
+      }
+    }
+  }
+}
+--
+
+=== gQuery
+
+=== Observable

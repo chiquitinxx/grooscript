@@ -2,6 +2,7 @@ plugins {
     id "com.moowork.node" version "0.7"
     id "com.moowork.gulp" version "0.1"
     id "com.bmuschko.nexus" version "2.1.1"
+    id "org.asciidoctor.convert" version "1.5.2"
 }
 
 apply plugin: 'idea'
@@ -109,4 +110,16 @@ node {
 
     // Set the work directory for unpacking node
     workDir = file("${project.buildDir}/nodejs")
+}
+
+asciidoctor {
+    sourceDir = project.file 'doc'
+    attributes 'grooscript-version': '1.0-SNAPSHOT',
+        author: 'Jorge Franco',
+        email: 'grooscript@gmail.com',
+        'source-highlighter': 'prettify',
+        toc: 'right',
+        icons: 'font',
+        'index-file': 'index.html'
+
 }

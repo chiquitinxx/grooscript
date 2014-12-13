@@ -1,0 +1,159 @@
+http://phantomjs.org/[PhantomJS] is a javascript library for functional testing your web applications or html files.
+It has it's own embedded browser, and you can evaluate DOM handling, CSS selector, JSON, Canvas, and SVG. This library,
+comes with an executable to run a test in a .js file. With http://grooscript.org[grooscript] you can run a
+PhantomJS test to *evaluate groovy code*.
+
+=== Requirements
+
+To run your http://phantomjs.org/download.html[PhantomJS] tests from Groovy, you need both installed.
+Create an environment variable in your computer +> export PHANTOMJS_HOME=/path/to/phantomjs+, this isn't
+mandatory step, but with this variable you don't have to define that system property in your groovy project.
+
+=== Script
+
+You can run a PhantomJS test from a groovy script, for example +myScript.groovy+:
+
+[source,groovy]
+[subs="verbatim,attributes"]
+--
+@GrabConfig(systemClassLoader=true)
+@Grab('org.grooscript:grooscript:{grooscript-version}') //<1>
+
+import org.grooscript.asts.PhantomJsTest
+
+System.setProperty('PHANTOMJS_HOME', '/path/to/phantomjs/folder') //<2>
+
+@PhantomJsTest(url = 'http://beta.groovy-lang.org/') //<3>
+void testCountLinks() {
+    def links = $('a') //<4>
+    assert links.size() > 40, "Number of links in page are ${links.size()}"
+    links.toArray().collect { it.toString() }.each { link -> //<5>
+         println link
+    }
+}
+
+testCountLinks() //<6>
+--
+<1> Grab grooscript jar.
+<2> If you haven't define environment variable, you can set system property.
+<3> The AST that will change the method in a new method that run a PhantomJS test.
+<4> Groovy code that will be converted to javascript and will be evaluated.
+<5> jQuery has it owns each, so I have to use collect to get a 'groovy' collection.
+<6> You have to execute the method to run the test.
+
+If you execute this script with +> groovy myScript.groovy+, then a PhantomJS will run. The browser will open the
+url http://beta.groovy-lang.org/ and will evaluate the groovy code converted to javascript. JQuery and grooscript.js are
+injected to PhantomJS and you can use that libraries in your evaluation.
+
+You get some info of the test running in console:
+
+[source,bash]
+--
+[PhantomJs Test] Starting Test in http://beta.groovy-lang.org/
+  [Console]  https://github.com/groovy/groovy-core
+     ...
+  [Console]  http://www.apache.org/licenses/LICENSE-2.0.html
+[PhantomJs Test] Number of tests: 1
+[PhantomJs Test] Result SUCCESS.
+--
+
+=== Details
+
+@PhantomJsTest annotation transform the code of your function in a new method that runs PhantomJS with groovy
+scripting capabilities. Also a temporally .js file is created for the execution, with the evaluation of the groovy
+code. If some assert fails in the evaluation a groovy assert fail will be raised.
+
+Use this feature for simple and fast tests. If you planning a lot of function tests, please consider
+use http://www.gebish.org/[Geb]. Interaction with the DOM and jQuery functions inside PhantomJS test have
+some strange behavior.
+
+With @PhantomJsTest you can use more parameters, only _url_ is mandatory:
+
+waitSeconds:: If you want to wait some seconds after page loaded before evaluate your code.
+info:: To show more info in console.
+capture:: To capture an image of page at the end of evaluation.
+
+[source,groovy]
+--
+@PhantomJsTest(url = 'myFile.html', waitSeconds = 2, info = true, capture = 'image.png')
+void testWithAllOptions() {
+    assert $('title').text().contains('Welcome')
+}
+--
+
+You can pass basic parameters as numbers or strings to your function / method annotated with @PhantomJsTest
+
+[source,groovy]
+--
+@PhantomJsTest(url = 'http://localhost:8000/test')
+void testExpectedElements(element, expectedSize) {
+    assert $(element).size == expectedSize,"Number of '${element}' in page is ${$(element).size()}"
+}
+
+void testPassParameters() {
+    testExpectedElements('p', 1)
+    testExpectedElements('body', 1)
+}
+--
+
+You can also get data from the test. That data is parsed to JSON, and return back to groovy parsing that JSON:
+
+[source,groovy]
+--
+@PhantomJsTest(url = 'http://localhost:8000/test')
+def returnMap() {
+    [list: [1,2], str: 'string', number: 9, dec: 8.34, jq: $('p').text()]
+}
+
+void testReturnMap() {
+    def result = returnMap()
+    assert result == [ list: [1,2], str: 'string', number: 9, dec: 8.34, jq: 'Welcome']
+}
+--
+
+=== GroovyTestCase
+
+You can annotate a test in a GroovyTestCase with @PhantomJsTest and will work as expected, the test
+will be evaluated in PhantomJs.
+
+[source,groovy]
+--
+class TestPhantomJs extends GroovyTestCase {
+
+    @PhantomJsTest(url = 'http://localhost:8000/test')
+    void testDirectPhantomJs() {
+        println $('p').text()
+        assert $('p').text().contains('Welcome'), "p html is 'Welcome'"
+    }
+}
+--
+
+=== Spock integration
+
+The integration with https://code.google.com/p/spock/[Spock] isn't very good. The best way, is create a private
+method with @PhantomJsTest in your specification, and call it from your tests.
+
+[source,groovy]
+--
+import spock.lang.Specification
+
+class MySpec extends Specification {
+
+    void 'correct number of divs in test page'() {
+        expect:
+        expectedElements('div', 18)
+    }
+
+    @PhantomJsTest(url = 'http://localhost:8000/test')
+    private void expectedElements(element, expectedSize) {
+        assert $(element).size == expectedSize,"Number of '${element}' in page is ${$(element).size()}"
+    }
+}
+--
+
+
+=== Resume
+
+This phantomJs tests are nice for fast and small tests. Is very easy to create a little script or add browser
+tests without too much dependencies. Take care with jQuery in your evaluations, for example I have had some
+problems using 'each' function.
