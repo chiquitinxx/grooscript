@@ -44,6 +44,7 @@ class ConversionFactory {
         'UnaryMinusExpression': UnaryMinusExpressionHandler,
         'UnaryPlusExpression': UnaryPlusExpressionHandler,
         'TryCatchStatement': TryCatchStatementHandler,
+        'StaticMethodCallExpression': StaticMethodCallExpressionHandler,
     ]
 
     ConversionFactory() {
@@ -70,6 +71,7 @@ class ConversionFactory {
 
     void visitNode(node, otherParam = null) {
         String className = node.class.simpleName
+        //println 'Visiting:'+node
         if (!converters[className]) {
             if (otherParam != null) {
                 converter."process${className}"(node, otherParam)

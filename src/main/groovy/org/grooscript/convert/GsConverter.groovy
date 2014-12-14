@@ -100,7 +100,6 @@ class GsConverter {
             def listBlocks = []
 
             list.each { it ->
-                //println '------------------------------------it->'+it
                 if (it instanceof BlockStatement) {
                     listBlocks << it
                 } else if (it instanceof ClassNode) {
@@ -619,11 +618,6 @@ class GsConverter {
     private processThrowStatement(ThrowStatement statement) {
         out.addScript('throw "Exception"')
         //println 'throw expression'+statement.expression.text
-    }
-
-    private processStaticMethodCallExpression(StaticMethodCallExpression expression) {
-        out.addScript("${conversionFactory.reduceClassName(expression.ownerType.name)}.${expression.method}")
-        conversionFactory.visitNode(expression.arguments)
     }
 
     private processElvisOperatorExpression(ElvisOperatorExpression expression) {

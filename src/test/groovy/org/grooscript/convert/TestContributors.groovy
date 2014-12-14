@@ -117,8 +117,10 @@ class TestContributors extends Specification {
         convertAndEvaluate file
 
         where:
-        file << ['contribution/Guillaume', 'contribution/GuillaumeClosuresComposition',
-                 'contribution/GuillaumeOptionalReturn', 'contribution/GuillaumeCommandChain',
+        file << [
+                'contribution/Guillaume', 'contribution/GuillaumeClosuresComposition',
+                'contribution/GuillaumeOptionalReturn', 'contribution/GuillaumeCommandChain',
+                'contribution/GuillaumeTrailingClosure'
         ]
     }
 
