@@ -111,10 +111,15 @@ class TestContributors extends Specification {
         'contribution/MySelf10'    | _
     }
 
+    @Unroll
     def 'guillaume examples from talks'() {
         expect:
-        convertAndEvaluate('contribution/Guillaume')
-        convertAndEvaluate('contribution/GuillaumeClosuresComposition')
+        convertAndEvaluate file
+
+        where:
+        file << ['contribution/Guillaume', 'contribution/GuillaumeClosuresComposition',
+                 'contribution/GuillaumeOptionalReturn', 'contribution/GuillaumeCommandChain',
+        ]
     }
 
     def 'ronny is'() {
