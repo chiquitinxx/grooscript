@@ -31,3 +31,26 @@ def withExceptionFinallyWithoutReturn = {
 
 assert withExceptionFinallyWithoutReturn() == 2
 assert value == 2
+
+def withFinally = {
+    try {
+        return 1
+    } finally {
+        value = 3
+    }
+}
+
+assert withFinally() == 1
+assert value == 3
+
+def anyCatch = {
+    try {
+        throw new Exception()
+        value = 4
+    } catch (any) {
+        return 2
+    }
+}
+
+assert anyCatch() == 2
+assert value == 3

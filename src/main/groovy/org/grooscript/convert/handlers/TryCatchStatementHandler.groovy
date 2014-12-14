@@ -13,33 +13,22 @@ import org.codehaus.groovy.ast.stmt.TryCatchStatement
  */
 class TryCatchStatementHandler extends BaseHandler {
 
-    private static final RETURN_COUNT = 0
-
     void handle(TryCatchStatement statement) {
 
-        def count = RETURN_COUNT++
+        putTryCode(statement)
 
-        if (filledFinally(statement)) {
-            out.addScript("var gS${count} = (function() {")
-            out.indent++
-            out.addLine()
+        if (filledBlock(statement?.catchStatements[0])) {
+            putCatchCode(statement)
         }
 
-        putTryCatchCode(statement)
-
-        if (filledFinally(statement)) {
-            out.indent--
-            out.removeTabScript()
-            out.addScript('})();', true)
-        }
-        if (filledFinally(statement)) {
-            conversionFactory.visitNode(statement.finallyStatement)
-            out.addScript("if (gS${count}) { return gS${count} };", true)
+        if (filledBlock(statement.finallyStatement)) {
+            out.block('finally') {
+                conversionFactory.visitNode(statement.finallyStatement)
+            }
         }
     }
 
-    private putTryCatchCode(TryCatchStatement statement) {
-        //Try block
+    private putTryCode(TryCatchStatement statement) {
         out.addScript('try {')
         out.indent++
         out.addLine()
@@ -48,8 +37,12 @@ class TryCatchStatementHandler extends BaseHandler {
 
         out.indent--
         out.removeTabScript()
-        //Catch block
-        out.addScript('} catch (')
+        out.addScript('}', true)
+    }
+
+    private putCatchCode(TryCatchStatement statement) {
+
+        out.addScript('catch (')
         if (statement?.catchStatements[0]) {
             conversionFactory.visitNode(statement?.catchStatements[0].variable)
         } else {
@@ -70,12 +63,8 @@ class TryCatchStatementHandler extends BaseHandler {
         conversionFactory.visitNode(statement.code, false)
     }
 
-    private finallyWithReturn(TryCatchStatement statement) {
-        filledFinally(statement) && hasExplicitReturn(statement.finallyStatement)
-    }
-
-    private filledFinally(TryCatchStatement statement) {
-        statement && statement.finallyStatement && !(statement.finallyStatement instanceof EmptyStatement)
+    private filledBlock(statement) {
+        statement && !(statement instanceof EmptyStatement)
     }
 
     private boolean hasExplicitReturn(Statement statement) {

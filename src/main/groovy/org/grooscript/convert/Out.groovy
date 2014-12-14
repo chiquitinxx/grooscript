@@ -72,7 +72,6 @@ class Out {
         addLine()
         indent --
         removeTabScript()
-        addScript('};')
-        addLine()
+        addScript('};', true)
     }
 }
