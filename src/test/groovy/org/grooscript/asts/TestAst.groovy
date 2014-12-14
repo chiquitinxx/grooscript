@@ -5,9 +5,6 @@ import spock.lang.Specification
 import org.grooscript.util.Util
 
 /**
- * First test for converts groovy code to javascript code
- * Following GroovyInAction Book
- * Chap 2. Groovy basics
  * JFL 27/08/12
  */
 class TestAst extends Specification {

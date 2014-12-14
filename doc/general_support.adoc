@@ -1,11 +1,53 @@
-* Interfaces - totally ignored and not converted
+* Packages
+
+They are supported. Actually conversion generate js code where package info is saved only for class names.
+So two classes with same name in distinct packages are converted with the same name. Lack of package support
+in javascript, but we have some ideas to improve this in the future.
+
+[source,groovy]
+--
+package one
+
+class First {}
+
+package two
+
+class First {}
+--
+
+Are converted to:
+
+[source,javascript]
+--
+function First() { ... }
+
+function First() { ... }
+--
+
+* Interfaces
+
+Totally ignored and not converted
 
 [source,groovy]
 --
 include::../src/test/resources/doc/Inheritance.groovy[tags=interface,indent=0]
 --
 
+* Objects
+
+Objects are supported, with static and normal properties. You can have more than 1 constructor with same
+number of parameters. Overloading is not supported, you can't have two methods with same name. Abstract
+methods are ignored, just convert implementations in extending classes. Private, public, protected, ... are
+ignored, as in groovy you can access private methods and fields in javascript. Modifier final also ignored.
+
+[source,groovy]
+--
+include::../src/test/resources/doc/Object.groovy[tags=object,indent=0]
+--
+
 * Inheritance
+
+Support is limited, is ok that you create classes that extends other to add behavior.
 
 [source,groovy]
 --

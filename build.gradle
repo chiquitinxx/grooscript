@@ -93,6 +93,7 @@ task testUnit(type: Test) {
     exclude 'org/grooscript/builder/TestFunctional*'
     exclude 'org/grooscript/GrooScriptSpec*'
     exclude 'org/grooscript/convert/TestFiles*'
+    exclude 'org/grooscript/doc/**'
 }
 
 testUnit.description = 'Run only conversion tests'

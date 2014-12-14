@@ -11,6 +11,11 @@ class TestDoc extends Specification {
 
     def 'test inheritance' () {
         expect:
-        convertAndEvaluate('doc/Inheritance')
+        convertAndEvaluate 'doc/Inheritance'
+    }
+
+    def 'test object' () {
+        expect:
+        convertAndEvaluate 'doc/Object'
     }
 }
