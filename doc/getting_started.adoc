@@ -1,0 +1,34 @@
+You can create a groovy script to make a conversion and see the converted code in your console:
+
+[source,groovy]
+[subs="verbatim,attributes"]
+--
+@Grab('org.grooscript:grooscript:{grooscript-version}')
+
+import org.grooscript.GrooScript
+
+def result = GrooScript.convert '''
+    def sayHello = { println "Hello ${it}!" }
+    ['Groovy','JavaScript','GrooScript'].each sayHello'''
+
+println result
+--
+
+If you want to make conversions in your groovy / java project, you need link:jars/grooscript-{grooscript-version}.jar[grooscript.jar].
+You can get from mavenCentral +org.grooscript:grooscript:{grooscript-version}+ in your project's dependencies. Also need grooscript.js,
+inside the jar or download from link:downloads.html[here] to run the converted code in your javascript environment.
+
+Also, you can convert groovy or java files to javascript:
+
+[source,groovy]
+--
+import org.grooscript.GrooScript
+
+//Convert some file's or folder's, generate .js files with same name of each source file.
+GrooScript.convert('path/to/file/or/folder', 'path/to/destination/folder')
+GrooScript.convert(['file', 'folder', ...], 'path/to/destination/folder')
+//Also can convert all source files to one javascript file
+GrooScript.convert('any/number/of/sources', 'path/file.js')
+--
+
+But, the gradle plugin helps a lot, and I recommend you to use it. link:starting_gradle.html[Guide]

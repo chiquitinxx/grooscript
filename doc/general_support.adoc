@@ -1,0 +1,15 @@
+* Interfaces - totally ignored and not converted
+
+[source,groovy]
+--
+include::../src/test/resources/doc/Inheritance.groovy[tags=interface,indent=0]
+--
+
+* Inheritance
+
+[source,groovy]
+--
+include::../src/test/resources/doc/Inheritance.groovy[tags=inheritance,indent=0]
+--
+<1> super is allowed in constructors
+<2> super in not allowed out of constructors
