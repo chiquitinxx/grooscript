@@ -1991,12 +1991,14 @@
         if (item && item.isEmpty !== undefined) {
             return !item.isEmpty();
         } else {
-            if (typeof(item) == 'number' && item === 0) {
-                return false;
-            } else if (typeof(item) == 'string' && item === '') {
-                return false;
-            } else if (typeof(item) == 'string' && item !== '') {
-                return true;
+            if (item) {
+                if (item['asBoolean']) {
+                    return item['asBoolean']();
+                } else if (typeof(item) == 'number' && item === 0) {
+                    return false;
+                } else if (typeof(item) == 'string') {
+                    return item !== '';
+                }
             }
             return item;
         }

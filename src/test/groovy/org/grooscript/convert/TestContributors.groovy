@@ -120,7 +120,7 @@ class TestContributors extends Specification {
         file << [
                 'contribution/Guillaume', 'contribution/GuillaumeClosuresComposition',
                 'contribution/GuillaumeOptionalReturn', 'contribution/GuillaumeCommandChain',
-                'contribution/GuillaumeTrailingClosure'
+                'contribution/GuillaumeTrailingClosure', 'contribution/GuillaumeCustomizeTruth'
         ]
     }
 

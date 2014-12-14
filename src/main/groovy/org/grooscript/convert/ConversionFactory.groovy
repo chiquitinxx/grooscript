@@ -89,8 +89,7 @@ class ConversionFactory {
 
     void handExpressionInBoolean(expression) {
         if (expression instanceof VariableExpression || expression instanceof PropertyExpression ||
-                (expression instanceof NotExpression && expression.expression &&
-                    (expression.expression instanceof VariableExpression || expression.expression instanceof PropertyExpression))) {
+                expression instanceof ConstructorCallExpression || expression instanceof NotExpression) {
             if (expression instanceof NotExpression) {
                 out.addScript("!${GS_BOOL}(")
                 visitNode(expression.expression)
