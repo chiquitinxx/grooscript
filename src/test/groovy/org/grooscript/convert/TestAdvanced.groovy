@@ -193,4 +193,9 @@ class TestAdvanced extends Specification {
         expect:
         convertAndEvaluate('advanced/BooleanProperties')
     }
+
+    def 'finally blocks executed'() {
+        expect:
+        convertAndEvaluate('advanced/Finally')
+    }
 }

@@ -444,38 +444,6 @@ class GsConverter {
         out.addScript(parameter.name)
     }
 
-    private processTryCatchStatement(TryCatchStatement statement) {
-        //Try block
-        out.addScript('try {')
-        out.indent++
-        out.addLine()
-
-        conversionFactory.visitNode(statement?.tryStatement)
-
-        out.indent--
-        out.removeTabScript()
-        //Catch block
-        out.addScript('} catch (')
-        if (statement?.catchStatements[0]) {
-            conversionFactory.visitNode(statement?.catchStatements[0].variable)
-        } else {
-            out.addScript('e')
-        }
-        out.addScript(') {')
-        out.indent++
-        out.addLine()
-        //Only process first catch
-        conversionFactory.visitNode(statement?.catchStatements[0])
-
-        out.indent--
-        out.removeTabScript()
-        out.addScript('}')
-    }
-
-    private processCatchStatement(CatchStatement statement) {
-        conversionFactory.visitNode(statement.code, false)
-    }
-
     private processTernaryExpression(TernaryExpression expression) {
         //println 'Ternary->'+expression.text
         out.addScript('(')

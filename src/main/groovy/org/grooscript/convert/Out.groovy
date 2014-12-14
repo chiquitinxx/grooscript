@@ -17,7 +17,7 @@ class Out {
      * @param line
      * @return
      */
-    private void addLine() {
+    void addLine() {
         if (resultScript) {
             resultScript += LS
         } else {
@@ -60,7 +60,7 @@ class Out {
      * Remove a TAB from current javascript output
      * @return
      */
-    private removeTabScript() {
+    void removeTabScript() {
         resultScript = resultScript[0..resultScript.size()-1-TAB.size()]
     }
 

@@ -69,9 +69,9 @@ class BlockStatementHandler extends BaseHandler {
         conversionFactory.visitNode(statement)
 
         //Adds ;
-        if (out.resultScript) {
+        if (out.resultScript && !(statement instanceof BlockStatement) && !(statement instanceof EmptyStatement)) {
             out.resultScript += ';'
+            out.addLine()
         }
-        out.addLine()
     }
 }

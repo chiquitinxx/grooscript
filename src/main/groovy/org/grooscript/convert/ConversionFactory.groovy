@@ -43,6 +43,7 @@ class ConversionFactory {
         'ExpressionStatement': ExpressionStatementHandler,
         'UnaryMinusExpression': UnaryMinusExpressionHandler,
         'UnaryPlusExpression': UnaryPlusExpressionHandler,
+        'TryCatchStatement': TryCatchStatementHandler,
     ]
 
     ConversionFactory() {
