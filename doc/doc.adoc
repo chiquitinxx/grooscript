@@ -31,13 +31,13 @@ GrooScript.setConversionProperty('customization', {
 
 include::conversion_options.adoc[]
 
-=== General support [Jorge]
+=== General support
 
 include::general_support.adoc[]
 
-=== Java support
+=== Java support [Jorge]
 
-Java types supported...
+include::java_support.adoc[]
 
 === Groovy support
 

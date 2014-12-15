@@ -1,4 +1,14 @@
-* Packages
+As you can imagine, not all groovy and java is supported. The main focus is support the conversion of groovy
+code with the logic of your application, and use as many groovy magic as possible. Only groovy-core is
+supported, other modules as Json, File, Swing, Templates, ... are not supported.
+
+The more you try use a specific Java type or a complex metaprogramming feature, then you will get a fail.
+Java code is supported, but using same types as groovy does. Don't hesitate to say that you need a non
+implemented type, or function, can be done in next releases.
+
+I'm going to detail general rules.
+
+==== Packages
 
 They are supported. Actually conversion generate js code where package info is saved only for class names.
 So two classes with same name in distinct packages are converted with the same name. Lack of package support
@@ -24,7 +34,7 @@ function First() { ... }
 function First() { ... }
 --
 
-* Interfaces
+==== Interfaces
 
 Totally ignored and not converted
 
@@ -33,7 +43,7 @@ Totally ignored and not converted
 include::../src/test/resources/doc/Inheritance.groovy[tags=interface,indent=0]
 --
 
-* Objects
+==== Objects
 
 Objects are supported, with static and normal properties. You can have more than 1 constructor with same
 number of parameters. Overloading is not supported, you can't have two methods with same name. Abstract
@@ -45,13 +55,33 @@ ignored, as in groovy you can access private methods and fields in javascript. M
 include::../src/test/resources/doc/Object.groovy[tags=object,indent=0]
 --
 
-* Inheritance
+Class data not well supported, just a few important methods and properties:
 
-Support is limited, is ok that you create classes that extends other to add behavior.
+[source,groovy]
+--
+include::../src/test/resources/contribution/ChrisMiles.groovy[tags=class_info,indent=0]
+--
+
+Equals method is used in comparisons, and you can create / use in your classes.
+
+==== Inheritance
+
+Support is limited, is ok that you create classes that extends other to add behavior. You can't extend
+any java or groovy class, just your own classes or other classes already converted.
 
 [source,groovy]
 --
 include::../src/test/resources/doc/Inheritance.groovy[tags=inheritance,indent=0]
 --
 <1> super is allowed in constructors
-<2> super in not allowed out of constructors
+<2> super in not allowed out of constructor
+
+==== Try blocks
+
+Try, catch, and finally blocks are supported. Only first catch block will be converted if you use more than
+one. Like I/O classes are not supported, I suppose that you will use try blocks a little.
+
+[source,groovy]
+--
+include::../src/test/resources/advanced/Finally.groovy[tags=try_finally,indent=0]
+--

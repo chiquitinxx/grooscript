@@ -42,7 +42,7 @@ def withFinally = {
 
 assert withFinally() == 1
 assert value == 3
-
+// tag::try_finally[]
 def anyCatch = {
     try {
         throw new Exception()
@@ -54,3 +54,4 @@ def anyCatch = {
 
 assert anyCatch() == 2
 assert value == 3
+// end::try_finally[]

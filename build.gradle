@@ -121,6 +121,7 @@ asciidoctor {
         email: 'grooscript@gmail.com',
         'source-highlighter': 'prettify',
         toc: 'right',
+        toclevels: 4,
         icons: 'font',
         'index-file': 'index.html'
 
