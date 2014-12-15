@@ -17,17 +17,17 @@ class MultiMethods {
     def methodMissing(String name, args) {
         hits++
         this.metaClass."$name" = { -> 1 }
-        this.invokeMethod(name,args)
+        this.invokeMethod(name, args)
     }
 }
 
 def takeTime(text, closure) {
-    //def timesList = [500,2000,10000]
+    //def timesList = [500, 2000, 10000]
     def timesList = [500]
     timesList.each { it->
         def date = new Date()
         closure(it)
-        println "TakeTime (${text}) Number:${it} Time: ${new Date().time-date.time}"
+        println "TakeTime (${text}) Number:${it} Time: ${new Date().time - date.time}"
     }
 }
 
@@ -37,6 +37,6 @@ takeTime('methodMissingSpeed') { value ->
     value.times {
         multi."${random.nextInt(100000)}"()
     }
-    //println "  Number hits: ${multi.hits}"
 }
+
 assert true, 'Finish Ok.'

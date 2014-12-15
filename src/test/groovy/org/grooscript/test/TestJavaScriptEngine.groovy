@@ -62,7 +62,6 @@ class TestJavaScriptEngine extends Specification {
     def 'speed javascript engine'() {
         when:
         def result = convertAndEvaluateWithJsEngine('TestSpeed')
-        //println result.gSconsole
 
         then:
         !result.assertFails
