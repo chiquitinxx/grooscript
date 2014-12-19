@@ -16,7 +16,7 @@ group = 'org.grooscript'
 
 ext {
     appName = 'grooscript'
-    groovyVersion = '2.3.8'
+    groovyVersion = '2.3.9'
 }
 
 repositories {
@@ -52,7 +52,7 @@ jar {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.1'
+    gradleVersion = '2.2.1'
 }
 
 modifyPom {

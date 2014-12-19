@@ -10,7 +10,7 @@ trait Id {
 }
 
 trait Version {
-    Long version = 0
+    Long version = 0L
 }
 
 trait Active {
