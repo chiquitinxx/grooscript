@@ -35,13 +35,13 @@ include::conversion_options.adoc[]
 
 include::general_support.adoc[]
 
-=== Java support [Jorge]
+=== Java support
 
 include::java_support.adoc[]
 
-=== Groovy support
+=== Groovy support [Jorge]
 
-Groovy specific features supported...
+include::groovy_support.adoc[]
 
 == Converted code
 

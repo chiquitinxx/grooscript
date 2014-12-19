@@ -1,7 +1,46 @@
+Java support is not the target of this library, groovy is. Like groovy uses java, grooscript support a lot
+of java stuff. If you need any specific java type, other than a basic type, please before check if is supported.
+Grooscript convert your code to javascript, but the normal use of a normal programming language, not specific
+types or modules. You can expect variables, arrays, data types, operators, control flow, classes and objects you
+create, basic inheritance, numbers, string, dates, collections, maps ... are supported. But Thread, XML,
+Reflection, ... are not supported.
+
 ==== Primitives
+
+Basic types are ignored, they are just used in javascript. No differences between float, int, ... just numbers
+are 'numbers' and String are javascript String's. Integer, Float, Double,... types are not supported, just
+Integer.parseInt and Float.parseFloat are supported. Basic operations are supported: +, -, *, /, %, **
 
 ==== Equals, hashCode and compare
 
+Equals is used comparing objects, hashCode and compareTo are not supported. Groovy truth is used in comparisons.
+
+==== Enum
+
+Not much work with enums, just good as a set of values, stuff like 'values' are not supported.
+
+[source,groovy]
+--
+include::../src/test/resources/enums.groovy[tags=enums,indent=0]
+--
+
 ==== Types
 
+Good support in:
+
+* java.util.ArrayList
+* java.util.HashMap
+* java.util.HashSet
+* java.lang.String
+* java.util.Date
+
+Basic support in:
+
+* java.math.BigDecimal
+* java.util.Random
+* java.lang.StringBuffer
+
 ==== Java 8
+
+Nothing added in grooscript to support any java 8 feature or type. If you introduce for example lambda expression,
+compilation of the conversion will fail, as groovy fails.

@@ -2,7 +2,7 @@
 /**
  * JFL 27/10/12
  */
-
+// tag::enums[]
 enum Days {
     monday, tuesday, wednesday, thursday, friday, saturday, sunday
 
@@ -19,3 +19,4 @@ assert Days.monday.name() == 'monday'
 assert a.name() == 'monday'
 assert a.ordinal() == 0
 assert Days.sunday.ordinal() == 6
+// end::enums[]
