@@ -61,14 +61,28 @@ include::tools.adoc[]
 
 == Tricks
 
+    TODO
+
 == Tools
+
+    TODO
 
 === Gradle plugin
 
+    TODO
+
 === Grails plugin
+
+    TODO
 
 === Npm package
 
+    TODO
+
 == Guides
 
+    TODO
+
 == Acknowledgements
+
+include::acknowledgements.adoc[]

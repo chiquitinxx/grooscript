@@ -1,0 +1,17 @@
+Thank you for this amazing experience, a lot of fun, I learned a lot. With all the groovy community, groovy and
+grails developers and all people interested in the project, this journey has been an incredible experience.
+Is hard put names of people that helped me this years, sure I forget someone.
+
+Special thanks to *@glaforge*, *@marioggar* and *René*, they
+spent time at the beginning of this project. Also thanks to @burtbeckwith, @graemerocher for grails help, only
+good things to say about all groovy and grails teams.
+
+Thank you http://greachconf.com/[Greach] and http://gr8conf.eu/[Gr8Conf] teams for let me talk about grooscript in gr8 conferences.
+All that people that sent me emails, commented me something, asked me about the project. Don't stop it, I love your feedback.
+
+Thank you @jetbrains for a IntelliJ IDEA open source license, the best groovy IDE.
+
+image::https://www.jetbrains.com/idea/docs/logo_intellij_idea.png[Jetbrains]
+
+Finally thanks to last contributors in github, first pull request by *yellowsnow* and nice suggestions from *pioneer*,
+we have nice stuff to do after 1.0 release.

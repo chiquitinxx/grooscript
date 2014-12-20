@@ -3,7 +3,7 @@ Grooscript offer three annotations to add in your groovy code.
 === GsNative
 
 You can annotate groovy methods with @GsNative. The javascript code of that method will be the code inside comment,
-between /* and */. I use a lot this feature to insert javascript code in the groovy code. So when I run the code
+between `/&#42;` and `&#42;/`. I use a lot this feature to insert javascript code in the groovy code. So when I run the code
 in groovy nothing happens (tests pass), but the javascript code runs in converted code.
 
 [source,groovy]

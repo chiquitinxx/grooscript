@@ -42,26 +42,32 @@ Bye
 assert [1,2,3,4].join('-') == '1-2-3-4'
 assert ['a','b','c'].join() == 'abc'
 
-aaa = '"bread","apple","egg"'
-items = aaa.split(',')
-assert items[1] == '"apple"'
+// tag::strings[]
+things = '"bread","apple","egg"'
 
 def multiline = '''\
 Groovy is closely related to Java,
 so it is quite easy to make a transition.
 '''
 
+multiline.eachLine { line, count ->
+    assert count == 0 ? 'Groovy is closely related to Java,' : 'so it is quite easy to make a transition.'
+}
+
+def multilineDouble = """
+things: $things
+"""
+
+assert multilineDouble == '''
+things: "bread","apple","egg"
+'''
+// end::strings[]
+items = things.split(',')
+assert items[1] == '"apple"'
+
 multiline.eachLine {
     if (it =~ /Groovy/) {
         assert it == 'Groovy is closely related to Java,'
-    }
-}
-
-multiline.eachLine { line, count ->
-    if (count == 0) {
-        assert line == 'Groovy is closely related to Java,'
-    } else {
-        assert line == 'so it is quite easy to make a transition.'
     }
 }
 
@@ -111,6 +117,7 @@ multiGString.eachLine { line, count ->
 
 assert "hello".inject('') { acc, val ->
     acc += val
+    acc
 } == 'hello'
 
 assert "bye"[1] == 'y'

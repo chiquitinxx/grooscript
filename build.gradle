@@ -116,12 +116,13 @@ node {
 
 asciidoctor {
     sourceDir = project.file 'doc'
+    sources { include 'doc.adoc' }
     attributes 'grooscript-version': '1.0-SNAPSHOT',
         author: 'Jorge Franco',
         email: 'grooscript@gmail.com',
         'source-highlighter': 'prettify',
         toc: 'right',
-        toclevels: 4,
+        toclevels: 2,
         icons: 'font',
         'index-file': 'index.html'
 

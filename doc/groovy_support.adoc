@@ -1,29 +1,109 @@
+In general groovy features are supported, except advanced metaprogramming techniques and AST's applied in phases
+after semantic analysis. `as` is supported only at specific situations. Let's see examples of some conversions.
+
 ==== GStrings
+
+[source,groovy]
+--
+include::../src/test/resources/advanced/StringSecrets.groovy[tags=strings,indent=0]
+--
 
 ==== Default constructor, optional parameters, pointer methods, multiple assignment
 
+[source,groovy]
+--
+include::../src/test/resources/doc/LittleFeatures.groovy[tags=features,indent=0]
+--
+
 ==== Operators
+
+`&lt;=&gt;`, `.@`, `*.`, `in`, `is`, `?.` and `?:` are supported.
+
+[source,groovy]
+--
+include::../src/test/resources/doc/Operators.groovy[tags=operators,indent=0]
+--
+
+Also you can overload this operators in your classes:
+
+.Overload operators
+|===
+|operator |function
+
+|a + b
+|a.plus(b)
+
+|a - b
+|a.minus(b)
+
+|a * b
+|a.multiply(b)
+
+|a ** b
+|a.power(b)
+
+|a / b
+|a.div(b)
+
+|a % b
+|a.mod(b)
+
+|a << b
+|a.leftShift(b)
+
+|a >> b
+|a.rightShift(b)
+|===
 
 ==== Regular expressions
 
+Javascript support regular expressions, so I use it with groovy style. Not much tests on this, try it before .
+
+[source,groovy]
+--
+include::../src/test/resources/regularExpressionsBegin.groovy[tags=regs,indent=0]
+--
+
 ==== Lists, ranges, maps ans sets
+
+    TODO
 
 ==== Groovy truth
 
+    TODO
+
 ==== Expando class
+
+    TODO
 
 ==== Numbers
 
+    TODO
+
 ==== Categories and Mixing
+
+    TODO
 
 ==== Switch
 
+    TODO
+
 ==== Closures
+
+    TODO
 
 ==== GroovyBeans
 
+    TODO
+
 ==== Metaprogramming
+
+    TODO
 
 ==== AST's
 
+    TODO
+
 ==== Traits
+
+    TODO

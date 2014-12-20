@@ -1,7 +1,7 @@
 /**
  * JFL 09/09/12
  */
-
+// tag::regs[]
 assert "abc" == /abc/
 assert "\\d" == /\d/
 def reference = "hello"
@@ -12,9 +12,6 @@ assert "potatoe" ==~ /potatoe/
 assert !("potatoe with frites" ==~ /potatoe/)
 
 myFairStringy = 'The rain in Spain stays mainly in the plain!'
-// words that end with 'ain': \b\w*ain\b
-//BOUNDS = /\b/
-//rhyme = /$BOUNDS\w*ain$BOUNDS/
 
 found = ''
 (myFairStringy =~ /\b\w*ain\b/).each { match ->
@@ -22,10 +19,9 @@ found = ''
 }
 assert found == 'rain Spain plain '
 
-assert "griffon" =~ /gr*/
-//This dont work :/ always return true that javascript object
-//assert !("gradle" =~ /sup*/)
-
 def matcher = 'class A{ class B {}}' =~ /\bclass\s+(\w+)\s*\{/
-//println matcher
 assert matcher.size() == 2
+// end::regs[]
+assert "griffon" =~ /gr*/
+//This doesn't work :/ always return true that javascript object
+//assert !("gradle" =~ /sup*/)

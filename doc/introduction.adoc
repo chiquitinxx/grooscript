@@ -3,8 +3,8 @@ Groovy strengths in the browser, not create a full conversion. I'm looking for u
 work in a single environment, use groovy and java tools and IDE's.
 
 Grooscript is a library that converts your groovy code to javascript. I've tried that converted code doesn't contains
-strange code or magical things. So you can use and follow that converted javascript code. This code needs +grooscript.js+
-or +grooscript.min.js+ to run in a javascript environment.
+strange code or magical things. So you can use and follow that converted javascript code. This code needs `*grooscript.js*`
+or `*grooscript.min.js*` to run in a javascript environment.
 
 The typical flow is:
 

@@ -9,13 +9,23 @@ import spock.lang.Specification
 @Mixin([ConversionMixin])
 class TestDoc extends Specification {
 
-    def 'test inheritance' () {
+    def 'test inheritance'() {
         expect:
         convertAndEvaluate 'doc/Inheritance'
     }
 
-    def 'test object' () {
+    def 'test object'() {
         expect:
         convertAndEvaluate 'doc/Object'
+    }
+
+    def 'little features'() {
+        expect:
+        convertAndEvaluate 'doc/LittleFeatures'
+    }
+
+    def 'operators'() {
+        expect:
+        convertAndEvaluate 'doc/Operators'
     }
 }
