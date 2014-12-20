@@ -14,8 +14,7 @@ def date = new Date()
 assert date + 1 > date
 
 def oneDate = new Date(87398475634)
-println oneDate.format('dd-MM-yyyy')
 assert oneDate.format('dd-MM-yyyy') == '08-10-1972'
-println oneDate.format('dd-MM-yy HH:mm:ss')
-assert oneDate.format('dd-MM-yy HH:mm:ss') == '08-10-72 14:21:15'
+// In CI server HH in format is distinct. I suppose hour depends of machine
+assert oneDate.format('dd-MM-yy mm:ss') == '08-10-72 21:15'
 assert oneDate.time == 87398475634
