@@ -150,6 +150,6 @@ class Util {
     }
 
     static String getGrooscriptVersion() {
-        Class.forName('org.grooscript.GrooScript').package.implementationVersion
+        Class.forName('org.grooscript.GrooScript').package.implementationVersion ?: 'snapshot'
     }
 }

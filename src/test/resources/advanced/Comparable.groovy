@@ -14,24 +14,8 @@ def date = new Date()
 assert date + 1 > date
 
 def oneDate = new Date(87398475634)
+println oneDate.format('dd-MM-yyyy')
 assert oneDate.format('dd-MM-yyyy') == '08-10-1972'
+println oneDate.format('dd-MM-yy HH:mm:ss')
 assert oneDate.format('dd-MM-yy HH:mm:ss') == '08-10-72 14:21:15'
 assert oneDate.time == 87398475634
-
-/* This doesn't work in groovy as expected, have to implements java.util.Comparable to work
-class Car {
-    def power
-
-    def int compareTo(Object o) {
-        if (o && o instanceof Car) {
-            return this.power <=> o.power
-        } else {
-            return 0
-        }
-    }
-}
-
-def car = new Car(power: 100)
-def car2 = new Car(power: 200)
-assert car2 > car
-*/

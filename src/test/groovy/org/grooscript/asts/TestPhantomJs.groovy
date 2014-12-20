@@ -20,11 +20,7 @@ class TestPhantomJs extends FunctionalTest {
     void countPTagsInPage() {
         assert $('p').size() == 1, "Number of p's in page is ${$('p').size()}"
         def title = $("title")
-        assert title[0].text=='Title', "Title is ${title[0].text}"
-        def ps = $('p')
-        ps.each {
-            println it
-        }
+        assert title[0].text == 'Title', "Title is ${title[0].text}"
     }
 
     void testWorksFindingJsFilesInUserHomeDir() {

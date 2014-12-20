@@ -157,7 +157,9 @@ class TestConversionOptions extends Specification {
         File file = new File(DESTINATION_FILE)
 
         then:
-        file.text == "0${LS}1${LS}2${LS}3${LS}4${LS}"
+        ('0'..'4').every {
+            file.text.indexOf(it) >= 0
+        }
     }
 
     def 'define main context scope variables'() {
