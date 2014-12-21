@@ -21,12 +21,13 @@ assert list[1] == 'd'
 def doubled = [1,2,3].collect{ item ->
     item*2
 }
-//assert doubled == [2,4,6]
+assert doubled == [2,4,6]
 assert doubled[0] == 2
 assert doubled[1] == 4
 assert doubled[2] == 6
 assert doubled.size() == 3
 
+// tag::lists[]
 def odd = [1,2,3].findAll{ item ->
     item % 2 == 1
 }
@@ -43,3 +44,4 @@ list = [1, 2, 2, 3, 4]
 def uniqList = list.unique(false)
 assert list == [1, 2, 2, 3, 4]
 assert uniqList == [1, 2, 3, 4]
+// end::lists[]

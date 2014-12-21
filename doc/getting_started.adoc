@@ -15,7 +15,7 @@ println result
 --
 
 If you want to make conversions in your groovy / java project, you need link:jars/grooscript-{grooscript-version}.jar[grooscript.jar].
-You can get from mavenCentral +org.grooscript:grooscript:{grooscript-version}+ in your project's dependencies. Also need grooscript.js,
+You can get from mavenCentral or bintray `org.grooscript:grooscript:{grooscript-version}` in your project's dependencies. Also need `grooscript.js`,
 inside the jar or download from link:downloads.html[here] to run the converted code in your javascript environment.
 
 Also, you can convert groovy or java files to javascript:
@@ -31,4 +31,5 @@ GrooScript.convert(['file', 'folder', ...], 'path/to/destination/folder')
 GrooScript.convert('any/number/of/sources', 'path/file.js')
 --
 
-But, the gradle plugin helps a lot, and I recommend you to use it. link:starting_gradle.html[Guide]
+When the number of files is increasing, or want to automatize conversions, the gradle plugin helps a lot, and
+I recommend you to use it. link:starting_gradle.html[Guide]

@@ -28,4 +28,9 @@ class TestDoc extends Specification {
         expect:
         convertAndEvaluate 'doc/Operators'
     }
+
+    def 'groovy truth'() {
+        expect:
+        convertAndEvaluate 'doc/Truth'
+    }
 }

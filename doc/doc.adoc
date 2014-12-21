@@ -15,6 +15,10 @@ include::getting_started.adoc[]
 For convert groovy code to javascript, that groovy code is compiled. Then javascript code is generated
 visiting generated AST tree. You can try link:conversions.html[online] conversions at grooscript site.
 
+You usually will convert files with groovy code to a destination folder or js file. To be dynamic and automatize
+conversion process I strongly recommend to use https://github.com/chiquitinxx/grooscript-gradle-plugin[grooscript gradle plugin].
+You can activate a daemon to automatically convert groovy code when files are modified.
+
 === Options
 
 To help in conversion process, you can set some conversion options. To set conversion options:

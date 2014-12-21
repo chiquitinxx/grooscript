@@ -66,11 +66,26 @@ include::../src/test/resources/regularExpressionsBegin.groovy[tags=regs,indent=0
 
 ==== Lists, ranges, maps ans sets
 
-    TODO
+A lot of lists and map functions are implemented, so the support is very good.
+
+[source,groovy]
+--
+include::../src/test/resources/listFunctions.groovy[tags=lists,indent=0]
+--
 
 ==== Groovy truth
 
-    TODO
+[source,groovy]
+--
+include::../src/test/resources/doc/Truth.groovy[tags=truth,indent=0]
+--
+
+Also, you can customize groovy truth of your classes
+
+[source,groovy]
+--
+include::../src/test/resources/contribution/GuillaumeCustomizeTruth.groovy[tags=customize,indent=0]
+--
 
 ==== Expando class
 
