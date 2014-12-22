@@ -20,8 +20,10 @@ class TestFunctionalBinder extends FunctionalTest {
         result += '<p>Author:<input type="text" id="author"></p>'
         result += '<p>Title:<input type="text" name="title"></p>'
         result += '<p><input type="checkbox" id="hasEbook">Has Ebook</p>'
-        result += '<p><input type="radio" name="numberPages" id="smallSize" value="small">Small<input type="radio" name="numberPages" id="bigSize" value="big">Big</p>'
-        result += '<p>Country:<select id="country"><option/><option value="spain">Spain</option><option value="eeuu">EE.UU.</option></select></p>'
+        result += '<p><input type="radio" name="numberPages" id="smallSize" value="small">Small' +
+                '<input type="radio" name="numberPages" id="bigSize" value="big">Big</p>'
+        result += '<p>Country:<select id="country"><option/><option value="spain">Spain</option>' +
+                '<option value="eeuu">EE.UU.</option></select></p>'
         result += '<p><input type="button" id="do" value="Click!"/></p>'
         result += '</body></html>'
         result

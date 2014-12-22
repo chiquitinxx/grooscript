@@ -1,7 +1,6 @@
 package org.grooscript.convert
 
 import org.grooscript.GrooScript
-import org.grooscript.convert.GsConverter
 import org.grooscript.test.JsTestResult
 import spock.lang.Specification
 import org.grooscript.util.Util

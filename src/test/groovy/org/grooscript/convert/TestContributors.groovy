@@ -22,18 +22,18 @@ class TestContributors extends Specification {
         convertAndEvaluate(file)
 
         where:
-        file                                    |_
-        'contribution/MrHakiClosureReturn'      |_
-        'contribution/MrHakiFirstLast'          |_
-        'contribution/MrHakiSum'                |_
-        'contribution/MrHakiLooping'            |_
-        'contribution/MrHakiInject'             |_
-        'contribution/MrHakiGrep'               |_
-        'contribution/MrHakiGetSetProperties'   |_
-        'contribution/MrHakiSpread'             |_
-        'contribution/MrHakiCategories'         |_
-        'contribution/MrHakiTraits1'            |_
-        'contribution/MrHakiTraits2'            |_
+        file                                    | _
+        'contribution/MrHakiClosureReturn'      | _
+        'contribution/MrHakiFirstLast'          | _
+        'contribution/MrHakiSum'                | _
+        'contribution/MrHakiLooping'            | _
+        'contribution/MrHakiInject'             | _
+        'contribution/MrHakiGrep'               | _
+        'contribution/MrHakiGetSetProperties'   | _
+        'contribution/MrHakiSpread'             | _
+        'contribution/MrHakiCategories'         | _
+        'contribution/MrHakiTraits1'            | _
+        'contribution/MrHakiTraits2'            | _
     }
 
     def 'test alex anderson' () {
@@ -62,7 +62,7 @@ class TestContributors extends Specification {
 
     def 'bugs coming from monkfish'() {
         when:
-        def result = convertAndEvaluateWithJsEngine('contribution/MonkFish',false,null,
+        def result = convertAndEvaluateWithJsEngine('contribution/MonkFish', false, null,
                 'gSobject.value = 0;',
                 'gSobject.value = 0;gSobject.two = function() {return 2;};')
 

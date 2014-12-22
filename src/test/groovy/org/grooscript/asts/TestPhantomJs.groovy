@@ -19,7 +19,7 @@ class TestPhantomJs extends FunctionalTest {
     @PhantomJsTest(url = 'http://localhost:8000/test')
     void countPTagsInPage() {
         assert $('p').size() == 1, "Number of p's in page is ${$('p').size()}"
-        def title = $("title")
+        def title = $('title')
         assert title[0].text == 'Title', "Title is ${title[0].text}"
     }
 
@@ -135,7 +135,7 @@ class TestPhantomJs extends FunctionalTest {
         try {
             failMethod()
             fail 'Not getting timeout error.'
-        } catch(AssertionError e) {
+        } catch (AssertionError e) {
             println 'Time in miliseconds: ' + (new Date().time - start.time)
             assert true, 'Timeout Error'
         }
@@ -169,7 +169,7 @@ class TestPhantomJs extends FunctionalTest {
         try {
             wrongUrl()
             fail 'Wrong url error not throw'
-        } catch(AssertionError e) {
+        } catch (AssertionError e) {
             assert e.message == 'Fail loading url: fail. Expression: false'
         }
     }
@@ -190,12 +190,12 @@ class TestPhantomJs extends FunctionalTest {
 
     @PhantomJsTest(url = 'http://localhost:8000/test')
     def returnMap() {
-        [list: [1,2], str: 'string', number: 9, dec: 8.34, jq: $('p').text()]
+        [list: [1, 2], str: 'string', number: 9, dec: 8.34, jq: $('p').text()]
     }
 
     void testReturnMap() {
         def result = returnMap()
-        assert result == [ list: [1,2], str: 'string', number: 9, dec: 8.34, jq: 'Welcome']
+        assert result == [ list: [1, 2], str: 'string', number: 9, dec: 8.34, jq: 'Welcome']
     }
 
     @PhantomJsTest(url = 'http://localhost:8000/test')

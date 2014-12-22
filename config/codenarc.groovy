@@ -12,7 +12,7 @@ ruleset {
     ClassForName
     ComparisonOfTwoConstants
     ComparisonWithSelf
-    ConstantAssertExpression
+    //ConstantAssertExpression
     ConstantIfExpression
     ConstantTernaryExpression
     DeadCode
@@ -111,10 +111,10 @@ ruleset {
     StatelessSingleton
 
     // rulesets/dry.xml
-    DuplicateListLiteral
-    DuplicateMapLiteral
-    DuplicateNumberLiteral
-    DuplicateStringLiteral
+    //DuplicateListLiteral
+    //DuplicateMapLiteral
+    //DuplicateNumberLiteral
+    //DuplicateStringLiteral
 
     // rulesets/enhanced.xml
     CloneWithoutCloneable
@@ -148,7 +148,7 @@ ruleset {
     BracesForIfElse
     BracesForMethod
     BracesForTryCatchFinally
-    ClassJavadoc
+    //ClassJavadoc
     ClosureStatementOnOpeningLineOfMultipleLineClosure
     LineLength
     SpaceAfterCatch
@@ -161,7 +161,7 @@ ruleset {
     SpaceAfterSwitch
     SpaceAfterWhile
     SpaceAroundClosureArrow
-    SpaceAroundMapEntryColon
+    //SpaceAroundMapEntryColon
     SpaceAroundOperator
     SpaceBeforeClosingBrace
     SpaceBeforeOpeningBrace
@@ -226,7 +226,7 @@ ruleset {
     DuplicateImport
     ImportFromSamePackage
     ImportFromSunPackages
-    MisorderedStaticImports
+    //MisorderedStaticImports
     UnnecessaryGroovyImport
     UnusedImport
 
@@ -245,9 +245,9 @@ ruleset {
     JUnitLostTest
     JUnitPublicField
     JUnitPublicNonTestMethod
-    JUnitSetUpCallsSuper
+    //JUnitSetUpCallsSuper
     JUnitStyleAssertions
-    JUnitTearDownCallsSuper
+    //JUnitTearDownCallsSuper
     JUnitTestMethodWithoutAssert
     JUnitUnnecessarySetUp
     JUnitUnnecessaryTearDown
@@ -279,7 +279,7 @@ ruleset {
     FactoryMethodName
     FieldName
     InterfaceName
-    MethodName
+    //MethodName
     ObjectOverrideMisspelledMethodName
     PackageName
     ParameterName
@@ -289,7 +289,7 @@ ruleset {
     // rulesets/security.xml
     FileCreateTempFile
     InsecureRandom
-    JavaIoPackageAccess
+    //JavaIoPackageAccess
     NonFinalPublicField
     NonFinalSubclassOfSensitiveInterface
     ObjectFinalize

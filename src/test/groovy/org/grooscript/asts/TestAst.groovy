@@ -15,7 +15,7 @@ class TestAst extends Specification {
         def result = Util.fullProcessScript(file.text)
 
         if (consoleOutput) {
-            println 'jsScript->\n'+result.jsScript
+            println 'jsScript->\n' + result.jsScript
         }
         if (result.exception) {
             assert false, 'Error: ' + result.exception
@@ -30,7 +30,7 @@ class TestAst extends Specification {
 
         then:
         !result.assertFails
-        result.jsScript.indexOf('NotConvert')<0
+        result.jsScript.indexOf('NotConvert') < 0
     }
 
     def 'test simpleGsNative' () {
@@ -44,11 +44,11 @@ class TestAst extends Specification {
 
         then:
         !result.assertFails
-        result.jsScript.indexOf('return true;')>0
+        result.jsScript.indexOf('return true;') > 0
     }
 
     def 'test advanced GsNative' () {
         expect:
-        !readAndConvert('asts/advancedNative',true).assertFails
+        !readAndConvert('asts/advancedNative', true).assertFails
     }
 }

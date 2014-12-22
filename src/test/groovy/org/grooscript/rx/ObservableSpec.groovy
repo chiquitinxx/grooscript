@@ -42,8 +42,8 @@ class ObservableSpec extends Specification {
         given:
         def result = null
         def observable = Observable.listen()
-        observable.map { it.replaceAll('-','1') }.
-                   map { it.replaceAll('1','&') }.
+        observable.map { it.replaceAll('-', '1') }.
+                   map { it.replaceAll('1', '&') }.
                    map { it.toUpperCase() }.
                    subscribe { event ->
                     result = event

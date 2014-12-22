@@ -1,7 +1,7 @@
 plugins {
-    id "com.moowork.node" version "0.7"
+    id "com.moowork.node" version "0.8"
     id "com.moowork.gulp" version "0.1"
-    id "com.bmuschko.nexus" version "2.1.1"
+    id "com.bmuschko.nexus" version "2.2"
     id "org.asciidoctor.convert" version "1.5.2"
 }
 
@@ -38,7 +38,7 @@ dependencies {
         exclude module: 'junit-dep'
     }
     testCompile "org.codehaus.groovy:groovy-test:${groovyVersion}"
-    codenarc 'org.codenarc:CodeNarc:0.21'
+    codenarc('org.codenarc:CodeNarc:0.22')
 }
 
 jar {
@@ -104,7 +104,9 @@ test.dependsOn gulp_tests
 
 node {
     // Version of node to use.
-    version = '0.10.30'
+    version = '0.11.10'
+
+    npmVersion = '2.1.5'
 
     // If true, it will download node using above parameters.
     // If false, it will try to use globally installed node.

@@ -56,7 +56,7 @@ class TestHtmlBuilder extends Specification {
         }
 
         expect:
-        result == "&lt;hello &quot; &apos; &amp; &gt;"
+        result == '&lt;hello &quot; &apos; &amp; &gt;'
     }
 
     void 'yield unescaped chars'() {
@@ -113,7 +113,7 @@ class TestHtmlBuilder extends Specification {
         }
 
         expect:
-        result == "<!--Is a <little> comment-->"
+        result == '<!--Is a <little> comment-->'
     }
 
     void 'new line'() {
@@ -125,6 +125,6 @@ class TestHtmlBuilder extends Specification {
         }
 
         expect:
-        result == "<p>a</p>\n<p>b</p>"
+        result == '<p>a</p>\n<p>b</p>'
     }
 }

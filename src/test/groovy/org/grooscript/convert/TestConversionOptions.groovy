@@ -17,8 +17,8 @@ class TestConversionOptions extends Specification {
 
     private static final FILE_BASIC_NAME = 'BasicClass'
     private static final FILE_BASIC_GROOVY_SOURCE = "src/test/resources/classes/${FILE_BASIC_NAME}.groovy"
-    private static final FOLDER_NEED_DEPENDENCY = "need"
-    private static final CLASS_NEED_DEPENDENCY = "Need"
+    private static final FOLDER_NEED_DEPENDENCY = 'need'
+    private static final CLASS_NEED_DEPENDENCY = 'Need'
     private static final FILE_BASIC_JS = "${FOLDER_NEED_DEPENDENCY}${SEP}${FILE_BASIC_NAME}.js"
     private static final SOURCE_DIR = 'source'
     private static final DESTINATION_DIR = 'destination'
@@ -234,8 +234,8 @@ class TestConversionOptions extends Specification {
         def result = GrooScript.convert('println "Hello!"')
 
         then:
-        result.startsWith(new File("src/main/resources/META-INF/resources/grooscript.min.js").text)
-        result.contains(new File("src/main/resources/META-INF/resources/jquery.min.js").text)
+        result.startsWith(new File('src/main/resources/META-INF/resources/grooscript.min.js').text)
+        result.contains(new File('src/main/resources/META-INF/resources/jquery.min.js').text)
     }
 
     private void expectedInitialValues() {
@@ -245,7 +245,8 @@ class TestConversionOptions extends Specification {
 
     private setupNeedDirectory() {
         new File(FOLDER_NEED_DEPENDENCY).mkdir()
-        new File(FOLDER_NEED_DEPENDENCY+SEP+CLASS_NEED_DEPENDENCY+'.groovy') << "class ${CLASS_NEED_DEPENDENCY} {}"
+        new File(FOLDER_NEED_DEPENDENCY + SEP + CLASS_NEED_DEPENDENCY + '.groovy') <<
+                "class ${CLASS_NEED_DEPENDENCY} {}"
     }
 
     private setupFilesWithNumbers(name, number) {
