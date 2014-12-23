@@ -106,8 +106,6 @@ node {
     // Version of node to use.
     version = '0.11.10'
 
-    npmVersion = '2.1.5'
-
     // If true, it will download node using above parameters.
     // If false, it will try to use globally installed node.
     download = true
