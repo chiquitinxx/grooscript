@@ -5,22 +5,28 @@ import org.grooscript.asts.GsNative
 /**
  * JFL 10/10/13
  */
-def a = 0
-
 class Foo {
+    def a = 0
     public void methodA(){
         println 'methodA'
-        a = a + 1 //TODO fails with a++
+        a++
     }
 
     @GsNative
     def methodB(){/*
             gs.println('methodB');
-            a++;
+            this.a++;
             this.methodA();
-    */}
+    */ a = a + 1; println 'inMethodB'; this.methodA()}
+
+    @GsNative
+    static bar() {/*
+        return 'bar';
+    */ println 'inStatic'; 'bar'}
 }
 
-new Foo().methodB()
-//This assert only works when converted
-assert a == 2
+def foo = new Foo()
+foo.methodB()
+
+assert foo.a == 2
+assert Foo.bar() == 'bar'

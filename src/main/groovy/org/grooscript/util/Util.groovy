@@ -119,7 +119,7 @@ class Util {
         List<NativeFunction> listResult = []
 
         def seg = text
-        def pat = /(?ms)@(GsNative|org\.grooscript\.GsNative).+\w+\s*\(.*\)\s*\{\s*(\/\*).*(\*\/\s*\})/
+        def pat = /(?ms)@(GsNative|org\.grooscript\.asts\.GsNative).+\w+\s*\(.*\)\s*\{\s*(\/\*).*(\*\/)/
 
         seg.eachMatch(pat) { match ->
             def list = match[0].split('@GsNative')

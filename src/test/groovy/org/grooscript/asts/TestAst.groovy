@@ -1,5 +1,6 @@
 package org.grooscript.asts
 
+import org.grooscript.test.ConversionMixin
 import org.grooscript.test.JavascriptEngine
 import spock.lang.Specification
 import org.grooscript.util.Util
@@ -7,6 +8,7 @@ import org.grooscript.util.Util
 /**
  * JFL 27/08/12
  */
+@Mixin([ConversionMixin])
 class TestAst extends Specification {
 
     def readAndConvert(nameOfFile,consoleOutput) {
@@ -49,6 +51,6 @@ class TestAst extends Specification {
 
     def 'test advanced GsNative' () {
         expect:
-        !readAndConvert('asts/advancedNative', true).assertFails
+        convertAndEvaluate('asts/advancedNative')
     }
 }
