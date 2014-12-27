@@ -102,13 +102,17 @@ class GrooScriptSpec extends Specification {
         !testResult.assertFails
     }
 
+    @Unroll
     def 'evaluate js code another gs lib'() {
         when:
-        def testResult = GrooScript.evaluateGroovyCode('println "Hello!"', 'grooscript')
+        def testResult = GrooScript.evaluateGroovyCode('println "Hello!"', libs)
 
         then:
         testResult.console == 'Hello!'
         testResult.jsScript.contains 'Apache 2 License'
+
+        where:
+        libs << ['grooscript', 'grooscript, grooscript.min']
     }
 
     def setup() {

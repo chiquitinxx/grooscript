@@ -242,12 +242,13 @@ class GrooScript {
     static JsTestResult evaluateGroovyCode(String code, String jsLibs = null) {
         String jsCode = GrooScript.convert(code)
 
-        def jsScript = getJsLibText('grooscript.min') + JavascriptEngine.addEvaluationVars(jsCode)
+        def jsScript = getJsLibText('grooscript.min')
         if (jsLibs) {
             jsLibs.split(',').each { nameLib ->
-                jsScript = getJsLibText(nameLib) + jsScript
+                jsScript += getJsLibText(nameLib.trim())
             }
         }
+        jsScript = jsScript + JavascriptEngine.addEvaluationVars(jsCode)
 
         def testResult = JavascriptEngine.evaluateJsCode(jsScript)
         testResult.jsCode = jsCode
