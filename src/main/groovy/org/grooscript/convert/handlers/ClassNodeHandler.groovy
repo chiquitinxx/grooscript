@@ -393,7 +393,7 @@ class ClassNodeHandler extends BaseHandler {
     private addTraitMethods(ClassNode classNode, ClassNode helperClassNode, notAddThisMethods) {
         helperClassNode.methods.each {
             if (it.name == '$init$') {
-                if (it.code instanceof BlockStatement && !it.code.isEmpty()) {
+                if (!it.code.isEmpty()) {
                     out.addScript("${classNode.nameWithoutPackage}.\$init\$(${GS_OBJECT});", true)
                 }
             } else if (it.name == '$static$init$') {
