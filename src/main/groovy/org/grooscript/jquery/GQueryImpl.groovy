@@ -212,14 +212,14 @@ class GQueryImpl implements GQuery {
         observable
     }
 
-    def call(selector) {
+    GQueryList call(String selector) {
         new GQueryList(selector)
     }
 }
 
 class GQueryList {
     def list
-    GQueryList(selector) {
+    GQueryList(String selector) {
         list = jqueryList(selector)
     }
 

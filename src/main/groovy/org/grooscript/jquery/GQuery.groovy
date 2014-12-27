@@ -35,4 +35,6 @@ interface GQuery {
     //Returns an Observable from a event
     Observable observeEvent(String selector, String nameEvent)
     Observable observeEvent(String selector, String nameEvent, Map data)
+    //Call
+    GQueryList call(String selector)
 }
