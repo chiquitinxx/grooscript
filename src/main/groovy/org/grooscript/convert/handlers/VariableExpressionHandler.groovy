@@ -11,7 +11,7 @@ import static org.grooscript.JsNames.*
 class VariableExpressionHandler extends BaseHandler {
 
     void handle(VariableExpression expression, isDeclaringVariable = false) {
-        //println "name:${expression.name} - scope:${variableScoping.peek()} - ${expression.isThisExpression()}"
+        //println "name:${expression.name} - ${expression.isThisExpression()}"
         if (context.variableScoping.peek().contains(expression.name) &&
                 !(context.allActualScopeContains(expression.name))) {
                 out.addScript(addPrefixOrPostfixIfNeeded("${GS_OBJECT}."+expression.name))
@@ -19,7 +19,9 @@ class VariableExpressionHandler extends BaseHandler {
                 !(context.allActualScopeContains(expression.name))) {
             out.addScript(addPrefixOrPostfixIfNeeded(context.classNameStack.peek()+'.'+expression.name))
         } else {
-            if (context.isVariableWithMissingScope(expression) && !isDeclaringVariable) {
+            if (context.traitFieldScopeContains(expression.name)) {
+                out.addScript("${GS_OBJECT}.get${expression.name.capitalize()}()")
+            } else if (context.isVariableWithMissingScope(expression) && !isDeclaringVariable) {
                 out.addScript("${GS_FIND_SCOPE}('${addPrefixOrPostfixIfNeeded(expression.name)}', this)")
             } else {
                 out.addScript(addPrefixOrPostfixIfNeeded(expression.name))

@@ -62,6 +62,7 @@ class TestFiles extends Specification {
         def converted = convertFile('files/UsingTrait', options)
 
         then:
+        converted.contains('gSobject.setName("UsingTrait");')
         converted.contains('$init$')
         converted.contains('gSobject.hello = function() { return MyTrait.hello(gSobject); }')
         converted.contains('return "Bye!";')

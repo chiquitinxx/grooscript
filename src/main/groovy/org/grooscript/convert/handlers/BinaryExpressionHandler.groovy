@@ -129,6 +129,15 @@ class BinaryExpressionHandler extends BaseHandler {
                 out.addScript('[')
                 upgradedExpresion(expression.rightExpression)
                 out.addScript(']')
+            } else if (expression.operation.text == '=' &&
+                    expression.leftExpression instanceof VariableExpression &&
+                    !context.allActualScopeContains(expression.leftExpression.name) &&
+                    !context.variableScopingContains(expression.leftExpression.name) &&
+                    context.traitFieldScopeContains(expression.leftExpression.name)) {
+                //A trait variable assigned
+                out.addScript("${GS_OBJECT}.set${expression.leftExpression.name.capitalize()}(")
+                applyGroovyTruthIfNecesary(expression.operation, expression.rightExpression)
+                out.addScript(')')
             } else {
                 //If we are assigning a variable, and don't exist in scope, we add to it
                 if (expression.operation.text in ASSIGN_OPERATORS && 

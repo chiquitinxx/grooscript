@@ -25,6 +25,8 @@ class Context {
     boolean lookingForReturnStatementInIf = false
     ClassNode staticProcessNode
 
+    private Stack traitFieldsScoping = new Stack()
+
     //Control switch inside switch
     def switchCount = 0
     def addClosureSwitchInitialization = false
@@ -46,6 +48,7 @@ class Context {
         variableStaticScoping.push([])
         actualScope.clear()
         actualScope.push([])
+        clearTraitFieldsScoping()
     }
 
     def addToActualScope(variableName) {
@@ -104,6 +107,21 @@ class Context {
 
     boolean isInsideClass() {
         classNameStack.peek().is(classNameStack.firstElement())
+    }
+
+    void clearTraitFieldsScoping() {
+        traitFieldsScoping.clear()
+    }
+
+    void addToTraitFieldsScoping(String name) {
+        if (traitFieldsScoping.isEmpty()) {
+            traitFieldsScoping.push([])
+        }
+        traitFieldsScoping.peek() << name
+    }
+
+    boolean traitFieldScopeContains(String name) {
+        !traitFieldsScoping.isEmpty() && traitFieldsScoping.peek().contains(name)
     }
 
     private tourStack(Stack stack,variableName) {

@@ -16,7 +16,7 @@ import static org.grooscript.JsNames.*
 class ClassNodeHandler extends BaseHandler {
 
     void handle(ClassNode node) {
-        //Exit if dont have to convert
+        //Exit if it doesn't have to convert
         if (haveAnnotationNonConvert(node.annotations)) {
             return
         }
@@ -27,6 +27,7 @@ class ClassNodeHandler extends BaseHandler {
         context.classNameStack.push(node.nameWithoutPackage)
         context.variableScoping.push([])
         context.variableStaticScoping.push([])
+        populateTraitFieldsScoping(node)
 
         out.block ("function ${node.nameWithoutPackage}() ") {
 
@@ -123,6 +124,8 @@ class ClassNodeHandler extends BaseHandler {
         context.classNameStack.pop()
         context.superNameStack.pop()
 
+        context.clearTraitFieldsScoping()
+
         //@Category
         checkAddCategory(node.nameWithoutPackage, node.annotations)
     }
@@ -177,7 +180,7 @@ class ClassNodeHandler extends BaseHandler {
     private haveAnnotationNonConvert(annotations) {
         boolean exit = false
         annotations.each { AnnotationNode it ->
-            //If dont have to convert then exit
+            //If it doesn't have to convert, then exit
             if (it.getClassNode().nameWithoutPackage=='GsNotConvert') {
                 exit = true
             }
@@ -440,5 +443,24 @@ class ClassNodeHandler extends BaseHandler {
 
     private isOnlyFieldOfClassNode(FieldNode fieldNode, ClassNode classNode) {
         fieldNode.owner.name == classNode.name && !classNode.properties.any { it.name == fieldNode.name}
+    }
+
+    private populateTraitFieldsScoping(ClassNode classNode) {
+        classNode?.interfaces.findAll {
+            traits.isTrait(it)
+        }.each {
+            addTraitFieldsToContext(it)
+        }
+    }
+
+    private addTraitFieldsToContext(ClassNode classNode) {
+        ClassNode helperFieldsNode = org.codehaus.groovy.transform.trait.Traits.findHelpers(classNode).fieldHelper
+        if (helperFieldsNode) {
+            populateTraitFieldsScoping(helperFieldsNode.outerClass)
+            helperFieldsNode.fields?.each { FieldNode fieldNode ->
+                def name = fieldNode.name.substring(fieldNode.name.lastIndexOf('_') + 1)
+                context.addToTraitFieldsScoping(name)
+            }
+        }
     }
 }

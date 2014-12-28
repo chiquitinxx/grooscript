@@ -17,11 +17,20 @@ trait Friendly extends WithName {
     String traitName = 'Friendly'
     String introduce() { "Hello, I am $name" }
 }
-class Guy implements Friendly {}
-def g = new Guy(name: 'Groovy')
+class Guy implements Friendly {
+    Guy(newName) {
+        name = newName
+        traitName = 'New' + traitName
+    }
+    def hello() {
+        traitName
+    }
+}
+def g = new Guy('Groovy')
 assert g.introduce() == 'Hello, I am Groovy'
 assert g instanceof Friendly, 'Instance Friendly'
 assert g instanceof Guy, 'Instance Guy'
 assert g instanceof WithName, 'Instance WithName'
-assert g.traitName == 'Friendly', 'Friendly'
+assert g.traitName == 'NewFriendly'
 assert g.count == 1, 'Count'
+assert g.hello() == 'NewFriendly'
