@@ -13,9 +13,6 @@ class JsGenerator {
     static final JQUERY_SOURCE = 'src/main/groovy/org/grooscript/jquery/GQueryImpl.groovy'
     static final JQUERY_FILE = 'src/main/resources/META-INF/resources/gQueryImpl.js'
 
-    static final JQUERY_TRAIT_SOURCE = 'src/main/groovy/org/grooscript/jquery/GQueryTrait.groovy'
-    static final JQUERY_TRAIT_FILE = 'src/main/resources/META-INF/resources/gQueryTrait.js'
-
     static final OBSERVABLE_SOURCE = 'src/main/groovy/org/grooscript/rx/Observable.groovy'
     static final OBSERVABLE_FILE = 'src/main/resources/META-INF/resources/observable.js'
 
@@ -36,19 +33,13 @@ class JsGenerator {
         convertFile(source, JQUERY_FILE)
     }
 
-    static generateJQueryTrait() {
-        File source = new File(JQUERY_TRAIT_SOURCE)
-        convertFile(source, JQUERY_TRAIT_FILE)
-    }
-
     static generateGrooscriptJsToolsComplete() {
-        GrooScript.joinListOfFiles(BUILDER_FILE, OBSERVABLE_FILE, JQUERY_FILE, JQUERY_TRAIT_FILE, GROOSCRIPT_TOOLS_FILE)
+        GrooScript.joinListOfFiles(BUILDER_FILE, OBSERVABLE_FILE, JQUERY_FILE, GROOSCRIPT_TOOLS_FILE)
     }
 
     static void generateGrooscriptToolsJs() {
         generateHtmlBuilder()
         generateJQuery()
-        generateJQueryTrait()
         generateObservable()
         generateGrooscriptJsToolsComplete()
     }
