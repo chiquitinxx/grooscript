@@ -124,6 +124,12 @@ class Context {
         !traitFieldsScoping.isEmpty() && traitFieldsScoping.peek().contains(name)
     }
 
+    String findTraitScopeByName(String name) {
+        traitFieldsScoping.peek().find { String nameField ->
+            nameField == name || (nameField[0].toLowerCase() + nameField.substring(1)) == name
+        }
+    }
+
     private tourStack(Stack stack,variableName) {
         if (stack.isEmpty()) {
             return false

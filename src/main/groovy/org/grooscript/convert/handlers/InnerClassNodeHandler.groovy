@@ -1,7 +1,13 @@
 package org.grooscript.convert.handlers
 
 import org.codehaus.groovy.ast.InnerClassNode
+import org.codehaus.groovy.ast.MethodNode
+import org.codehaus.groovy.ast.expr.ArgumentListExpression
+import org.codehaus.groovy.ast.expr.ConstantExpression
+import org.codehaus.groovy.ast.expr.MethodCallExpression
 import org.codehaus.groovy.ast.stmt.BlockStatement
+import org.codehaus.groovy.ast.stmt.ExpressionStatement
+import org.codehaus.groovy.ast.stmt.Statement
 
 import static org.grooscript.JsNames.*
 
@@ -9,7 +15,9 @@ import static org.grooscript.JsNames.*
  * User: jorgefrancoleza
  * Date: 05/04/14
  */
-class InnerClassNodeHandler extends BaseHandler {
+class InnerClassNodeHandler extends TraitBaseHandler {
+
+    private static final TARGET = 'target'
 
     void handle(InnerClassNode innerClassNode) {
 
@@ -28,8 +36,12 @@ class InnerClassNodeHandler extends BaseHandler {
         def className = innerClassNode.outerClass.nameWithoutPackage
         createConstructorWithApplyTryFunction(innerClassNode, className)
 
-        innerClassNode.methods.findAll { !it.isAbstract() }.each { methodNode ->
-            if (methodNode.code instanceof BlockStatement) {
+        innerClassNode.methods.findAll {
+            !it.isAbstract() && !isAccessorOfStaticField(it.name, innerClassNode)
+        }.each { methodNode ->
+            if (methodNode.name == '$static$init$') {
+                initStaticTraitFields(methodNode, innerClassNode)
+            } else if (methodNode.code instanceof BlockStatement) {
                 if (!methodNode.code.isEmpty()) {
                     functions.processBasicFunction("${className}.${methodNode.name}", methodNode, false)
                 } else {
@@ -57,7 +69,6 @@ class InnerClassNodeHandler extends BaseHandler {
 
     private createConstructorWithApplyTryFunction(InnerClassNode innerClassNode, className) {
 
-        final TARGET = 'target'
 
         out.addScript("${className} = function() {};", true)
         out.addScript("${className}.${GS_APPLY_TRAIT} = function(${TARGET}) {", true)
@@ -67,6 +78,8 @@ class InnerClassNodeHandler extends BaseHandler {
                     out.addScript("  ${className}.\$init\$(${TARGET});", true)
                 }
             } else if (methodNode.name == '$static$init$') {
+
+            } else if (isAccessorOfStaticField(methodNode.name, innerClassNode)) {
 
             } else {
                 def listParams = []
@@ -79,5 +92,27 @@ class InnerClassNodeHandler extends BaseHandler {
             }
         }
         out.addScript("};", true)
+    }
+
+    private initStaticTraitFields(MethodNode methodNode, InnerClassNode innerClassNode) {
+        if (methodNode.code.getStatements()) {
+            out.block ("function ${innerClassNode.outerClass.nameWithoutPackage}\$static\$init\$($TARGET)") {
+                methodNode.code.getStatements()?.each { Statement statement ->
+                    if (statement instanceof ExpressionStatement &&
+                            statement.expression instanceof MethodCallExpression &&
+                            statement.expression.methodAsString == 'invokeStaticMethod') {
+                        ArgumentListExpression ale = statement.expression.arguments
+                        ConstantExpression constantExpression = ale[1]
+                        def propertyName = constantExpression.text.substring(
+                                constantExpression.text.lastIndexOf('__') + 2,
+                                constantExpression.text.lastIndexOf('$')
+                        )
+                        out.addScript("$TARGET.${propertyName} = ")
+                        conversionFactory.visitNode(ale[2])
+                        out.addScript(";", true)
+                    }
+                }
+            }
+        }
     }
 }

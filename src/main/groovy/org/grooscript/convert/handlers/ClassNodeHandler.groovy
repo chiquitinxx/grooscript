@@ -6,14 +6,13 @@ import org.codehaus.groovy.ast.expr.ListExpression
 import org.codehaus.groovy.ast.AnnotationNode
 import org.codehaus.groovy.ast.FieldNode
 import org.codehaus.groovy.ast.MethodNode
-import org.codehaus.groovy.ast.stmt.BlockStatement
 
 import static org.grooscript.JsNames.*
 /**
  * User: jorgefrancoleza
  * Date: 16/01/14
  */
-class ClassNodeHandler extends BaseHandler {
+class ClassNodeHandler extends TraitBaseHandler {
 
     void handle(ClassNode node) {
         //Exit if it doesn't have to convert
@@ -114,6 +113,9 @@ class ClassNodeHandler extends BaseHandler {
                 addPropertyToClass(it, true)
             }
         }
+        //Static fields of traits
+        initStaticFieldsInTraits(node)
+
         context.staticProcessNode = null
 
         //Remove variable class names from the list
@@ -378,36 +380,42 @@ class ClassNodeHandler extends BaseHandler {
         classNode.interfaces.findAll {
             traits.isTrait(it)
         }.each {
-            handleTrait(it, ['getMetaClass', 'setMetaClass', 'invokeMethod'])
+            handleTrait(classNode, it, ['getMetaClass', 'setMetaClass', 'invokeMethod'])
         }
     }
 
-    private handleTrait(ClassNode classNode, notAddThisMethods = []) {
-        addClassVariableNamesToScope(classNode)
-        ClassNode helperClassNode = org.codehaus.groovy.transform.trait.Traits.findHelpers(classNode).helper
+    private handleTrait(ClassNode actualClassNode, ClassNode traitClassNode, notAddThisMethods = []) {
+        addClassVariableNamesToScope(traitClassNode)
+        ClassNode helperClassNode = org.codehaus.groovy.transform.trait.Traits.findHelpers(traitClassNode).helper
         helperClassNode.outerClass?.interfaces?.findAll{ traits.isTrait(it) }.each { ClassNode cn ->
-            handleTrait(cn, notAddThisMethods + helperClassNode.methods*.name)
+            handleTrait(actualClassNode, cn, notAddThisMethods + helperClassNode.methods*.name)
         }
-        addTraitMethods(classNode, helperClassNode, notAddThisMethods)
+        addTraitMethods(actualClassNode, traitClassNode, helperClassNode, notAddThisMethods)
     }
 
     private static final METHODS_THAT_MAYBE_NOT_DEFINED_IN_TRAIT = ['getProperty', 'setProperty']
 
-    private addTraitMethods(ClassNode classNode, ClassNode helperClassNode, notAddThisMethods) {
-        helperClassNode.methods.each {
+    private addTraitMethods(ClassNode actualClassNode, ClassNode traitClassNode, ClassNode helperClassNode, notAddThisMethods) {
+        helperClassNode.methods.findAll { it.name != '$static$init$'} .each {
             if (it.name == '$init$') {
                 if (!it.code.isEmpty()) {
-                    out.addScript("${classNode.nameWithoutPackage}.\$init\$(${GS_OBJECT});", true)
+                    out.addScript("${traitClassNode.nameWithoutPackage}.\$init\$(${GS_OBJECT});", true)
                 }
-            } else if (it.name == '$static$init$') {
-
+            } else if (isAccessorOfStaticField(it.name, traitClassNode)) {
+                def fieldName = context.findTraitScopeByName(it.name.substring(3))
+                if (it.name.startsWith('get'))
+                    out.addScript("${GS_OBJECT}.${it.name} = function() { " +
+                            " return ${actualClassNode.nameWithoutPackage}.${fieldName} };", true)
+                if (it.name.startsWith('set'))
+                    out.addScript("${GS_OBJECT}.${it.name} = function(x0) { " +
+                            " ${actualClassNode.nameWithoutPackage}.${fieldName} = x0 };", true)
             } else {
                 if (!(it.name in notAddThisMethods) && !it.synthetic) {
                     if (it.name in METHODS_THAT_MAYBE_NOT_DEFINED_IN_TRAIT) {
-                        out.addScript("if (${classNode.nameWithoutPackage}['${it.name}']) {", true)
+                        out.addScript("if (${traitClassNode.nameWithoutPackage}['${it.name}']) {", true)
                         out.addScript(out.TAB)
                     }
-                    staticMethod(it, GS_OBJECT, classNode.nameWithoutPackage, true)
+                    staticMethod(it, GS_OBJECT, traitClassNode.nameWithoutPackage, true)
                     if (it.name in METHODS_THAT_MAYBE_NOT_DEFINED_IN_TRAIT) {
                         out.addScript('}', true)
                     }
@@ -458,9 +466,28 @@ class ClassNodeHandler extends BaseHandler {
         if (helperFieldsNode) {
             populateTraitFieldsScoping(helperFieldsNode.outerClass)
             helperFieldsNode.fields?.each { FieldNode fieldNode ->
-                def name = fieldNode.name.substring(fieldNode.name.lastIndexOf('_') + 1)
+                def name = fieldNode.name.substring(fieldNode.name.lastIndexOf('__') + 2)
                 context.addToTraitFieldsScoping(name)
             }
         }
+    }
+
+    private initStaticFieldsInTraits(ClassNode classNode) {
+        classNode?.interfaces.findAll {
+            traits.isTrait(it)
+        }.each {
+            checkStaticPropertiesInTrait(classNode, it)
+        }
+    }
+
+    private checkStaticPropertiesInTrait(ClassNode actualClassNode, ClassNode traitClassNode) {
+        addClassVariableNamesToScope(traitClassNode)
+        ClassNode helperClassNode = org.codehaus.groovy.transform.trait.Traits.findHelpers(traitClassNode).helper
+        helperClassNode.outerClass?.interfaces?.findAll{ traits.isTrait(it) }.each { ClassNode cn ->
+            checkStaticPropertiesInTrait(actualClassNode, cn)
+        }
+        def list = listStaticFields(traitClassNode)
+        if (list)
+            out.addScript("${traitClassNode.nameWithoutPackage}\$static\$init\$(${actualClassNode.nameWithoutPackage});", true)
     }
 }

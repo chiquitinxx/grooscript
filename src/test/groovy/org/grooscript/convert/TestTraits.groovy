@@ -72,4 +72,9 @@ class TestTraits extends Specification {
         expect:
         convertAndEvaluate('traits/Native')
     }
+
+    def 'initialization of trait fields'() {
+        expect:
+        convertAndEvaluate('traits/Initialization')
+    }
 }
