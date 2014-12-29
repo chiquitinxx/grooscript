@@ -42,7 +42,7 @@ class InnerClassNodeHandler extends TraitBaseHandler {
             if (methodNode.name == '$static$init$') {
                 initStaticTraitFields(methodNode, innerClassNode)
             } else if (methodNode.code instanceof BlockStatement) {
-                if (!methodNode.code.isEmpty()) {
+                if (!methodNode.code.isEmpty() || methodNode.name == '$init$') {
                     functions.processBasicFunction("${className}.${methodNode.name}", methodNode, false)
                 } else {
                     if (functions.haveAnnotationNative(methodNode.annotations)) {
@@ -99,20 +99,29 @@ class InnerClassNodeHandler extends TraitBaseHandler {
             out.block ("function ${innerClassNode.outerClass.nameWithoutPackage}\$static\$init\$($TARGET)") {
                 methodNode.code.getStatements()?.each { Statement statement ->
                     if (statement instanceof ExpressionStatement &&
-                            statement.expression instanceof MethodCallExpression &&
-                            statement.expression.methodAsString == 'invokeStaticMethod') {
-                        ArgumentListExpression ale = statement.expression.arguments
-                        ConstantExpression constantExpression = ale[1]
-                        def propertyName = constantExpression.text.substring(
-                                constantExpression.text.lastIndexOf('__') + 2,
-                                constantExpression.text.lastIndexOf('$')
-                        )
-                        out.addScript("$TARGET.${propertyName} = ")
-                        conversionFactory.visitNode(ale[2])
-                        out.addScript(";", true)
+                            statement.expression instanceof MethodCallExpression) {
+                        def args = statement.expression.arguments
+                        if (args instanceof ArgumentListExpression) {
+                            putStaticInitialization(args[1], args[2])
+                        } else if (statement.expression.method instanceof ConstantExpression) {
+                            putStaticInitialization(statement.expression.method, args)
+                        }
                     }
                 }
             }
         }
+    }
+
+    private putStaticInitialization(ConstantExpression constantExpression, args) {
+        out.addScript("$TARGET.${propertyNameFromExpression(constantExpression)} = ")
+        conversionFactory.visitNode(args)
+        out.addScript(";", true)
+    }
+
+    private propertyNameFromExpression(ConstantExpression constantExpression) {
+        constantExpression.text.substring(
+                constantExpression.text.lastIndexOf('__') + 2,
+                constantExpression.text.lastIndexOf('$')
+        )
     }
 }

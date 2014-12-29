@@ -5,7 +5,6 @@ import org.grooscript.test.JavascriptEngine
 import org.grooscript.util.GrooScriptException
 import org.grooscript.util.Util
 import spock.lang.IgnoreIf
-import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -63,9 +62,16 @@ class TestFiles extends Specification {
 
         then:
         converted.contains('gSobject.setName("UsingTrait");')
-        converted.contains('$init$')
+        converted.contains('MyTrait.$init$(gSobject);')
         converted.contains('gSobject.hello = function() { return MyTrait.hello(gSobject); }')
         converted.contains('return "Bye!";')
+
+        when:
+        converted = convertFile('files/MyTrait', options)
+
+        then:
+        converted.contains('function MyTrait$static$init$(target)')
+        converted.contains('MyTrait.$init$ = function($self)')
     }
 
     @Unroll

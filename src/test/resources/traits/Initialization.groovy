@@ -11,7 +11,11 @@ trait StaticFields {
     static EMPTY_2
 }
 
-class WithStaticFields implements StaticFields {
+trait StaticColors {
+    static COLORS = ['red', 'blue']
+}
+
+class WithStaticFields implements StaticFields, StaticColors {
     def add() {
         EMPTY_2 = 1
         LIST << VALUE
@@ -25,3 +29,4 @@ assert WithStaticFields.EMPTY_2 == null
 assert new WithStaticFields().add() == [1, 2, 0]
 assert WithStaticFields.EMPTY == null
 assert WithStaticFields.EMPTY_2 == 1
+assert WithStaticFields.COLORS == ['red', 'blue']
