@@ -116,6 +116,9 @@ class ClassNodeHandler extends TraitBaseHandler {
         //Static fields of traits
         initStaticFieldsInTraits(node)
 
+        //Static methods
+        initStaticMethodsInTraits(node)
+
         context.staticProcessNode = null
 
         //Remove variable class names from the list
@@ -489,5 +492,28 @@ class ClassNodeHandler extends TraitBaseHandler {
         def list = listStaticFields(traitClassNode)
         if (list)
             out.addScript("${traitClassNode.nameWithoutPackage}\$static\$init\$(${actualClassNode.nameWithoutPackage});", true)
+    }
+
+    private initStaticMethodsInTraits(ClassNode classNode) {
+        classNode?.interfaces.findAll {
+            traits.isTrait(it)
+        }.each {
+            checkStaticMethodsInTrait(classNode, it)
+        }
+    }
+
+    private checkStaticMethodsInTrait(ClassNode actualClassNode, ClassNode traitClassNode) {
+        ClassNode helperClassNode = org.codehaus.groovy.transform.trait.Traits.findHelpers(traitClassNode).helper
+        helperClassNode.outerClass?.interfaces?.findAll{ traits.isTrait(it) }.each { ClassNode cn ->
+            checkStaticMethodsInTrait(actualClassNode, cn)
+        }
+        def icn = helperClassNode.outerClass
+        icn?.@methods?.map.findAll { !it.value && !(isAccessorOfStaticField(it.key, traitClassNode)) }.
+                each { key, value ->
+            out.addScript("${actualClassNode.nameWithoutPackage}.${key} = function() {" +
+                    " return ${icn.nameWithoutPackage}.${key}.apply(${actualClassNode.nameWithoutPackage}, " +
+                    "[${actualClassNode.nameWithoutPackage}].concat(Array.prototype.slice.call(arguments)));" +
+                    "}", true)
+        }
     }
 }

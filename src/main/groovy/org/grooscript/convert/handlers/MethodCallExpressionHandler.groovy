@@ -2,12 +2,15 @@ package org.grooscript.convert.handlers
 
 import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.expr.ArgumentListExpression
+import org.codehaus.groovy.ast.expr.BinaryExpression
+import org.codehaus.groovy.ast.expr.BooleanExpression
 import org.codehaus.groovy.ast.expr.ClassExpression
 import org.codehaus.groovy.ast.expr.ClosureExpression
 import org.codehaus.groovy.ast.expr.ConstantExpression
 import org.codehaus.groovy.ast.expr.MethodCallExpression
 import org.codehaus.groovy.ast.expr.PropertyExpression
 import org.codehaus.groovy.ast.expr.SpreadExpression
+import org.codehaus.groovy.ast.expr.TernaryExpression
 import org.codehaus.groovy.ast.expr.VariableExpression
 
 import static org.grooscript.JsNames.*
@@ -150,6 +153,26 @@ class MethodCallExpressionHandler extends BaseHandler {
         } else if(conversionFactory.isTraitClass(expression.objectExpression.type.name) &&
                 methodName.endsWith('$get')) {
             out.addScript("\$self.${getNameTraitProperty(methodName)}")
+        //Trait get static property
+        } else if(expression.objectExpression instanceof TernaryExpression &&
+                expression.objectExpression.booleanExpression.expression instanceof BinaryExpression &&
+                methodName?.endsWith('$get') &&
+                expression.objectExpression.booleanExpression.expression.leftExpression instanceof VariableExpression &&
+                expression.objectExpression.booleanExpression.expression.leftExpression.variable == '$static$self'
+        ) {
+                //traits_Methods__ONE$get
+                out.addScript("${GS_GET_PROPERTY}(\$static\$self,'")
+                out.addScript(methodName.substring(methodName.lastIndexOf('__') + 2, methodName.size() - 4))
+                out.addScript('\')')
+        //Trait set static property
+        } else if(methodName?.endsWith('$set') && expression.objectExpression instanceof VariableExpression &&
+            expression.objectExpression.variable == '$static$self') {
+            //traits_Methods__ONE$set
+            out.addScript("${GS_SET_PROPERTY}(\$static\$self,'")
+            out.addScript(methodName.substring(methodName.lastIndexOf('__') + 2, methodName.size() - 4))
+            out.addScript('\',')
+            conversionFactory.visitNode(expression.arguments, false)
+            out.addScript(')')
         //Static method
         } else if(isStaticMethodCall(expression)) {
             out.addScript("$GS_EXEC_STATIC(")

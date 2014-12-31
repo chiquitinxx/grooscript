@@ -77,4 +77,9 @@ class TestTraits extends Specification {
         expect:
         convertAndEvaluate('traits/Initialization')
     }
+
+    def 'method calling'() {
+        expect:
+        convertAndEvaluate('traits/MethodCalling')
+    }
 }
