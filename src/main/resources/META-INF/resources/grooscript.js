@@ -2765,7 +2765,7 @@
                         result = {};
                         var ob;
                         for (ob in obj) {
-                            if (!isMapProperty(ob)) {
+                            if (!isMapProperty(ob) && typeof(obj[ob]) !== "function") {
                                 result[ob] = gs.toJavascript(obj[ob]);
                             }
                         }

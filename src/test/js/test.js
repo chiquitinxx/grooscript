@@ -39,6 +39,14 @@ describe('initial tests on gs', function(){
         assert.equal(gs.toJavascript(list)[1]['hello'], 'yes');
     });
 
+    it('convert MyClass to javascript', function(){
+        var jsObject = gs.toJavascript(MyClass({a: 1, b: 2}));
+        assert.equal(jsObject.a, 1);
+        assert.equal(jsObject.b, 2);
+        assert.equal(jsObject.clazz, undefined);
+        assert.equal(jsObject.MyClass1, undefined);
+    });
+
     it('convert to groovy', function(){
         assert.equal(gs.toGroovy(5), 5);
         assert.equal(gs.toGroovy('hello'), 'hello');
