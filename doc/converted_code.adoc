@@ -1,0 +1,9 @@
+Once you have converted code to javascript, you have to use in javascript environment. To run this converted
+code you need `grooscript.js` or `grooscript.min.js` loaded. In Node.js load grooscript
+https://www.npmjs.com/package/grooscript[npm] module, and in your web pages include the lib manually.
+
+[source,html]
+--
+<script type="text/javascript" src="js/grooscript.min.js"></script>
+<script type="text/javascript" src="js/yourConvertedFile.js"></script>
+--

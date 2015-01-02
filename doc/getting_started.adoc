@@ -18,7 +18,7 @@ If you want to make conversions in your groovy / java project, you need link:jar
 You can get from mavenCentral or bintray `org.grooscript:grooscript:{grooscript-version}` in your project's dependencies. Also need `grooscript.js`,
 inside the jar or download from link:downloads.html[here] to run the converted code in your javascript environment.
 
-Also, you can convert groovy or java files to javascript:
+Usually, you will convert groovy or java files to javascript:
 
 [source,groovy]
 --

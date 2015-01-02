@@ -2,9 +2,6 @@ package org.grooscript.jquery
 
 import org.grooscript.rx.Observable
 
-/**
- * Created by jorge on 13/04/14.
- */
 interface GQuery {
     //Bind a selector to a property of an object
     def bind(String selector, target, String nameProperty)

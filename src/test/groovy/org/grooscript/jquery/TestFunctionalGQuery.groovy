@@ -41,6 +41,7 @@ class TestFunctionalGQuery extends FunctionalTest {
 
     private getDoRemoteCallCode() {
         """
+//tag::gquery[]
 import org.grooscript.jquery.GQueryImpl
 
 def result = new Result()
@@ -53,6 +54,7 @@ gQuery.onReady {
         result = 'FAIL!'
     }, Result)
 }
+//end::gquery[]
 """
     }
 }

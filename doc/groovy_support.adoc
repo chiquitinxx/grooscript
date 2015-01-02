@@ -73,6 +73,8 @@ A lot of lists and map functions are implemented, so the support is very good.
 include::../src/test/resources/listFunctions.groovy[tags=lists,indent=0]
 --
 
+Ranges with negative numbers are not supported.
+
 ==== Groovy truth
 
 [source,groovy]
@@ -89,36 +91,59 @@ include::../src/test/resources/contribution/GuillaumeCustomizeTruth.groovy[tags=
 
 ==== Expando class
 
+JavaScript object is similar to Expando object
+
     TODO
 
 ==== Numbers
+
+Numbers types are ignored, in conversion we are working with javascript numbers.
 
     TODO
 
 ==== Categories and Mixing
 
+Categories are suported with annotation and with the ´use´ keyword. Mixins also supported but we moved to
+better support traits.
+
     TODO
 
 ==== Switch
 
+Has basic support, can't assign variables inside.
     TODO
 
 ==== Closures
+
+Closures are converted to javascript functions. call, curry, rcurry, ncurry, leftShift are supported. If you
+set delegate of a closure, it will be used.
 
     TODO
 
 ==== GroovyBeans
 
+Support getter and setters as groovy does. Supporting getProperty, setProperty, methodMissing, propertyMissing.
+Added invokeMethod but don't intercept calls.
+
     TODO
 
 ==== Metaprogramming
+
+Can add/modify properties and methods in execution time. Some problems with primitive types as Integer or String.
+Can use getProperties() and getMethods() to get names. Can add properties/methods to classes.
+Just working on dynamic features needed, never a full groovy metaClass, metaInfo, ... support.
 
     TODO
 
 ==== AST's
 
+Support to @Mixin, @Category and @Delegate. Annotations in semantic phase, will be applied and converted, is same phase
+that grooscript use.
+
     TODO
 
 ==== Traits
+
+Good support, in compile and runtime. Don't support SAM coercion and super.
 
     TODO

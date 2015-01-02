@@ -1,5 +1,5 @@
 Grooscript comes with some tools. This tools are some classes that you can use in your groovy code. If you convert
-code that use this tools, you need the js code of that tools. This code is in +grooscript-tools.js+ file. You
+code that use this tools, you need the js code of that tools. This code is in `grooscript-tools.js` file. You
 can find it inside the jar or you can link:downloads.html[download] it.
 
 This tools are little helpers, with only a bit lines of code, don't expect full libraries. I have introduced
@@ -43,6 +43,48 @@ html {
 }
 --
 
+To use the builder just call the static method `build` to generate string html code:
+
+[source,groovy]
+--
+package org.grooscript.builder
+
+class HtmlBuilder {
+
+    static String build(@DelegatesTo(HtmlBuilder) Closure closure)
+--
+
+The groovy code can be converted to javascript and will run if you add `grooscript-tools.js`
+
+[source,groovy]
+--
+include::../src/test/groovy/org/grooscript/builder/TestHtmlBuilder.groovy[tags=htmlBuilder,indent=0]
+--
+
+Available functions from groovy templates are:
+
+- yield
+- comment
+- yieldUnescaped
+- newLine
+
 === gQuery
+
+If you use http://jquery.com/[jquery] in your projects, maybe you want to use from your groovy code that will be
+converted to javascript. I have created an interface `Gquery` and the implementation `GqueryImpl` to work with it.
+The implementation is added to `grooscript-tools.js`. The interface is:
+
+[source,groovy]
+--
+include::../src/main/groovy/org/grooscript/jquery/GQuery.groovy[indent=0]
+--
+
+`GQueryList` is a class with a method missing to execute jquery functions in the result of the selector
+finder, like `gQuery('body').append('Hello!')`. See in action:
+
+[source,groovy]
+--
+include::../src/test/groovy/org/grooscript/jquery/TestFunctionalGQuery.groovy[tags=gquery,indent=0]
+--
 
 === Observable

@@ -70,6 +70,7 @@ class TestHtmlBuilder extends Specification {
     }
 
     void 'works with code inside the closure'() {
+        //tag::htmlBuilder[]
         given:
         def result = HtmlBuilder.build {
             body {
@@ -83,6 +84,7 @@ class TestHtmlBuilder extends Specification {
 
         expect:
         result == "<body><ul class='list' id='mainList'><li>0Hello!</li><li>1Hello!</li></ul></body>"
+        //end::htmlBuilder[]
     }
 
     void 'last param is a string'() {

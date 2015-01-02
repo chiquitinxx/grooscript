@@ -13,7 +13,10 @@ include::getting_started.adoc[]
 == Conversion
 
 For convert groovy code to javascript, that groovy code is compiled. Then javascript code is generated
-visiting generated AST tree. You can try link:conversions.html[online] conversions at grooscript site.
+visiting generated AST tree. You can try link:conversions.html[online] conversions at grooscript site. In the
+source of the project you can take a look at all the groovy code that is converted to javascript in tests,
+you have full scope of all supported features in a lot of
+https://github.com/chiquitinxx/grooscript/tree/master/src/test/resources[groovy scripts]
 
 You usually will convert files with groovy code to a destination folder or js file. To be dynamic and automatize
 conversion process I strongly recommend to use https://github.com/chiquitinxx/grooscript-gradle-plugin[grooscript gradle plugin].
@@ -49,7 +52,7 @@ include::groovy_support.adoc[]
 
 == Converted code
 
-How to work with converted code in js world...
+include::converted_code.adoc[]
 
 == PhantomJs tests
 

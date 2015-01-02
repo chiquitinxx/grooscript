@@ -9,7 +9,7 @@ Reflection, ... are not supported.
 
 Basic types are ignored, they are just used in javascript. No differences between float, int, ... just numbers
 are 'numbers' and String are javascript String's. Integer, Float, Double,... types are not supported, just
-Integer.parseInt and Float.parseFloat are supported. Basic operations are supported: +, -, *, /, %, **
+Integer.parseInt and Float.parseFloat are supported. Basic operations are supported: `+, -, \*, /, %, **`
 
 ==== Equals, hashCode and compare
 

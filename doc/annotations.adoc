@@ -1,10 +1,11 @@
-Grooscript offer three annotations to add in your groovy code.
+Grooscript offer two annotations to add in your groovy code.
 
 === GsNative
 
 You can annotate groovy methods with @GsNative. The javascript code of that method will be the code inside comment,
-between `/&#42;` and `&#42;/`. I use a lot this feature to insert javascript code in the groovy code. So when I run the code
-in groovy nothing happens (tests pass), but the javascript code runs in converted code.
+between `/&#42;` and `&#42;/`, that fragment has to be after `{` method start. I use a lot this feature to insert
+javascript code in the groovy code. So when I run the code in groovy nothing happens (tests pass), but the
+javascript code runs in converted code.
 
 [source,groovy]
 --
@@ -22,6 +23,13 @@ class Numbers {
         6
     }
 }
+--
+
+This is a very useful feature, even you can put javascript code in a block comment and groovy code after.
+
+[source,groovy]
+--
+include::../src/test/resources/asts/advancedNative.groovy[tags=mixNative,indent=0]
 --
 
 === GsNotConvert
@@ -48,5 +56,3 @@ class A {
     }
 }
 --
-
-=== GQuery

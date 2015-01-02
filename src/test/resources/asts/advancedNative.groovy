@@ -12,12 +12,15 @@ class Foo {
         a++
     }
 
+    // tag::mixNative[]
     @GsNative
     def methodB(){/*
             gs.println('methodB');
             this.a++;
-            this.methodA();
-    */ a = a + 1; println 'inMethodB'; this.methodA()}
+            this.methodA();*/
+        println 'inMethodB'; a = a + 1; this.methodA()
+    }
+    // end::mixNative[]
 
     @GsNative
     static bar() {/*
