@@ -37,6 +37,7 @@ class TestFunctionalObservable extends FunctionalTest {
 
     private getDoRemoteCallCode() {
         '''
+// tag::obsobs[]
 import org.grooscript.jquery.GQueryImpl
 
 def clicks = [number: 0]
@@ -50,6 +51,8 @@ gQuery.onReady {
       subscribe { num -> clicks.number = clicks.number + num }
     $('p').click()
 }
+// clicks.number == 7
+// end::obsobs[]
 '''
     }
 }

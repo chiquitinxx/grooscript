@@ -88,3 +88,16 @@ include::../src/test/groovy/org/grooscript/jquery/TestFunctionalGQuery.groovy[ta
 --
 
 === Observable
+
+I think reactive programming is very interesting, and I have added a little implementation of Observable in grooscript.
+Take a look at this https://github.com/chiquitinxx/grooscript/blob/master/src/test/groovy/org/grooscript/rx/ObservableSpec.groovy[tests]
+to see what can you do. Just subscribe to events, map and filter. There are two functions in gQuery that returns observable.
+
+This is just an introduction, if you're curious about reactive programming google it!
+
+Little example:
+
+[source,groovy]
+--
+include::../src/test/groovy/org/grooscript/rx/TestFunctionalObservable.groovy[tags=obsobs,indent=0]
+--
