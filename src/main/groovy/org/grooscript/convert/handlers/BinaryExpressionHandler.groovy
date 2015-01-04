@@ -143,6 +143,7 @@ class BinaryExpressionHandler extends BaseHandler {
                 if (expression.operation.text in ASSIGN_OPERATORS && 
                         expression.leftExpression instanceof VariableExpression && 
                         !context.allActualScopeContains(expression.leftExpression.name) &&
+                        !context.variableStaticScoping.peek().contains(expression.leftExpression.name) &&
                         !context.variableScopingContains(expression.leftExpression.name)) {
                     context.addToActualScope(expression.leftExpression.name)
                 }

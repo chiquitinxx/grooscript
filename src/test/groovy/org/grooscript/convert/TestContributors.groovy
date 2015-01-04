@@ -109,6 +109,7 @@ class TestContributors extends Specification {
         'contribution/MySelf8'     | _
         'contribution/MySelf9'     | _
         'contribution/MySelf10'    | _
+        'contribution/MySelf11'    | _
     }
 
     @Unroll

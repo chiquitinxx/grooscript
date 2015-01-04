@@ -1,17 +1,7 @@
 package org.grooscript.convert.handlers
 
 import org.codehaus.groovy.ast.ClassNode
-import org.codehaus.groovy.ast.expr.ArgumentListExpression
-import org.codehaus.groovy.ast.expr.BinaryExpression
-import org.codehaus.groovy.ast.expr.BooleanExpression
-import org.codehaus.groovy.ast.expr.ClassExpression
-import org.codehaus.groovy.ast.expr.ClosureExpression
-import org.codehaus.groovy.ast.expr.ConstantExpression
-import org.codehaus.groovy.ast.expr.MethodCallExpression
-import org.codehaus.groovy.ast.expr.PropertyExpression
-import org.codehaus.groovy.ast.expr.SpreadExpression
-import org.codehaus.groovy.ast.expr.TernaryExpression
-import org.codehaus.groovy.ast.expr.VariableExpression
+import org.codehaus.groovy.ast.expr.*
 
 import static org.grooscript.JsNames.*
 
@@ -157,11 +147,10 @@ class MethodCallExpressionHandler extends BaseHandler {
         } else if(expression.objectExpression instanceof TernaryExpression &&
                 expression.objectExpression.booleanExpression.expression instanceof BinaryExpression &&
                 methodName?.endsWith('$get') &&
-                expression.objectExpression.booleanExpression.expression.leftExpression instanceof VariableExpression &&
-                expression.objectExpression.booleanExpression.expression.leftExpression.variable == '$static$self'
+                isTraitVariableExpression(expression.objectExpression.booleanExpression.expression.leftExpression)
         ) {
                 //traits_Methods__ONE$get
-                out.addScript("${GS_GET_PROPERTY}(\$static\$self,'")
+                out.addScript("${GS_GET_PROPERTY}(${traitVariableName(expression.objectExpression.booleanExpression.expression.leftExpression)},'")
                 out.addScript(methodName.substring(methodName.lastIndexOf('__') + 2, methodName.size() - 4))
                 out.addScript('\')')
         //Trait set static property
@@ -244,5 +233,17 @@ class MethodCallExpressionHandler extends BaseHandler {
             out.addScript(", ${GS_OBJECT}")
         }
         out.addScript(')')
+    }
+
+    private isTraitVariableExpression(expression) {
+        (expression instanceof VariableExpression && expression.variable == '$static$self') ||
+            (expression instanceof CastExpression && expression.expression instanceof VariableExpression &&
+                    expression.expression.variable == '$self')
+    }
+
+    private traitVariableName(expression) {
+        expression instanceof VariableExpression ?
+                expression.variable :
+                traitVariableName(expression.expression)
     }
 }

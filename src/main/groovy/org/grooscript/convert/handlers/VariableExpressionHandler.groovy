@@ -23,6 +23,10 @@ class VariableExpressionHandler extends BaseHandler {
                 out.addScript("${GS_OBJECT}.get${expression.name.capitalize()}()")
             } else if (context.isVariableWithMissingScope(expression) && !isDeclaringVariable) {
                 out.addScript("${GS_FIND_SCOPE}('${addPrefixOrPostfixIfNeeded(expression.name)}', this)")
+            } else if (!isDeclaringVariable && context.variableStaticScoping && context.classNameStack &&
+                    !context.actualScope.peek().contains(expression.name) &&
+                    context.variableStaticScoping.peek() && expression.name in context.variableStaticScoping.peek()) {
+                out.addScript(addPrefixOrPostfixIfNeeded("${context.classNameStack.peek()}."+expression.name))
             } else {
                 out.addScript(addPrefixOrPostfixIfNeeded(expression.name))
             }
