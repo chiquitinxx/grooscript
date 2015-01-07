@@ -149,16 +149,27 @@ class MethodCallExpressionHandler extends BaseHandler {
                 methodName?.endsWith('$get') &&
                 isTraitVariableExpression(expression.objectExpression.booleanExpression.expression.leftExpression)
         ) {
-                //traits_Methods__ONE$get
-                out.addScript("${GS_GET_PROPERTY}(${traitVariableName(expression.objectExpression.booleanExpression.expression.leftExpression)},'")
-                out.addScript(methodName.substring(methodName.lastIndexOf('__') + 2, methodName.size() - 4))
-                out.addScript('\')')
-        //Trait set static property
+            //traits_Methods__ONE$get
+            out.addScript("${GS_GET_PROPERTY}(${traitVariableName(expression.objectExpression.booleanExpression.expression.leftExpression)},'")
+            out.addScript(namePropertyFromTrait(methodName))
+            out.addScript('\')')
+        //Trait set static property in static method
         } else if(methodName?.endsWith('$set') && expression.objectExpression instanceof VariableExpression &&
             expression.objectExpression.variable == '$static$self') {
             //traits_Methods__ONE$set
             out.addScript("${GS_SET_PROPERTY}(\$static\$self,'")
-            out.addScript(methodName.substring(methodName.lastIndexOf('__') + 2, methodName.size() - 4))
+            out.addScript(namePropertyFromTrait(methodName))
+            out.addScript('\',')
+            conversionFactory.visitNode(expression.arguments, false)
+            out.addScript(')')
+        //Trait set static property in normal method
+        } else if(methodName?.endsWith('$set') && expression.objectExpression instanceof PropertyExpression &&
+                expression.objectExpression.objectExpression instanceof CastExpression &&
+                expression.objectExpression.objectExpression.expression instanceof VariableExpression &&
+                expression.objectExpression.objectExpression.expression.variable == '$self') {
+            //traits_StaticFields__VALUE$set
+            out.addScript("${GS_SET_PROPERTY}(\$self,'")
+            out.addScript(namePropertyFromTrait(methodName))
             out.addScript('\',')
             conversionFactory.visitNode(expression.arguments, false)
             out.addScript(')')
@@ -245,5 +256,9 @@ class MethodCallExpressionHandler extends BaseHandler {
         expression instanceof VariableExpression ?
                 expression.variable :
                 traitVariableName(expression.expression)
+    }
+
+    private namePropertyFromTrait(methodName) {
+        methodName.substring(methodName.lastIndexOf('__') + 2, methodName.size() - 4)
     }
 }

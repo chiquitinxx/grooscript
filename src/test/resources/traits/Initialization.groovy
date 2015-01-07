@@ -9,6 +9,17 @@ trait StaticFields {
     static LIST = [1, 2]
     static EMPTY
     static EMPTY_2
+
+    static initStatic() {
+        VALUE = 0
+        LIST = [1, 2]
+    }
+
+    def init() {
+        VALUE = 0
+        LIST = [1, 2]
+        EMPTY = null
+    }
 }
 
 trait StaticColors {
@@ -22,11 +33,19 @@ class WithStaticFields implements StaticFields, StaticColors {
     }
 }
 
-assert WithStaticFields.VALUE == 0
-assert WithStaticFields.LIST == [1, 2]
-assert WithStaticFields.EMPTY == null
-assert WithStaticFields.EMPTY_2 == null
-assert new WithStaticFields().add() == [1, 2, 0]
-assert WithStaticFields.EMPTY == null
-assert WithStaticFields.EMPTY_2 == 1
-assert WithStaticFields.COLORS == ['red', 'blue']
+def checkAll = {
+    assert WithStaticFields.VALUE == 0
+    assert WithStaticFields.LIST == [1, 2]
+    assert WithStaticFields.EMPTY == null
+    assert new WithStaticFields().add() == [1, 2, 0]
+    assert WithStaticFields.EMPTY == null
+    assert WithStaticFields.EMPTY_2 == 1
+    assert WithStaticFields.COLORS == ['red', 'blue']
+}
+checkAll()
+WithStaticFields.initStatic()
+checkAll()
+def withStaticFields = new WithStaticFields()
+withStaticFields.init()
+checkAll()
+
