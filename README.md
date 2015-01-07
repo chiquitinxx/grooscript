@@ -27,8 +27,8 @@ println result
 
 Latest Versions
 ---
-The latest release version is **0.6.3**, released on 2014-12-03. The current development
-version is **1.0.0-rc-1**.
+The latest release version is **1.0.0-rc-1**, released on 2014-12-03. The current development
+version is **1.0.0-rc-2**.
 
 Releases are available from [Maven Central](https://search.maven.org/#search%7Cga%7C1%7Ca%3A%22grooscript%22)
 and [Bintray](https://bintray.com/chiquitinxx/grooscript/org.grooscript%3Agrooscript/view).
