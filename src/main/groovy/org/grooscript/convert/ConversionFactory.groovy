@@ -45,6 +45,7 @@ class ConversionFactory {
         'UnaryPlusExpression': UnaryPlusExpressionHandler,
         'TryCatchStatement': TryCatchStatementHandler,
         'StaticMethodCallExpression': StaticMethodCallExpressionHandler,
+        'SwitchStatement': SwitchStatementHandler,
     ]
 
     ConversionFactory() {

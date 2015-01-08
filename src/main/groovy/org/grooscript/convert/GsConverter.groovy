@@ -454,56 +454,6 @@ class GsConverter {
         out.addScript(')')
     }
 
-    private getSwitchExpression(Expression expression,String varName) {
-
-        if (expression instanceof ClosureExpression) {
-            context.addClosureSwitchInitialization = true
-            processClosureExpression(expression,true)
-            out.addScript('()')
-        } else {
-            out.addScript("${varName} === ")
-            conversionFactory.visitNode(expression)
-        }
-    }
-
-    private processSwitchStatement(SwitchStatement statement) {
-
-        def varName = SWITCH_VAR_NAME + context.switchCount++
-
-        out.addScript('var '+varName+' = ')
-        conversionFactory.visitNode(statement.expression)
-        out.addScript(';', true)
-
-        def first = true
-
-        statement.caseStatements?.each { it ->
-            if (first) {
-                out.addScript("if (")
-                first = false
-            } else {
-                out.addScript("} else if (")
-            }
-            getSwitchExpression(it.expression,varName)
-            out.addScript(') {')
-            out.indent++
-            out.addLine()
-            conversionFactory.visitNode(it?.code)
-            out.indent--
-            out.removeTabScript()
-        }
-        if (statement.defaultStatement) {
-            out.addScript('} else {')
-            out.indent++
-            out.addLine()
-            conversionFactory.visitNode(statement.defaultStatement)
-            out.indent--
-            out.removeTabScript()
-        }
-
-        out.addScript('}')
-        context.switchCount--
-    }
-
     private processCaseStatement(CaseStatement statement) {
         out.addScript 'case '
         conversionFactory.visitNode(statement?.expression)
