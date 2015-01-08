@@ -4,6 +4,7 @@ package classes
  * User: jorgefrancoleza
  * Date: 03/04/14
  */
+// tag::mark[]
 final class Distance {
     def number
     String toString() { "${number}m" }
@@ -21,3 +22,4 @@ use(NumberCategory) {
     assert dist instanceof Distance
     assert dist.toString() == "300m"
 }
+// end::mark[]

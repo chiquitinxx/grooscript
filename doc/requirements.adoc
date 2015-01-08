@@ -1,0 +1,15 @@
+Grooscript will compile your piece of groovy code, so you need Groovy, at least version 2. If you use Groovy
+2.0, you can't convert traits, introduced in Groovy 2.3. So, add grooscript in your project dependencies and that's all.
+By default grooscript depends from Groovy 2.4, but you can use the groovy version of your project excluding
+groovy dependencies:
+
+[source,groovy]
+[subs="verbatim,attributes"]
+--
+compile 'org.grooscript:grooscript:{grooscript-version}', {
+    exclude module: "groovy"
+    exclude module: "groovy-json"
+}
+--
+
+The javascript generated code is ECMAScript 5 compatible. So will run at any browser or node.js.

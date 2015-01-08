@@ -66,7 +66,8 @@ include::../src/test/resources/regularExpressionsBegin.groovy[tags=regs,indent=0
 
 ==== Lists, ranges, maps ans sets
 
-A lot of lists and map functions are implemented, so the support is very good.
+A lot of lists and map functions are implemented, so the support is very good. The `*` operator to get lists is
+available too.
 
 [source,groovy]
 --
@@ -91,59 +92,88 @@ include::../src/test/resources/contribution/GuillaumeCustomizeTruth.groovy[tags=
 
 ==== Expando class
 
-JavaScript object is similar to Expando object
+JavaScript object is similar to Expando object, and is supported
 
-    TODO
+[source,groovy]
+--
+include::../src/test/resources/advanced/ExpandoWorld.groovy[tags=mark,indent=0]
+--
 
 ==== Numbers
 
-Numbers types are ignored, in conversion we are working with javascript numbers.
+Numbers types are ignored, in conversion we are working with javascript numbers. Math library is compatible with
+javascript, and you can use it.
 
-    TODO
+[source,groovy]
+--
+include::../src/test/resources/arithmetic.groovy[tags=mark,indent=0]
+--
 
-==== Categories and Mixing
+==== Categories and Mixins
 
-Categories are suported with annotation and with the ´use´ keyword. Mixins also supported but we moved to
-better support traits.
+Categories are suported with annotation and with the ´use´ keyword. Support on categories and mixins is not
+very great, you can expect good support in categories, but not in mixins cause deprecated.
 
-    TODO
+[source,groovy]
+--
+include::../src/test/resources/classes/MoreCategories.groovy[tags=mark,indent=0]
+--
 
 ==== Switch
 
-Has basic support, can't assign variables inside.
-    TODO
+Groovy features are not supported, can't assign variables inside, not comparing with lists, sets, classes,
+regular expressions, ... Just a basic switch.
+
+[source,groovy]
+--
+include::../src/test/resources/contribution/Anonymous1.groovy[tags=mark,indent=0]
+--
 
 ==== Closures
 
 Closures are converted to javascript functions. call, curry, rcurry, ncurry, leftShift are supported. If you
-set delegate of a closure, it will be used.
+set delegate of a closure, it will be used. Also support closures as last argument in methods, and closure
+composition.
 
-    TODO
+[source,groovy]
+--
+include::../src/test/resources/contribution/GuillaumeClosuresComposition.groovy[tags=mark,indent=0]
+//
+include::../src/test/resources/contribution/GuillaumeTrailingClosure.groovy[tags=mark,indent=0]
+--
 
 ==== GroovyBeans
 
-Support getter and setters as groovy does. Supporting getProperty, setProperty, methodMissing, propertyMissing.
-Added invokeMethod but don't intercept calls.
+Support getter and setters as groovy does, named parameters in the default constructor
 
-    TODO
+[source,groovy]
+--
+include::../src/test/resources/doc/Beans.groovy[tags=mark,indent=0]
+--
 
 ==== Metaprogramming
 
 Can add/modify properties and methods in execution time. Some problems with primitive types as Integer or String.
 Can use getProperties() and getMethods() to get names. Can add properties/methods to classes.
+Supporting getProperty, setProperty, methodMissing, propertyMissing.
+Added invokeMethod but doesn't intercept calls.
 Just working on dynamic features needed, never a full groovy metaClass, metaInfo, ... support.
 
-    TODO
+[source,groovy]
+--
+include::../src/test/resources/doc/Metaprogramming.groovy[tags=mark,indent=0]
+--
 
 ==== AST's
 
-Support to @Mixin, @Category and @Delegate. Annotations in semantic phase, will be applied and converted, is same phase
-that grooscript use.
-
-    TODO
+Support to @Mixin, @Category and @Delegate. Annotations in semantic phase, will be applied and converted, is phase
+where grooscript converts compiled code.
 
 ==== Traits
 
 Good support, in compile and runtime. Don't support SAM coercion and super.
 
-    TODO
+[source,groovy]
+--
+include::../src/test/resources/traits/Inheritance.groovy[tags=mark,indent=0]
+--

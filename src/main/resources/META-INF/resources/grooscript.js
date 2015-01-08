@@ -1,4 +1,4 @@
-//Grooscript Version 1.0 Apache 2 License
+//Grooscript Version 1.0.0 Apache 2 License
 (function() {
     var gs = function(obj) {
         if (obj instanceof gs) return obj;
@@ -2153,8 +2153,9 @@
             item[nameProperty] = value;
             item.gSparent[nameProperty] = value;
         } else {
-
-            if (!item['setProperty']) {
+            if (nameProperty === 'methodMissing' && value) {
+                item[nameProperty] = value;
+            } else if (!item['setProperty']) {
                 var nameFunction = 'set' + nameProperty.charAt(0).toUpperCase() + nameProperty.slice(1);
 
                 if (!item[nameFunction]) {
@@ -2187,58 +2188,63 @@
         }
 
         if (!item['getProperty']) {
-            var nameFunction = 'get' + nameProperty.charAt(0).toUpperCase() + nameProperty.slice(1);
-            if (!item[nameFunction]) {
-                if (nameProperty == 'size' && typeof item[nameProperty] === "function") {
-                    return item[nameProperty]();
+            return propFromObject(item, nameProperty, inDelegates);
+        } else {
+            var res = item.getProperty(nameProperty);
+            return (res !== undefined ? res : propFromObject(item, nameProperty, inDelegates))
+        }
+    };
+
+    function propFromObject(item, nameProperty, inDelegates) {
+        var nameFunction = 'get' + nameProperty.charAt(0).toUpperCase() + nameProperty.slice(1);
+        if (!item[nameFunction]) {
+            if (nameProperty == 'size' && typeof item[nameProperty] === "function") {
+                return item[nameProperty]();
+            } else {
+                if (item[nameProperty] !== undefined) {
+                    return item[nameProperty];
                 } else {
-                    if (item[nameProperty] !== undefined) {
-                        return item[nameProperty];
-                    } else {
-                        //Lets check gp in @Delegate
-                        if (item.clazz !== undefined) {
-                            var addDelegate = mapAddDelegate[item.clazz.simpleName];
-                            if (addDelegate !== null && addDelegate !== undefined) {
-                                var i;
-                                for (i = 0; i < addDelegate.length; i++) {
-                                    var prop = addDelegate[i];
-                                    var target = item[prop][nameProperty];
-                                    if (target !== undefined) {
-                                        return item[prop][nameProperty];
-                                    }
+                    //Lets check gp in @Delegate
+                    if (item.clazz !== undefined) {
+                        var addDelegate = mapAddDelegate[item.clazz.simpleName];
+                        if (addDelegate !== null && addDelegate !== undefined) {
+                            var i;
+                            for (i = 0; i < addDelegate.length; i++) {
+                                var prop = addDelegate[i];
+                                var target = item[prop][nameProperty];
+                                if (target !== undefined) {
+                                    return item[prop][nameProperty];
                                 }
                             }
                         }
-                        //Default value of a map
-                        if (item.gSdefaultValue !== undefined && (typeof item.gSdefaultValue === "function")) {
-                            item[nameProperty] = item.gSdefaultValue();
+                    }
+                    //Default value of a map
+                    if (item.gSdefaultValue !== undefined && (typeof item.gSdefaultValue === "function")) {
+                        item[nameProperty] = item.gSdefaultValue();
+                    }
+                    //Maybe in categories
+                    if (categories.length > 0 && item[nameProperty] === undefined) {
+                        var whereExecutes = categorySearching(nameFunction);
+                        if (whereExecutes !== null) {
+                            return whereExecutes[nameFunction].apply(item, [item]);
                         }
-                        //Maybe in categories
-                        if (categories.length > 0 && item[nameProperty] === undefined) {
-                            var whereExecutes = categorySearching(nameFunction);
-                            if (whereExecutes !== null) {
-                                return whereExecutes[nameFunction].apply(item, [item]);
-                            }
-                        }
+                    }
 
-                        if (item.propertyMissing !== undefined && typeof item.propertyMissing === "function") {
-                            return item.propertyMissing(nameProperty);
+                    if (item.propertyMissing !== undefined && typeof item.propertyMissing === "function") {
+                        return item.propertyMissing(nameProperty);
+                    } else {
+                        if (!inDelegates && delegates.length > 0) {
+                            return findPropertyInDelegates(nameProperty, item);
                         } else {
-                            if (!inDelegates && delegates.length > 0) {
-                                return findPropertyInDelegates(nameProperty, item);
-                            } else {
-                                return item[nameProperty];
-                            }
+                            return item[nameProperty];
                         }
                     }
                 }
-            } else {
-                return item[nameFunction]();
             }
         } else {
-            return item.getProperty(nameProperty);
+            return item[nameFunction]();
         }
-    };
+    }
 
     function findPropertyInDelegates(nameProperty, item) {
         var i = delegates.length;

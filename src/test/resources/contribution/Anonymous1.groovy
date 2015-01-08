@@ -8,7 +8,7 @@ def list = [true,false]
 
 assert list[0]
 assert !list[1]
-
+// tag::mark[]
 def res
 
 switch ([true,false]) {
@@ -18,7 +18,7 @@ switch ([true,false]) {
 }
 
 assert res == 0
-
+// end::mark[]
 
 def f = "fizz"
 def b = "buzz"

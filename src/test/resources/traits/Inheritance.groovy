@@ -4,7 +4,7 @@ package traits
  * User: jorgefrancoleza
  * Date: 06/04/14
  */
-
+// tag::mark[]
 interface Named {
     String name()
 }
@@ -19,3 +19,4 @@ def p = new Person()
 assert p.greeting() == 'Hello, Bob!'
 assert p instanceof Named
 assert p instanceof Greetable
+// end::mark[]

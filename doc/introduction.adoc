@@ -1,6 +1,6 @@
 Be aware javascript isn't Java or Groovy, lot of differences between them. The main idea of this project is use
-Groovy strengths in the browser, not create a full conversion. I'm looking for use groovy code in the server and the client,
-work in a single environment, use groovy and java tools and IDE's.
+Groovy strengths in the browser. I'm looking for use groovy and java code in both sides
+(server and client), work in a single environment, use groovy and java tools and IDE's.
 
 Grooscript is a library that converts your groovy code to javascript. I've tried that converted code doesn't contains
 strange code or magical things. So you can use and follow that converted javascript code. This code needs `*grooscript.js*`
@@ -8,9 +8,8 @@ or `*grooscript.min.js*` to run in a javascript environment.
 
 The typical flow is:
 
-- Create awesome groovy or java code.
-- Test it with https://code.google.com/p/spock/[Spock] :)
-- Converts code to javascript.
+- Create awesome groovy or java code while test it with https://code.google.com/p/spock/[Spock] :)
+- Convert code to javascript.
 - Add that converted files to your html or js project.
 - Then, work in your groovy code and use javascript when you want to.
 

@@ -6,6 +6,10 @@
 
 include::introduction.adoc[]
 
+== Requirements
+
+include::requirements.adoc[]
+
 == Getting started
 
 include::getting_started.adoc[]
@@ -46,11 +50,11 @@ include::general_support.adoc[]
 
 include::java_support.adoc[]
 
-=== Groovy support [Jorge]
+=== Groovy support
 
 include::groovy_support.adoc[]
 
-== Converted code
+== Converted code [Jorge]
 
 include::converted_code.adoc[]
 

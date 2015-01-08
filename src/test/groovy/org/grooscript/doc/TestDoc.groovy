@@ -2,6 +2,7 @@ package org.grooscript.doc
 
 import org.grooscript.test.ConversionMixin
 import spock.lang.Specification
+import spock.lang.Unroll
 
 /**
  * JFL 13/12/14
@@ -9,28 +10,13 @@ import spock.lang.Specification
 @Mixin([ConversionMixin])
 class TestDoc extends Specification {
 
-    def 'test inheritance'() {
+    @Unroll
+    def 'doc tests'() {
         expect:
-        convertAndEvaluate 'doc/Inheritance'
-    }
+        convertAndEvaluate filePath
 
-    def 'test object'() {
-        expect:
-        convertAndEvaluate 'doc/Object'
-    }
-
-    def 'little features'() {
-        expect:
-        convertAndEvaluate 'doc/LittleFeatures'
-    }
-
-    def 'operators'() {
-        expect:
-        convertAndEvaluate 'doc/Operators'
-    }
-
-    def 'groovy truth'() {
-        expect:
-        convertAndEvaluate 'doc/Truth'
+        where:
+        filePath << ['doc/Inheritance', 'doc/Object', 'doc/LittleFeatures', 'doc/Operators',
+                     'doc/Truth', 'doc/Beans', 'doc/Metaprogramming']
     }
 }

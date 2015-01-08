@@ -3,7 +3,7 @@ package contribution
 /**
  * Created by jorgefrancoleza on 14/12/14.
  */
-
+// tag::mark[]
 void unless(boolean b, Closure c) {
     if (!b) c()
 }
@@ -16,7 +16,7 @@ unless (speed > limit) {
 }
 
 assert tooFast
-
+// end::mark[]
 import java.util.ArrayList as L
 
 def list = new L()
