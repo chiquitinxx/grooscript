@@ -18,6 +18,7 @@ import static org.grooscript.JsNames.*
 class InnerClassNodeHandler extends TraitBaseHandler {
 
     private static final TARGET = 'target'
+    private static final STATIC_SELF = '$static$self'
 
     void handle(InnerClassNode innerClassNode) {
 
@@ -96,7 +97,7 @@ class InnerClassNodeHandler extends TraitBaseHandler {
 
     private initStaticTraitFields(MethodNode methodNode, InnerClassNode innerClassNode) {
         if (methodNode.code.getStatements()) {
-            out.block ("function ${innerClassNode.outerClass.nameWithoutPackage}\$static\$init\$($TARGET)") {
+            out.block ("function ${innerClassNode.outerClass.nameWithoutPackage}\$static\$init\$($STATIC_SELF)") {
                 methodNode.code.getStatements()?.each { Statement statement ->
                     if (statement instanceof ExpressionStatement &&
                             statement.expression instanceof MethodCallExpression) {
@@ -113,7 +114,7 @@ class InnerClassNodeHandler extends TraitBaseHandler {
     }
 
     private putStaticInitialization(ConstantExpression constantExpression, args) {
-        out.addScript("$TARGET.${propertyNameFromExpression(constantExpression)} = ")
+        out.addScript("$STATIC_SELF.${propertyNameFromExpression(constantExpression)} = ")
         conversionFactory.visitNode(args)
         out.addScript(";", true)
     }

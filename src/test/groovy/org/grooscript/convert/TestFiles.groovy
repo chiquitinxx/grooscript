@@ -70,7 +70,7 @@ class TestFiles extends Specification {
         converted = convertFile('files/MyTrait', options)
 
         then:
-        converted.contains('function MyTrait$static$init$(target)')
+        converted.contains('function MyTrait$static$init$($static$self)')
         converted.contains('MyTrait.$init$ = function($self)')
     }
 

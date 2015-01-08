@@ -82,4 +82,10 @@ class TestTraits extends Specification {
         expect:
         convertAndEvaluate('traits/MethodCalling')
     }
+
+    @IgnoreIf({ !Util.groovyVersionAtLeast('2.4') })
+    def 'static properties'() {
+        expect:
+        convertAndEvaluate('traits/Static')
+    }
 }

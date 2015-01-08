@@ -16,7 +16,7 @@ group = 'org.grooscript'
 
 ext {
     appName = 'grooscript'
-    groovyVersion = '2.3.9'
+    groovyVersion = '2.4.0-rc-2'
 }
 
 repositories {
@@ -29,7 +29,7 @@ codenarc.configFile = new File('config/codenarc.groovy')
 dependencies {
     compile "org.codehaus.groovy:groovy:${groovyVersion}"
     compile "org.codehaus.groovy:groovy-json:${groovyVersion}"
-    runtime 'org.apache.ivy:ivy:2.3.0'
+    runtime 'org.apache.ivy:ivy:2.4.0'
     compile('org.codehaus.gpars:gpars:1.2.1') {
         exclude module: 'groovy-all'
     }
