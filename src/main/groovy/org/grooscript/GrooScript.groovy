@@ -258,4 +258,12 @@ class GrooScript {
     static String getJsLibText(String nameJsLib) {
         GrooScript.classLoader.getResourceAsStream('META-INF/resources/' + nameJsLib + '.js').text
     }
+
+    static toGroovy(data) {
+        data
+    }
+
+    static toJavascript(data) {
+        data
+    }
 }

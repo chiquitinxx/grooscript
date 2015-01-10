@@ -115,6 +115,41 @@ class GrooScriptSpec extends Specification {
         libs << ['grooscript', 'grooscript, grooscript.min']
     }
 
+    @Unroll
+    def 'convert to groovy and javascript does nothing'() {
+        given:
+        def data = testData
+
+        expect:
+        GrooScript.toGroovy(data) == data
+        GrooScript.toJavascript(data) == data
+
+        where:
+        testData << [null, '', 'hello', 55, [1, 2, 3], [one: 1, two: 2]]
+    }
+
+    def 'convert to javascript generates js code'() {
+        given:
+        def code = '''
+import org.grooscript.GrooScript
+
+GrooScript.toJavascript('hello')
+'''
+        expect:
+        GrooScript.convert(code) == 'gs.toJavascript("hello");\n'
+    }
+
+    def 'convert to groovy generates js code'() {
+        given:
+        def code = '''
+import static org.grooscript.GrooScript.toGroovy
+
+toGroovy('hello')
+'''
+        expect:
+        GrooScript.convert(code) == 'gs.toGroovy("hello");\n'
+    }
+
     def setup() {
         GrooScript.clearAllOptions()
     }

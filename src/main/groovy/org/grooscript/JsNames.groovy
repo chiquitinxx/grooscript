@@ -73,4 +73,7 @@ class JsNames {
     static final GS_EXECUTE_CALL = "${GS}execCall"
     static final GS_EXEC_STATIC = "${GS}execStatic"
     static final GS_AS_CHAR = "${GS}asChar"
+
+    static final GS_TO_GROOVY = "${GS}toGroovy"
+    static final GS_TO_JAVASCRIPT = "${GS}toJavascript"
 }

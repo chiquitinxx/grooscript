@@ -173,6 +173,13 @@ class MethodCallExpressionHandler extends BaseHandler {
             out.addScript('\',')
             conversionFactory.visitNode(expression.arguments, false)
             out.addScript(')')
+        //Static toJavascript or toGroovy
+        } else if(isStaticMethodCall(expression) &&
+                expression.objectExpression.type.name == 'org.grooscript.GrooScript' &&
+                methodName in ['toJavascript', 'toGroovy']) {
+            out.addScript("${methodName == 'toGroovy' ? GS_TO_GROOVY : GS_TO_JAVASCRIPT}(")
+            conversionFactory.visitNode(expression.arguments, false)
+            out.addScript(')')
         //Static method
         } else if(isStaticMethodCall(expression)) {
             out.addScript("$GS_EXEC_STATIC(")
