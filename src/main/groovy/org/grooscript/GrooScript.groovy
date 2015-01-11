@@ -50,22 +50,38 @@ class GrooScript {
         if (source && destination) {
             List<File> files = []
             if (source instanceof String || source instanceof GString) {
-                files = checkConvertFile(source)
+                files = checkConvertFile(new File(source))
             } else if (source instanceof List) {
                 source.each {
-                    files = files + checkConvertFile(it)
+                    files = files + checkConvertFile(new File(it))
                 }
             } else {
                 throw new GrooScriptException('Source must be a String or a list.')
             }
-            convertFiles(files, destination)
+            convertFiles(files, new File(destination))
         } else {
             throw new GrooScriptException('Have to define source and destination.')
         }
     }
 
-    private static checkConvertFile(String source, List<File> files = []) {
-        File fSource = new File(source)
+    /**
+     * Converts a list of files to a destination js file or path
+     * @param sources
+     * @param destination
+     */
+    static void convert(List<File> sources, File destination) {
+        if (sources && destination) {
+            List<File> files = []
+            sources.each {
+                files = files + checkConvertFile(it)
+            }
+            convertFiles(files, destination)
+        } else {
+            throw new GrooScriptException('Have to define sources and destination.')
+        }
+    }
+
+    private static checkConvertFile(File fSource, List<File> files = []) {
 
         if (fSource.exists()) {
             if (fSource.isDirectory()) {
@@ -74,7 +90,7 @@ class GrooScript {
                 }
                 if (options && options[ConversionOptions.RECURSIVE.text]) {
                     fSource.eachDir { File dir ->
-                        files = checkConvertFile(dir.path, files)
+                        files = checkConvertFile(dir, files)
                     }
                 }
             } else {
@@ -90,12 +106,11 @@ class GrooScript {
         }
     }
 
-    private static convertFiles(List<File> files, String destinationPath) {
+    private static convertFiles(List<File> files, File destination) {
 
         try {
             if (files) {
-                boolean toOneFile = destinationPath && destinationPath.endsWith(JS_EXTENSION)
-                File destination = new File(destinationPath)
+                boolean toOneFile = destination && destination.name.endsWith(JS_EXTENSION)
                 String allConvertedJs = ''
 
                 files.each { File file ->

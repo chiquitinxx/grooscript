@@ -45,6 +45,23 @@ class GrooScriptSpec extends Specification {
         destinationFile << [BIG_JS_FILE, "$FOLDER/$BIG_JS_FILE"]
     }
 
+    @Unroll
+    def 'convert some files to one file'() {
+        given:
+        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, SOURCES_CLASSPATH)
+        GrooScript.convert([new File(SOURCES_FOLDER)], new File(destinationFile))
+
+        expect:
+        new File(destinationFile).exists()
+
+        cleanup:
+        new File(destinationFile).delete()
+        new File(FOLDER).deleteDir()
+
+        where:
+        destinationFile << [BIG_JS_FILE, "$FOLDER/$BIG_JS_FILE"]
+    }
+
     def 'convert some groovy files to one folder that not exists'() {
         given:
         GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, SOURCES_CLASSPATH)
