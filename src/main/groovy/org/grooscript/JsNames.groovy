@@ -59,7 +59,6 @@ class JsNames {
     static final GS_STRING_BUFFER = "${GS}stringBuffer"
     static final GS_META_CLASS = "${GS}metaClass"
     static final GS_THIS_OR_OBJECT = "${GS}thisOrObject"
-    static final GS_APPLY_DELEGATE = "${GS}applyDelegate"
     static final GS_CLASS_FOR_NAME = "${GS}classForName"
     static final GS_CATEGORY_USE = "${GS}categoryUse"
     static final GS_MIXIN_CLASS = "${GS}mixinClass"

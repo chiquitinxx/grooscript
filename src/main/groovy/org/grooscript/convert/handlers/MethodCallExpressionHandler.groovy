@@ -23,21 +23,11 @@ class MethodCallExpressionHandler extends BaseHandler {
             addParameters(expression)
         //Remove call method call from closures
         } else if (methodName == 'call') {
-            //println 'Calling!->'+expression.objectExpression
-            if (expression.objectExpression instanceof VariableExpression) {
-                def nameFunc = expression.objectExpression.text
-                out.addScript("(${nameFunc}.delegate!=undefined?${GS_APPLY_DELEGATE}(${nameFunc},${nameFunc}.delegate,[")
-                conversionFactory.visitNode(expression.arguments, false)
-                out.addScript("]):${GS_EXECUTE_CALL}(${nameFunc}, this, [")
-                conversionFactory.visitNode(expression.arguments, false)
-                out.addScript("]))")
-            } else {
-                out.addScript("${GS_EXECUTE_CALL}(")
-                conversionFactory.visitNode(expression.objectExpression)
-                out.addScript(", this, [")
-                conversionFactory.visitNode(expression.arguments, false)
-                out.addScript('])')
-            }
+            out.addScript("${GS_EXECUTE_CALL}(")
+            conversionFactory.visitNode(expression.objectExpression)
+            out.addScript(", this, [")
+            conversionFactory.visitNode(expression.arguments, false)
+            out.addScript('])')
         //Dont use dot(.) in super calls
         } else if (expression.objectExpression instanceof VariableExpression &&
                 expression.objectExpression.name == 'super') {

@@ -2675,18 +2675,22 @@
     ////////////////////////////////////////////////////////////
     // Delegate
     ////////////////////////////////////////////////////////////
-    gs.applyDelegate = function(func, delegate, params) {
+    function applyDelegate (func, delegate, params) {
         delegates[delegates.length] = delegate;
         var result = func.apply(delegate, params);
         delegates.pop();
         return result;
-    };
+    }
 
     gs.execCall = function (func, thisObject, params) {
-        if (func['call'] !== undefined && typeof func === 'object') {
-            return func['call'].apply(func, params);
+        if (func.delegate !== undefined) {
+            return applyDelegate(func, func.delegate, params);
         } else {
-            return func.apply(thisObject, params);
+            if (func['call'] !== undefined && typeof func === 'object') {
+                return func['call'].apply(func, params);
+            } else {
+                return func.apply(thisObject, params);
+            }
         }
     };
 

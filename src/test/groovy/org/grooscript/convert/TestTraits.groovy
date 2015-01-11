@@ -88,4 +88,9 @@ class TestTraits extends Specification {
         expect:
         convertAndEvaluate('traits/Static')
     }
+
+    def 'confusing method call'() {
+        expect:
+        convertAndEvaluate('traits/ConfusingMethod')
+    }
 }
