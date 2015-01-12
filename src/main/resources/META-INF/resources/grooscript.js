@@ -1098,10 +1098,14 @@
         return result;
     };
 
+    Array.prototype.oldToString = Array.prototype.toString;
+
     Array.prototype.toString = function() {
-        if (this.length>0) {
+        if (this['clazz'] === undefined) {
+            return this.oldToString();
+        } else if (this.length > 0) {
             var i, result = '[';
-            for (i=0; i < this.length - 1; i++) {
+            for (i = 0; i < this.length - 1; i++) {
                 result = result + this[i] + ', ';
             }
             result = result + this[this.length - 1] + ']';

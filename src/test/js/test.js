@@ -160,12 +160,19 @@ describe('initial tests on gs', function(){
         assert.throws(failUndefined, null, '');
         var noFail = function() {
             return gs.mc('','isNumber',null);
-        }
+        };
         assert.equal(noFail(), false);
     });
 
     it('add number and strings', function() {
         assert.equal(gs.plus(5, 'hello'), '5hello');
         assert.equal(gs.plus('hello', 5), 'hello5');
+    });
+
+    it('toString() in lists', function() {
+        var list = [1, 2];
+        assert.equal(gs.list(list).toString(), '[1, 2]');
+        assert.equal(list.toString(), '1,2');
+        assert.notEqual(list.toString(), gs.list(list).toString());
     });
 });

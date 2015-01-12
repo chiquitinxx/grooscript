@@ -21,7 +21,7 @@ class MethodMissing2 {
         if (name=='giveMeSize') {
             return theSize(args[0])
         } else {
-            return "${name}(${args})(${number++})"
+            return "${name}(${args[0]})(${number++})"
         }
     }
 }
@@ -31,6 +31,6 @@ def params = [0,2.3,'hola']
 
 def mm = new MethodMissing2()
 
-assert mm.callMethod(name,params) == 'Name([[0, 2.3, hola]])(0)'
-assert mm.callMethod(name,null) == 'Name([null])(1)'
+assert mm.callMethod(name,params) == 'Name([0, 2.3, hola])(0)'
+assert mm.callMethod(name,null) == 'Name(null)(1)'
 assert mm.callMethod('giveMeSize',params) == 3
