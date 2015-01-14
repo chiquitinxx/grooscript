@@ -137,6 +137,8 @@ class GrooScript {
                 if (toOneFile) {
                     saveFile(destination, completeJsResult(allConvertedJs))
                 }
+            } else {
+                GsConsole.error('No files to be converted. *.groovy or *.java files not found.')
             }
         } catch (e) {
             throw new GrooScriptException("Convert Exception: ${e.message}")

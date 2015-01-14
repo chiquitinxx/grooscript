@@ -1,6 +1,7 @@
 package org.grooscript
 
 import org.grooscript.convert.ConversionOptions
+import org.grooscript.util.GsConsole
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -167,6 +168,18 @@ toGroovy('hello')
         GrooScript.convert(code) == 'gs.toGroovy("hello");\n'
     }
 
+    def 'show error message in console if nothing to convert'()
+    {
+        given:
+        GroovySpy(GsConsole, global: true)
+
+        when:
+        GrooScript.convert(SOURCES_FOLDER_WITHOUT_FILES, BIG_JS_FILE)
+
+        then:
+        1 * GsConsole.error('No files to be converted. *.groovy or *.java files not found.')
+    }
+
     def setup() {
         GrooScript.clearAllOptions()
     }
@@ -174,6 +187,7 @@ toGroovy('hello')
     private static final FOLDER = 'folder'
     private static final SOURCES_CLASSPATH = 'src/test/src'
     private static final SOURCES_FOLDER = 'src/test/src/files'
+    private static final SOURCES_FOLDER_WITHOUT_FILES = 'src/test/src'
     private static final BIG_JS_FILE = 'allTogether.js'
     private static final INITIAL = '// INITIALINITIAL'
     private static final FINAL = '// FINALFINAL'
