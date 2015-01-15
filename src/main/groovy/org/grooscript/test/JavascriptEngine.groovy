@@ -129,7 +129,7 @@ class JavascriptEngine {
         testResult
     }
 
-    private static getJavascriptEngine() {
+    static getJavascriptEngine() {
         ScriptEngineManager factory = new ScriptEngineManager()
         ScriptEngine engine = factory.getEngineByName('JavaScript')
         if (!engine) {

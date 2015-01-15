@@ -35,7 +35,7 @@ and [Bintray](https://bintray.com/chiquitinxx/grooscript/org.grooscript%3Agroosc
 
 Build
 ---
-Using gradle wrapper, version 2.2.1. Only GPars 1.2 and Groovy dependencies in the project, Gradle as build system. Also you need JDK 1.7+.
+Using gradle wrapper, version 2.2.1. Only GPars 1.2 and Groovy dependencies in the project, Gradle as build system. You need JDK 1.7 to build and test the project. In JDK 8, nashorn engine fails evaluating some tests converted code.
 
 First time, you have to install Node.js stuff, maybe you have to run as administrator, do it with:
 

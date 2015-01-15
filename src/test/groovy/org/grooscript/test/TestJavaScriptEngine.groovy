@@ -2,7 +2,6 @@ package org.grooscript.test
 
 import spock.lang.Specification
 import javax.script.ScriptEngine
-import javax.script.ScriptEngineManager
 import javax.script.Bindings
 /**
  * Test Java 6 JavaScriptEngine and tests reduction code
@@ -14,8 +13,7 @@ class TestJavaScriptEngine extends Specification {
     ScriptEngine engine
 
     def setup() {
-        ScriptEngineManager factory = new ScriptEngineManager()
-        engine = factory.getEngineByName('JavaScript')
+        engine = JavascriptEngine.javascriptEngine
     }
 
     def 'Basis script binding'() {

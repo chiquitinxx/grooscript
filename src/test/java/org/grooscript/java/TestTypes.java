@@ -3,6 +3,7 @@ package org.grooscript.java;
 import org.grooscript.GrooScript;
 import org.grooscript.test.JavascriptEngine;
 import org.grooscript.test.NodeJs;
+import org.grooscript.util.Util;
 import org.junit.Test;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -62,7 +63,7 @@ public class TestTypes {
 
     private void evaluateInJavascript(String nameClass) throws IOException {
         String result = GrooScript.convert(readFile(nameClass));
-        result += "\r\n" + nameClass + "().validate();";
+        result += Util.getLINE_SEPARATOR() + nameClass + "().validate();";
         //System.out.println("**-"+result);
         //Javascript engine
         assertEquals(false, JavascriptEngine.jsEval(result).getAssertFails());
@@ -75,7 +76,7 @@ public class TestTypes {
         List<String> lines = Files.readAllLines(path, ENCODING);
         String result = "";
         for (String line: lines) {
-            result = result + line + "\r\n";
+            result = result + line + Util.getLINE_SEPARATOR();
         }
         return result;
     }
