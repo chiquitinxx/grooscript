@@ -6,7 +6,7 @@ jdk:
 
 env: TERM=dumb
 
-install: ./gradlew clean -u- i npmInstall
+install: ./gradlew clean -u- -i npmInstall
 
 script: ./gradlew clean -u -i -S test
 
