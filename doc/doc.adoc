@@ -54,7 +54,7 @@ include::java_support.adoc[]
 
 include::groovy_support.adoc[]
 
-== Converted code [Jorge]
+== Converted code
 
 include::converted_code.adoc[]
 
@@ -70,9 +70,9 @@ include::annotations.adoc[]
 
 include::tools.adoc[]
 
-== Tricks
+== Tricks [Jorge]
 
-    TODO
+include::tricks.adoc[]
 
 == Tools
 

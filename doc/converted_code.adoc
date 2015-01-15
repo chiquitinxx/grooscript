@@ -7,3 +7,63 @@ https://www.npmjs.com/package/grooscript[npm] module, and in your web pages incl
 <script type="text/javascript" src="js/grooscript.min.js"></script>
 <script type="text/javascript" src="js/yourConvertedFile.js"></script>
 --
+
+Now, your groovy code is available. If you have converted a groovy script, in javascript the code will run. If
+the code that you converted has dependencies from other files, you have to be sure that files are also converted
+and are loaded. You have to convert any parent class, trait, category,... but you don't have to convert interfaces,
+they are not used. For next versions of grooscript, we are working to use http://requirejs.org/[Require.js] for package
+management.
+
+If you convert a class and you want to use it in javascript, you are working with the 'static' form of the class.
+To create instances of the class *don't* use new, just call the function, for example:
+
+[source,javascript]
+--
+//To create a class instance
+var instance = MyClass();
+
+//Using default constructor
+var otherInstance = MyClass({ data: 1, name: 'name'});
+
+//Call a method or access a property as usual
+instance.method();
+instance.methodTwo(otherInstance.name);
+--
+
+When you are using converted code in javascript, you don't have 'dynamic' magic, as getters, setters, methodMissing,
+getProperty,... The resolution of method calling, access properties, context stuff,... is done by functions in
+`grooscript.js` lib. Just take a look at converted code, there are functions as `gs.mc` or `gs.gp` that do that work.
+So if you are planning to use groovy magic, do in groovy and convert it, in javascript you can't do.
+
+=== Combine both worlds
+
+When you are creating groovy code, that will be converted to javascript and will use javascript libraries, maybe
+you have to use any conversion between variables. For example, if you have a groovy map, or object, and you calling
+a javascript library with a method that accepts a javascript map with the groovy object, that groovy object has more
+things (methods, properties) that javascript expects. You don't have to use that conversion if you work with strings,
+numbers and usually arrays. You have two static function to do that conversions, that functions do nothing in groovy,
+but in javascript will convert objects. Let's see an example:
+
+[source,groovy]
+--
+import static org.grooscript.GrooScript.toJavascript
+import static org.grooscript.GrooScript.toGroovy
+
+def map = [x: 1, y: 2]
+
+//point is a javascript object that has a method init, that accepts an object
+point.init(map) // [BAD] You are passing a groovy object to javascript, maybe can fail
+point.init(toJavascript(map)) // [GOOD] You now are passing {x: 1, y: 2}
+
+//point has a method info() that returns a javascript object with some data
+def badData = point.info() // [BAD] You will have a 'javascript' object, and if you try use 'each', exception
+def goodData = toGroovy(point.info()) // [GOOD] goodData will be a 'groovy' object
+--
+
+In javascript, you have similar functions to do this conversions:
+
+[source,javascript]
+--
+point.init(gs.toJavascript(map));
+var goodData = gs.toGroovy(point.info());
+--
