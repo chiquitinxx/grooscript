@@ -1,0 +1,13 @@
+language: groovy 
+jdk:
+  - oraclejdk8
+  - oraclejdk7
+  - openjdk7
+
+env: TERM=dumb
+
+install: ./gradlew clean -u- i npmInstall
+
+script: ./gradlew clean -u -i -S test
+
+## after_success: ./gradlew coveralls
