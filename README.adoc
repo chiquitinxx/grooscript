@@ -1,0 +1,77 @@
+:project-name: grooscript
+:project-full-path: chiquitinxx/grooscript
+:github-branch: master
+:current-version: 1.0.0-rc-1
+
+image:https://ci.appveyor.com/api/projects/status/02qlshfytfwoib9w/branch/{github-branch}?svg=true["Build Status (AppVeyor)", link="https://ci.appveyor.com/project/{project-full-path}"]
+image:https://travis-ci.org/{project-full-path}.svg?branch={github-branch}["Build Status", link="https://travis-ci.org/{project-full-path}"]
+image:https://snap-ci.com/{project-full-path}/branch/{github-branch}/build_image["Build Status", link="https://snap-ci.com/{project-full-path}/branch//{github-branch}"]
+
+== grooscript
+
+Converts your Groovy or Java code to JavaScript(Groovy 2.x to Javascript ECMAScript 5). You need groovy jar greater than 2.0 to make conversions. For more information about the project, see [grooscript.org](http://grooscript.org)
+
+Not a full groovy to javascript conversion. Some groovy and java features not supported, check link:http://grooscript.org/doc.html[documentation] for more info. 
+Converted code, needs link:https://github.com/chiquitinxx/grooscript/blob/master/src/main/resources/META-INF/resources/grooscript.js:[grooscript.js] to run. grooscript.js inside the jar in META-INF/resources for servlet 3.0 support. Also a Node.js link:http://www.npmjs.org/package/grooscript[npm] module imports it.
+
+Try online conversions link:http://grooscript.org/conversions.html[here]. Can convert .java and .groovy files or a text fragment as:
+
+[source,groovy]
+----
+@Grab('org.grooscript:grooscript:1.0.0-rc-1')
+
+import org.grooscript.GrooScript
+
+def result = GrooScript.convert '''
+    def sayHello = { println "Hello ${it}!" }
+    ['Groovy','JavaScript','GrooScript'].each sayHello'''
+
+println result
+----
+
+== Latest Versions
+
+The latest release version is *:current-version:*, released on 2015-01-05. The current development version is **1.0.0-rc-2**.
+
+Releases are available from link:https://search.maven.org/#search%7Cga%7C1%7Ca%3A%22grooscript%22[Maven Central] and link:https://bintray.com/chiquitinxx/grooscript/org.grooscript%3Agrooscript/view[Bintray].
+
+== Build
+
+Using gradle wrapper, version 2.2.1. Only GPars 1.2 and Groovy dependencies in the project, Gradle as build system. You need JDK 1.7 to build and test the project. In JDK 8, nashorn engine fails evaluating some tests converted code.
+
+First time, you have to install Node.js stuff, maybe you have to run as administrator, do it with:
+
+    ./gradlew npmInstall
+
+Create IntelliJ IDEA project:
+
+    ./gradlew idea
+
+Test project:
+
+    ./gradlew test
+
+Build project:
+
+    ./gradlew build
+
+== Tools
+
+Grails link:http://grails.org/plugin/grooscript[plugin]
+
+Gradle link:http://plugins.gradle.org/plugin/org.grooscript.conversion[plugin]
+
+Npmjs link:https://www.npmjs.org/package/grooscript[package]
+
+
+== License
+
+Grooscript licensed under the terms of the link:http://www.apache.org/licenses/LICENSE-2.0.html[Apache License, Version 2.0]
+
+== Contact
+
+Twitter: link:http://twitter.com/grooscript:[@grooscript]
+
+Email: mailto:grooscript@gmail.com[]
+
+Please all feedback welcome, thanks!
