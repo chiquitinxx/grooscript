@@ -1,7 +1,6 @@
 language: groovy 
 jdk:
-# commented Java8 untill compatibility is fixed
-#  - oraclejdk8
+  - oraclejdk8
   - oraclejdk7
   - openjdk7
 

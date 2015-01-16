@@ -31,7 +31,7 @@ println result
 
 == Latest Versions
 
-The latest release version is *:current-version:*, released on 2015-01-05. The current development version is **1.0.0-rc-2**.
+The latest release version is *{current-version}*, released on 2015-01-05. The current development version is **1.0.0-rc-2**.
 
 Releases are available from link:https://search.maven.org/#search%7Cga%7C1%7Ca%3A%22grooscript%22[Maven Central] and link:https://bintray.com/chiquitinxx/grooscript/org.grooscript%3Agrooscript/view[Bintray].
 

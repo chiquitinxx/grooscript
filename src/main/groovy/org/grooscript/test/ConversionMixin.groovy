@@ -1,11 +1,11 @@
 package org.grooscript.test
 
 import org.grooscript.JsGenerator
-
-import static org.grooscript.util.Util.*
 import org.grooscript.GrooScript
 import org.grooscript.convert.GsConverter
 import org.grooscript.util.GsConsole
+
+import static org.grooscript.util.Util.*
 
 /**
  * User: jorgefrancoleza
@@ -69,11 +69,32 @@ class ConversionMixin {
         nodeJs.evaluate(jsScript)
     }
 
-    boolean convertAndEvaluate(String fileName, jsResultOnConsole = false, options = [:], textSearch = null, textReplace = null) {
-        def evaluationJsEngine = convertAndEvaluateWithJsEngine(fileName, jsResultOnConsole, options, textSearch, textReplace)
-        if (evaluationJsEngine.assertFails) {
-            println evaluationJsEngine.console
+    boolean convertAndEvaluate(
+            String fileName, jsResultOnConsole = false, options = [:], textSearch = null, textReplace = null) {
+        if (JAVA_VERSION >= '1.8' && fileName in filesThatFailsInJava8) {
+            String jsCode = convertFile(fileName, options)
+            return !convertAndEvaluateWithNode(jsCode).assertFails
+        } else {
+            def evaluationJsEngine =
+                    convertAndEvaluateWithJsEngine(fileName, jsResultOnConsole, options, textSearch, textReplace)
+            if (evaluationJsEngine.assertFails) {
+                println evaluationJsEngine.console
+            }
+            return !evaluationJsEngine.assertFails && !convertAndEvaluateWithNode(evaluationJsEngine.jsScript).assertFails
         }
-        !evaluationJsEngine.assertFails && !convertAndEvaluateWithNode(evaluationJsEngine.jsScript).assertFails
+    }
+
+    private getFilesThatFailsInJava8()
+    {
+        [
+            'advanced/PropertiesAndMethods',
+            'advanced/MasterScoping',
+            'advanced/MethodMissingTwo',
+            'classes/StaticProperties',
+            'contribution/MySelf11',
+            'staticRealm',
+            'doc/Object',
+            'advanced/MethodPointer',
+        ]
     }
 }

@@ -17,7 +17,7 @@ class NodeJs {
     private static final MAX_TIMEOUT = 3000L
 
     JsTestResult evaluate(String jsCode) {
-        def result = null
+        JsTestResult result = null
 
         new File(FILE_NAME).text = FILE_HEAD + jsCode + FILE_FOOT
         try {
@@ -41,7 +41,7 @@ class NodeJs {
         result
     }
 
-    private evaluateOutput(String text) {
+    private JsTestResult evaluateOutput(String text) {
         def list = text.split(SEPARATOR)
         JsTestResult result = new JsTestResult()
         result.assertFails = Boolean.parseBoolean(list[0])
