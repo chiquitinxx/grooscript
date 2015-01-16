@@ -7,11 +7,14 @@ environment:
   TERM: dumb
   matrix:
     - JAVA_HOME: C:\Program Files\Java\jdk1.7.0
-    - JAVA_HOME: C:\Program Files\Java\jdk1.8.0
+    # Currently Java8 is disabled due to a bug
+    # - JAVA_HOME: C:\Program Files\Java\jdk1.8.0
 install:
-  - SET PATH=%JAVA_HOME%\bin;
+  - npm -g install npm@2
+  - set PATH=%APPDATA%\npm;%JAVA_HOME%\bin;%PATH%
   - echo %PATH%
-  - gradlew.bat clean npmInstall
+  - gradlew.bat clean npmInstall --stacktrace
+  - set JAVA_OPTS=-XX:MaxPermSize=1024m -Xmx1512m
 build_script:
   - gradlew.bat -u -i build
 test_script:
