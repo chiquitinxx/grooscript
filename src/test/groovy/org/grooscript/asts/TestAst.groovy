@@ -17,7 +17,7 @@ class TestAst extends Specification {
         def result = Util.fullProcessScript(file.text)
 
         if (consoleOutput) {
-            println 'jsScript->\n' + result.jsScript
+            println 'jsScript->' + Util.LINE_SEPARATOR + result.jsScript
         }
         if (result.exception) {
             assert false, 'Error: ' + result.exception

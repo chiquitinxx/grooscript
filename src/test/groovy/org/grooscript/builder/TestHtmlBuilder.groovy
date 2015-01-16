@@ -1,6 +1,7 @@
 package org.grooscript.builder
 
 import org.grooscript.test.ConversionMixin
+import org.grooscript.util.Util
 import spock.lang.Specification
 
 /**
@@ -127,6 +128,6 @@ class TestHtmlBuilder extends Specification {
         }
 
         expect:
-        result == '<p>a</p>\n<p>b</p>'
+        result == "<p>a</p>${Util.LINE_SEPARATOR}<p>b</p>"
     }
 }

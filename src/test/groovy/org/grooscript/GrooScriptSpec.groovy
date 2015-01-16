@@ -2,6 +2,7 @@ package org.grooscript
 
 import org.grooscript.convert.ConversionOptions
 import org.grooscript.util.GsConsole
+import org.grooscript.util.Util
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -115,7 +116,7 @@ class GrooScriptSpec extends Specification {
 
         then:
         testResult.console == 'Hello!'
-        testResult.jsCode == 'gs.println("Hello!");\n'
+        testResult.jsCode == 'gs.println("Hello!");' + Util.LINE_SEPARATOR
         !testResult.exception
         !testResult.assertFails
     }
@@ -154,7 +155,7 @@ import org.grooscript.GrooScript
 GrooScript.toJavascript('hello')
 '''
         expect:
-        GrooScript.convert(code) == 'gs.toJavascript("hello");\n'
+        GrooScript.convert(code) == 'gs.toJavascript("hello");' + Util.LINE_SEPARATOR
     }
 
     def 'convert to groovy generates js code'() {
@@ -165,7 +166,7 @@ import static org.grooscript.GrooScript.toGroovy
 toGroovy('hello')
 '''
         expect:
-        GrooScript.convert(code) == 'gs.toGroovy("hello");\n'
+        GrooScript.convert(code) == 'gs.toGroovy("hello");' + Util.LINE_SEPARATOR
     }
 
     def 'show error message in console if nothing to convert'()

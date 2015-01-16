@@ -93,7 +93,7 @@ class TestConversionOptions extends Specification {
 
         then:
         result.startsWith('function A()')
-        result.endsWith("var need = ${CLASS_NEED_DEPENDENCY}();\n")
+        result.endsWith("var need = ${CLASS_NEED_DEPENDENCY}();${Util.LINE_SEPARATOR}")
 
         and: 'class need not converted'
         !result.contains("function ${CLASS_NEED_DEPENDENCY}()")
@@ -192,8 +192,8 @@ class TestConversionOptions extends Specification {
 
         where:
         option                              | expectedResult
-        ConversionOptions.INITIAL_TEXT.text | 'Text\nvar a = 0;\n'
-        ConversionOptions.FINAL_TEXT.text   | 'var a = 0;\n\nText'
+        ConversionOptions.INITIAL_TEXT.text | "Text${Util.LINE_SEPARATOR}var a = 0;${Util.LINE_SEPARATOR}"
+        ConversionOptions.FINAL_TEXT.text   | "var a = 0;${Util.LINE_SEPARATOR}${Util.LINE_SEPARATOR}Text"
     }
 
     @Unroll

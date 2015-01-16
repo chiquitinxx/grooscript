@@ -2,6 +2,7 @@ package org.grooscript.convert
 
 import org.grooscript.test.ConversionMixin
 import org.grooscript.test.JsTestResult
+import org.grooscript.util.Util
 import spock.lang.Specification
 
 /**
@@ -19,7 +20,7 @@ class TestConversionFails extends Specification {
 
         then:
         result.assertFails
-        result.console == 'WOTT - false\nAssertion fails: (1 == 2) - false'
+        result.console == "WOTT - false${Util.LINE_SEPARATOR}Assertion fails: (1 == 2) - false"
     }
 
     def 'test fail compile' () {
@@ -33,8 +34,8 @@ class TestConversionFails extends Specification {
 
     def 'access metaClass of groovy and java types not allowed'() {
         when:
-        converter.toJs("String.metaClass.grita = {\n" +
-                "    return delegate+'!'\n" +
+        converter.toJs("String.metaClass.grita = {${Util.LINE_SEPARATOR}" +
+                "    return delegate+'!'${Util.LINE_SEPARATOR}" +
                 "}")
 
         then:

@@ -2,6 +2,7 @@ package org.grooscript.convert
 
 import org.grooscript.test.ConversionMixin
 import org.grooscript.test.JsTestResult
+import org.grooscript.util.Util
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -55,9 +56,9 @@ class TestContributors extends Specification {
 
         where:
         file                       | text
-        'contribution/Anonymous0'  | 'FizzBuzz\n91'
-        'contribution/Anonymous1'  | 'fizzbuzz\n91'
-        'contribution/Anonymous2'  | 'fizZbuzZ\n16'
+        'contribution/Anonymous0'  | "FizzBuzz${Util.LINE_SEPARATOR}91"
+        'contribution/Anonymous1'  | "fizzbuzz${Util.LINE_SEPARATOR}91"
+        'contribution/Anonymous2'  | "fizZbuzZ${Util.LINE_SEPARATOR}16"
     }
 
     def 'bugs coming from monkfish'() {

@@ -40,7 +40,8 @@ class TestConvertBase extends Specification {
         !result.assertFails
         result.bind.a == 0
         !result.exception
-        result.jsScript == 'var a = 0;\ngs.println("Hey");\ngs.assert(true, "Assertion fails: true");\n'
+        result.jsScript == "var a = 0;${Util.LINE_SEPARATOR}gs.println(\"Hey\");${Util.LINE_SEPARATOR}" +
+                "gs.assert(true, \"Assertion fails: true\");${Util.LINE_SEPARATOR}"
     }
 
     def 'use static class converter'() {
@@ -49,6 +50,6 @@ class TestConvertBase extends Specification {
         def result = GrooScript.convert('def a=0')
 
         then:
-        result == 'var a = 0;\n'
+        result == 'var a = 0;' + Util.LINE_SEPARATOR
     }
 }
