@@ -7,7 +7,6 @@ plugins {
 
 apply plugin: 'idea'
 apply plugin: 'groovy'
-apply plugin: 'codenarc'
 
 sourceCompatibility = 1.6
 
@@ -23,9 +22,6 @@ repositories {
     mavenCentral()
 }
 
-codenarc.configFile = new File('config/codenarc.groovy')
-[codenarcMain, codenarcTest]*.ignoreFailures = true
-
 dependencies {
     compile "org.codehaus.groovy:groovy:${groovyVersion}"
     compile "org.codehaus.groovy:groovy-json:${groovyVersion}"
@@ -38,7 +34,6 @@ dependencies {
         exclude module: 'junit-dep'
     }
     testCompile "org.codehaus.groovy:groovy-test:${groovyVersion}"
-    codenarc('org.codenarc:CodeNarc:0.22')
 }
 
 jar {
