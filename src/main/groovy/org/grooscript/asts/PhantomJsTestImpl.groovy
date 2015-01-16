@@ -230,16 +230,12 @@ page.open('{{URL}}', function (status) {
 
             //Execute PhantomJs
             String command = phantomJsHome
-            if (sysOp && sysOp.toUpperCase().contains('WINDOWS')) {
-                if (phantomJsHome.contains('node_modules')) {
-                    command += "${SEP}bin"
-                    println 'Files in modules' + new File(command).listFiles()
-                }
-                command += "${SEP}phantomjs.exe " + nameFile
-                println 'Files in bin?' + new File(command).listFiles()
+            if (sysOp && sysOp.toUpperCase().contains('WINDOWS')&& !phantomJsHome.contains('node_modules')) {
+                command += "${SEP}phantomjs.exe "
             } else {
-                command += "${SEP}bin${SEP}phantomjs " + nameFile
+                command += "${SEP}bin${SEP}phantomjs "
             }
+            command += nameFile
 
             if (withInfo) {
                 message '**************************************************** INFO BEGIN', HEAD
