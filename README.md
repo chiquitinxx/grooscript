@@ -2,6 +2,8 @@
 grooscript
 ===
 
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/chiquitinxx/grooscript?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Converts your Groovy or Java code to JavaScript(Groovy 2.x to Javascript ECMAScript 5). You need groovy jar greater
 than 2.0 to make conversions. For more information about the project, see [grooscript.org](http://grooscript.org)
 
