@@ -4,14 +4,15 @@ import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
 import com.sun.net.httpserver.HttpServer
 
+import static org.grooscript.util.Util.SEP
 /**
  * User: jorgefrancoleza
  * Date: 15/08/13
  */
 abstract class FunctionalTest extends GroovyTestCase {
 
-    private static final PHANTOMJS_HOME = './node_modules/phantomjs'
-    private static final JS_LIBRARIES_PATH = 'src/main/resources/META-INF/resources'
+    private static final PHANTOMJS_HOME = ".${SEP}node_modules${SEP}phantomjs"
+    private static final JS_LIBRARIES_PATH = "src/main/resources/META-INF/resources"
     private static final PORT = 8000
     private static final HTML_ACTION = '/test'
     private static final JSON_ACTION = '/json'

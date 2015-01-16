@@ -231,6 +231,9 @@ page.open('{{URL}}', function (status) {
             //Execute PhantomJs
             String command = phantomJsHome
             if (sysOp && sysOp.toUpperCase().contains('WINDOWS')) {
+                if (phantomJsHome.contains('node_modules')) {
+                    command += "${SEP}bin"
+                }
                 command += "${SEP}phantomjs.exe " + nameFile
             } else {
                 command += "${SEP}bin${SEP}phantomjs " + nameFile
