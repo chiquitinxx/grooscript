@@ -233,8 +233,10 @@ page.open('{{URL}}', function (status) {
             if (sysOp && sysOp.toUpperCase().contains('WINDOWS')) {
                 if (phantomJsHome.contains('node_modules')) {
                     command += "${SEP}bin"
+                    println 'Files in modules' + new File(command).listFiles()
                 }
                 command += "${SEP}phantomjs.exe " + nameFile
+                println 'Files in bin?' + new File(command).listFiles()
             } else {
                 command += "${SEP}bin${SEP}phantomjs " + nameFile
             }

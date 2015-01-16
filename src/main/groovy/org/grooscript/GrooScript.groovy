@@ -3,12 +3,11 @@ package org.grooscript
 import org.grooscript.convert.ConversionOptions
 import org.grooscript.test.JavascriptEngine
 import org.grooscript.test.JsTestResult
-
-import static org.grooscript.util.Util.*
-
 import org.grooscript.convert.GsConverter
 import org.grooscript.util.GrooScriptException
 import org.grooscript.util.GsConsole
+
+import static org.grooscript.util.Util.*
 /**
  * JFL 09/11/12
  */
@@ -148,10 +147,10 @@ class GrooScript {
     private static String completeJsResult(String result) {
         if (options) {
             if (options[ConversionOptions.INITIAL_TEXT.text]) {
-                result = options[ConversionOptions.INITIAL_TEXT.text] + '\n' + result
+                result = options[ConversionOptions.INITIAL_TEXT.text] + LINE_SEPARATOR + result
             }
             if (options[ConversionOptions.FINAL_TEXT.text]) {
-                result = result + '\n' + options[ConversionOptions.FINAL_TEXT.text]
+                result = result + LINE_SEPARATOR + options[ConversionOptions.FINAL_TEXT.text]
             }
             if (options[ConversionOptions.ADD_GS_LIB.text]) {
                 def files = options[ConversionOptions.ADD_GS_LIB.text].split(',').reverse()
@@ -159,7 +158,7 @@ class GrooScript {
                     def file = GrooScript.classLoader.getResourceAsStream(
                             "META-INF/resources/${fileName.trim()}.js")
                     if (file) {
-                        result = file.text + '\n' + result
+                        result = file.text + LINE_SEPARATOR + result
                     }
                 }
             }

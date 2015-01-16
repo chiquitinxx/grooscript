@@ -20,7 +20,7 @@ class TestConversionFails extends Specification {
 
         then:
         result.assertFails
-        result.console == "WOTT - false${Util.LINE_SEPARATOR}Assertion fails: (1 == 2) - false"
+        result.console == "WOTT - false\nAssertion fails: (1 == 2) - false"
     }
 
     def 'test fail compile' () {
