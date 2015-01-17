@@ -230,7 +230,7 @@ page.open('{{URL}}', function (status) {
 
             //Execute PhantomJs
             String command = phantomJsHome
-            if (sysOp && sysOp.toUpperCase().contains('WINDOWS')&& !phantomJsHome.contains('node_modules')) {
+            if (sysOp && sysOp.toUpperCase().contains('WINDOWS')) {
                 command += "${SEP}phantomjs.exe "
             } else {
                 command += "${SEP}bin${SEP}phantomjs "
