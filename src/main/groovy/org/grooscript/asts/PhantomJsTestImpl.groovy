@@ -166,8 +166,8 @@ page.open('{{URL}}', function (status) {
 
         String jsHome = System.getProperty('JS_LIBRARIES_PATH')
         if (!jsHome) {
-
             try {
+
                 def userHome = USER_HOME
 
                 if (userHome) {
@@ -219,8 +219,7 @@ page.open('{{URL}}', function (status) {
             }
             message "Starting Test in ${url}", HEAD
 
-            def sysOp = System.getProperty('os.name')
-            if (sysOp && sysOp.toUpperCase().contains('WINDOWS')) {
+            if (Util.isWindows()) {
                 jsHome = jsHome.replace('\\', SEP)
                 jsHome = (jsHome.indexOf(':') == 1 ? jsHome.substring(2) : jsHome)
             }
@@ -230,7 +229,7 @@ page.open('{{URL}}', function (status) {
 
             //Execute PhantomJs
             String command = phantomJsHome
-            if (sysOp && sysOp.toUpperCase().contains('WINDOWS')) {
+            if (Util.isWindows()) {
                 command += "${SEP}phantomjs.exe "
             } else {
                 command += "${SEP}bin${SEP}phantomjs "
@@ -243,7 +242,7 @@ page.open('{{URL}}', function (status) {
                 message 'MethodName: ' + methodName, HEAD
                 message 'Parameters: ' + parameters, HEAD
                 message 'MessageError: ' + messageError, HEAD
-                message 'Operating system: ' + sysOp, HEAD
+                message 'Operating system: ' + Util.OS_NAME, HEAD
                 message 'PhantomJs Home used: ' + phantomJsHome, HEAD
                 message 'Execution command: ' + command, HEAD
                 message 'Library path used: ' + jsHome, HEAD

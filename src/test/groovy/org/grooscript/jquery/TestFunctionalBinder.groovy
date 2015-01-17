@@ -35,21 +35,21 @@ class TestFunctionalBinder extends FunctionalTest {
     }
 
     void testBindPropertiesAndClick() {
-        assertScript '''
-    @org.grooscript.asts.PhantomJsTest(url = 'http://localhost:8000/test', waitSeconds = 1)
+        assertScript """
+    @org.grooscript.asts.PhantomJsTest(url = '${FunctionalTest.HTML_ADDRESS}', waitSeconds = 1)
     void doTest() {
-        assert $('#author').val() == 'Jorge', "Value is: ${$('#author').val()}"
-        assert $("input[name='title']").val() == 'Grooscript', "Value is: ${$("[name='title']").val()}"
-        assert $("#hasEbook").is(':checked'), "hasEbook not checked"
-        assert $('#bigSize').is(':checked'), "radio big isn't checked"
-        assert $('#country').val() == 'spain', "country select isn't spain"
+        assert \$('#author').val() == 'Jorge', "Value is: \${\$('#author').val()}"
+        assert \$("input[name='title']").val() == 'Grooscript', "Value is: \${\$("[name='title']").val()}"
+        assert \$("#hasEbook").is(':checked'), "hasEbook not checked"
+        assert \$('#bigSize').is(':checked'), "radio big isn't checked"
+        assert \$('#country').val() == 'spain', "country select isn't spain"
         book.country = 'eeuu'
-        assert $('#country').val() == 'eeuu', "country select isn't eeuu"
-        $('#do').click()
-        assert book.numberOfClicks == 1, "Incorrect number of clicks: ${book.numberOfClicks}"
+        assert \$('#country').val() == 'eeuu', "country select isn't eeuu"
+        \$('#do').click()
+        assert book.numberOfClicks == 1, "Incorrect number of clicks: \${book.numberOfClicks}"
     }
     doTest()
-'''
+"""
     }
 
     private getBookClass() {

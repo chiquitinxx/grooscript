@@ -21,13 +21,13 @@ class TestFunctionalBuilder extends FunctionalTest {
     }
 
     void testBuilderWorksWithGrooscriptTools() {
-        assertScript '''
-    @org.grooscript.asts.PhantomJsTest(url = 'http://localhost:8000/test', waitSeconds = 1)
+        assertScript """
+    @org.grooscript.asts.PhantomJsTest(url = '${FunctionalTest.HTML_ADDRESS}', waitSeconds = 1)
     void doTest() {
-        assert $('li').size() == 4, "Incorrect number of li's loaded is: ${$('li').size()}"
+        assert \$('li').size() == 4, "Incorrect number of li's loaded is: \${\$('li').size()}"
     }
     doTest()
-'''
+"""
     }
 
     void setUp() {

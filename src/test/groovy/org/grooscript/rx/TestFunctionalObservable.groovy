@@ -26,13 +26,13 @@ class TestFunctionalObservable extends FunctionalTest {
     }
 
     void testDoJsonRemoteCall() {
-        assertScript '''
-    @org.grooscript.asts.PhantomJsTest(url = 'http://localhost:8000/test', waitSeconds = 1)
+        assertScript """
+    @org.grooscript.asts.PhantomJsTest(url = '${FunctionalTest.HTML_ADDRESS}', waitSeconds = 1)
     void doTest() {
-        assert clicks.number == 7, "Click number is ${clicks.number}"
+        assert clicks.number == 7, "Click number is \${clicks.number}"
     }
     doTest()
-'''
+"""
     }
 
     private getDoRemoteCallCode() {

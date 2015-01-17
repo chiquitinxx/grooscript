@@ -16,7 +16,7 @@ class TestPhantomJs extends FunctionalTest {
         '<html><head><title>Title</title></head><body><p>Welcome</p></body></html>'
     }
 
-    @PhantomJsTest(url = 'http://localhost:8000/test')
+    @PhantomJsTest(url = FunctionalTest.HTML_ADDRESS)
     void countPTagsInPage() {
         assert $('p').size() == 1, "Number of p's in page is ${$('p').size()}"
         def title = $('title')
@@ -53,15 +53,15 @@ class TestPhantomJs extends FunctionalTest {
     }
 
     void testPhantomJsFromScript() {
-        assertScript '''
+        assertScript """
             import org.grooscript.asts.PhantomJsTest
 
-            @PhantomJsTest(url = 'http://localhost:8000/test')
+            @PhantomJsTest(url = '${HTML_ADDRESS}')
             void phantomTest() {
                 assert true
             }
             phantomTest()
-        '''
+        """
     }
 
     void testPhantomJsFromATest() {
@@ -84,7 +84,7 @@ class TestPhantomJs extends FunctionalTest {
         }
     }
 
-    @PhantomJsTest(url = 'http://localhost:8000/test')
+    @PhantomJsTest(url = FunctionalTest.HTML_ADDRESS)
     void countPsFailAssert() {
         assert $('p').size() > 5, "Number of links in page is ${$('p').size()}"
     }
@@ -100,14 +100,14 @@ class TestPhantomJs extends FunctionalTest {
         }
     }
 
-    @PhantomJsTest(url = 'http://localhost:8000/test')
+    @PhantomJsTest(url = FunctionalTest.HTML_ADDRESS)
     void testDirectPhantomJs() {
         gSconsoleInfo = true
         println $('p').text()
         assert $('p').text().contains('Welcome'), "p html is 'Welcome'"
     }
 
-    @PhantomJsTest(url = 'http://localhost:8000/test', capture = 'local.png')
+    @PhantomJsTest(url = FunctionalTest.HTML_ADDRESS, capture = 'local.png')
     void captureImage() {
         console.log('BYE')
     }
@@ -125,7 +125,7 @@ class TestPhantomJs extends FunctionalTest {
         }
     }
 
-    @PhantomJsTest(url = 'http://localhost:8000/test')
+    @PhantomJsTest(url = FunctionalTest.HTML_ADDRESS)
     void failMethod() {
         console.log(FAIL)
     }
@@ -141,7 +141,7 @@ class TestPhantomJs extends FunctionalTest {
         }
     }
 
-    @PhantomJsTest(url = 'http://localhost:8000/test')
+    @PhantomJsTest(url = FunctionalTest.HTML_ADDRESS)
     void testExpectedElements(element, expectedSize) {
         assert $(element).size == expectedSize,"Number of '${element}' in page is ${$(element).size()}"
     }
@@ -174,7 +174,7 @@ class TestPhantomJs extends FunctionalTest {
         }
     }
 
-    @PhantomJsTest(url = 'http://localhost:8000/test', waitSeconds = 2)
+    @PhantomJsTest(url = FunctionalTest.HTML_ADDRESS, waitSeconds = 2)
     void testWaitSeconds() {
         assert $('p').text().contains('Welcome'), "p html is 'Welcome'"
     }
@@ -185,10 +185,10 @@ class TestPhantomJs extends FunctionalTest {
     }
 
     void testWithoutAnnotation() {
-        PhantomJsTestImpl.doPhantomJsTest(HTML_ADRESS, 'function hello() {console.log("Hello!");}', 'hello')
+        PhantomJsTestImpl.doPhantomJsTest(HTML_ADDRESS, 'function hello() {console.log("Hello!");}', 'hello')
     }
 
-    @PhantomJsTest(url = 'http://localhost:8000/test')
+    @PhantomJsTest(url = FunctionalTest.HTML_ADDRESS)
     def returnMap() {
         [list: [1, 2], str: 'string', number: 9, dec: 8.34, jq: $('p').text()]
     }
@@ -198,7 +198,7 @@ class TestPhantomJs extends FunctionalTest {
         assert result == [ list: [1, 2], str: 'string', number: 9, dec: 8.34, jq: 'Welcome']
     }
 
-    @PhantomJsTest(url = 'http://localhost:8000/test')
+    @PhantomJsTest(url = FunctionalTest.HTML_ADDRESS)
     def returnString() {
         $('body').html()
     }

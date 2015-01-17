@@ -18,7 +18,7 @@ install:
 build_script:
   - gradlew.bat -u -i build
 test_script:
-  - gradlew.bat -u -i -S testUnit
+  - gradlew.bat -u -i -S test
 cache:
   - .gradle
   - C:\Users\appveyor\.gradle
