@@ -12,14 +12,20 @@ import static org.grooscript.util.Util.SEP
  */
 abstract class FunctionalTest extends GroovyTestCase {
 
-    private static final PHANTOMJS_HOME = ".${SEP}node_modules${SEP}phantomjs"
-    private static final PHANTOMJS_WINDOWS_HOME = "$PHANTOMJS_HOME${SEP}lib${SEP}phantom"
-    private static final JS_LIBRARIES_PATH = "src/main/resources/META-INF/resources"
-    private static final PORT = 8000
-    private static final HTML_ACTION = '/test'
-    private static final JSON_ACTION = '/json'
-    protected static final String HTML_ADRESS = "http://localhost:${PORT}${HTML_ACTION}"
-    protected static final String JSON_ADRESS = "http://localhost:${PORT}${JSON_ACTION}"
+    static final String HTML_ACTION = '/test'
+    static final String JSON_ACTION = '/json'
+    /**
+     * NOTE: due a Groovy characteristic, the following URLs must be set manually to match the previous parameters.
+     * Otherwise they cannot be references in annotations.
+     * see: http://jira.codehaus.org/browse/GROOVY-3278
+     */
+    public static final String HTML_ADDRESS = 'http://localhost:9090/test'
+    public static final String JSON_ADDRESS = 'http://localhost:9090/json'
+
+    private static final String PHANTOMJS_HOME = ".${SEP}node_modules${SEP}phantomjs"
+    private static final String PHANTOMJS_WINDOWS_HOME = "$PHANTOMJS_HOME${SEP}lib${SEP}phantom"
+    private static final String JS_LIBRARIES_PATH = "src/main/resources/META-INF/resources"
+    static final int PORT = 9090
 
     private HttpServer server
 
@@ -46,7 +52,7 @@ abstract class FunctionalTest extends GroovyTestCase {
         server.createContext(JSON_ACTION, new JsonActionHandler())
         server.setExecutor(null) // creates a default executor
         server.start()
-        println 'Server started, responds to: ' + HTML_ADRESS
+        println 'Server started, responds to: ' + HTML_ADDRESS
     }
 
     private stopServer() {
