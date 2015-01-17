@@ -1,0 +1,29 @@
+{
+  "name": "grooscript",
+  "version": "0.6.3",
+  "homepage": "https://github.com/chiquitinxx/grooscript",
+  "authors": [
+    "Jorge Franco <jorge.franco.leza@gmail.com>"
+  ],
+  "description": "Grooscript libraries to work with groovy converted code",
+  "main": "grooscript.js",
+  "moduleType": [
+    "node"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/chiquitinxx/grooscript.git"
+  },
+  "keywords": [
+    "groovy",
+    "transpiler",
+    "conversion"
+  ],
+  "license": "Apache 2",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "build", "doc", "gradle", "npm", "out", "src/test", "src/main/groovy"
+  ]
+}
