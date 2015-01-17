@@ -3,6 +3,7 @@ package org.grooscript
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
 import com.sun.net.httpserver.HttpServer
+import org.grooscript.util.Util
 
 import static org.grooscript.util.Util.SEP
 /**
@@ -12,6 +13,7 @@ import static org.grooscript.util.Util.SEP
 abstract class FunctionalTest extends GroovyTestCase {
 
     private static final PHANTOMJS_HOME = ".${SEP}node_modules${SEP}phantomjs"
+    private static final PHANTOMJS_WINDOWS_HOME = "$PHANTOMJS_HOME${SEP}lib${SEP}phantom"
     private static final JS_LIBRARIES_PATH = "src/main/resources/META-INF/resources"
     private static final PORT = 8000
     private static final HTML_ACTION = '/test'
@@ -54,7 +56,7 @@ abstract class FunctionalTest extends GroovyTestCase {
     }
 
     void setUp() {
-        System.setProperty('PHANTOMJS_HOME', PHANTOMJS_HOME)
+        System.setProperty('PHANTOMJS_HOME', Util.isWindows()? PHANTOMJS_WINDOWS_HOME : PHANTOMJS_HOME)
         System.setProperty('JS_LIBRARIES_PATH', JS_LIBRARIES_PATH)
         startServer()
     }
