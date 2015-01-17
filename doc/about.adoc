@@ -1,0 +1,3 @@
+This is an open source project, with http://www.apache.org/licenses/LICENSE-2.0.html[Apache 2] license. Is part
+of awesome http://groovy.codehaus.org/[Groovy] ecosystem. If you want to contribute, help or support the project,
+you're welcome, can contact in http://github.com/chiquitinxx/grooscript[Github] or via email.

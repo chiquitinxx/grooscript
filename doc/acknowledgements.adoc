@@ -13,5 +13,5 @@ Thank you @jetbrains for a IntelliJ IDEA open source license, the best groovy ID
 
 image::https://www.jetbrains.com/idea/docs/logo_intellij_idea.png[Jetbrains]
 
-Finally thanks to last contributors in github, first pull request by *yellowsnow* and nice suggestions from *pioneer*,
-we have nice stuff to do after 1.0 release.
+Finally thanks to last contributors in github, first pull request by *yellowsnow*, nice suggestions from *pioneer*, *abelsromero*
+improving build and *alnavart* giving feedback. We have nice stuff to do after 1.0 release.
