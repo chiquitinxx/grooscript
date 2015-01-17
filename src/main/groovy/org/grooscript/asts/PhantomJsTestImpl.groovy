@@ -167,6 +167,7 @@ page.open('{{URL}}', function (status) {
         String jsHome = System.getProperty('JS_LIBRARIES_PATH')
         if (!jsHome) {
             try {
+
                 def userHome = USER_HOME
 
                 if (userHome) {

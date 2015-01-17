@@ -1,0 +1,19 @@
+{
+  "name": "grooscript",
+  "version": "0.6.3",
+  "main": "src/main/resources/META-INF/resources/grooscript.js",
+  "ignore": [
+    "**/.*",
+    "build.gradle",
+    "appveyor.yml",
+    "package.json",
+    "gulpfile.js",
+    "node_modules",
+    "bower_components",
+    "doc",
+    "gradle",
+    "npm",
+    "src/test",
+    "src/main/groovy"
+  ]
+}

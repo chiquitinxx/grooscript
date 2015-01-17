@@ -2,6 +2,12 @@
 
 *Groovy to javascript transpiler*
 
+image::img/logo.png[image,150,150,float="right"]
+
+== About
+
+include::about.adoc[]
+
 == Introduction
 
 include::introduction.adoc[]
@@ -70,29 +76,48 @@ include::annotations.adoc[]
 
 include::tools.adoc[]
 
-== Tricks [Jorge]
+== Tips
 
 include::tricks.adoc[]
 
 == Tools
 
-    TODO
+Grooscript itself is just a Java library. We have created some tools to improve the experience using it, in your
+http://gradle.org/[Gradle] projects, using it in http://grails.org/[Grails] and with your http://nodejs.org/[Node.js] projects.
 
 === Gradle plugin
 
-    TODO
+We are working to make good integration with gradle. See the getting started link:starting_gradle.html[guide] to start
+working with grooscript. Later you will discover more advanced features, as convert groovy templates or tell your
+server that some files have changed. Source on https://github.com/chiquitinxx/grooscript-gradle-plugin[github]. See in
+gradle plugin http://plugins.gradle.org/plugin/org.grooscript.conversion[repository].
 
 === Grails plugin
 
-    TODO
+There is an available http://grails.org/plugin/grooscript[plugin] for grails 2.4 with nice features, like use your domain
+classes in the client, websocket support or put groovy code in your gsp's that will be run in javascript. Take a look
+at the link:grails-plugin/index.html[documentation] for more info. Github https://github.com/chiquitinxx/grails-grooscript[source code].
 
 === Npm package
 
-    TODO
+If you have a Node.js project, and you want to use some converted code, you can use grooscript npm
+https://www.npmjs.com/package/grooscript[package], that will include `grooscript.js`, then your converted code will run.
 
-== Guides
+[source,javascript]
+--
+var gs = require('grooscript');
 
-    TODO
+eval(fs.readFileSync('aConvertedFile.js')+'');
+--
+
+Little link:nodejs_example.html[guide]
+
+== More links
+
+- Cool https://github.com/chiquitinxx/grooscript-demos[demos]
+- Chat link:chat_example.html[example]
+- Ratpack link:ratpack-demo.html[demo]
+- React link:react_example.html[example]
 
 == Acknowledgements
 
