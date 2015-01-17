@@ -33,7 +33,7 @@ class TestFunctionalGQuery extends FunctionalTest {
         assert result.number == 5
         assert result.name == 'George'
         assert result.class.name == 'Result'
-        assert $('.result').html() == 'OK', "Wrong result \${\$('.result').html()}"
+        assert \$('.result').html() == 'OK', "Wrong result \${\$('.result').html()}"
     }
     doTest()
 """

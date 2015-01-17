@@ -57,7 +57,7 @@ abstract class FunctionalTest extends GroovyTestCase {
 
     private stopServer() {
         println 'Closing server...'
-        server.stop(0)
+        server.stop(10)
         println 'Server closed.'
     }
 
