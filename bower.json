@@ -7,19 +7,12 @@
   ],
   "description": "Grooscript libraries to work with groovy converted code",
   "main": "grooscript.js",
-  "moduleType": [
-    "node"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/chiquitinxx/grooscript.git"
-  },
   "keywords": [
     "groovy",
     "transpiler",
     "conversion"
   ],
-  "license": "Apache 2",
+  "license": "Apache2",
   "ignore": [
     "**/.*",
     "build.gradle",
