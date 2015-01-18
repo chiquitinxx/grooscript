@@ -16,9 +16,9 @@ install:
   - gradlew.bat clean npmInstall --stacktrace
   - set JAVA_OPTS=-XX:MaxPermSize=1024m -Xmx1512m
 build_script:
-  - gradlew.bat -u -i build
+  - gradlew.bat -u -i clean assemble
 test_script:
-  - gradlew.bat -u -i -S test
+  - gradlew.bat -u -i -S check
 cache:
   - .gradle
   - C:\Users\appveyor\.gradle
