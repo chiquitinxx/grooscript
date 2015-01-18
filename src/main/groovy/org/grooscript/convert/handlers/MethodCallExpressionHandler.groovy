@@ -12,6 +12,12 @@ import static org.grooscript.JsNames.*
 class MethodCallExpressionHandler extends BaseHandler {
 
     static final String SUPER_METHOD_BEGIN = 'super_'
+    static final List<Map> SPECIAL_STATIC_METHOD_CALLS = [
+            [type: 'org.grooscript.GrooScript', method: 'toJavascript', function: GS_TO_JAVASCRIPT],
+            [type: 'org.grooscript.GrooScript', method: 'toGroovy', function: GS_TO_GROOVY],
+            [type: 'java.lang.Integer', method: 'parseInt', function: 'parseInt'],
+            [type: 'java.lang.Float', method: 'parseFloat', function: 'parseFloat'],
+    ]
 
     void handle(MethodCallExpression expression) {
         //println "MCE ${expression.objectExpression} - ${expression.methodAsString}"
@@ -163,20 +169,22 @@ class MethodCallExpressionHandler extends BaseHandler {
             out.addScript('\',')
             conversionFactory.visitNode(expression.arguments, false)
             out.addScript(')')
-        //Static toJavascript or toGroovy
-        } else if(isStaticMethodCall(expression) &&
-                expression.objectExpression.type.name == 'org.grooscript.GrooScript' &&
-                methodName in ['toJavascript', 'toGroovy']) {
-            out.addScript("${methodName == 'toGroovy' ? GS_TO_GROOVY : GS_TO_JAVASCRIPT}(")
-            conversionFactory.visitNode(expression.arguments, false)
-            out.addScript(')')
         //Static method
         } else if(isStaticMethodCall(expression)) {
-            out.addScript("$GS_EXEC_STATIC(")
-            conversionFactory.visitNode(expression.objectExpression)
-            out.addScript(",'$methodName', this,[")
-            conversionFactory.visitNode(expression.arguments, false)
-            out.addScript('])')
+            def specialStaticCall = SPECIAL_STATIC_METHOD_CALLS.find {
+                it.type == expression.objectExpression.type.name && it.method == methodName
+            }
+            if (specialStaticCall) {
+                out.addScript("${specialStaticCall.function}(")
+                conversionFactory.visitNode(expression.arguments, false)
+                out.addScript(')')
+            } else {
+                out.addScript("$GS_EXEC_STATIC(")
+                conversionFactory.visitNode(expression.objectExpression)
+                out.addScript(",'$methodName', this,[")
+                conversionFactory.visitNode(expression.arguments, false)
+                out.addScript('])')
+            }
         } else {
             //println 'Method->'+methodName+' - '+expression.arguments.class.simpleName
             doFullMethodCall(methodName, expression)
