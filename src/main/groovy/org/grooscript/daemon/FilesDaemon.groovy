@@ -28,7 +28,11 @@ class FilesDaemon {
 
     void start() {
         if (options.actionOnStartup == true) {
-            action files
+            try {
+                action files
+            } catch (e) {
+                GsConsole.error("Error executing action at start in files (${files}): ${e.message}")
+            }
         }
         task {
             actor = new FilesActor(action: action, restTime: options.time).start()

@@ -28,7 +28,11 @@ class FilesActor extends DefaultActor {
                     resetFilesChanged()
                     detectFileChanges(source)
                     if (filesChanged && action) {
-                        action(filesChanged)
+                        try {
+                            action(filesChanged)
+                        } catch (e) {
+                            GsConsole.error("Error executing action in files (${filesChanged}): ${e.message}")
+                        }
                     }
                     sleep(restTime)
                     this << source

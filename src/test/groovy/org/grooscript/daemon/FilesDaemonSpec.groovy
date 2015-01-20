@@ -1,5 +1,6 @@
 package org.grooscript.daemon
 
+import org.grooscript.util.GsConsole
 import spock.lang.Specification
 
 /**
@@ -45,6 +46,46 @@ class FilesDaemonSpec extends Specification {
         actionExecutions == 1
     }
 
+    void 'show error if exception in action at start, and continue execution'() {
+        given:
+        GroovySpy(GsConsole, global:true)
+        def daemon = new FilesDaemon(FILES, { List<String> files ->
+            throw new Exception('error')
+        }, [actionOnStartup: true])
+
+        when:
+        daemon.start()
+        waitTime(1000)
+
+        then:
+        1 * GsConsole.error('Error executing action at start in files ([File1.groovy]): error')
+        daemon.actor.isActive()
+
+        cleanup:
+        daemon.stop()
+    }
+
+    void 'show error if exception in action during execution, and continue execution'() {
+        given:
+        GroovySpy(GsConsole, global:true)
+        def daemon = new FilesDaemon(FILES, { List<String> files ->
+            throw new Exception('error')
+        }, [actionOnStartup: false])
+
+        when:
+        daemon.start()
+        waitTime(1000)
+        modifyFile()
+        waitTime(1000)
+
+        then:
+        1 * GsConsole.error('Error executing action in files ([File1.groovy]): error')
+        daemon.actor.isActive()
+
+        cleanup:
+        daemon.stop()
+    }
+
     void 'starts the actor and detects change of file'() {
         given:
         def actionExecutions = 0
@@ -62,6 +103,10 @@ class FilesDaemonSpec extends Specification {
 
         then:
         actionExecutions == 1
+        daemon.actor.isActive()
+
+        cleanup:
+        daemon.stop()
     }
 
     private static final ACTION = { files -> files }
