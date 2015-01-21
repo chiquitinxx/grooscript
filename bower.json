@@ -1,6 +1,16 @@
 {
   "name": "grooscript",
-  "version": "0.6.3",
+  "version": "1.0.0-rc-2",
+  "homepage": "https://github.com/chiquitinxx/grooscript",
+  "authors": [
+    "Jorge Franco <jorge.franco.leza@gmail.com>"
+  ],
+  "description": "Grooscript libraries to work with groovy converted code",
+  "keywords": [
+    "groovy",
+    "transpiler",
+    "conversion"
+  ],
   "main": "src/main/resources/META-INF/resources/grooscript.js",
   "ignore": [
     "**/.*",
