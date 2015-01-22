@@ -71,30 +71,11 @@ class ConversionMixin {
 
     boolean convertAndEvaluate(
             String fileName, jsResultOnConsole = false, options = [:], textSearch = null, textReplace = null) {
-        if (JAVA_VERSION >= '1.8' && fileName in filesThatFailsInJava8) {
-            String jsCode = convertFile(fileName, options)
-            return !convertAndEvaluateWithNode(jsCode).assertFails
-        } else {
-            def evaluationJsEngine =
-                    convertAndEvaluateWithJsEngine(fileName, jsResultOnConsole, options, textSearch, textReplace)
-            if (evaluationJsEngine.assertFails) {
-                println evaluationJsEngine.console
-            }
-            return !evaluationJsEngine.assertFails && !convertAndEvaluateWithNode(evaluationJsEngine.jsScript).assertFails
+        def evaluationJsEngine =
+                convertAndEvaluateWithJsEngine(fileName, jsResultOnConsole, options, textSearch, textReplace)
+        if (evaluationJsEngine.assertFails) {
+            println evaluationJsEngine.console
         }
-    }
-
-    private getFilesThatFailsInJava8()
-    {
-        [
-            'advanced/PropertiesAndMethods',
-            'advanced/MasterScoping',
-            'advanced/MethodMissingTwo',
-            'classes/StaticProperties',
-            'contribution/MySelf11',
-            'staticRealm',
-            'doc/Object',
-            'advanced/MethodPointer',
-        ]
+        return !evaluationJsEngine.assertFails && !convertAndEvaluateWithNode(evaluationJsEngine.jsScript).assertFails
     }
 }

@@ -8,7 +8,9 @@ plugins {
 apply plugin: 'idea'
 apply plugin: 'groovy'
 
-sourceCompatibility = 1.6
+def compatibilityVersion = 1.6
+sourceCompatibility = compatibilityVersion
+targetCompatibility = compatibilityVersion
 
 version = '1.0.0-SNAPSHOT'
 group = 'org.grooscript'

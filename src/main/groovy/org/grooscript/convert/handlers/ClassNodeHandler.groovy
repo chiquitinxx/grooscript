@@ -259,10 +259,10 @@ class ClassNodeHandler extends TraitBaseHandler {
 
     private addPropertyStaticToClass(String name) {
 
-        out.addScript("${GS_OBJECT}.__defineGetter__('${name}', function(){ " +
-                "return ${context.classNameStack.peek()}.${name}; });", true)
-        out.addScript("${GS_OBJECT}.__defineSetter__('${name}', function(${VALUE}){ " +
-                "${context.classNameStack.peek()}.${name} = ${VALUE}; });", true)
+        out.addScript("Object.defineProperty(${GS_OBJECT}, '${name}', { " +
+                "get: function() { return ${context.classNameStack.peek()}.${name}; }, " +
+                "set: function(${VALUE}) { ${context.classNameStack.peek()}.${name} = ${VALUE}; }, " +
+                "enumerable: true });", true)
     }
 
     private checkAddMixin(className, annotations) {

@@ -13,7 +13,6 @@ class Util {
     static final USER_HOME = System.getProperty('user.home')
     static final SEP = System.getProperty('file.separator')
     static final LINE_SEPARATOR = System.getProperty('line.separator')
-    static final JAVA_VERSION = System.getProperty('java.version')
     static final String OS_NAME = System.getProperty('os.name')
     static final JS_EXTENSION = '.js'
     static final GROOVY_EXTENSION = '.groovy'
@@ -159,5 +158,4 @@ class Util {
         // Use capital name for Win8+
         OS_NAME.startsWith('windows') || OS_NAME.startsWith('Windows')
     }
-
 }
