@@ -10,7 +10,7 @@ apply plugin: 'groovy'
 
 sourceCompatibility = 1.6
 
-version = '1.0.0-rc-2'
+version = '1.0.0-SNAPSHOT'
 group = 'org.grooscript'
 
 ext {
