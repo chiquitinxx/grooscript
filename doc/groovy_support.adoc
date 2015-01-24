@@ -177,3 +177,7 @@ Good support, in compile and runtime. Don't support SAM coercion and super.
 --
 include::../src/test/resources/traits/Inheritance.groovy[tags=mark,indent=0]
 --
+
+==== Module extensions
+
+Not supported.

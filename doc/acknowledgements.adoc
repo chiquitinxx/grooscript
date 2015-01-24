@@ -3,7 +3,7 @@ grails developers and all people interested in the project, this journey has bee
 Is hard put names of people that helped me this years, sure I forget someone.
 
 Special thanks to *@glaforge*, *@marioggar* and *René*, they
-spent time at the beginning of this project. Also thanks to @burtbeckwith, @graemerocher for grails help, only
+spent time at the beginning of this project. Also thanks to @burtbeckwith and @graemerocher for grails help, only
 good things to say about all groovy and grails teams.
 
 Thank you http://greachconf.com/[Greach] and http://gr8conf.eu/[Gr8Conf] teams for let me talk about grooscript in gr8 conferences.
@@ -13,5 +13,7 @@ Thank you @jetbrains for a IntelliJ IDEA open source license, the best groovy ID
 
 image::https://www.jetbrains.com/idea/docs/logo_intellij_idea.png[Jetbrains]
 
-Finally thanks to last contributors in github, first pull request by *yellowsnow*, nice suggestions from *pioneer*, *abelsromero*
-improving build and *alnavart* giving feedback. We have nice stuff to do after 1.0 release.
+Finally thanks to last contributors in https://github.com/chiquitinxx/grooscript[github].
+First pull request by *yellowsnow*. Nice suggestions from *pioneer* pushing package support.
+*abelsromero* has done amazing job improving build. *alnavart* giving feedback and nice suggestions.
+We have nice stuff to do after 1.0 release.

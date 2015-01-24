@@ -24,6 +24,8 @@
     "gradle",
     "npm",
     "src/test",
-    "src/main/groovy"
+    "src/main/groovy",
+    "src/main/resources/META-INF/resources/jquery.min.js",
+    "src/main/resources/META-INF/resources/testWithNode.js"
   ]
 }

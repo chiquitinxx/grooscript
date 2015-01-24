@@ -1,3 +1,6 @@
 This is an open source project, with http://www.apache.org/licenses/LICENSE-2.0.html[Apache 2] license. Is part
 of awesome http://groovy.codehaus.org/[Groovy] ecosystem. If you want to contribute, help or support the project,
 you're welcome, can contact in http://github.com/chiquitinxx/grooscript[Github] or via email.
+
+Project started Aug 26, 2012 with one contributor. Now, we are four contributors, and we have nice ideas to move
+on. Project is starting, and all the feedback is more than welcome, we want keep on groovy'ing javascript!

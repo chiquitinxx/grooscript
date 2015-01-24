@@ -1,5 +1,9 @@
 - Keep your groovy code tested, sometimes your converted code doesn't work because groovy code fails.
 - Don't use grooscript to create a big project, just introduce it in your projects.
 - If you use @GsNative, keep that code in isolated classes, that can be easy to mock them.
+- Don't abuse @GsNative, is code untested. Better write it in javascript and keep that code tested.
 - Grooscript doesn't support all groovy and java, use link:conversions.html[online] convert before use it, to check support.
 - You can activate `debug` console info in javascript with `gs.consoleInfo = true;`.
+- Remember import `grooscript-tools.js` if you use Observable, HtmlBuilder or GQuery.
+- Use grooscript gradle plugin daemon task to do groovy changes, and see immediately in your browser.
+- You can test dom manipulation with http://jsoup.org/[jsoup]
