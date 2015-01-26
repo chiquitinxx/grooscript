@@ -2,13 +2,13 @@ Java support is not the target of this library, groovy is. Like groovy uses java
 of java stuff. If you need any specific java type, other than a basic type, please before check if is supported.
 Grooscript convert your code to javascript, but the normal use of a normal programming language, not specific
 types or modules. You can expect variables, arrays, data types, operators, control flow, classes and objects you
-create, basic inheritance, numbers, string, dates, collections, maps ... are supported. But Thread, XML,
+create, basic inheritance, numbers, string, dates, collections, maps, ... are supported. But Thread, XML,
 Reflection, ... are not supported.
 
 ==== Primitives
 
 Basic types are ignored, they are just used in javascript. No differences between float, int, ... just numbers
-are 'numbers' and String are javascript String's. Integer, Float, Double,... types are not supported, just
+are 'numbers' and String are javascript String's. Integer, Float, Double, ... types are not supported, just
 Integer.parseInt and Float.parseFloat are supported. Basic operations are supported: `+, -, \*, /, %, **`
 
 ==== Equals, hashCode and compare

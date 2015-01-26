@@ -17,12 +17,14 @@ include::../src/test/resources/doc/LittleFeatures.groovy[tags=features,indent=0]
 
 ==== Operators
 
-`&lt;=&gt;`, `.@`, `*.`, `in`, `is`, `?.` and `?:` are supported.
+`&lt;=&gt;`, `.@`, `*.`, `...`, `in`, `is`, `?.` and `?:` are supported.
 
 [source,groovy]
 --
 include::../src/test/resources/doc/Operators.groovy[tags=operators,indent=0]
 --
+
+`*` is not supported in *list, to divide a list in parameters for a function / method.
 
 Also you can overload this operators in your classes:
 
