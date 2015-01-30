@@ -144,7 +144,7 @@ class AstTreeGenerator {
         modules.inject([]) { List listNativeFunctions, ModuleNode moduleNode ->
             if (moduleNode.description.startsWith('file:')) {
                 File file = new File(moduleNode.description.substring(5))
-                if (file && file.exists() && file.isFile()) {
+                if (file?.exists() && file.isFile()) {
                     def className = null
                     if (modules.classes.size() == 1) {
                         className = modules.classes.first().nameWithoutPackage
