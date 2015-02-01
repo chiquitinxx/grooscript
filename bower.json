@@ -15,6 +15,8 @@
   "ignore": [
     "**/.*",
     "build.gradle",
+    "gradlew",
+    "gradlew.bat",
     "appveyor.yml",
     "package.json",
     "gulpfile.js",
