@@ -9,7 +9,7 @@ function HtmlBuilder() {
         return gSobject.htmCd += " " + (key) + "='" + (value) + "'";
       }]);
     };
-    gSobject.htmCd += ">";
+    gSobject.htmCd += (!gs.bool(args) ? "/>" : ">");
     if (gs.bool(args)) {
       if ((gs.equals(gs.mc(args,"size",[]), 1)) && (gs.instanceOf((args[0]), "String"))) {
         gs.mc(gSobject,"yield",[args[0]]);
@@ -23,8 +23,8 @@ function HtmlBuilder() {
           gs.mc(gSobject,"yield",[lastArg]);
         };
       };
+      return gSobject.htmCd += "</" + (name) + ">";
     };
-    return gSobject.htmCd += "</" + (name) + ">";
   };
   gSobject.htmCd = null;
   gSobject.build = function(x0) { return HtmlBuilder.build(x0); }

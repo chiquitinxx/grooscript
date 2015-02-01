@@ -129,4 +129,15 @@ class TestHtmlBuilder extends Specification {
         expect:
         result == "<p>a</p>\n<p>b</p>"
     }
+
+    void 'empty tags'() {
+        given:
+        def result = HtmlBuilder.build {
+            script(src: 'aFile.js')
+            br()
+        }
+
+        expect:
+        result == "<script src='aFile.js'></script><br/>"
+    }
 }

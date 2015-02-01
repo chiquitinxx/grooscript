@@ -25,6 +25,7 @@ class TestFunctionalBuilder extends FunctionalTest {
     @org.grooscript.asts.PhantomJsTest(url = '${FunctionalTest.HTML_ADDRESS}', waitSeconds = 1)
     void doTest() {
         assert \$('li').size() == 4, "Incorrect number of li's loaded is: \${\$('li').size()}"
+        assert htmlToTry() == "<br/><script src='aFile.js'></script>"
     }
     doTest()
 """
@@ -45,6 +46,13 @@ def getGrooviers = { ->
             }
         }
     }
-}'''
+}
+def htmlToTry = { ->
+    HtmlBuilder.build {
+        br()
+        script src: 'aFile.js'
+    }
+}
+'''
     }
 }

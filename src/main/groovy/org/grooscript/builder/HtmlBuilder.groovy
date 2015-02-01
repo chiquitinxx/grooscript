@@ -72,7 +72,7 @@ class HtmlBuilder {
                 htmCd += " ${key}='${value}'"
             }
         }
-        htmCd += '>'
+        htmCd += !args ? '/>' : '>'
         if (args) {
             if (args.size() == 1 && args[0] instanceof String) {
                 yield args[0]
@@ -86,7 +86,7 @@ class HtmlBuilder {
                     yield lastArg
                 }
             }
+            htmCd += "</${name}>"
         }
-        htmCd += "</${name}>"
     }
 }
