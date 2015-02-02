@@ -67,7 +67,7 @@ class HtmlBuilder {
 
     def tagSolver = { String name, args ->
         htmCd += "<${name}"
-        if (args && args.size() > 0 && !(args[0] instanceof String) && !(args[0] instanceof Closure)) {
+        if (args?.size() > 0 && !(args[0] instanceof String) && !(args[0] instanceof Closure)) {
             args[0].each { key, value ->
                 htmCd += " ${key}='${value}'"
             }
