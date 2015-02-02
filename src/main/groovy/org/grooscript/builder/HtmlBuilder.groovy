@@ -72,21 +72,21 @@ class HtmlBuilder {
                 htmCd += " ${key}='${value}'"
             }
         }
-        htmCd += '>'
-
-        if (args?.size() == 1 && args[0] instanceof String) {
-            yield args[0]
-        } else {
-            def lastArg = args.last()
-            if (lastArg instanceof Closure) {
-                lastArg.delegate = this
-                lastArg()
+        htmCd += !args ? '/>' : '>'
+        if (args) {
+            if (args.size() == 1 && args[0] instanceof String) {
+                yield args[0]
+            } else {
+                def lastArg = args.last()
+                if (lastArg instanceof Closure) {
+                    lastArg.delegate = this
+                    lastArg()
+                }
+                if (lastArg instanceof String && args.size() > 1) {
+                    yield lastArg
+                }
             }
-            if (lastArg instanceof String && args.size() > 1) {
-                yield lastArg
-            }
+            htmCd += "</${name}>"
         }
-        
-        htmCd += "</${name}>"
     }
 }
