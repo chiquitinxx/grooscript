@@ -12,7 +12,7 @@ def compatibilityVersion = 1.6
 sourceCompatibility = compatibilityVersion
 targetCompatibility = compatibilityVersion
 
-version = '1.0.0'
+version = '1.0.1-SNAPSHOT'
 group = 'org.grooscript'
 
 ext {

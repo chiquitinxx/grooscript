@@ -2,7 +2,6 @@ package org.grooscript.convert.handlers
 
 import org.codehaus.groovy.ast.expr.*
 
-import static org.grooscript.JsNames.GS
 /**
  * User: jorgefrancoleza
  * Date: 14/12/14
@@ -10,15 +9,14 @@ import static org.grooscript.JsNames.GS
 class StaticMethodCallExpressionHandler extends BaseHandler {
 
     void handle(StaticMethodCallExpression expression) {
-        def owner = expression.ownerType.name
-        if (owner == 'java.lang.Integer' && expression.method == 'parseInt') {
-            out.addScript('parseInt')
-        } else if (owner == 'java.lang.Float' && expression.method == 'parseFloat') {
-            out.addScript('parseFloat')
-        } else if (owner == 'org.grooscript.GrooScript' && expression.method in ['toGroovy', 'toJavascript']) {
-            out.addScript("$GS${expression.method}")
+        def ownerType = expression.ownerType.name
+        def specialStatic = SPECIAL_STATIC_METHOD_CALLS.find {
+            it.type == ownerType && it.method == expression.method
+        }
+        if (specialStatic) {
+            out.addScript(specialStatic.function)
         } else {
-            out.addScript("${conversionFactory.reduceClassName(expression.ownerType.name)}.${expression.method}")
+            out.addScript("${conversionFactory.reduceClassName(ownerType)}.${expression.method}")
         }
         conversionFactory.visitNode(expression.arguments)
     }

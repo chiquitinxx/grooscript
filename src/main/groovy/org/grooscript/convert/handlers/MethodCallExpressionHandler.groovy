@@ -12,13 +12,7 @@ import static org.grooscript.JsNames.*
 class MethodCallExpressionHandler extends BaseHandler {
 
     static final String SUPER_METHOD_BEGIN = 'super_'
-    static final List<Map> SPECIAL_STATIC_METHOD_CALLS = [
-            [type: 'org.grooscript.GrooScript', method: 'toJavascript', function: GS_TO_JAVASCRIPT],
-            [type: 'org.grooscript.GrooScript', method: 'toGroovy', function: GS_TO_GROOVY],
-            [type: 'java.lang.Integer', method: 'parseInt', function: 'parseInt'],
-            [type: 'java.lang.Float', method: 'parseFloat', function: 'parseFloat'],
-    ]
-
+    
     void handle(MethodCallExpression expression) {
         //println "MCE ${expression.objectExpression} - ${expression.methodAsString}"
         String methodName = expression.methodAsString
@@ -192,7 +186,7 @@ class MethodCallExpressionHandler extends BaseHandler {
     private addParametersAsList(expression) {
         def hasSpread = expression.arguments.any {it instanceof SpreadExpression}
         if (hasSpread) {
-            out.addScript('gs.list(')
+            out.addScript("${GS_LIST}(")
         }
         out.addScript('[')
         addParametersWithoutParenthesis(expression)
@@ -244,14 +238,13 @@ class MethodCallExpressionHandler extends BaseHandler {
                 conversionFactory.visitNode(expression.objectExpression)
             }
         }
-
         out.addScript(',')
+
         //MethodName
         putMethodName(expression)
-
-        //Parameters
         out.addScript(',')
 
+        //Parameters
         addParametersAsList(expression)
 
         if (conversionFactory.isThis(expression.objectExpression) && !context.mainContext &&
