@@ -198,4 +198,9 @@ class TestAdvanced extends Specification {
         expect:
         convertAndEvaluate('advanced/Finally')
     }
+
+    def 'spread method params'() {
+        expect:
+        convertAndEvaluate('advanced/SpreadParams')
+    }
 }
