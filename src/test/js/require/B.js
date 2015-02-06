@@ -1,4 +1,4 @@
-define(['A', 'A'], function (A, AA) {
+define(['require/A', 'require/A'], function (A, AA) {
     function B() {
         var me = {};
         me.a = A();
