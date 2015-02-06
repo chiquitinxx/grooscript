@@ -11,7 +11,7 @@ gulp.task('compress', function() {
 });
 
 gulp.task('tests', function () {
-    return gulp.src('src/test/js/test.js', {read: false})
+    return gulp.src(['src/test/js/test.js', 'src/test/js/require_test.js'], {read: false})
         .pipe(mocha({reporter: 'nyan'}));
 });
 
