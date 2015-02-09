@@ -1,3 +1,14 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'net.saliman:gradle-cobertura-plugin:2.0.0' // cobertura plugin
+        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.2.0'
+    }
+}
+
 plugins {
     id "com.moowork.node" version "0.8"
     id "com.moowork.gulp" version "0.1"
@@ -5,6 +16,8 @@ plugins {
     id "org.asciidoctor.convert" version "1.5.2"
 }
 
+apply plugin: 'cobertura'
+apply plugin: 'com.github.kt3k.coveralls'
 apply plugin: 'idea'
 apply plugin: 'groovy'
 
@@ -37,6 +50,9 @@ dependencies {
     }
     testCompile "org.codehaus.groovy:groovy-test:${groovyVersion}"
 }
+
+cobertura.coverageFormats = ['html', 'xml']
+cobertura.coverageSourceDirs = sourceSets.main.groovy.srcDirs
 
 jar {
     manifest {
@@ -93,7 +109,7 @@ task testUnit(type: Test) {
     exclude 'org/grooscript/rx/TestFunctional*'
 }
 
-testUnit.description = 'Run only conversion tests'
+testUnit.description = 'Run only unit tests'
 
 compileJava.dependsOn gulp_compress
 test.dependsOn gulp_tests
