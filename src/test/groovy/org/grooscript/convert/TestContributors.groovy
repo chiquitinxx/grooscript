@@ -160,4 +160,9 @@ class TestContributors extends Specification {
         expect:
         convertAndEvaluate('contribution/ChrisMiles')
     }
+
+    def 'h1romas4 constructor field scope'() {
+        expect:
+        convertAndEvaluate('contribution/H1romas4')
+    }
 }

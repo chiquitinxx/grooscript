@@ -27,6 +27,9 @@ class VariableExpressionHandler extends BaseHandler {
                     !context.actualScope.peek().contains(expression.name) &&
                     context.variableStaticScoping.peek() && expression.name in context.variableStaticScoping.peek()) {
                 out.addScript(addPrefixOrPostfixIfNeeded("${context.classNameStack.peek()}."+expression.name))
+            } else if (!context.variableScoping.peek().contains(expression.name) &&
+                    context.variableScopingContains(expression.name)) {
+                out.addScript(addPrefixOrPostfixIfNeeded("${GS_OBJECT}."+expression.name))
             } else {
                 out.addScript(addPrefixOrPostfixIfNeeded(expression.name))
             }
