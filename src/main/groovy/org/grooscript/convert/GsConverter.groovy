@@ -1,6 +1,7 @@
 package org.grooscript.convert
 
 import org.grooscript.GrooScript
+import org.grooscript.convert.ast.AstTreeGenerator
 
 import static org.grooscript.JsNames.*
 

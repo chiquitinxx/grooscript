@@ -1,34 +1,29 @@
-package org.grooscript.convert
+package org.grooscript.convert.ast
 
 import org.codehaus.groovy.ast.InnerClassNode
+import org.grooscript.convert.NativeFunction
 import org.grooscript.util.Util
-import org.grooscript.util.GrooScriptException
 import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.MethodNode
 import org.codehaus.groovy.ast.ModuleNode
 import org.codehaus.groovy.control.CompilationUnit
 import org.codehaus.groovy.control.CompilePhase
-import org.codehaus.groovy.control.CompilerConfiguration
 import org.grooscript.util.GsConsole
-
-import static org.codehaus.groovy.control.customizers.builder.CompilerCustomizationBuilder.withConfig
 
 /**
  * User: jorgefrancoleza
  * Date: 13/10/13
  */
-class AstTreeGenerator {
+class AstTreeGenerator extends GrooscriptCompiler {
 
     def consoleInfo
-    def classPath
-    def customization
 
     /**
      * Get AST tree from code
-     * @param text
+     * @param sourceCode
      * @return
      */
-    def fromText(String text) {
+    List fromText(String sourceCode) {
         if (consoleInfo) {
             GsConsole.message('Converting string code to AST')
             GsConsole.message(' Classpath: ' + classPath)
@@ -37,30 +32,21 @@ class AstTreeGenerator {
         //All the imports in a file are added to the source to be compiled, if not added, compiler fails
         def classesToConvert = []
         ['class', 'enum'].each { type ->
-            def matcher = text =~ /\b${type}\s+(\w+)/
+            def matcher = sourceCode =~ /\b${type}\s+(\w+)/
             matcher.each {
                 classesToConvert << it[1]
             }
         }
         //Traits
         def traitsToConvert = []
-        def matcher = text =~ /\btrait\s+(\w+)/
+        def matcher = sourceCode =~ /\btrait\s+(\w+)/
         matcher.each {
             traitsToConvert << it[1]
         }
 
-        def scriptClassName = 'script' + System.currentTimeMillis()
-        CompilerConfiguration conf = new CompilerConfiguration()
-        //Add customization to configuration
-        if (customization) {
-            withConfig(conf, customization)
-        }
+        def scriptClassName = defaultScriptName
 
-        def parent = new GroovyClassLoader()
-        addClassPathToGroovyClassLoader(parent)
-        GroovyClassLoader classLoader = new GroovyClassLoader(parent, conf)
-        addClassPathToGroovyClassLoader(classLoader)
-        CompilationUnit cu = compiledCode(conf, scriptClassName, classLoader, text)
+        CompilationUnit cu = astCompiledCode(sourceCode, scriptClassName)
 
         [
             listAstNodes(cu.ast.modules, scriptClassName, classesToConvert, traitsToConvert),
@@ -68,36 +54,14 @@ class AstTreeGenerator {
         ]
     }
 
-    private addClassPathToGroovyClassLoader(classLoader) {
-        if (classPath) {
-            if (!(classPath instanceof String || classPath instanceof Collection)) {
-                throw new GrooScriptException('The classpath must be a String or a List')
-            }
-
-            if (classPath instanceof Collection) {
-                classPath.each {
-                    classLoader.addClasspath(it)
-                }
-            } else {
-                classLoader.addClasspath(classPath)
-            }
-        }
-    }
-
-    private CompilationUnit compiledCode(conf, scriptClassName, classLoader, String text) {
+    private CompilationUnit astCompiledCode(String sourceCode, String scriptClassName) {
         try {
-            def compilationUnit = new CompilationUnit(conf, null, classLoader)
-            compilationUnit.addSource(scriptClassName, text)
-            compilationUnit.compile(CompilePhase.INSTRUCTION_SELECTION.phaseNumber)
-        } catch (e) {
+            compiledCode(sourceCode, scriptClassName, CompilePhase.INSTRUCTION_SELECTION.phaseNumber)
+         } catch (e) {
             GsConsole.error 'Compilation error in INSTRUCTION_SELECTION phase'
             throw e
         }
-
-        def compilationUnitFinal = new CompilationUnit(conf, null, classLoader)
-        compilationUnitFinal.addSource(scriptClassName, text)
-        compilationUnitFinal.compile(CompilePhase.SEMANTIC_ANALYSIS.phaseNumber)
-        compilationUnitFinal
+        compiledCode(sourceCode, scriptClassName)
     }
 
     private List listAstNodes(List<ModuleNode> modules, String scriptClassName,
