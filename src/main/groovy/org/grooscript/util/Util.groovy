@@ -115,30 +115,33 @@ class Util {
         fullProcessScript(script, null)
     }
 
-    static List<NativeFunction> getNativeFunctions(String text, String className = null) {
+    static List<NativeFunction> getNativeFunctions(String sourceCode, String className = null) {
 
         List<NativeFunction> listResult = []
 
-        def seg = text
         def pat = /(?ms)@(GsNative|org\.grooscript\.asts\.GsNative).+\w+\s*\(.*\)\s*\{\s*(\/\*).*(\*\/)/
 
-        seg.eachMatch(pat) { match ->
+        sourceCode?.eachMatch(pat) { match ->
             def list = match[0].split('@GsNative')
 
-            list.each { lines ->
+            list.each { functionWithNativeCode ->
 
-                if (lines && lines.trim().size() > 4) {
+                if (functionWithNativeCode && functionWithNativeCode.trim().size() > 4) {
 
-                    def line = lines.substring(lines.indexOf('/*') + 2, lines.indexOf('*/'))
-                    def function = (lines =~ /\w+\s*\(/)[0]
+                    def jsCode = functionWithNativeCode.substring(
+                            functionWithNativeCode.indexOf('/*') + 2,
+                            functionWithNativeCode.indexOf('*/')
+                    ).trim()
+                    def function = (functionWithNativeCode =~ /\w+\s*\(/)[0]
 
-                    function = function.substring(0,function.length() - 1)
+                    function = function.substring(0, function.length() - 1)
                     listResult << new NativeFunction(
-                            className: className, code: line.trim(), methodName: function.trim())
+                            className: className ?: classNameFinder(sourceCode, functionWithNativeCode),
+                            code: jsCode, methodName: function.trim()
+                    )
                 }
             }
         }
-
         listResult
     }
 
@@ -157,5 +160,18 @@ class Util {
     static boolean isWindows () {
         // Use capital name for Win8+
         OS_NAME.startsWith('windows') || OS_NAME.startsWith('Windows')
+    }
+
+    private static classNameFinder(String sourceCode, String nativeFunctionCode) {
+        def jsCodePos = sourceCode.indexOf(nativeFunctionCode)
+        def listContainers = []
+        ['class', 'trait'].each { type ->
+            def matcher = sourceCode =~ /\b${type}\s+(\w+)/
+            matcher.each {
+                listContainers << [name: it[1], pos: sourceCode.indexOf(it[0])]
+            }
+        }
+        def lastContainer = listContainers.findAll { it.pos < jsCodePos }.max { it.pos }
+        lastContainer ? lastContainer.name : null
     }
 }

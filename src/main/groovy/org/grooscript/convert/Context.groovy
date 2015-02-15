@@ -1,6 +1,7 @@
 package org.grooscript.convert
 
 import org.codehaus.groovy.ast.ClassNode
+import org.codehaus.groovy.ast.MethodNode
 import org.codehaus.groovy.ast.expr.VariableExpression
 import org.grooscript.util.GsConsole
 
@@ -81,21 +82,21 @@ class Context {
                 (processingClosure || processingClassMethods || processingBaseScript)
     }
 
-    String getNativeFunction(ClassNode classNode, String methodName) {
+    String getNativeFunction(ClassNode classNode, MethodNode method) {
         def nativeFunctionsWithClassName = nativeFunctions.findAll {
-            it.className == classNode.nameWithoutPackage && it.methodName == methodName}
+            it.className == classNode.nameWithoutPackage && it.methodName == method.name}
         if (nativeFunctionsWithClassName.size() == 1) {
             return nativeFunctionsWithClassName.first().code
         } else {
             def natives = nativeFunctions.findAll {
-                it.methodName == methodName
+                it.methodName == method.name
             }
             if (natives.size() == 1) {
                 return natives.first().code
             } else if (natives.size() > 1) {
                 return natives.first().code
             } else {
-                GsConsole.error("Don't find unique native code for method: ${methodName} in class: ${classNode.name}")
+                GsConsole.error("Don't find unique native code for method: ${method.name} in class: ${classNode.name}")
                 return ''
             }
         }

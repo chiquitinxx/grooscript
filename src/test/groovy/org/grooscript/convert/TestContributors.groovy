@@ -165,4 +165,9 @@ class TestContributors extends Specification {
         expect:
         convertAndEvaluate('contribution/H1romas4')
     }
+
+    def 'h1romas4 repeated GsNative'() {
+        expect:
+        convertAndEvaluate('contribution/H1romas4GsNative')
+    }
 }
