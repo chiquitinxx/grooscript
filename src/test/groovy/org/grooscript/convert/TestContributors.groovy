@@ -111,10 +111,11 @@ class TestContributors extends Specification {
         'contribution/MySelf10'    | _
         'contribution/MySelf11'    | _
         'contribution/MySelf12'    | _
+        'contribution/MySelf13'    | _
     }
 
     @Unroll
-    def 'guillaume examples from talks'() {
+    def 'guillaume example #file from talks'() {
         expect:
         convertAndEvaluate file
 

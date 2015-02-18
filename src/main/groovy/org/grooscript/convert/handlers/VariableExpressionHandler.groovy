@@ -14,7 +14,7 @@ class VariableExpressionHandler extends BaseHandler {
         //println "name:${expression.name} - ${expression.isThisExpression()}"
         if (context.variableScoping.peek().contains(expression.name) &&
                 !(context.allActualScopeContains(expression.name))) {
-                out.addScript(addPrefixOrPostfixIfNeeded("${GS_OBJECT}."+expression.name))
+            addObjectVariable(expression.name)
         } else if (context.variableStaticScoping.peek().contains(expression.name) &&
                 !(context.allActualScopeContains(expression.name))) {
             out.addScript(addPrefixOrPostfixIfNeeded(context.classNameStack.peek()+'.'+expression.name))
@@ -29,11 +29,15 @@ class VariableExpressionHandler extends BaseHandler {
                 out.addScript(addPrefixOrPostfixIfNeeded("${context.classNameStack.peek()}."+expression.name))
             } else if (!context.variableScoping.peek().contains(expression.name) &&
                     context.variableScopingContains(expression.name)) {
-                out.addScript(addPrefixOrPostfixIfNeeded("${GS_OBJECT}."+expression.name))
+                addObjectVariable(expression.name)
             } else {
                 out.addScript(addPrefixOrPostfixIfNeeded(expression.name))
             }
         }
+    }
+
+    private addObjectVariable(String name) {
+        out.addScript(addPrefixOrPostfixIfNeeded("${context.staticProcessNode ? 'this' : GS_OBJECT}." + name))
     }
 
     private addPrefixOrPostfixIfNeeded(name) {
