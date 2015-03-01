@@ -1342,6 +1342,24 @@
         this.splice(0, this.length)
     };
 
+    Array.prototype.count = function(value) {
+        var i, result = 0;
+        if (typeof value === "function") {
+            for (i = 0; i < this.length; i++) {
+                if (gs.bool(value(this[i]))) {
+                    result++;
+                }
+            }
+        } else {
+            for (i = 0; i < this.length; i++) {
+                if (gs.equals(value, this[i])) {
+                    result++;
+                }
+            }
+        }
+        return result;
+    };
+
     /////////////////////////////////////////////////////////////////
     //list - [] from groovy
     /////////////////////////////////////////////////////////////////
