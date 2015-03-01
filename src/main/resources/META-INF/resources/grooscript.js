@@ -75,6 +75,10 @@
         return name[0] == name[0].toUpperCase();
     }
 
+    function getterSetterRemove(name) {
+        return name.charAt(3).toLowerCase() + name.slice(4);
+    }
+
     /////////////////////////////////////////////////////////////////
     // Class functions
     /////////////////////////////////////////////////////////////////
@@ -84,7 +88,11 @@
         getProperties : function() {
             var result = gs.map(), ob;
             for (ob in this) {
-                if (typeof this[ob] !== "function" && ob != 'clazz') {
+                if (typeof this[ob] === "function" && ob.startsWith('get') &&
+                    this[ob].length == 0 && ob !== 'getProperties' && ob !== 'getMethods' &&
+                    ob !== 'getMetaClass') {
+                    result.add(getterSetterRemove(ob), this[ob]());
+                } else if (typeof this[ob] !== "function" && ob != 'clazz') {
                     result.add(ob, this[ob]);
                 }
             }
@@ -2339,7 +2347,7 @@
         if (!item[methodName]) {
 
             if (methodName.startsWith('get') || methodName.startsWith('set')) {
-                var varName = methodName.charAt(3).toLowerCase() + methodName.slice(4);
+                var varName = getterSetterRemove(methodName);
                 if (item[varName] !== undefined && !hasFunc(item, varName)) {
                     if (methodName.startsWith('get')) {
                         return gs.gp(item, varName);
@@ -2760,6 +2768,13 @@
             that = this;
         return function () {
             return func(that.apply(null, arguments));
+        };
+    };
+
+    Function.prototype.rehydrate = function () {
+        var that = this;
+        return function () {
+            return that.apply(arguments[0], arguments);
         };
     };
 

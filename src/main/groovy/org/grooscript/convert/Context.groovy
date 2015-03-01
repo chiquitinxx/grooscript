@@ -127,7 +127,7 @@ class Context {
 
     String findTraitScopeByName(String name) {
         traitFieldsScoping.peek().find { String nameField ->
-            nameField == name || (nameField[0].toLowerCase() + nameField.substring(1)) == name
+            nameField == name || (name[0].toLowerCase() + name.substring(1)) == nameField
         }
     }
 

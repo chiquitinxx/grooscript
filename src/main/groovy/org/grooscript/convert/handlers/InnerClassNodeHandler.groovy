@@ -96,17 +96,15 @@ class InnerClassNodeHandler extends TraitBaseHandler {
     }
 
     private initStaticTraitFields(MethodNode methodNode, InnerClassNode innerClassNode) {
-        if (methodNode.code.getStatements()) {
-            out.block ("function ${innerClassNode.outerClass.nameWithoutPackage}\$static\$init\$($STATIC_SELF)") {
-                methodNode.code.getStatements()?.each { Statement statement ->
-                    if (statement instanceof ExpressionStatement &&
-                            statement.expression instanceof MethodCallExpression) {
-                        def args = statement.expression.arguments
-                        if (args instanceof ArgumentListExpression) {
-                            putStaticInitialization(args[1], args[2])
-                        } else if (statement.expression.method instanceof ConstantExpression) {
-                            putStaticInitialization(statement.expression.method, args)
-                        }
+        out.block ("function ${innerClassNode.outerClass.nameWithoutPackage}\$static\$init\$($STATIC_SELF)") {
+            methodNode.code.getStatements()?.each { Statement statement ->
+                if (statement instanceof ExpressionStatement &&
+                        statement.expression instanceof MethodCallExpression) {
+                    def args = statement.expression.arguments
+                    if (args instanceof ArgumentListExpression) {
+                        putStaticInitialization(args[1], args[2])
+                    } else if (statement.expression.method instanceof ConstantExpression) {
+                        putStaticInitialization(statement.expression.method, args)
                     }
                 }
             }
