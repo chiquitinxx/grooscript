@@ -29,13 +29,14 @@ class Context {
     private Stack traitFieldsScoping = new Stack()
 
     //Control switch inside switch
-    def switchCount = 0
-    def addClosureSwitchInitialization = false
+    int switchCount = 0
+    boolean addClosureSwitchInitialization = false
 
-    def insideWith = false
+    boolean insideWith = false
+    String actualTraitMethodName
 
     //Prefix and postfix for variables without clear scope
-    def prefixOperator = '', postfixOperator = ''
+    String prefixOperator = '', postfixOperator = ''
 
     //Where code of native functions stored, as a map. Used for GsNative annotation
     List<NativeFunction> nativeFunctions

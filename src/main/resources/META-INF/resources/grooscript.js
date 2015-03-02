@@ -92,7 +92,7 @@
                     this[ob].length == 0 && ob !== 'getProperties' && ob !== 'getMethods' &&
                     ob !== 'getMetaClass') {
                     result.add(getterSetterRemove(ob), this[ob]());
-                } else if (typeof this[ob] !== "function" && ob != 'clazz') {
+                } else if (typeof this[ob] !== "function" && ob != 'clazz' && ob.indexOf('__') < 0) {
                     result.add(ob, this[ob]);
                 }
             }
@@ -553,23 +553,19 @@
                 if (!isMapProperty(ob)) {
                     var f = arguments[0];
                     if (f.length == 1) {
-                        var entry = {key:ob, value:this[ob]};
+                        var entry = {key: ob, value: this[ob]};
                         if (closure(entry)) {
                             result.add(entry.key, entry.value);
                         }
                     }
-                    if (f.length==2) {
-                        if (closure(ob,this[ob])) {
+                    if (f.length == 2) {
+                        if (closure(ob, this[ob])) {
                             result.add(ob, this[ob]);
                         }
                     }
                 }
             }
-            if (result.size()>0) {
-                return result;
-            } else {
-                return null;
-            }
+            return result;
         };
 
         this.collect = function(closure) {
@@ -2768,13 +2764,6 @@
             that = this;
         return function () {
             return func(that.apply(null, arguments));
-        };
-    };
-
-    Function.prototype.rehydrate = function () {
-        var that = this;
-        return function () {
-            return that.apply(arguments[0], arguments);
         };
     };
 

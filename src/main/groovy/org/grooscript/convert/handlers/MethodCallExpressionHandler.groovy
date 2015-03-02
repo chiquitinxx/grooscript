@@ -23,6 +23,9 @@ class MethodCallExpressionHandler extends BaseHandler {
         if (methodName == 'println' || methodName == 'print') {
             out.addScript(GS_PRINTLN)
             addParametersWithParenthesis(expression)
+        //rehydrate and dehydrate are ignored
+        } else if (methodName in ['rehydrate', 'dehydrate'] && expression.objectExpression instanceof ClosureExpression) {
+            conversionFactory.visitNode(expression.objectExpression)
         //Remove call method call from closures
         } else if (methodName == 'call') {
             out.addScript("${GS_EXECUTE_CALL}(")
@@ -235,7 +238,11 @@ class MethodCallExpressionHandler extends BaseHandler {
             if (conversionFactory.isThis(expression.objectExpression) && context.staticProcessNode) {
                 out.addScript(context.staticProcessNode.nameWithoutPackage)
             } else {
-                conversionFactory.visitNode(expression.objectExpression)
+                if (conversionFactory.isThis(expression.objectExpression) && context.actualTraitMethodName) {
+                    out.addScript(context.actualTraitMethodName)
+                } else {
+                    conversionFactory.visitNode(expression.objectExpression)
+                }
             }
         }
         out.addScript(',')

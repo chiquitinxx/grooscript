@@ -113,6 +113,7 @@ class TestContributors extends Specification {
         'contribution/MySelf11'    | _
         'contribution/MySelf12'    | _
         'contribution/MySelf13'    | _
+        'contribution/MySelf14'    | _
     }
 
     @Unroll

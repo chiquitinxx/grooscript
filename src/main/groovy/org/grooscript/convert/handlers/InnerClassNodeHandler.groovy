@@ -43,6 +43,7 @@ class InnerClassNodeHandler extends TraitBaseHandler {
             if (methodNode.name == '$static$init$') {
                 initStaticTraitFields(methodNode, innerClassNode)
             } else if (methodNode.code instanceof BlockStatement) {
+                context.actualTraitMethodName = methodNode.parameters[0].name
                 if (!methodNode.code.isEmpty() || methodNode.name == '$init$') {
                     functions.processBasicFunction("${className}.${methodNode.name}", methodNode, false)
                 } else {
@@ -50,6 +51,7 @@ class InnerClassNodeHandler extends TraitBaseHandler {
                         functions.putGsNativeMethod("${className}.${methodNode.name}", innerClassNode, methodNode)
                     }
                 }
+                context.actualTraitMethodName = null
             } else {
                 if (methodNode.name.startsWith('get')) {
                     out.addScript("${className}.${methodNode.name} = function(\$self) {" +
