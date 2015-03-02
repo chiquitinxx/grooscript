@@ -1,8 +1,8 @@
 :project-name: grooscript
 :project-full-path: chiquitinxx/grooscript
 :github-branch: master
-:current-version: 1.0.0
-:next-version: 1.0.1-SNAPSHOT
+:current-version: 1.0.1
+:next-version: 1.0.2-SNAPSHOT
 
 image:https://snap-ci.com/{project-full-path}/branch/{github-branch}/build_image["Build Status", link="https://snap-ci.com/{project-full-path}/branch//{github-branch}"]
 image:https://travis-ci.org/{project-full-path}.svg?branch={github-branch}["Build Status", link="https://travis-ci.org/{project-full-path}"]

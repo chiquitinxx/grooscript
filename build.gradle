@@ -25,7 +25,7 @@ def compatibilityVersion = 1.6
 sourceCompatibility = compatibilityVersion
 targetCompatibility = compatibilityVersion
 
-version = '1.0.1-SNAPSHOT'
+version = '1.0.1'
 group = 'org.grooscript'
 
 ext {
@@ -95,6 +95,10 @@ modifyPom {
                 id 'chiquitinxx'
                 name 'Jorge Franco'
                 email 'jorge.franco.leza@gmail.com'
+            }
+            developer {
+                id 'abelsromero'
+                name 'Abel Salgado Romero'
             }
         }
     }
