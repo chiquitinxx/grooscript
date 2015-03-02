@@ -20,7 +20,7 @@ class MethodCallExpressionHandler extends BaseHandler {
                 expression.arguments.getExpressions() ? expression.arguments.getExpression(0) : null)
 
         //Change println for javascript function
-        if (methodName == 'println' || methodName == 'print') {
+        if (methodName == 'println') {
             out.addScript(GS_PRINTLN)
             addParametersWithParenthesis(expression)
         //rehydrate and dehydrate are ignored
