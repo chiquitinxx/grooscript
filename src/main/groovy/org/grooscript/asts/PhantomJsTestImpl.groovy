@@ -220,8 +220,7 @@ page.open('{{URL}}', function (status) {
             message "Starting Test in ${url}", HEAD
 
             if (Util.isWindows()) {
-                jsHome = jsHome.replace('\\', SEP)
-                jsHome = (jsHome.indexOf(':') == 1 ? jsHome.substring(2) : jsHome)
+                jsHome = jsHome.replace(SEP, '/')
             }
 
             //Save the file
@@ -258,7 +257,7 @@ page.open('{{URL}}', function (status) {
                 assert false, 'Error launching PhantomJs'
             } else {
                 exit.eachLine { String line->
-                    if (line.contains('Result:FAIL')) {
+                    if (line.contains('Result: FAIL') || line.contains('Result:FAIL')) {
                         assert false, line.substring(line.indexOf(' Desc:') + 6)
                     } else if (line.toUpperCase().startsWith('CONSOLE:')) {
                         message line.substring(8), CONSOLE
