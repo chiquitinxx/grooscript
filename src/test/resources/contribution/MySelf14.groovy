@@ -34,7 +34,7 @@ trait AngularController {
                     !(method.name in ['equals', 'hashCode', 'notify', 'notifyAll', 'toString',
                                       'wait', 'controllerMethods', 'controllerProperties', 'init',
                                       'invokeMethod'])
-        }.collect { it.name }
+        }*.name
     }
 }
 

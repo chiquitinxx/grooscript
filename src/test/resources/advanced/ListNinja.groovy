@@ -6,7 +6,7 @@ package advanced
  */
 
 def a = [1,2,3,4,5]*.multiply(2)
-println a*.power(2)
+assert a*.power(2) == [4, 16, 36, 64, 100]
 assert a == [2, 4, 6, 8, 10]
 
 def list = [12, 20, 34]
