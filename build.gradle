@@ -25,7 +25,7 @@ def compatibilityVersion = 1.6
 sourceCompatibility = compatibilityVersion
 targetCompatibility = compatibilityVersion
 
-version = '1.0.1'
+version = '1.0.2-SNAPSHOT'
 group = 'org.grooscript'
 
 ext {
@@ -44,7 +44,7 @@ dependencies {
     compile('org.codehaus.gpars:gpars:1.2.1') {
         exclude module: 'groovy-all'
     }
-    testCompile('org.spockframework:spock-core:0.7-groovy-2.0') {
+    testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
         exclude module: 'groovy-all'
         exclude module: 'junit-dep'
     }
