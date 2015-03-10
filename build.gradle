@@ -17,7 +17,7 @@ group = 'org.grooscript'
 
 ext {
     appName = 'grooscript'
-    groovyVersion = '2.4.0'
+    groovyVersion = '2.4.1'
 }
 
 repositories {
@@ -31,10 +31,11 @@ dependencies {
     compile('org.codehaus.gpars:gpars:1.2.1') {
         exclude module: 'groovy-all'
     }
-    testCompile('org.spockframework:spock-core:0.7-groovy-2.0') {
+    testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
         exclude module: 'groovy-all'
         exclude module: 'junit-dep'
     }
+    testCompile 'cglib:cglib-nodep:2.2.2'
     testCompile "org.codehaus.groovy:groovy-test:${groovyVersion}"
 }
 
