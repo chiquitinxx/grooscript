@@ -12,10 +12,6 @@ import static org.grooscript.util.Util.USER_HOME
 
 class TestPhantomJs extends FunctionalTest {
 
-    String htmlResponse() {
-        '<html><head><title>Title</title></head><body><p>Welcome</p></body></html>'
-    }
-
     @PhantomJsTest(url = FunctionalTest.HTML_ADDRESS)
     void countPTagsInPage() {
         assert $('p').size() == 1, "Number of p's in page is ${$('p').size()}"
@@ -25,30 +21,29 @@ class TestPhantomJs extends FunctionalTest {
 
     void testWorksFindingJsFilesInUserHomeDir() {
 
-        System.properties.remove('JS_LIBRARIES_PATH')
-
-        def tempDirectory = new File(USER_HOME + SEP + '.grooscript')
-        if (tempDirectory.exists() && tempDirectory.isDirectory()) {
-            tempDirectory.deleteDir()
-        }
+        removeLocalPhantomJsLibsAndProperties()
+        def tempDirectory = new File(localTempFolder)
 
         countPTagsInPage()
 
         assert tempDirectory.exists() && tempDirectory.isDirectory()
 
         countPTagsInPage()
-
-        tempDirectory.deleteDir()
     }
 
     void testErrorPhantomJsPath() {
-        System.properties.remove('PHANTOMJS_HOME')
-        try {
-            countPTagsInPage()
-            fail 'Error not thrown'
-        } catch (AssertionError e) {
-            assert e.message ==
-               'Need define PHANTOMJS_HOME as property or environment variable; the PhantomJs folder. Expression: false'
+        if (System.getenv('PHANTOMJS_HOME')) {
+            //If PHANTOMJS_HOME is setted in your system you can't test this. Can't remove environment vars
+            assert true
+        } else {
+            System.properties.remove('PHANTOMJS_HOME')
+            try {
+                countPTagsInPage()
+                fail 'Error not thrown'
+            } catch (AssertionError e) {
+                assert e.message ==
+                        'Need define PHANTOMJS_HOME as property or environment variable; the PhantomJs folder. Expression: false'
+            }
         }
     }
 
@@ -206,5 +201,22 @@ class TestPhantomJs extends FunctionalTest {
     void testReturnString() {
         def result = returnString()
         assert result == '<p>Welcome</p>'
+    }
+
+    String htmlResponse() {
+        '<html><head><title>Title</title></head><body><p>Welcome</p></body></html>'
+    }
+
+    String getLocalTempFolder() {
+        USER_HOME + SEP + '.grooscript'
+    }
+
+    void removeLocalPhantomJsLibsAndProperties() {
+        System.properties.remove('JS_LIBRARIES_PATH')
+
+        def tempDirectory = new File(localTempFolder)
+        if (tempDirectory.exists() && tempDirectory.isDirectory()) {
+            tempDirectory.deleteDir()
+        }
     }
 }

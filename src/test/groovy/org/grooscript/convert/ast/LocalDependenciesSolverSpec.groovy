@@ -24,6 +24,14 @@ class LocalDependenciesSolverSpec extends Specification {
         localDependenciesSolver.fromText(script) == [] as Set
     }
 
+    void 'not getting dependencies from an import'() {
+        given:
+        def script = 'import files.Car; println "Hello!"'
+
+        expect:
+        localDependenciesSolver.fromText(script) == [] as Set
+    }
+
     void 'get local dependencies using class'() {
         given:
         def script = 'import files.Car; Car car'
@@ -47,6 +55,15 @@ class LocalDependenciesSolverSpec extends Specification {
 
         expect:
         localDependenciesSolver.fromText(script) == ['files.Car'] as Set
+    }
+
+    void 'get local dependencies from trait'() {
+        given:
+        def script = 'import files.MyTrait; class MyCar implements MyTrait {}'
+        convert script
+
+        expect:
+        localDependenciesSolver.fromText(script) == ['files.MyTrait'] as Set
     }
 
     private localDependenciesSolver = new LocalDependenciesSolver(classPath: 'src/test/src')

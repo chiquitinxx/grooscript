@@ -1,6 +1,5 @@
 package org.grooscript.convert.ast
 
-import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.control.CompilationUnit
 
 /**
@@ -23,14 +22,11 @@ class LocalDependenciesSolver extends GrooscriptCompiler {
         cu.ast.modules.each { module ->
             module.statementBlock.visit(codeVisitor)
             module.classes.each { classNode ->
+                codeVisitor.checkTraits(classNode)
                 codeVisitor.check(classNode.superClass)
                 classNode.visitContents(codeVisitor)
             }
         }
-
-        //cu.ast.visitContents(new CodeVisitor())
-        //println '--->'+classLoader.resourceLoader.loadGroovySource('files.Vehicle')
-        //println '--->'+classLoader.resourceLoader.loadGroovySource('java.util.ArrayList')
 
         allLocalDependencies
     }

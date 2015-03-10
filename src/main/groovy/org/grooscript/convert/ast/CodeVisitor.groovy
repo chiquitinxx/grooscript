@@ -6,6 +6,7 @@ import org.codehaus.groovy.ast.expr.ClassExpression
 import org.codehaus.groovy.ast.expr.ConstructorCallExpression
 import org.codehaus.groovy.ast.expr.VariableExpression
 import org.codehaus.groovy.control.SourceUnit
+import org.grooscript.convert.Traits
 
 /**
  * Created by jorgefrancoleza on 14/2/15.
@@ -14,22 +15,27 @@ class CodeVisitor extends ClassCodeVisitorSupport {
 
     Set dependencies
     GroovyClassLoader groovyClassLoader
+    Traits traits = new Traits()
 
     CodeVisitor(listDependencies, GroovyClassLoader classLoader) {
         dependencies = listDependencies
         groovyClassLoader = classLoader
     }
 
-    public check(ClassNode type) {
-        if (type.name != 'java.lang.Object') {
-            if (isLocalFileType(type)) {
-                dependencies << type.name
+    public check(ClassNode classNode) {
+        if (classNode.name != 'java.lang.Object') {
+            if (isLocalFileType(classNode)) {
+                dependencies << classNode.name
             }
         }
     }
 
-    private isLocalFileType(ClassNode type) {
-        groovyClassLoader.resourceLoader.loadGroovySource(type.name) != null
+    public checkTraits(ClassNode classNode) {
+        classNode?.interfaces.findAll {
+            traits.isTrait(it)
+        }.each {
+            check(it)
+        }
     }
 
     @Override
@@ -48,5 +54,9 @@ class CodeVisitor extends ClassCodeVisitorSupport {
     @Override
     protected SourceUnit getSourceUnit() {
         return null
+    }
+
+    private isLocalFileType(ClassNode type) {
+        groovyClassLoader.resourceLoader.loadGroovySource(type.name) != null
     }
 }
