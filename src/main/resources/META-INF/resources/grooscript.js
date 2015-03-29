@@ -2786,6 +2786,7 @@
         }
     };
 
+    //Convert a groovy object to javascript, but only properties
     gs.toJavascript = function(obj) {
         if (obj && gs.isGroovyObj(obj)) {
             var result;
@@ -2816,6 +2817,7 @@
         }
     };
 
+    //Convert a javascript object to 'groovy', if you define groovy type, will use it, and not a map
     gs.toGroovy = function(obj, objClass) {
         var result;
         if (obj && typeof(obj) !== "function") {
@@ -2875,6 +2877,25 @@
 
     gs.asChar = function(value) {
         return value.charCodeAt(0);
+    };
+
+    //Convert a groovy map to javascript object, including functions in the map
+    gs.toJsObj = function(obj) {
+        if (gs.isGroovyObj(obj)) {
+            var ob, result = {};
+            for (ob in obj) {
+                if (!isMapProperty(ob)) {
+                    if (typeof(obj[ob]) === "function") {
+                        result[ob] = obj[ob];
+                    } else {
+                        result[ob] = gs.toJsObj(obj[ob]);
+                    }
+                }
+            }
+            return result;
+        } else {
+            return obj;
+        }
     };
 
 }).call(this);

@@ -283,6 +283,10 @@ class GrooScript {
         data
     }
 
+    static toJsObj(data) {
+        data
+    }
+
     static nativeJs(String code) {
         code
     }

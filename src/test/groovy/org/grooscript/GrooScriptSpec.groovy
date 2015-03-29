@@ -142,31 +142,40 @@ class GrooScriptSpec extends Specification {
         expect:
         GrooScript.toGroovy(data) == data
         GrooScript.toJavascript(data) == data
+        GrooScript.toJsObj(data) == data
 
         where:
         testData << [null, '', 'hello', 55, [1, 2, 3], [one: 1, two: 2]]
     }
 
-    def 'convert to javascript generates js code'() {
+    @Unroll
+    def 'convert function #nameFunc generates js code'() {
         given:
-        def code = '''
+        def code = """
 import org.grooscript.GrooScript
 
-GrooScript.toJavascript('hello')
-'''
+GrooScript.${nameFunc}('hello')
+"""
         expect:
-        GrooScript.convert(code) == 'gs.toJavascript("hello");' + Util.LINE_SEPARATOR
+        GrooScript.convert(code) == "gs.${nameFunc}(\"hello\");" + Util.LINE_SEPARATOR
+
+        where:
+        nameFunc << ['toJavascript', 'toGroovy', 'toJsObj']
     }
 
-    def 'convert to groovy generates js code'() {
+    @Unroll
+    def 'convert function #nameFunc generates js code with import static'() {
         given:
-        def code = '''
-import static org.grooscript.GrooScript.toGroovy
+        def code = """
+import static org.grooscript.GrooScript.${nameFunc}
 
-toGroovy('hello')
-'''
+${nameFunc}('hello')
+"""
         expect:
-        GrooScript.convert(code) == 'gs.toGroovy("hello");' + Util.LINE_SEPARATOR
+        GrooScript.convert(code) == "gs.${nameFunc}(\"hello\");" + Util.LINE_SEPARATOR
+
+        where:
+        nameFunc << ['toJavascript', 'toGroovy', 'toJsObj']
     }
 
     def 'show error message in console if nothing to convert'()

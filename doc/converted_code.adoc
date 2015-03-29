@@ -76,3 +76,17 @@ import static org.grooscript.GrooScript.nativeJs
 
 nativeJs('console.log(this)')
 --
+
+ToJavascript function only pass properties to the new javascript object. I have detected, that some frameworks
+as React.js has methods that expect a javascript object that can contains functions. To solve this, I have created
+a new function that converts a groovy map to a javascript object, including closure entries.
+
+[source,groovy]
+--
+import static org.grooscript.GrooScript.toJsObj
+
+def map = [a: 1, double: { number -> number * 2}]
+toJsObj(map)
+
+//It will create the following js object: {a: 1, double: function(number) { return number * 2 }}
+--

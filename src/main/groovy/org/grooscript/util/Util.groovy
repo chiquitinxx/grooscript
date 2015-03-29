@@ -10,13 +10,13 @@ import org.grooscript.test.JsTestResult
  */
 class Util {
 
-    static final USER_HOME = System.getProperty('user.home')
-    static final SEP = System.getProperty('file.separator')
-    static final LINE_SEPARATOR = System.getProperty('line.separator')
+    static final String USER_HOME = System.getProperty('user.home')
+    static final String SEP = System.getProperty('file.separator')
+    static final String LINE_SEPARATOR = System.getProperty('line.separator')
     static final String OS_NAME = System.getProperty('os.name')
-    static final JS_EXTENSION = '.js'
-    static final GROOVY_EXTENSION = '.groovy'
-    static final JAVA_EXTENSION = '.java'
+    static final String JS_EXTENSION = '.js'
+    static final String GROOVY_EXTENSION = '.groovy'
+    static final String JAVA_EXTENSION = '.java'
 
     //Where Js stuff is
     static String getJsPath() {
@@ -39,7 +39,7 @@ class Util {
      * @return
      */
     static File getJsFile(String name) {
-        def result
+        File result = null
         if (name) {
             def finalName = name
             if (!finalName.endsWith(JS_EXTENSION)) {

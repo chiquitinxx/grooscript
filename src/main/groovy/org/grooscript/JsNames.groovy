@@ -75,4 +75,5 @@ class JsNames {
 
     static final GS_TO_GROOVY = "${GS}toGroovy"
     static final GS_TO_JAVASCRIPT = "${GS}toJavascript"
+    static final GS_TO_JS_OBJECT = "${GS}toJsObj"
 }
