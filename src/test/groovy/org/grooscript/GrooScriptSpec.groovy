@@ -181,6 +181,40 @@ toGroovy('hello')
         1 * GsConsole.error('No files to be converted. *.groovy or *.java files not found.')
     }
 
+    @Unroll
+    def 'native code returns the string code'() {
+        given:
+        def data = testData
+
+        expect:
+        GrooScript.nativeJs(data) == data
+
+        where:
+        testData << ['', 'hello', null]
+    }
+
+    def 'convert to native javascript'() {
+        given:
+        def code = '''
+import org.grooscript.GrooScript
+
+GrooScript.nativeJs('hello')
+'''
+        expect:
+        GrooScript.convert(code) == 'hello;' + Util.LINE_SEPARATOR
+    }
+
+    def 'convert to native javascript using static import'() {
+        given:
+        def code = '''
+import static org.grooscript.GrooScript.nativeJs
+
+nativeJs('hello')
+'''
+        expect:
+        GrooScript.convert(code) == 'hello;' + Util.LINE_SEPARATOR
+    }
+
     def setup() {
         GrooScript.clearAllOptions()
     }

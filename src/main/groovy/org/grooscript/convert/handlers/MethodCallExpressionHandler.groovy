@@ -158,11 +158,13 @@ class MethodCallExpressionHandler extends BaseHandler {
             addParametersWithoutParenthesis(expression)
             out.addScript(')')
         //Static method
-        } else if(isStaticMethodCall(expression)) {
+        } else if (isStaticMethodCall(expression)) {
             def specialStaticCall = SPECIAL_STATIC_METHOD_CALLS.find {
                 it.type == expression.objectExpression.type.name && it.method == methodName
             }
-            if (specialStaticCall) {
+            if (expression.objectExpression.type.name == 'org.grooscript.GrooScript' && methodName == 'nativeJs') {
+                conversionFactory.outFirstArgument(expression)
+            } else if (specialStaticCall) {
                 out.addScript("${specialStaticCall.function}")
                 addParametersWithParenthesis(expression)
             } else {

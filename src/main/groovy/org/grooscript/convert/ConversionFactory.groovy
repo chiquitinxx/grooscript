@@ -166,4 +166,8 @@ class ConversionFactory {
         }
         result
     }
+
+    void outFirstArgument(expression) {
+        out.addScript(expression.arguments.expressions.first().value)
+    }
 }

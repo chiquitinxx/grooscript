@@ -67,3 +67,12 @@ In javascript, you have similar functions to do this conversions:
 point.init(gs.toJavascript(map));
 var goodData = gs.toGroovy(point.info());
 --
+
+Apart from @GsNative, you can put javascript code directly when you want to, with:
+
+[source,groovy]
+--
+import static org.grooscript.GrooScript.nativeJs
+
+nativeJs('console.log(this)')
+--
