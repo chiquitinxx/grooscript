@@ -10,9 +10,9 @@ buildscript {
 }
 
 plugins {
-    id "com.moowork.node" version "0.8"
-    id "com.moowork.gulp" version "0.1"
-    id "com.bmuschko.nexus" version "2.2"
+    id "com.moowork.node" version "0.9"
+    id "com.moowork.gulp" version "0.9"
+    id "com.bmuschko.nexus" version "2.3.1"
     id "org.asciidoctor.convert" version "1.5.2"
 }
 
@@ -48,7 +48,7 @@ dependencies {
         exclude module: 'groovy-all'
         exclude module: 'junit-dep'
     }
-    testCompile 'cglib:cglib-nodep:2.2.2'
+    testCompile 'cglib:cglib-nodep:3.1'
     testCompile "org.codehaus.groovy:groovy-test:${groovyVersion}"
 }
 
