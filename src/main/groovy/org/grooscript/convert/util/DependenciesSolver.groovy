@@ -1,4 +1,4 @@
-package org.grooscript.convert
+package org.grooscript.convert.util
 
 import org.grooscript.convert.util.LocalDependenciesSolver
 import org.grooscript.util.FileSolver
