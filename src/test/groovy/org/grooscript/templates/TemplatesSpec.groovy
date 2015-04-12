@@ -20,7 +20,7 @@ class TemplatesSpec extends Specification {
                 '<ul><li>1</li><li>2</li></ul><p>Msg</p>'
     }
 
-    def 'convert template using other tamplate'() {
+    def 'convert template using other template'() {
         expect:
         templates.applyTemplate('three.gtpl', [list: [1, 1, 1]]) ==
                 '<ul><p>Hello!</p><p>Hello!</p><p>Hello!</p></ul>'

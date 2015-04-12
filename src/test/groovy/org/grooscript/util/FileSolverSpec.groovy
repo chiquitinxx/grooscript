@@ -9,12 +9,8 @@ import static org.grooscript.util.Util.SEP
 class FileSolverSpec extends Specification {
 
     void 'file exists'() {
-        given:
-        def file = new File(FILE_PATH)
-
         expect:
-        file.exists()
-        file.file
+        fileSolver.exists(FILE_PATH)
     }
 
     void 'file path from class name'() {

@@ -6,6 +6,12 @@ import static org.grooscript.util.Util.GROOVY_EXTENSION
  * Created by jorgefrancoleza on 10/3/15.
  */
 class FileSolver {
+
+    boolean exists(String pathFile) {
+        def file = new File(pathFile)
+        file && file.exists() && file.file
+    }
+
     String readFile(String pathFile) {
         new File(pathFile).text
     }
