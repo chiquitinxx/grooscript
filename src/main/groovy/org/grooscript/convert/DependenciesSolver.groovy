@@ -1,6 +1,6 @@
 package org.grooscript.convert
 
-import org.grooscript.convert.ast.LocalDependenciesSolver
+import org.grooscript.convert.util.LocalDependenciesSolver
 import org.grooscript.util.FileSolver
 
 /**

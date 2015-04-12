@@ -1,6 +1,5 @@
-package org.grooscript.convert.ast
+package org.grooscript.convert.util
 
-import org.grooscript.GrooScript
 import spock.lang.Specification
 
 /**
@@ -13,7 +12,7 @@ class LocalDependenciesSolverSpec extends Specification {
         def script = 'println "Hello!"'
 
         expect:
-        localDependenciesSolver.fromText(script) == [] as Set
+        localDependenciesSolver.fromText(script) == [] as Set<String>
     }
 
     void 'java / groovy types not added as dependencies'() {
@@ -21,7 +20,7 @@ class LocalDependenciesSolverSpec extends Specification {
         def script = 'ArrayList list = new ArrayList()'
 
         expect:
-        localDependenciesSolver.fromText(script) == [] as Set
+        localDependenciesSolver.fromText(script) == [] as Set<String>
     }
 
     void 'not getting dependencies from an import'() {
@@ -29,7 +28,7 @@ class LocalDependenciesSolverSpec extends Specification {
         def script = 'import files.Car; println "Hello!"'
 
         expect:
-        localDependenciesSolver.fromText(script) == [] as Set
+        localDependenciesSolver.fromText(script) == [] as Set<String>
     }
 
     void 'get local dependencies using class'() {
@@ -51,7 +50,6 @@ class LocalDependenciesSolverSpec extends Specification {
     void 'get local dependencies from extend class'() {
         given:
         def script = 'import files.Car; class SuperCar extends Car {}'
-        convert script
 
         expect:
         localDependenciesSolver.fromText(script) == ['files.Car'] as Set
@@ -60,16 +58,10 @@ class LocalDependenciesSolverSpec extends Specification {
     void 'get local dependencies from trait'() {
         given:
         def script = 'import files.MyTrait; class MyCar implements MyTrait {}'
-        convert script
 
         expect:
         localDependenciesSolver.fromText(script) == ['files.MyTrait'] as Set
     }
 
     private localDependenciesSolver = new LocalDependenciesSolver(classPath: 'src/test/src')
-
-    private convert(script) {
-        GrooScript.setConversionProperty('classPath', 'src/test/src')
-        GrooScript.convert(script)
-    }
 }

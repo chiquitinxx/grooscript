@@ -3,6 +3,7 @@ package org.grooscript.convert.ast
 import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.stmt.BlockStatement
 import spock.lang.Specification
+import spock.lang.Unroll
 
 /**
  * Created by jorgefrancoleza on 9/2/15.
@@ -44,6 +45,21 @@ class AstTreeGeneratorSpec extends Specification {
         then:
         result.first().first() instanceof BlockStatement
         result[1] == []
+    }
+
+    @Unroll
+    void 'get class node names from script'() {
+        expect:
+        nodeNames == astTreeGenerator.classNodeNamesFromText(script)
+
+        where:
+        nodeNames    | script
+        []           | 'println "1"'
+        ['A']        | 'class A {}'
+        ['A']        | 'package aaa; class A {}'
+        ['A']        | 'interface Int {}; class A implements Int {}'
+        ['A', 'B']   | 'class A{}; class B extends A{}'
+        ['Fly', 'A'] | 'trait Fly {}; class A implements Fly{}'
     }
 
     private astTreeGenerator = new AstTreeGenerator(classPath: 'src/test/src')

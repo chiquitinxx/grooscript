@@ -1,6 +1,8 @@
-package org.grooscript.convert.ast
+package org.grooscript.convert.util
 
 import org.codehaus.groovy.control.CompilationUnit
+import org.grooscript.convert.ast.CodeVisitor
+import org.grooscript.convert.ast.GrooscriptCompiler
 
 /**
  * User: jorgefrancoleza

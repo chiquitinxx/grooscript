@@ -2,6 +2,7 @@ package org.grooscript.convert.ast
 
 import org.codehaus.groovy.ast.InnerClassNode
 import org.grooscript.convert.NativeFunction
+import org.grooscript.convert.Traits
 import org.grooscript.util.Util
 import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.MethodNode
@@ -17,6 +18,7 @@ import org.grooscript.util.GsConsole
 class AstTreeGenerator extends GrooscriptCompiler {
 
     def consoleInfo
+    Traits traits = new Traits()
 
     /**
      * Get AST tree from code
@@ -54,6 +56,13 @@ class AstTreeGenerator extends GrooscriptCompiler {
         ]
     }
 
+    List<String> classNodeNamesFromText(String sourceCode) {
+        fromText(sourceCode)[0].findAll {
+            (it instanceof ClassNode && !it.isInterface() && !traits.isTraitHelper(it)) ||
+                    (it instanceof ClassNode && traits.isTrait(it))
+        }.collect { it.nameWithoutPackage }
+    }
+
     private CompilationUnit astCompiledCode(String sourceCode, String scriptClassName) {
         try {
             compiledCode(sourceCode, scriptClassName, CompilePhase.INSTRUCTION_SELECTION.phaseNumber)
@@ -64,7 +73,7 @@ class AstTreeGenerator extends GrooscriptCompiler {
         compiledCode(sourceCode, scriptClassName)
     }
 
-    private List listAstNodes(List<ModuleNode> modules, String scriptClassName,
+    private List<ClassNode> listAstNodes(List<ModuleNode> modules, String scriptClassName,
                               List classesToConvert, List traitsToConvert) {
         // collect all the ASTNodes into the result, possibly ignoring the script body if desired
         modules.inject([]) { List listAstNodes, ModuleNode node ->

@@ -16,4 +16,12 @@ class Traits {
             return false
         }
     }
+
+    boolean isTraitHelper(ClassNode classNode) {
+        if (Util.groovyVersionAtLeast('2.3')) {
+            return classNode.nameWithoutPackage.endsWith(org.codehaus.groovy.transform.trait.Traits.TRAIT_HELPER)
+        } else {
+            return false
+        }
+    }
 }
