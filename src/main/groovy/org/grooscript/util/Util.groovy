@@ -17,6 +17,7 @@ class Util {
     static final JS_EXTENSION = '.js'
     static final GROOVY_EXTENSION = '.groovy'
     static final JAVA_EXTENSION = '.java'
+    static final JAVASCRIPT_EXTENSION = '.js'
 
     //Where Js stuff is
     static String getJsPath() {

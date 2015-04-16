@@ -1,9 +1,15 @@
 package org.grooscript
 
 import org.grooscript.convert.ConversionOptions
+import org.grooscript.convert.ast.AstTreeGenerator
+import org.grooscript.convert.util.DependenciesSolver
+import org.grooscript.convert.util.LocalDependenciesSolver
+import org.grooscript.convert.util.RequireJsFileGenerator
+import org.grooscript.convert.util.RequireJsModulesConversion
 import org.grooscript.test.JavascriptEngine
 import org.grooscript.test.JsTestResult
 import org.grooscript.convert.GsConverter
+import org.grooscript.util.FileSolver
 import org.grooscript.util.GrooScriptException
 import org.grooscript.util.GsConsole
 
@@ -281,5 +287,28 @@ class GrooScript {
 
     static toJavascript(data) {
         data
+    }
+
+    static void convertRequireJs(String initialFile, String destinationFolder) {
+        FileSolver fileSolver = new FileSolver()
+        Map compilerOptions = [
+                classPath: options[ConversionOptions.CLASSPATH.text],
+                customization: options[ConversionOptions.CUSTOMIZATION.text]
+        ]
+        LocalDependenciesSolver localDependenciesSolver = new LocalDependenciesSolver(compilerOptions)
+        RequireJsModulesConversion reqJs = new RequireJsModulesConversion(
+                fileSolver: fileSolver,
+                codeConverter: newConverter,
+                astTreeGenerator: new AstTreeGenerator(compilerOptions),
+                requireJsFileGenerator: new RequireJsFileGenerator(fileSolver: fileSolver),
+                localDependenciesSolver: localDependenciesSolver
+        )
+        String classPath = reqJs.classPathFolder(options)
+        reqJs.dependenciesSolver = new DependenciesSolver(
+                fileSolver: fileSolver,
+                classPath: classPath,
+                localDependenciesSolver: localDependenciesSolver
+        )
+        reqJs.convert(initialFile, destinationFolder, options)
     }
 }

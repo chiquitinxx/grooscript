@@ -17,7 +17,7 @@ import org.grooscript.util.GsConsole
  */
 class AstTreeGenerator extends GrooscriptCompiler {
 
-    def consoleInfo
+    boolean consoleInfo = false
     Traits traits = new Traits()
 
     /**

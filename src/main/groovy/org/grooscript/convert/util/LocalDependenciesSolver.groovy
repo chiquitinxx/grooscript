@@ -19,7 +19,7 @@ class LocalDependenciesSolver extends GrooscriptCompiler {
 
         CompilationUnit cu = compiledCode(sourceCode)
 
-        Set allLocalDependencies = [] as Set
+        Set<String> allLocalDependencies = [] as Set
         CodeVisitor codeVisitor = new CodeVisitor(allLocalDependencies, cu.classLoader)
         cu.ast.modules.each { module ->
             module.statementBlock.visit(codeVisitor)

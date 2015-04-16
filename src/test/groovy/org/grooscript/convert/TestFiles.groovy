@@ -1,5 +1,6 @@
 package org.grooscript.convert
 
+import org.grooscript.GrooScript
 import org.grooscript.test.ConversionMixin
 import org.grooscript.test.JavascriptEngine
 import org.grooscript.util.GrooScriptException
@@ -8,6 +9,7 @@ import spock.lang.IgnoreIf
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import static org.grooscript.util.Util.SEP
 /**
  * User: jorgefrancoleza
  * Date: 22/11/13
@@ -15,10 +17,12 @@ import spock.lang.Unroll
 @Mixin([ConversionMixin])
 class TestFiles extends Specification {
 
+    private static final FILES_CLASSPATH = 'src/test/src'
+
     Map options
 
     def setup() {
-        options = [classPath: 'src/test/src']
+        options = [classPath: FILES_CLASSPATH]
     }
 
     def 'initial inheritance on distinct files'() {
@@ -81,5 +85,21 @@ class TestFiles extends Specification {
 
         then:
         converted.contains('inMovement')
+    }
+
+
+    void 'convert requirejs modules'() {
+        given:
+        def destinationFolder = 'reqjs'
+
+        when:
+        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, FILES_CLASSPATH)
+        GrooScript.convertRequireJs("src${SEP}test${SEP}src${SEP}files${SEP}Car.groovy", destinationFolder)
+
+        then:
+        noExceptionThrown()
+
+        cleanup:
+        new File(destinationFolder).deleteDir()
     }
 }

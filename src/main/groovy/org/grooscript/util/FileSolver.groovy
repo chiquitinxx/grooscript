@@ -13,11 +13,26 @@ class FileSolver {
     }
 
     String readFile(String pathFile) {
-        new File(pathFile).text
+        exists(pathFile) ? new File(pathFile).text : null
+    }
+
+    String canonicalPath(String pathFile) {
+        new File(pathFile).canonicalPath
     }
 
     String filePathFromClassName(String className, String classPath) {
         def begin = classPath ? classPath + SEP : ''
         begin + className.replaceAll(/\./, SEP) + GROOVY_EXTENSION
+    }
+
+    void saveFile(String filePath, String content) {
+        File file = new File(filePath)
+        file.getParentFile().mkdirs()
+        file.text = content
+    }
+
+    boolean isFolder(String pathFolder) {
+        File file = new File(pathFolder)
+        file && file.exists() && file.directory
     }
 }
