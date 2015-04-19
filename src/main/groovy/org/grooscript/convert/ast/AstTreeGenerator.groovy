@@ -60,7 +60,7 @@ class AstTreeGenerator extends GrooscriptCompiler {
         fromText(sourceCode)[0].findAll {
             (it instanceof ClassNode && !it.isInterface() && !traits.isTraitHelper(it)) ||
                     (it instanceof ClassNode && traits.isTrait(it))
-        }.collect { it.nameWithoutPackage }
+        }.findAll { !it.script }.collect { it.nameWithoutPackage }
     }
 
     private CompilationUnit astCompiledCode(String sourceCode, String scriptClassName) {

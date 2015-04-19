@@ -19,7 +19,8 @@ class TestFiles extends Specification {
 
     private static final FILES_CLASSPATH = 'src/test/src'
 
-    Map options
+    private Map options
+    private destinationFolder = 'reqjs'
 
     def setup() {
         options = [classPath: FILES_CLASSPATH]
@@ -88,16 +89,55 @@ class TestFiles extends Specification {
     }
 
 
-    void 'convert requirejs modules'() {
-        given:
-        def destinationFolder = 'reqjs'
-
+    void 'convert requirejs Car'() {
         when:
         GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, FILES_CLASSPATH)
         GrooScript.convertRequireJs("src${SEP}test${SEP}src${SEP}files${SEP}Car.groovy", destinationFolder)
 
         then:
-        noExceptionThrown()
+        new File("${destinationFolder}${SEP}files").listFiles().collect { it.name } == ['Car.js', 'Vehicle.js']
+        new File("${destinationFolder}${SEP}files${SEP}Car.js").text.
+                startsWith('define([\'files/Vehicle\'], function (Vehicle) {')
+        new File("${destinationFolder}${SEP}files${SEP}Vehicle.js").text.
+                startsWith('define(function () {')
+
+        cleanup:
+        new File(destinationFolder).deleteDir()
+    }
+
+    void 'convert requirejs Vehicles'() {
+        when:
+        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, FILES_CLASSPATH)
+        GrooScript.convertRequireJs("src${SEP}test${SEP}src${SEP}files${SEP}Vehicles.groovy", destinationFolder)
+
+        then:
+        !new File("${destinationFolder}${SEP}files${SEP}Vehicles.js").text.
+                contains('return script')
+
+        cleanup:
+        new File(destinationFolder).deleteDir()
+    }
+
+    void 'convert requirejs using trait'() {
+        when:
+        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, FILES_CLASSPATH)
+        GrooScript.convertRequireJs("src${SEP}test${SEP}src${SEP}files${SEP}UsingTrait.groovy", destinationFolder)
+
+        then:
+        new File("${destinationFolder}${SEP}files").listFiles().collect { it.name } == ['MyTrait.js', 'UsingTrait.js']
+
+        cleanup:
+        new File(destinationFolder).deleteDir()
+    }
+
+    void 'convert requirejs with ast'() {
+        when:
+        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, FILES_CLASSPATH)
+        GrooScript.convertRequireJs("src${SEP}test${SEP}src${SEP}files${SEP}Train.groovy", destinationFolder)
+
+        then:
+        new File("${destinationFolder}${SEP}files").listFiles().collect { it.name } == ['Train.js']
+        new File("${destinationFolder}${SEP}files${SEP}Train.js").text.contains("gSobject.inMovement = false;")
 
         cleanup:
         new File(destinationFolder).deleteDir()
