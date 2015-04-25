@@ -121,7 +121,7 @@ test.dependsOn gulp_tests
 
 node {
     // Version of node to use.
-    version = '0.11.10'
+    version = '0.12.2'
 
     // If true, it will download node using above parameters.
     // If false, it will try to use globally installed node.
