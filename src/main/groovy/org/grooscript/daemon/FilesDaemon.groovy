@@ -9,8 +9,8 @@ import static groovyx.gpars.dataflow.Dataflow.task
  */
 class FilesDaemon {
 
-    List<String> files
-    Closure action
+    final List<String> files
+    final Closure action
     Map options = [
         time: 400,
         actionOnStartup: false,
@@ -38,7 +38,7 @@ class FilesDaemon {
             actor = new FilesActor(action: action, restTime: options.time).start()
             actor << files
         }
-        GsConsole.message('Listening file changes in : '+files)
+        GsConsole.message('Listening file changes in : ' + files)
     }
 
     void stop() {

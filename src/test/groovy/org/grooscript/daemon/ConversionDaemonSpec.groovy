@@ -3,6 +3,7 @@ package org.grooscript.daemon
 import org.grooscript.GrooScript
 import org.grooscript.convert.ConversionOptions
 import spock.lang.Specification
+import spock.lang.Unroll
 
 /**
  * User: jorgefrancoleza
@@ -26,7 +27,7 @@ class ConversionDaemonSpec extends Specification {
         GroovySpy(GrooScript, global: true)
 
         when:
-        ConversionDaemon.conversionClosure(SOURCE, DESTINATION_FILE, CONVERSION_OPTIONS_EMPTY, ['file1'])
+        ConversionDaemon.conversionClosure(SOURCE, DESTINATION_FILE, CONVERSION_OPTIONS_EMPTY, [FILE1])
 
         then:
         1 * GrooScript.clearAllOptions()
@@ -40,7 +41,7 @@ class ConversionDaemonSpec extends Specification {
         GroovySpy(GrooScript, global: true)
 
         when:
-        ConversionDaemon.conversionClosure(SOURCE, DESTINATION_FILE, CONVERSION_OPTIONS, ['file1'])
+        ConversionDaemon.conversionClosure(SOURCE, DESTINATION_FILE, CONVERSION_OPTIONS, [FILE1])
 
         then:
         1 * GrooScript.clearAllOptions()
@@ -56,14 +57,30 @@ class ConversionDaemonSpec extends Specification {
         GroovySpy(GrooScript, global: true)
 
         when:
-        ConversionDaemon.conversionClosure(SOURCE, DESTINATION_FOLDER, CONVERSION_OPTIONS_EMPTY, ['file1'])
+        ConversionDaemon.conversionClosure(SOURCE, DESTINATION_FOLDER, CONVERSION_OPTIONS_EMPTY, [FILE1])
 
         then:
         1 * GrooScript.clearAllOptions()
-        1 * GrooScript.convert(['file1'], DESTINATION_FOLDER)
+        1 * GrooScript.convert([FILE1], DESTINATION_FOLDER)
         1 * GrooScript.convertFiles(_, _)
         0 * _
     }
+
+    @Unroll
+    def 'not call conversion if change a file that is not a groovy or java file'() {
+        given:
+        GroovySpy(GrooScript, global: true)
+
+        when:
+        ConversionDaemon.conversionClosure(SOURCE, DESTINATION_FILE, CONVERSION_OPTIONS, [file])
+
+        then:
+        0 * _
+
+        where:
+        file << ['file', 'file.js', 'file.html']
+    }
+
 
     def 'converts files on start'() {
         given:
