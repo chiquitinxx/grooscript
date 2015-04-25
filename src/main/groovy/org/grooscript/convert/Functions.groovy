@@ -133,7 +133,7 @@ class Functions {
         conversionFactory.context.actualScope.push([])
         conversionFactory.functions.processFunctionOrMethodParameters(method, false, false)
         conversionFactory.context.actualScope.pop()
-        conversionFactory.out.addScript(conversionFactory.context.getNativeFunction(classNode, method.name), true)
+        conversionFactory.out.addScript(conversionFactory.context.getNativeFunction(classNode, method), true)
         conversionFactory.out.indent--
         conversionFactory.out.removeTabScript()
         conversionFactory.out.addScript('}', true)

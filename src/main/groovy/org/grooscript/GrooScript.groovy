@@ -289,6 +289,14 @@ class GrooScript {
         data
     }
 
+    static toJsObj(data) {
+        data
+    }
+
+    static nativeJs(String code) {
+        code
+    }
+
     static void convertRequireJs(String initialFile, String destinationFolder) {
         FileSolver fileSolver = new FileSolver()
         Map compilerOptions = [

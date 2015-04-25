@@ -10,14 +10,13 @@ import org.grooscript.test.JsTestResult
  */
 class Util {
 
-    static final USER_HOME = System.getProperty('user.home')
-    static final SEP = System.getProperty('file.separator')
-    static final LINE_SEPARATOR = System.getProperty('line.separator')
+    static final String USER_HOME = System.getProperty('user.home')
+    static final String SEP = System.getProperty('file.separator')
+    static final String LINE_SEPARATOR = System.getProperty('line.separator')
     static final String OS_NAME = System.getProperty('os.name')
-    static final JS_EXTENSION = '.js'
-    static final GROOVY_EXTENSION = '.groovy'
-    static final JAVA_EXTENSION = '.java'
-    static final JAVASCRIPT_EXTENSION = '.js'
+    static final String JS_EXTENSION = '.js'
+    static final String GROOVY_EXTENSION = '.groovy'
+    static final String JAVA_EXTENSION = '.java'
 
     //Where Js stuff is
     static String getJsPath() {
@@ -40,7 +39,7 @@ class Util {
      * @return
      */
     static File getJsFile(String name) {
-        def result
+        File result = null
         if (name) {
             def finalName = name
             if (!finalName.endsWith(JS_EXTENSION)) {
@@ -116,30 +115,33 @@ class Util {
         fullProcessScript(script, null)
     }
 
-    static List<NativeFunction> getNativeFunctions(String text, String className = null) {
+    static List<NativeFunction> getNativeFunctions(String sourceCode, String className = null) {
 
         List<NativeFunction> listResult = []
 
-        def seg = text
         def pat = /(?ms)@(GsNative|org\.grooscript\.asts\.GsNative).+\w+\s*\(.*\)\s*\{\s*(\/\*).*(\*\/)/
 
-        seg.eachMatch(pat) { match ->
+        sourceCode?.eachMatch(pat) { match ->
             def list = match[0].split('@GsNative')
 
-            list.each { lines ->
+            list.each { functionWithNativeCode ->
 
-                if (lines && lines.trim().size() > 4) {
+                if (functionWithNativeCode && functionWithNativeCode.trim().size() > 4) {
 
-                    def line = lines.substring(lines.indexOf('/*') + 2, lines.indexOf('*/'))
-                    def function = (lines =~ /\w+\s*\(/)[0]
+                    def jsCode = functionWithNativeCode.substring(
+                            functionWithNativeCode.indexOf('/*') + 2,
+                            functionWithNativeCode.indexOf('*/')
+                    ).trim()
+                    def function = (functionWithNativeCode =~ /\w+\s*\(/)[0]
 
-                    function = function.substring(0,function.length() - 1)
+                    function = function.substring(0, function.length() - 1)
                     listResult << new NativeFunction(
-                            className: className, code: line.trim(), methodName: function.trim())
+                            className: className ?: classNameFinder(sourceCode, functionWithNativeCode),
+                            code: jsCode, methodName: function.trim()
+                    )
                 }
             }
         }
-
         listResult
     }
 
@@ -158,5 +160,18 @@ class Util {
     static boolean isWindows () {
         // Use capital name for Win8+
         OS_NAME.startsWith('windows') || OS_NAME.startsWith('Windows')
+    }
+
+    private static classNameFinder(String sourceCode, String nativeFunctionCode) {
+        def jsCodePos = sourceCode.indexOf(nativeFunctionCode)
+        def listContainers = []
+        ['class', 'trait'].each { type ->
+            def matcher = sourceCode =~ /\b${type}\s+(\w+)/
+            matcher.each {
+                listContainers << [name: it[1], pos: sourceCode.indexOf(it[0])]
+            }
+        }
+        def lastContainer = listContainers.findAll { it.pos < jsCodePos }.max { it.pos }
+        lastContainer ? lastContainer.name : null
     }
 }

@@ -1,12 +1,13 @@
 :project-name: grooscript
 :project-full-path: chiquitinxx/grooscript
 :github-branch: master
-:current-version: 1.0.0
-:next-version: 1.0.1-SNAPSHOT
+:current-version: 1.0.2
+:next-version: 1.1.0-SNAPSHOT
 
 image:https://snap-ci.com/{project-full-path}/branch/{github-branch}/build_image["Build Status", link="https://snap-ci.com/{project-full-path}/branch//{github-branch}"]
 image:https://travis-ci.org/{project-full-path}.svg?branch={github-branch}["Build Status", link="https://travis-ci.org/{project-full-path}"]
 image:https://ci.appveyor.com/api/projects/status/it5jtqkjeci943j8/branch/{github-branch}?svg=true["Build Status (AppVeyor)", link="https://ci.appveyor.com/project/{project-full-path}"]
+image:https://coveralls.io/repos/chiquitinxx/grooscript/badge.svg?branch={github-branch}["Coverage Status", link="https://coveralls.io/r/chiquitinxx/grooscript?branch={github-branch}"]
 
 == grooscript
 

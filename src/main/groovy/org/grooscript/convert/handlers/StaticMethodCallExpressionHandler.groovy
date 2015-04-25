@@ -13,11 +13,15 @@ class StaticMethodCallExpressionHandler extends BaseHandler {
         def specialStatic = SPECIAL_STATIC_METHOD_CALLS.find {
             it.type == ownerType && it.method == expression.method
         }
-        if (specialStatic) {
-            out.addScript(specialStatic.function)
+        if (ownerType == 'org.grooscript.GrooScript' && expression.method == 'nativeJs') {
+            conversionFactory.outFirstArgument(expression)
         } else {
-            out.addScript("${conversionFactory.reduceClassName(ownerType)}.${expression.method}")
+            if (specialStatic) {
+                out.addScript(specialStatic.function)
+            } else {
+                out.addScript("${conversionFactory.reduceClassName(ownerType)}.${expression.method}")
+            }
+            conversionFactory.visitNode(expression.arguments)
         }
-        conversionFactory.visitNode(expression.arguments)
     }
 }

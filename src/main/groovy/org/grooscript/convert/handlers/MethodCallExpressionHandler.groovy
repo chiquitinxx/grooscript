@@ -20,9 +20,12 @@ class MethodCallExpressionHandler extends BaseHandler {
                 expression.arguments.getExpressions() ? expression.arguments.getExpression(0) : null)
 
         //Change println for javascript function
-        if (methodName == 'println' || methodName == 'print') {
+        if (methodName == 'println') {
             out.addScript(GS_PRINTLN)
             addParametersWithParenthesis(expression)
+        //rehydrate and dehydrate are ignored
+        } else if (methodName in ['rehydrate', 'dehydrate'] && expression.objectExpression instanceof ClosureExpression) {
+            conversionFactory.visitNode(expression.objectExpression)
         //Remove call method call from closures
         } else if (methodName == 'call') {
             out.addScript("${GS_EXECUTE_CALL}(")
@@ -155,11 +158,13 @@ class MethodCallExpressionHandler extends BaseHandler {
             addParametersWithoutParenthesis(expression)
             out.addScript(')')
         //Static method
-        } else if(isStaticMethodCall(expression)) {
+        } else if (isStaticMethodCall(expression)) {
             def specialStaticCall = SPECIAL_STATIC_METHOD_CALLS.find {
                 it.type == expression.objectExpression.type.name && it.method == methodName
             }
-            if (specialStaticCall) {
+            if (expression.objectExpression.type.name == 'org.grooscript.GrooScript' && methodName == 'nativeJs') {
+                conversionFactory.outFirstArgument(expression)
+            } else if (specialStaticCall) {
                 out.addScript("${specialStaticCall.function}")
                 addParametersWithParenthesis(expression)
             } else {
@@ -235,7 +240,11 @@ class MethodCallExpressionHandler extends BaseHandler {
             if (conversionFactory.isThis(expression.objectExpression) && context.staticProcessNode) {
                 out.addScript(context.staticProcessNode.nameWithoutPackage)
             } else {
-                conversionFactory.visitNode(expression.objectExpression)
+                if (conversionFactory.isThis(expression.objectExpression) && context.actualTraitMethodName) {
+                    out.addScript(context.actualTraitMethodName)
+                } else {
+                    conversionFactory.visitNode(expression.objectExpression)
+                }
             }
         }
         out.addScript(',')

@@ -6,7 +6,7 @@ import org.grooscript.convert.ast.AstTreeGenerator
 import org.grooscript.util.FileSolver
 
 import static org.grooscript.util.GsConsole.error
-import static org.grooscript.util.Util.JAVASCRIPT_EXTENSION
+import static org.grooscript.util.Util.JS_EXTENSION
 import static org.grooscript.util.Util.SEP
 import static org.grooscript.util.Util.GROOVY_EXTENSION
 
@@ -62,7 +62,7 @@ class RequireJsModulesConversion {
     }
 
     String destinationFromDependency(String dependency) {
-        dependency.replaceAll(/\./, SEP) + JAVASCRIPT_EXTENSION
+        dependency.replaceAll(/\./, SEP) + JS_EXTENSION
     }
 
     String destinationFromFilePath(String filePath, String classPath) {
@@ -70,7 +70,7 @@ class RequireJsModulesConversion {
         while (result.startsWith(SEP)) {
             result = result.substring(SEP.size())
         }
-        result.substring(0, result.size() - GROOVY_EXTENSION.size()) + JAVASCRIPT_EXTENSION
+        result.substring(0, result.size() - GROOVY_EXTENSION.size()) + JS_EXTENSION
     }
 
     /*

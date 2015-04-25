@@ -1,4 +1,4 @@
-//Grooscript Version 1.0.0 Apache 2 License
+//Grooscript Version 1.0.2 Apache 2 License
 (function() {
     var gs = function(obj) {
         if (obj instanceof gs) return obj;
@@ -75,6 +75,10 @@
         return name[0] == name[0].toUpperCase();
     }
 
+    function getterSetterRemove(name) {
+        return name.charAt(3).toLowerCase() + name.slice(4);
+    }
+
     /////////////////////////////////////////////////////////////////
     // Class functions
     /////////////////////////////////////////////////////////////////
@@ -84,7 +88,11 @@
         getProperties : function() {
             var result = gs.map(), ob;
             for (ob in this) {
-                if (typeof this[ob] !== "function" && ob != 'clazz') {
+                if (typeof this[ob] === "function" && ob.startsWith('get') &&
+                    this[ob].length == 0 && ob !== 'getProperties' && ob !== 'getMethods' &&
+                    ob !== 'getMetaClass') {
+                    result.add(getterSetterRemove(ob), this[ob]());
+                } else if (typeof this[ob] !== "function" && ob != 'clazz' && ob.indexOf('__') < 0) {
                     result.add(ob, this[ob]);
                 }
             }
@@ -545,23 +553,19 @@
                 if (!isMapProperty(ob)) {
                     var f = arguments[0];
                     if (f.length == 1) {
-                        var entry = {key:ob, value:this[ob]};
+                        var entry = {key: ob, value: this[ob]};
                         if (closure(entry)) {
                             result.add(entry.key, entry.value);
                         }
                     }
-                    if (f.length==2) {
-                        if (closure(ob,this[ob])) {
+                    if (f.length == 2) {
+                        if (closure(ob, this[ob])) {
                             result.add(ob, this[ob]);
                         }
                     }
                 }
             }
-            if (result.size()>0) {
-                return result;
-            } else {
-                return null;
-            }
+            return result;
         };
 
         this.collect = function(closure) {
@@ -1340,6 +1344,24 @@
 
     Array.prototype.clear = function() {
         this.splice(0, this.length)
+    };
+
+    Array.prototype.count = function(value) {
+        var i, result = 0;
+        if (typeof value === "function") {
+            for (i = 0; i < this.length; i++) {
+                if (gs.bool(value(this[i]))) {
+                    result++;
+                }
+            }
+        } else {
+            for (i = 0; i < this.length; i++) {
+                if (gs.equals(value, this[i])) {
+                    result++;
+                }
+            }
+        }
+        return result;
     };
 
     /////////////////////////////////////////////////////////////////
@@ -2321,7 +2343,7 @@
         if (!item[methodName]) {
 
             if (methodName.startsWith('get') || methodName.startsWith('set')) {
-                var varName = methodName.charAt(3).toLowerCase() + methodName.slice(4);
+                var varName = getterSetterRemove(methodName);
                 if (item[varName] !== undefined && !hasFunc(item, varName)) {
                     if (methodName.startsWith('get')) {
                         return gs.gp(item, varName);
@@ -2764,6 +2786,7 @@
         }
     };
 
+    //Convert a groovy object to javascript, but only properties
     gs.toJavascript = function(obj) {
         if (obj && gs.isGroovyObj(obj)) {
             var result;
@@ -2794,6 +2817,7 @@
         }
     };
 
+    //Convert a javascript object to 'groovy', if you define groovy type, will use it, and not a map
     gs.toGroovy = function(obj, objClass) {
         var result;
         if (obj && typeof(obj) !== "function") {
@@ -2853,6 +2877,25 @@
 
     gs.asChar = function(value) {
         return value.charCodeAt(0);
+    };
+
+    //Convert a groovy map to javascript object, including functions in the map
+    gs.toJsObj = function(obj) {
+        if (gs.isGroovyObj(obj)) {
+            var ob, result = {};
+            for (ob in obj) {
+                if (!isMapProperty(ob)) {
+                    if (typeof(obj[ob]) === "function") {
+                        result[ob] = obj[ob];
+                    } else {
+                        result[ob] = gs.toJsObj(obj[ob]);
+                    }
+                }
+            }
+            return result;
+        } else {
+            return obj;
+        }
     };
 
 }).call(this);

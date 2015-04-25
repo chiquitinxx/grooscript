@@ -1,6 +1,7 @@
 package org.grooscript.convert
 
 import org.codehaus.groovy.ast.ClassNode
+import org.codehaus.groovy.ast.MethodNode
 import org.codehaus.groovy.ast.expr.VariableExpression
 import org.grooscript.util.GsConsole
 
@@ -28,13 +29,14 @@ class Context {
     private Stack traitFieldsScoping = new Stack()
 
     //Control switch inside switch
-    def switchCount = 0
-    def addClosureSwitchInitialization = false
+    int switchCount = 0
+    boolean addClosureSwitchInitialization = false
 
-    def insideWith = false
+    boolean insideWith = false
+    String actualTraitMethodName
 
     //Prefix and postfix for variables without clear scope
-    def prefixOperator = '', postfixOperator = ''
+    String prefixOperator = '', postfixOperator = ''
 
     //Where code of native functions stored, as a map. Used for GsNative annotation
     List<NativeFunction> nativeFunctions
@@ -81,21 +83,21 @@ class Context {
                 (processingClosure || processingClassMethods || processingBaseScript)
     }
 
-    String getNativeFunction(ClassNode classNode, String methodName) {
+    String getNativeFunction(ClassNode classNode, MethodNode method) {
         def nativeFunctionsWithClassName = nativeFunctions.findAll {
-            it.className == classNode.nameWithoutPackage && it.methodName == methodName}
+            it.className == classNode.nameWithoutPackage && it.methodName == method.name}
         if (nativeFunctionsWithClassName.size() == 1) {
             return nativeFunctionsWithClassName.first().code
         } else {
             def natives = nativeFunctions.findAll {
-                it.methodName == methodName
+                it.methodName == method.name
             }
             if (natives.size() == 1) {
                 return natives.first().code
             } else if (natives.size() > 1) {
                 return natives.first().code
             } else {
-                GsConsole.error("Don't find unique native code for method: ${methodName} in class: ${classNode.name}")
+                GsConsole.error("Don't find unique native code for method: ${method.name} in class: ${classNode.name}")
                 return ''
             }
         }
@@ -126,7 +128,7 @@ class Context {
 
     String findTraitScopeByName(String name) {
         traitFieldsScoping.peek().find { String nameField ->
-            nameField == name || (nameField[0].toLowerCase() + nameField.substring(1)) == name
+            nameField == name || (name[0].toLowerCase() + name.substring(1)) == nameField
         }
     }
 

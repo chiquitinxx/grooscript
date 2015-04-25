@@ -8,6 +8,14 @@ import spock.lang.Specification
  */
 class GQueryImplSpec extends Specification {
 
+    def 'bind all properties'() {
+        given:
+        def item = new Expando(name: 'name', id: 'id', group: 'group')
+
+        expect:
+        gQueryImpl.bindAllProperties(item)
+    }
+
     def 'calling append'() {
         when:
         def list = gQueryImpl('p')

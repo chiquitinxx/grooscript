@@ -93,4 +93,10 @@ class TestTraits extends Specification {
         expect:
         convertAndEvaluate('traits/ConfusingMethod')
     }
+
+    @IgnoreIf({ !Util.groovyVersionAtLeast('2.4') })
+    def 'get object properties'() {
+        expect:
+        convertAndEvaluate('traits/ObjectProperties')
+    }
 }

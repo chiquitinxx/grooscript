@@ -22,7 +22,9 @@ def myObject = new MyObject()
 println 'Properties->'+myObject.properties
 //Return at least 2
 assert myObject.properties.size() >= 2
-assert myObject.properties == [class: MyObject, b:null, a:null]
+assert myObject.properties.b == null
+assert myObject.properties.a == null
+assert myObject.properties['class'].name == 'advanced.MyObject'
 
 myObject.metaClass.methods.each { MetaMethod method->
     println 'name method->'+method.name

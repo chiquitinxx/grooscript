@@ -1,10 +1,23 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'net.saliman:gradle-cobertura-plugin:2.0.0' // cobertura plugin
+        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.2.0'
+    }
+}
+
 plugins {
-    id "com.moowork.node" version "0.8"
-    id "com.moowork.gulp" version "0.1"
-    id "com.bmuschko.nexus" version "2.2"
+    id "com.moowork.node" version "0.9"
+    id "com.moowork.gulp" version "0.9"
+    id "com.bmuschko.nexus" version "2.3.1"
     id "org.asciidoctor.convert" version "1.5.2"
 }
 
+apply plugin: 'cobertura'
+apply plugin: 'com.github.kt3k.coveralls'
 apply plugin: 'idea'
 apply plugin: 'groovy'
 
@@ -17,7 +30,7 @@ group = 'org.grooscript'
 
 ext {
     appName = 'grooscript'
-    groovyVersion = '2.4.1'
+    groovyVersion = '2.4.3'
 }
 
 repositories {
@@ -35,9 +48,12 @@ dependencies {
         exclude module: 'groovy-all'
         exclude module: 'junit-dep'
     }
-    testCompile 'cglib:cglib-nodep:2.2.2'
+    testCompile 'cglib:cglib-nodep:3.1'
     testCompile "org.codehaus.groovy:groovy-test:${groovyVersion}"
 }
+
+cobertura.coverageFormats = ['html', 'xml']
+cobertura.coverageSourceDirs = sourceSets.main.groovy.srcDirs
 
 jar {
     manifest {
@@ -50,7 +66,7 @@ jar {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.2.1'
+    gradleVersion = '2.3'
 }
 
 modifyPom {
@@ -80,6 +96,10 @@ modifyPom {
                 name 'Jorge Franco'
                 email 'jorge.franco.leza@gmail.com'
             }
+            developer {
+                id 'abelsromero'
+                name 'Abel Salgado Romero'
+            }
         }
     }
 }
@@ -94,7 +114,7 @@ task testUnit(type: Test) {
     exclude 'org/grooscript/rx/TestFunctional*'
 }
 
-testUnit.description = 'Run only conversion tests'
+testUnit.description = 'Run only unit tests'
 
 compileJava.dependsOn gulp_compress
 test.dependsOn gulp_tests

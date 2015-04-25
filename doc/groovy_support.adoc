@@ -1,5 +1,7 @@
 In general groovy features are supported, except advanced metaprogramming techniques and AST's applied in phases
-after semantic analysis. `as` is supported only at specific situations. Let's see examples of some conversions.
+after semantic analysis. `as` is supported only at specific situations. Owner is totally ignored.
+
+Let's see examples of some conversions.
 
 ==== GStrings
 
@@ -134,8 +136,8 @@ include::../src/test/resources/contribution/Anonymous1.groovy[tags=mark,indent=0
 ==== Closures
 
 Closures are converted to javascript functions. call, curry, rcurry, ncurry, leftShift are supported. If you
-set delegate of a closure, it will be used. Also support closures as last argument in methods, and closure
-composition.
+set delegate of a closure, it will be used. dehydrate and rehydrate are not supported. Support closures
+as last argument in methods, and closure composition.
 
 [source,groovy]
 --

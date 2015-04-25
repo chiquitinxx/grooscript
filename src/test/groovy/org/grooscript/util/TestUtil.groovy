@@ -31,7 +31,7 @@ class A {
         def result = Util.getNativeFunctions(text)
 
         then:
-        result == [new NativeFunction(className: null, methodName: 'a', code: 'NATIVE')]
+        result == [new NativeFunction(className: 'A', methodName: 'a', code: 'NATIVE')]
 
         where:
         annotation                      | method                                     | post
@@ -41,5 +41,37 @@ class A {
         '@GsNative'                     | 'private static void a(String data, args)' | ''
         '@GsNative'                     | 'private static void a(String data, args)' | 'return 1'
         '@GsNative'                     | 'void a()'                                 | 'doIt'
+    }
+
+    @Unroll
+    def 'native functions with distinct containers'() {
+        given:
+        def text = """
+${container} A {
+    @GsNative
+    def a() {
+    /*
+        NATIVE
+    */}
+}
+"""
+
+        when:
+        def result = Util.getNativeFunctions(text)
+
+        then:
+        result == [new NativeFunction(className: 'A', methodName: 'a', code: 'NATIVE')]
+
+        where:
+        container << ['public class', 'public final class', 'class', 'trait', 'private trait']
+    }
+
+    @Unroll
+    def 'native functions empty'() {
+        expect:
+        Util.getNativeFunctions(code) == []
+
+        where:
+        code << [null, '', 'println "hello"']
     }
 }

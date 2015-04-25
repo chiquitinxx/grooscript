@@ -43,6 +43,7 @@ class InnerClassNodeHandler extends TraitBaseHandler {
             if (methodNode.name == '$static$init$') {
                 initStaticTraitFields(methodNode, innerClassNode)
             } else if (methodNode.code instanceof BlockStatement) {
+                context.actualTraitMethodName = methodNode.parameters[0].name
                 if (!methodNode.code.isEmpty() || methodNode.name == '$init$') {
                     functions.processBasicFunction("${className}.${methodNode.name}", methodNode, false)
                 } else {
@@ -50,6 +51,7 @@ class InnerClassNodeHandler extends TraitBaseHandler {
                         functions.putGsNativeMethod("${className}.${methodNode.name}", innerClassNode, methodNode)
                     }
                 }
+                context.actualTraitMethodName = null
             } else {
                 if (methodNode.name.startsWith('get')) {
                     out.addScript("${className}.${methodNode.name} = function(\$self) {" +
@@ -96,17 +98,15 @@ class InnerClassNodeHandler extends TraitBaseHandler {
     }
 
     private initStaticTraitFields(MethodNode methodNode, InnerClassNode innerClassNode) {
-        if (methodNode.code.getStatements()) {
-            out.block ("function ${innerClassNode.outerClass.nameWithoutPackage}\$static\$init\$($STATIC_SELF)") {
-                methodNode.code.getStatements()?.each { Statement statement ->
-                    if (statement instanceof ExpressionStatement &&
-                            statement.expression instanceof MethodCallExpression) {
-                        def args = statement.expression.arguments
-                        if (args instanceof ArgumentListExpression) {
-                            putStaticInitialization(args[1], args[2])
-                        } else if (statement.expression.method instanceof ConstantExpression) {
-                            putStaticInitialization(statement.expression.method, args)
-                        }
+        out.block ("function ${innerClassNode.outerClass.nameWithoutPackage}\$static\$init\$($STATIC_SELF)") {
+            methodNode.code.getStatements()?.each { Statement statement ->
+                if (statement instanceof ExpressionStatement &&
+                        statement.expression instanceof MethodCallExpression) {
+                    def args = statement.expression.arguments
+                    if (args instanceof ArgumentListExpression) {
+                        putStaticInitialization(args[1], args[2])
+                    } else if (statement.expression.method instanceof ConstantExpression) {
+                        putStaticInitialization(statement.expression.method, args)
                     }
                 }
             }

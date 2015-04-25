@@ -7,7 +7,7 @@ package contribution
 
 a = 5
 String b = "foo"
-print (a+b)
+println (a+b)
 assert a+b == "5foo"
 assert b+a == "foo5"
 assert (a+b) == "5foo"

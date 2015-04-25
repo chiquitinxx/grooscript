@@ -34,6 +34,7 @@ class TestContributors extends Specification {
         'contribution/MrHakiCategories'         | _
         'contribution/MrHakiTraits1'            | _
         'contribution/MrHakiTraits2'            | _
+        'contribution/MrHakiCountList'          | _
     }
 
     def 'test alex anderson' () {
@@ -111,10 +112,13 @@ class TestContributors extends Specification {
         'contribution/MySelf10'    | _
         'contribution/MySelf11'    | _
         'contribution/MySelf12'    | _
+        'contribution/MySelf13'    | _
+        'contribution/MySelf14'    | _
+        'contribution/MySelf15'    | _
     }
 
     @Unroll
-    def 'guillaume examples from talks'() {
+    def 'guillaume example #file from talks'() {
         expect:
         convertAndEvaluate file
 
@@ -159,5 +163,15 @@ class TestContributors extends Specification {
     def 'chrismil46 class stuff'() {
         expect:
         convertAndEvaluate('contribution/ChrisMiles')
+    }
+
+    def 'h1romas4 constructor field scope'() {
+        expect:
+        convertAndEvaluate('contribution/H1romas4')
+    }
+
+    def 'h1romas4 repeated GsNative'() {
+        expect:
+        convertAndEvaluate('contribution/H1romas4GsNative')
     }
 }

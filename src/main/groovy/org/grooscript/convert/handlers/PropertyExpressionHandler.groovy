@@ -42,35 +42,44 @@ class PropertyExpressionHandler extends BaseHandler {
             conversionFactory.visitNode(expression.objectExpression)
             out.addScript(".${CLASS}")
         } else {
-
-            if (isKnownProperty(expression)) {
+            if (expression.spreadSafe) {
+                putObjectExpression(expression)
+                out.addScript(".collect(function(it) { return ${GS_GET_PROPERTY}(it, ")
+                conversionFactory.processPropertyExpressionFromProperty(expression)
+                applySafeIfNeeded(expression)
+                out.addScript(")})")
+            } else if (isKnownProperty(expression)) {
                 conversionFactory.processKnownPropertyExpression(expression)
             } else {
                 out.addScript("${GS_GET_PROPERTY}(")
-                if (expression.objectExpression instanceof VariableExpression &&
-                        expression.objectExpression.name == 'this') {
-                    out.addScript("${GS_THIS_OR_OBJECT}(this,${GS_OBJECT})")
-                } else {
-                    conversionFactory.processObjectExpressionFromProperty(expression)
-                }
-
+                putObjectExpression(expression)
                 out.addScript(',')
-
                 conversionFactory.processPropertyExpressionFromProperty(expression)
-
-                //If is a safe expression as item?.data, we add one more parameter
-                if (expression.isSafe()) {
-                    out.addScript(',true')
-                }
-
+                applySafeIfNeeded(expression)
                 out.addScript(')')
             }
         }
     }
 
-    private isKnownProperty(PropertyExpression propertyExpression) {
+    private boolean isKnownProperty(PropertyExpression propertyExpression) {
         propertyExpression instanceof AttributeExpression ||
             (propertyExpression.propertyAsString &&
                     context.currentClassMethodConverting == "get${propertyExpression.propertyAsString.capitalize()}")
+    }
+
+    private void putObjectExpression(PropertyExpression expression) {
+        if (expression.objectExpression instanceof VariableExpression &&
+                expression.objectExpression.name == 'this') {
+            out.addScript("${GS_THIS_OR_OBJECT}(this,${GS_OBJECT})")
+        } else {
+            conversionFactory.processObjectExpressionFromProperty(expression)
+        }
+    }
+
+    //If is a safe expression as item?.data, we add one more parameter
+    private void applySafeIfNeeded(PropertyExpression expression) {
+        if (expression.isSafe()) {
+            out.addScript(',true')
+        }
     }
 }
