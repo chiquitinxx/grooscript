@@ -16,15 +16,16 @@ class DependenciesSolver {
     }
 
     private Set<String> resolveDependencies(String content,
-                                            Set<String> allDependencies, Set<String> processedFiles) {
-        allDependencies.addAll localDependenciesSolver.fromText(content)
-        allDependencies.each { className ->
+                                            Set<String> dependencies, Set<String> processedFiles) {
+        def currentDependencies = dependencies + localDependenciesSolver.fromText(content)
+        def result = [] as Set
+        currentDependencies.each { className ->
             String filePath = fileSolver.filePathFromClassName(className, classPath)
             if (!(filePath in processedFiles)) {
                 processedFiles << filePath
-                resolveDependencies(fileSolver.readFile(filePath), allDependencies, processedFiles)
+                result = result + resolveDependencies(fileSolver.readFile(filePath), currentDependencies, processedFiles)
             }
         }
-        allDependencies
+        (result + currentDependencies) as Set
     }
 }

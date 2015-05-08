@@ -88,16 +88,15 @@ class TestFiles extends Specification {
         converted.contains('inMovement')
     }
 
-
     void 'convert requirejs Car'() {
         when:
         GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, FILES_CLASSPATH)
         GrooScript.convertRequireJs("src${SEP}test${SEP}src${SEP}files${SEP}Car.groovy", destinationFolder)
 
         then:
-        new File("${destinationFolder}${SEP}files").listFiles().collect { it.name } == ['Car.js', 'Vehicle.js']
+        new File("${destinationFolder}${SEP}files").listFiles().collect { it.name } == ['Car.js', 'Garage.js', 'Vehicle.js']
         new File("${destinationFolder}${SEP}files${SEP}Car.js").text.
-                startsWith('define([\'files/Vehicle\'], function (Vehicle) {')
+                startsWith('define([\'files/Vehicle\',\'files/Garage\'], function (Vehicle,Garage) {')
         new File("${destinationFolder}${SEP}files${SEP}Vehicle.js").text.
                 startsWith('define(function () {')
 
@@ -138,6 +137,19 @@ class TestFiles extends Specification {
         then:
         new File("${destinationFolder}${SEP}files").listFiles().collect { it.name } == ['Train.js']
         new File("${destinationFolder}${SEP}files${SEP}Train.js").text.contains("gSobject.inMovement = false;")
+
+        cleanup:
+        new File(destinationFolder).deleteDir()
+    }
+
+    void 'convert requirejs with circular dependencies'() {
+        when:
+        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, FILES_CLASSPATH)
+        GrooScript.convertRequireJs("src${SEP}test${SEP}src${SEP}files${SEP}Garage.groovy", destinationFolder)
+        println new File("${destinationFolder}${SEP}files").listFiles().collect { it.name }
+
+        then:
+        new File("${destinationFolder}${SEP}files").listFiles().collect { it.name } == ['Car.js', 'Garage.js', 'Vehicle.js']
 
         cleanup:
         new File(destinationFolder).deleteDir()
