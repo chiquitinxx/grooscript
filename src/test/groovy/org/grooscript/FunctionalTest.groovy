@@ -3,9 +3,9 @@ package org.grooscript
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
 import com.sun.net.httpserver.HttpServer
-import org.grooscript.util.Util
 
 import static org.grooscript.util.Util.SEP
+import static org.grooscript.util.Util.isWindows
 /**
  * User: jorgefrancoleza
  * Date: 15/08/13
@@ -57,12 +57,12 @@ abstract class FunctionalTest extends GroovyTestCase {
 
     private stopServer() {
         println 'Closing server...'
-        server.stop(Util.isWindows()? 10 : 0)
+        server.stop(isWindows()? 10 : 0)
         println 'Server closed.'
     }
 
     void setUp() {
-        System.setProperty('PHANTOMJS_HOME', Util.isWindows()? PHANTOMJS_WINDOWS_HOME : PHANTOMJS_HOME)
+        System.setProperty('PHANTOMJS_HOME', isWindows()? PHANTOMJS_WINDOWS_HOME : PHANTOMJS_HOME)
         System.setProperty('JS_LIBRARIES_PATH', JS_LIBRARIES_PATH)
         startServer()
     }

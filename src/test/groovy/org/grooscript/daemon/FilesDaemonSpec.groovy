@@ -2,6 +2,7 @@ package org.grooscript.daemon
 
 import org.grooscript.util.GsConsole
 import spock.lang.Specification
+import spock.util.concurrent.PollingConditions
 
 /**
  * Created by jorgefrancoleza on 16/11/14.
@@ -13,7 +14,7 @@ class FilesDaemonSpec extends Specification {
         def daemon = new FilesDaemon(FILES, ACTION)
 
         expect:
-        daemon.action == ACTION
+        daemon.action.is ACTION
         daemon.files == FILES
         daemon.options == [
             actionOnStartup: false,
@@ -48,6 +49,7 @@ class FilesDaemonSpec extends Specification {
 
     void 'show error if exception in action at start, and continue execution'() {
         given:
+        def conditions = new PollingConditions(initialDelay: 0.3)
         GroovySpy(GsConsole, global:true)
         def daemon = new FilesDaemon(FILES, { List<String> files ->
             throw new Exception('error')
@@ -55,11 +57,12 @@ class FilesDaemonSpec extends Specification {
 
         when:
         daemon.start()
-        waitTime(1000)
 
         then:
         1 * GsConsole.error('Error executing action at start in files ([File1.groovy]): error')
-        daemon.actor.isActive()
+        conditions.eventually {
+            daemon.actor.isActive()
+        }
 
         cleanup:
         daemon.stop()
@@ -67,6 +70,9 @@ class FilesDaemonSpec extends Specification {
 
     void 'show error if exception in action during execution, and continue execution'() {
         given:
+        def conditions = new PollingConditions(timeout: 2, initialDelay: 0.3)
+        boolean fileError = false
+        GsConsole.error('Error executing action in files ([File1.groovy]): error') >> { fileError = true }
         GroovySpy(GsConsole, global:true)
         def daemon = new FilesDaemon(FILES, { List<String> files ->
             throw new Exception('error')
@@ -74,13 +80,14 @@ class FilesDaemonSpec extends Specification {
 
         when:
         daemon.start()
-        waitTime(1000)
+        //sleep(1000)
         modifyFile()
-        waitTime(1000)
 
         then:
-        1 * GsConsole.error('Error executing action in files ([File1.groovy]): error')
-        daemon.actor.isActive()
+        conditions.eventually {
+            fileError
+            daemon.actor.isActive()
+        }
 
         cleanup:
         daemon.stop()
@@ -88,6 +95,7 @@ class FilesDaemonSpec extends Specification {
 
     void 'starts the actor and detects change of file'() {
         given:
+        def conditions = new PollingConditions(timeout: 2, initialDelay: 0.3)
         def actionExecutions = 0
         def daemon = new FilesDaemon(FILES, { List<String> files ->
             println 'Executing action.'
@@ -97,13 +105,14 @@ class FilesDaemonSpec extends Specification {
 
         when:
         daemon.start()
-        waitTime(1000)
+        //sleep(1000)
         modifyFile()
-        waitTime(1000)
 
         then:
-        actionExecutions == 1
-        daemon.actor.isActive()
+        conditions.eventually {
+            actionExecutions == 1
+            daemon.actor.isActive()
+        }
 
         cleanup:
         daemon.stop()
@@ -117,10 +126,6 @@ class FilesDaemonSpec extends Specification {
     ]
     private static final FILE1_PATH = 'File1.groovy'
     private static final FILES = [FILE1_PATH]
-
-    private waitTime(time) {
-        Thread.sleep time
-    }
 
     private modifyFile() {
         new File(FILE1_PATH) << 'pepe'
