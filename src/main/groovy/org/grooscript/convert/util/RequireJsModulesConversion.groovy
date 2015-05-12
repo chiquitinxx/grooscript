@@ -24,25 +24,27 @@ class RequireJsModulesConversion {
     RequireJsFileGenerator requireJsFileGenerator
     LocalDependenciesSolver localDependenciesSolver
 
-    List<String> convert(String sourceFilePath, String destinationFolder, Map conversionOptions = null) {
-        List<String> sourceFiles = []
+    List<ConvertedFile> convert(String sourceFilePath, String destinationFolder, Map conversionOptions = null) {
+        List<ConvertedFile> convertedFiles = []
         if (fileSolver.exists(sourceFilePath)) {
             def dependencies = dependenciesSolver.processFile(sourceFilePath)
             def classPath = classPathFolder(conversionOptions)
-            sourceFiles << generateTemplate(sourceFilePath, destinationFolder,
+            convertedFiles << generateTemplate(sourceFilePath, destinationFolder,
                     destinationFromFilePath(sourceFilePath, classPath), conversionOptions)
             dependencies.each {
                 def filePath = filePathFromDependency(it, classPath)
-                sourceFiles << generateTemplate(filePath, destinationFolder,
-                        destinationFromDependency(it), conversionOptions)
+                if (!convertedFiles.any { it.sourceFilePath == filePath}) {
+                    convertedFiles << generateTemplate(filePath, destinationFolder,
+                            destinationFromDependency(it), conversionOptions)
+                }
             }
         } else {
             error("File ${sourceFilePath} doesn't exists.")
         }
-        sourceFiles
+        convertedFiles
     }
 
-    private String generateTemplate(String sourceFilePath, String destinationFolder,
+    private ConvertedFile generateTemplate(String sourceFilePath, String destinationFolder,
                                     String destinationFile, Map conversionOptions) {
         def sourceCode = fileSolver.readFile(sourceFilePath)
         def requireTemplate = new RequireJsTemplate(
@@ -53,7 +55,7 @@ class RequireJsModulesConversion {
                 classes: astTreeGenerator.classNodeNamesFromText(sourceCode)
         )
         requireJsFileGenerator.generate(requireTemplate)
-        sourceFilePath
+        new ConvertedFile(sourceFilePath: sourceFilePath, destinationFilePath: destinationFile)
     }
 
     String filePathFromDependency(String dependency, String classPath) {
@@ -72,21 +74,6 @@ class RequireJsModulesConversion {
         }
         result.substring(0, result.size() - GROOVY_EXTENSION.size()) + JS_EXTENSION
     }
-
-    /*
-    String sourceFileAsDependency(String sourceFile, String classPathFolder) {
-        def result = fileSolver.canonicalPath(sourceFile) - fileSolver.canonicalPath(classPathFolder)
-        while (result.startsWith(SEP)) {
-            result = result.substring(SEP.size())
-        }
-        if (result.endsWith(Util.GROOVY_EXTENSION)) {
-            result = result.substring(0, result.size() - Util.GROOVY_EXTENSION.size())
-        }
-        if (result.endsWith(Util.JAVA_EXTENSION)) {
-            result = result.substring(0, result.size() - Util.JAVA_EXTENSION.size())
-        }
-        result.replaceAll(SEP, '.')
-    }*/
 
     String classPathFolder(Map conversionOptions) {
         if (!conversionOptions || !conversionOptions[ConversionOptions.CLASSPATH.text]) {

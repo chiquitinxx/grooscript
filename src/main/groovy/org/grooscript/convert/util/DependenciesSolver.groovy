@@ -12,7 +12,7 @@ class DependenciesSolver {
     FileSolver fileSolver
 
     List<String> processFile(String filePath) {
-        resolveDependencies(fileSolver.readFile(filePath), [] as Set, [filePath] as Set).toList()
+        resolveDependencies(fileSolver.readFile(filePath), [] as Set, [filePath] as Set).toList().unique()
     }
 
     private Set<String> resolveDependencies(String content,

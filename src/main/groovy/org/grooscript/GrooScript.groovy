@@ -2,6 +2,7 @@ package org.grooscript
 
 import org.grooscript.convert.ConversionOptions
 import org.grooscript.convert.ast.AstTreeGenerator
+import org.grooscript.convert.util.ConvertedFile
 import org.grooscript.convert.util.DependenciesSolver
 import org.grooscript.convert.util.LocalDependenciesSolver
 import org.grooscript.convert.util.RequireJsFileGenerator
@@ -297,7 +298,7 @@ class GrooScript {
         code
     }
 
-    static void convertRequireJs(String initialFile, String destinationFolder) {
+    static List<ConvertedFile> convertRequireJs(String initialFile, String destinationFolder) {
         FileSolver fileSolver = new FileSolver()
         Map compilerOptions = [
                 classPath: options[ConversionOptions.CLASSPATH.text],

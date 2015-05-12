@@ -1,6 +1,7 @@
 package org.grooscript.convert
 
 import org.grooscript.GrooScript
+import org.grooscript.convert.util.ConvertedFile
 import org.grooscript.test.ConversionMixin
 import org.grooscript.test.JavascriptEngine
 import org.grooscript.util.GrooScriptException
@@ -91,9 +92,13 @@ class TestFiles extends Specification {
     void 'convert requirejs Car'() {
         when:
         GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, FILES_CLASSPATH)
-        GrooScript.convertRequireJs("src${SEP}test${SEP}src${SEP}files${SEP}Car.groovy", destinationFolder)
+        def result = GrooScript.convertRequireJs("src${SEP}test${SEP}src${SEP}files${SEP}Car.groovy", destinationFolder)
 
         then:
+        result == [new ConvertedFile('src/test/src/files/Car.groovy', 'files/Car.js'),
+                   new ConvertedFile('src/test/src/files/Vehicle.groovy', 'files/Vehicle.js'),
+                   new ConvertedFile('src/test/src/files/Garage.groovy', 'files/Garage.js')]
+
         new File("${destinationFolder}${SEP}files").listFiles().collect { it.name } == ['Car.js', 'Garage.js', 'Vehicle.js']
         new File("${destinationFolder}${SEP}files${SEP}Car.js").text.
                 startsWith('define([\'files/Vehicle\',\'files/Garage\'], function (Vehicle,Garage) {')
@@ -146,7 +151,7 @@ class TestFiles extends Specification {
         when:
         GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, FILES_CLASSPATH)
         GrooScript.convertRequireJs("src${SEP}test${SEP}src${SEP}files${SEP}Garage.groovy", destinationFolder)
-        println new File("${destinationFolder}${SEP}files").listFiles().collect { it.name }
+        //println new File("${destinationFolder}${SEP}files").listFiles().collect { it.name }
 
         then:
         new File("${destinationFolder}${SEP}files").listFiles().collect { it.name } == ['Car.js', 'Garage.js', 'Vehicle.js']
