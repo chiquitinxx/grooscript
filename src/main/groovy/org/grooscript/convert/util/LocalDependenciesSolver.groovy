@@ -10,6 +10,8 @@ import org.grooscript.convert.ast.GrooscriptCompiler
  */
 class LocalDependenciesSolver extends GrooscriptCompiler {
 
+    private Map<String, Set<String>> cache = [:]
+
     /**
      * Get list of local dependencies
      * @param sourceCode
@@ -17,19 +19,23 @@ class LocalDependenciesSolver extends GrooscriptCompiler {
      */
     Set<String> fromText(String sourceCode) {
 
-        CompilationUnit cu = compiledCode(sourceCode)
+        Set<String> allLocalDependencies = cache[sourceCode]
+        if (!allLocalDependencies) {
+            CompilationUnit cu = compiledCode(sourceCode)
 
-        Set<String> allLocalDependencies = [] as Set
-        CodeVisitor codeVisitor = new CodeVisitor(allLocalDependencies, cu.classLoader)
-        cu.ast.modules.each { module ->
-            module.statementBlock.visit(codeVisitor)
-            module.classes.each { classNode ->
-                codeVisitor.checkTraits(classNode)
-                codeVisitor.check(classNode.superClass)
-                classNode.visitContents(codeVisitor)
+            allLocalDependencies = [] as Set
+            CodeVisitor codeVisitor = new CodeVisitor(allLocalDependencies, cu.classLoader)
+            cu.ast.modules.each { module ->
+                module.statementBlock.visit(codeVisitor)
+                module.classes.each { classNode ->
+                    codeVisitor.checkTraits(classNode)
+                    codeVisitor.check(classNode.superClass)
+                    classNode.visitContents(codeVisitor)
+                }
             }
+            cache[sourceCode] = allLocalDependencies
         }
 
-        allLocalDependencies
+        allLocalDependencies.clone()
     }
 }
