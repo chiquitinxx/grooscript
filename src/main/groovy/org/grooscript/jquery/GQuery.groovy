@@ -22,7 +22,7 @@ interface GQuery {
     //Atach methods of an object to dom elements with that id (Click, Submit, Change)
     void attachMethodsToDomEvents(target)
     //Launch closure on input change event, closure receive a param with the new value
-    void onChange(String id, Closure closure)
+    void onChange(String selector, Closure closure)
     //Focus dom object, on input put cursor at the end
     void focusEnd(String selector)
     //Bind all properties of an object to dom elements, find dom elements by id or name

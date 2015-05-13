@@ -283,8 +283,8 @@ function GQueryImpl() {
       };
     }]);
   }
-  gSobject.onChange = function(id, closure) {
-    var sourceDom = $('#' + id);
+  gSobject.onChange = function(selector, closure) {
+    var sourceDom = $(selector);
 
         if (sourceDom.is(":text")) {
             sourceDom.bind('input', function() {
@@ -307,7 +307,7 @@ function GQueryImpl() {
                 closure($(this).val());
             });
         } else {
-            console.log('Not supporting onChange for id ' + id);
+            console.log('Not supporting onChange for selector: ' + selector);
         }
   }
   gSobject.focusEnd = function(selector) {

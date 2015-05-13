@@ -142,8 +142,8 @@ class GQueryImpl implements GQuery {
     }
 
     @GsNative
-    void onChange(String id, Closure closure) {/*
-        var sourceDom = $('#' + id);
+    void onChange(String selector, Closure closure) {/*
+        var sourceDom = $(selector);
 
         if (sourceDom.is(":text")) {
             sourceDom.bind('input', function() {
@@ -166,7 +166,7 @@ class GQueryImpl implements GQuery {
                 closure($(this).val());
             });
         } else {
-            console.log('Not supporting onChange for id ' + id);
+            console.log('Not supporting onChange for selector: ' + selector);
         }
     */}
 
