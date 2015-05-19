@@ -6,4 +6,6 @@
 - You can activate `debug` console info in javascript with `gs.consoleInfo = true;`.
 - Remember import `grooscript-tools.js` if you use Observable, HtmlBuilder or GQuery.
 - Use grooscript gradle plugin daemon task to do groovy changes, and see immediately in your browser.
-- You can test dom manipulation with http://jsoup.org/[jsoup]
+- You can test dom manipulation with http://jsoup.org/[jsoup].
+- Try develop functional, don't abuse this or variables from other contexts.
+- Curry functions to inject variables better than expect to be available after callbacks hell.
