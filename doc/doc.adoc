@@ -112,6 +112,10 @@ eval(fs.readFileSync('aConvertedFile.js')+'');
 
 Little link:nodejs_example.html[guide]
 
+== Require.js modules
+
+include::requirejs.adoc[]
+
 == More links
 
 - Cool https://github.com/chiquitinxx/grooscript-demos[demos]
