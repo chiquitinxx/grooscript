@@ -99,7 +99,7 @@ class TestFiles extends Specification {
                    new ConvertedFile('src/test/src/files/Vehicle.groovy', 'files/Vehicle.js'),
                    new ConvertedFile('src/test/src/files/Garage.groovy', 'files/Garage.js')]
 
-        new File("${destinationFolder}${SEP}files").listFiles().collect { it.name } == ['Car.js', 'Garage.js', 'Vehicle.js']
+        folderContainsFiles("${destinationFolder}${SEP}files", ['Car.js', 'Garage.js', 'Vehicle.js'])
         new File("${destinationFolder}${SEP}files${SEP}Car.js").text.
                 startsWith('define([\'files/Vehicle\',\'files/Garage\'], function (Vehicle,Garage) {')
         new File("${destinationFolder}${SEP}files${SEP}Vehicle.js").text.
@@ -128,7 +128,7 @@ class TestFiles extends Specification {
         GrooScript.convertRequireJs("src${SEP}test${SEP}src${SEP}files${SEP}UsingTrait.groovy", destinationFolder)
 
         then:
-        new File("${destinationFolder}${SEP}files").listFiles().collect { it.name } == ['MyTrait.js', 'UsingTrait.js']
+        folderContainsFiles("${destinationFolder}${SEP}files", ['MyTrait.js', 'UsingTrait.js'])
 
         cleanup:
         new File(destinationFolder).deleteDir()
@@ -140,7 +140,7 @@ class TestFiles extends Specification {
         GrooScript.convertRequireJs("src${SEP}test${SEP}src${SEP}files${SEP}Train.groovy", destinationFolder)
 
         then:
-        new File("${destinationFolder}${SEP}files").listFiles().collect { it.name } == ['Train.js']
+        folderContainsFiles("${destinationFolder}${SEP}files", ['Train.js'])
         new File("${destinationFolder}${SEP}files${SEP}Train.js").text.contains("gSobject.inMovement = false;")
 
         cleanup:
@@ -154,9 +154,23 @@ class TestFiles extends Specification {
         //println new File("${destinationFolder}${SEP}files").listFiles().collect { it.name }
 
         then:
-        new File("${destinationFolder}${SEP}files").listFiles().collect { it.name } == ['Car.js', 'Garage.js', 'Vehicle.js']
+        folderContainsFiles("${destinationFolder}${SEP}files", ['Car.js', 'Garage.js', 'Vehicle.js'])
 
         cleanup:
         new File(destinationFolder).deleteDir()
+    }
+
+    private boolean folderContainsFiles(String pathFolder, List files) {
+        File folder = new File(pathFolder)
+        boolean allFound = true
+        int numberFiles = 0
+        folder.eachFile {
+            println "File ${it.name} in ${pathFolder}"
+            if (!(it.name in files)) {
+                allFound = false
+            }
+            numberFiles++
+        }
+        allFound && numberFiles == files.size()
     }
 }
