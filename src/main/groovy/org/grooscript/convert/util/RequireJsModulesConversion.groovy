@@ -34,6 +34,12 @@ class RequireJsModulesConversion {
             dependencies.each {
                 def filePath = filePathFromDependency(it, classPath)
                 if (!convertedFiles.any { it.sourceFilePath == filePath}) {
+                    println 'Generating template'
+                    println '  filePath: ' + filePath
+                    println '  destinationFolder: ' + destinationFolder
+                    println '  it: ' + it
+                    println '  destinationFromDependency(it): ' + destinationFromDependency(it)
+                    println '  conversionOptions: ' + conversionOptions
                     convertedFiles << generateTemplate(filePath, destinationFolder,
                             destinationFromDependency(it), conversionOptions)
                 }
@@ -54,6 +60,8 @@ class RequireJsModulesConversion {
                 jsCode: codeConverter.toJs(sourceCode, conversionOptions),
                 classes: astTreeGenerator.classNodeNamesFromText(sourceCode)
         )
+        println 'Going destinationFile: ' + destinationFile
+        println '  destinationFolder: ' + destinationFolder
         requireJsFileGenerator.generate(requireTemplate)
         new ConvertedFile(sourceFilePath: sourceFilePath, destinationFilePath: destinationFile)
     }
