@@ -18,7 +18,7 @@ import static org.grooscript.util.Util.SEP
 @Mixin([ConversionMixin])
 class TestFiles extends Specification {
 
-    private static final FILES_CLASSPATH = 'src/test/src'
+    private static final String FILES_CLASSPATH = "src${SEP}test${SEP}src"
 
     private Map options
     private destinationFolder = 'reqjs'

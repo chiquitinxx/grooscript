@@ -46,9 +46,9 @@ class GrooscriptCompiler {
         classLoader
     }
 
-    private addClassPathToGroovyClassLoader(classLoader) {
+    private void addClassPathToGroovyClassLoader(GroovyClassLoader classLoader) {
         if (classPath) {
-            if (!(classPath instanceof String || classPath instanceof Collection)) {
+            if (!(classPath instanceof String || classPath instanceof GString || classPath instanceof Collection)) {
                 throw new GrooScriptException('The classpath must be a String or a List')
             }
 
