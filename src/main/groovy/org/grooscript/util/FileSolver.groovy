@@ -22,7 +22,7 @@ class FileSolver {
 
     String filePathFromClassName(String className, String classPath) {
         def begin = classPath ? classPath + SEP : ''
-        begin + className.replaceAll(/\./, SEP) + GROOVY_EXTENSION
+        begin + className.replaceAll("\\.", SEP) + GROOVY_EXTENSION
     }
 
     void saveFile(String filePath, String content) {

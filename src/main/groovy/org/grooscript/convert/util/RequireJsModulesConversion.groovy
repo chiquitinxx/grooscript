@@ -59,12 +59,12 @@ class RequireJsModulesConversion {
     }
 
     String filePathFromDependency(String dependency, String classPath) {
-        def result = dependency.replaceAll(/\./, SEP) + GROOVY_EXTENSION
+        def result = dependency.replaceAll("\\.", SEP) + GROOVY_EXTENSION
         classPath + SEP + result
     }
 
     String destinationFromDependency(String dependency) {
-        dependency.replaceAll(/\./, SEP) + JS_EXTENSION
+        dependency.replaceAll("\\.", SEP) + JS_EXTENSION
     }
 
     String destinationFromFilePath(String filePath, String classPath) {

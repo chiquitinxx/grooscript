@@ -46,7 +46,7 @@ class JavascriptEngine {
         testResult
     }
 
-    static addJsLibraries(text) {
+    static String addJsLibraries(text) {
         //We get gscript functions file
         File file = Util.getJsFile('grooscript.js')
         //Add that file to javascript code
@@ -54,7 +54,7 @@ class JavascriptEngine {
         result
     }
 
-    static addEvaluationVars(text) {
+    static String addEvaluationVars(text) {
         def result = '\ngs.consoleOutput = false;\n' + text
         result = result + '\nvar gSfails = gs.fails;var gSconsole = gs.consoleData;\n'
         result
@@ -83,7 +83,7 @@ class JavascriptEngine {
         Util.getGroovyTestScriptFile(name)
     }
 
-    static evaluateJsCode(String jsCode, bindMap = null) {
+    static JsTestResult evaluateJsCode(String jsCode, bindMap = null) {
         def testResult = new JsTestResult()
 
         if (jsCode) {
@@ -123,13 +123,12 @@ class JavascriptEngine {
 
             } catch (e) {
                 throw new GrooScriptException("Fail evaluating Js Script! - ${e.message}")
-                e.printStackTrace()
             }
         }
         testResult
     }
 
-    static getJavascriptEngine() {
+    static ScriptEngine getJavascriptEngine() {
         ScriptEngineManager factory = new ScriptEngineManager()
         ScriptEngine engine = factory.getEngineByName('JavaScript')
         if (!engine) {

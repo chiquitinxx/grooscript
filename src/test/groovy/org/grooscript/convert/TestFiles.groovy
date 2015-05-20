@@ -165,7 +165,6 @@ class TestFiles extends Specification {
         boolean allFound = true
         int numberFiles = 0
         folder.eachFile {
-            println "File ${it.name} in ${pathFolder}"
             if (!(it.name in files)) {
                 allFound = false
             }
