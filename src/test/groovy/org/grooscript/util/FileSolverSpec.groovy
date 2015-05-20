@@ -28,7 +28,26 @@ class FileSolverSpec extends Specification {
         new File(FILE_PATH).text == fileSolver.readFile(FILE_PATH)
     }
 
-    private static final FILE_PATH = 'LICENSE.txt'
+    void 'save a file'() {
+        given:
+        def fileName = 'CASUAL'
+        def content = 'content file'
 
+        when:
+        fileSolver.saveFile(fileName, content)
+
+        then:
+        new File(fileName).text == content
+
+        cleanup:
+        new File(fileName).delete()
+    }
+
+    void 'test is folder'() {
+        expect:
+        fileSolver.isFolder('.')
+    }
+
+    private static final FILE_PATH = 'LICENSE.txt'
     private FileSolver fileSolver = new FileSolver()
 }

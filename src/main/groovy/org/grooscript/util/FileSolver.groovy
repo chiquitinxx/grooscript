@@ -1,5 +1,7 @@
 package org.grooscript.util
 
+import java.util.regex.Matcher
+
 import static org.grooscript.util.Util.SEP
 import static org.grooscript.util.Util.GROOVY_EXTENSION
 /**
@@ -20,14 +22,18 @@ class FileSolver {
         new File(pathFile).canonicalPath
     }
 
+    String filePathFromClassName(String className) {
+        className.replaceAll("\\.", Matcher.quoteReplacement(SEP))
+    }
+
     String filePathFromClassName(String className, String classPath) {
         def begin = classPath ? classPath + SEP : ''
-        begin + className.replaceAll("\\.", SEP) + GROOVY_EXTENSION
+        begin + filePathFromClassName(className) + GROOVY_EXTENSION
     }
 
     void saveFile(String filePath, String content) {
         File file = new File(filePath)
-        file.getParentFile().mkdirs()
+        file.getParentFile()?.mkdirs()
         file.text = content
     }
 

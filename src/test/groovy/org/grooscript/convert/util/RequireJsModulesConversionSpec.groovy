@@ -35,26 +35,15 @@ class RequireJsModulesConversionSpec extends Specification {
     }
 
     @Unroll
-    void 'get filePath from dependency'() {
-        expect:
-        requireJs.filePathFromDependency(dependency, classPath) == expectedResult
-
-        where:
-        dependency | classPath | expectedResult
-        'A'        | '.'       | ".${SEP}A.groovy"
-        'a.A'      | '.'       | ".${SEP}a${SEP}A.groovy"
-        'a.A'      | 'cp'      | "cp${SEP}a${SEP}A.groovy"
-    }
-
-    @Unroll
     void 'destination js file from dependency'() {
+        given:
+        fileSolver.filePathFromClassName(dependency) >> dependency
+
         expect:
-        requireJs.destinationFromDependency(dependency) == expectedResult
+        requireJs.destinationFromDependency(dependency) == dependency + '.js'
 
         where:
-        dependency | expectedResult
-        'A'        | "A.js"
-        'a.A'      | "a${SEP}A.js"
+        dependency << ['A', "A.a"]
     }
 
     @Unroll

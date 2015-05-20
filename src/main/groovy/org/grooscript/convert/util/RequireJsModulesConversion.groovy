@@ -5,6 +5,8 @@ import org.grooscript.convert.GsConverter
 import org.grooscript.convert.ast.AstTreeGenerator
 import org.grooscript.util.FileSolver
 
+import java.util.regex.Matcher
+
 import static org.grooscript.util.GsConsole.error
 import static org.grooscript.util.Util.JS_EXTENSION
 import static org.grooscript.util.Util.SEP
@@ -32,7 +34,7 @@ class RequireJsModulesConversion {
             convertedFiles << generateTemplate(sourceFilePath, destinationFolder,
                     destinationFromFilePath(sourceFilePath, classPath), conversionOptions)
             dependencies.each {
-                def filePath = filePathFromDependency(it, classPath)
+                def filePath = fileSolver.filePathFromClassName(it, classPath)
                 if (!convertedFiles.any { it.sourceFilePath == filePath}) {
                     convertedFiles << generateTemplate(filePath, destinationFolder,
                             destinationFromDependency(it), conversionOptions)
@@ -58,13 +60,8 @@ class RequireJsModulesConversion {
         new ConvertedFile(sourceFilePath: sourceFilePath, destinationFilePath: destinationFile)
     }
 
-    String filePathFromDependency(String dependency, String classPath) {
-        def result = dependency.replaceAll("\\.", SEP) + GROOVY_EXTENSION
-        classPath + SEP + result
-    }
-
     String destinationFromDependency(String dependency) {
-        dependency.replaceAll("\\.", SEP) + JS_EXTENSION
+        fileSolver.filePathFromClassName(dependency) + JS_EXTENSION
     }
 
     String destinationFromFilePath(String filePath, String classPath) {
