@@ -96,9 +96,9 @@ class TestFiles extends Specification {
         def result = GrooScript.convertRequireJs("${sourceFolder}files${SEP}Car.groovy", destinationFolder)
 
         then:
-        result == [new ConvertedFile("${sourceFolder}files${SEP}Car.groovy", "files/Car.js"),
-                   new ConvertedFile("${sourceFolder}files${SEP}Vehicle.groovy", "files/Vehicle.js"),
-                   new ConvertedFile("${sourceFolder}files${SEP}Garage.groovy", "files/Garage.js")]
+        result == [new ConvertedFile("${sourceFolder}files${SEP}Car.groovy", "files${SEP}Car.js"),
+                   new ConvertedFile("${sourceFolder}files${SEP}Vehicle.groovy", "files${SEP}Vehicle.js"),
+                   new ConvertedFile("${sourceFolder}files${SEP}Garage.groovy", "files${SEP}Garage.js")]
 
         folderContainsFiles("${destinationFolder}${SEP}files", ['Car.js', 'Garage.js', 'Vehicle.js'])
         new File("${destinationFolder}${SEP}files${SEP}Car.js").text.
