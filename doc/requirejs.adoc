@@ -49,5 +49,8 @@ requirejs(['lib/grooscript.min'], function() {
 
 And that's all, you don't have to worry about more groovy files, just add javascript dependencies in your project.
 
+For more info about this, can take a look at this https://github.com/chiquitinxx/grooscript/issues/38[github improvement]. Also
+the books https://github.com/chiquitinxx/books-demo[demo] will be updated soon to use this feature.
+
 TIP: The grooscript gradle plugin has task to generate require.js modules, and listen for changes to speed up your development
 experience.
