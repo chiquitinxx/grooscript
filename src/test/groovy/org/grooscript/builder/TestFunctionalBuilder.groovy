@@ -2,7 +2,6 @@ package org.grooscript.builder
 
 import org.grooscript.FunctionalTest
 import org.grooscript.GrooScript
-import org.grooscript.JsGenerator
 
 /**
  * Created by jorge on 02/05/14.
@@ -29,11 +28,6 @@ class TestFunctionalBuilder extends FunctionalTest {
     }
     doTest()
 """
-    }
-
-    void setUp() {
-        JsGenerator.generateGrooscriptToolsJs()
-        super.setUp()
     }
 
     private getStartFunction() {

@@ -93,6 +93,16 @@ modifyPom {
     }
 }
 
+task generateGrooscriptToolsFile(type: JavaExec) {
+    description 'Generate grooscript-tools.js'
+
+    // Set main property to name of Groovy script class.
+    main = 'org.grooscript.GenerateGrooscripToolsFile'
+
+    // Set classpath for running the Groovy script.
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 task testUnit(type: Test) {
     exclude 'org/grooscript/asts/TestPhantom*'
     exclude 'org/grooscript/daemon/**'
@@ -106,7 +116,7 @@ task testUnit(type: Test) {
 testUnit.description = 'Run only unit tests'
 
 compileJava.dependsOn gulp_compress
-test.dependsOn gulp_tests
+test.dependsOn generateGrooscriptToolsFile, gulp_tests
 
 node {
     // Version of node to use.

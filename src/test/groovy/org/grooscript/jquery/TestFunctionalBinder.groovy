@@ -2,7 +2,6 @@ package org.grooscript.jquery
 
 import org.grooscript.FunctionalTest
 import org.grooscript.GrooScript
-import org.grooscript.JsGenerator
 
 /**
  * Created by jorge on 13/04/14.
@@ -27,11 +26,6 @@ class TestFunctionalBinder extends FunctionalTest {
         result += '<p><input type="button" id="do" value="Click!"/></p>'
         result += '</body></html>'
         result
-    }
-
-    void setUp() {
-        JsGenerator.generateGrooscriptToolsJs()
-        super.setUp()
     }
 
     void testBindPropertiesAndClick() {

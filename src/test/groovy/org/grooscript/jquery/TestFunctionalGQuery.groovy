@@ -2,7 +2,6 @@ package org.grooscript.jquery
 
 import org.grooscript.FunctionalTest
 import org.grooscript.GrooScript
-import org.grooscript.JsGenerator
 
 /**
  * Created by jorge on 15/04/14.
@@ -18,11 +17,6 @@ class TestFunctionalGQuery extends FunctionalTest {
         result += '<p class="result"></p>'
         result += '</body></html>'
         result
-    }
-
-    void setUp() {
-        JsGenerator.generateGrooscriptToolsJs()
-        super.setUp()
     }
 
     void testDoJsonRemoteCall() {

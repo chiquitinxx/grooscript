@@ -2,7 +2,6 @@ package org.grooscript.rx
 
 import org.grooscript.FunctionalTest
 import org.grooscript.GrooScript
-import org.grooscript.JsGenerator
 
 /**
  * Created by jorge on 17/11/14.
@@ -18,11 +17,6 @@ class TestFunctionalObservable extends FunctionalTest {
         result += '<p>Hello!</p>'
         result += '</body></html>'
         result
-    }
-
-    void setUp() {
-        JsGenerator.generateGrooscriptToolsJs()
-        super.setUp()
     }
 
     void testDoJsonRemoteCall() {
