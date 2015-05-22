@@ -97,7 +97,7 @@ task generateGrooscriptToolsFile(type: JavaExec) {
     description 'Generate grooscript-tools.js'
 
     // Set main property to name of Groovy script class.
-    main = 'org.grooscript.GenerateGrooscripToolsFile'
+    main = 'org.grooscript.GenerateGrooscripTools'
 
     // Set classpath for running the Groovy script.
     classpath = sourceSets.main.runtimeClasspath

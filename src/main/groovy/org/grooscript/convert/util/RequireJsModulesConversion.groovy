@@ -31,15 +31,17 @@ class RequireJsModulesConversion {
         if (fileSolver.exists(sourceFilePath)) {
             def dependencies = dependenciesSolver.processFile(sourceFilePath)
             def classPath = classPathFolder(conversionOptions)
-            convertedFiles << generateTemplate(sourceFilePath, destinationFolder,
-                    destinationFromFilePath(sourceFilePath, classPath), conversionOptions)
+            //Generate dependencies
             dependencies.each {
                 def filePath = fileSolver.filePathFromClassName(it, classPath)
-                if (!convertedFiles.any { it.sourceFilePath == filePath}) {
+                if (filePath != sourceFilePath && !convertedFiles.any { it.sourceFilePath == filePath }) {
                     convertedFiles << generateTemplate(filePath, destinationFolder,
                             destinationFromDependency(it), conversionOptions)
                 }
             }
+            //Generate initial file last one
+            convertedFiles << generateTemplate(sourceFilePath, destinationFolder,
+                    destinationFromFilePath(sourceFilePath, classPath), conversionOptions)
         } else {
             error("File ${sourceFilePath} doesn't exists.")
         }
