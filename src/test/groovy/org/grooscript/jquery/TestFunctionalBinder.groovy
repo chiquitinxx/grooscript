@@ -43,6 +43,7 @@ class TestFunctionalBinder extends FunctionalTest {
         assert \$("#hasEbook").is(':checked'), "hasEbook not checked"
         assert \$('#bigSize').is(':checked'), "radio big isn't checked"
         assert \$('#country').val() == 'spain', "country select isn't spain"
+        assert book.numberChangesCountry == 1, "titleChange not processed (\${book.numberChangesCountry})"
         book.country = 'eeuu'
         assert \$('#country').val() == 'eeuu', "country select isn't eeuu"
         \$('#do').click()
@@ -61,6 +62,7 @@ class TestFunctionalBinder extends FunctionalTest {
             String numberPages
             String country
             def numberOfClicks = 0
+            def numberChangesCountry = 0
 
             def init() {
                 setAuthor("Jorge")
@@ -68,10 +70,15 @@ class TestFunctionalBinder extends FunctionalTest {
                 setHasEbook(true)
                 setNumberPages('big')
                 setCountry('spain')
+                $('#country').trigger("change")
             }
 
             def doClick() {
                 numberOfClicks++
+            }
+
+            def countryChange() {
+                numberChangesCountry++
             }
         }
         '''

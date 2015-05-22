@@ -18,22 +18,22 @@ class JsGenerator {
 
     static final GROOSCRIPT_TOOLS_FILE = 'src/main/resources/META-INF/resources/grooscript-tools.js'
 
-    static generateHtmlBuilder() {
+    static void generateHtmlBuilder() {
         File source = new File(HTML_BUILDER_SOURCE)
         convertFile(source, BUILDER_FILE)
     }
 
-    static generateObservable() {
+    static void generateObservable() {
         File source = new File(OBSERVABLE_SOURCE)
         convertFile(source, OBSERVABLE_FILE)
     }
 
-    static generateJQuery() {
+    static void generateJQuery() {
         File source = new File(JQUERY_SOURCE)
         convertFile(source, JQUERY_FILE)
     }
 
-    static generateGrooscriptJsToolsComplete() {
+    static void generateGrooscriptJsToolsComplete() {
         GrooScript.joinListOfFiles(BUILDER_FILE, OBSERVABLE_FILE, JQUERY_FILE, GROOSCRIPT_TOOLS_FILE)
     }
 
@@ -44,7 +44,7 @@ class JsGenerator {
         generateGrooscriptJsToolsComplete()
     }
 
-    static convertFile(File file, String destinationFile, Map conversionOptions = null) {
+    static void convertFile(File file, String destinationFile, Map conversionOptions = null) {
         GrooScript.clearAllOptions()
         GrooScript.options = conversionOptions ?: GrooScript.defaultOptions
         new File(destinationFile).text = GrooScript.convert(file.text)

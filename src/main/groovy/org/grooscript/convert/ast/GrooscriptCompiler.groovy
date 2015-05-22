@@ -19,7 +19,7 @@ class GrooscriptCompiler {
 
     protected CompilationUnit compiledCode(
             String sourceCode, String scriptClassName = defaultScriptName, int phaseNumber = GROOSCRIPT_PHASE) {
-        def conf = customizedCompilerConfiguration
+        def conf = getCustomizedCompilerConfiguration()
         def compilationUnitFinal = new CompilationUnit(conf, null, grooscriptClassLoader(conf))
         compilationUnitFinal.addSource(scriptClassName, sourceCode)
         compilationUnitFinal.compile(phaseNumber)

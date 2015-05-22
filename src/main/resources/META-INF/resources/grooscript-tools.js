@@ -278,7 +278,7 @@ function GQueryImpl() {
       if (gs.mc(gs.gp(method,"name"),"endsWith",["Change"])) {
         var shortName = gs.mc(gs.gp(method,"name"),"substring",[0, gs.minus(gs.mc(gs.gp(method,"name"),"length",[]), 6)]);
         if (gs.mc(gSobject,"existsId",[shortName])) {
-          return gs.mc(gSobject,"onChange",[shortName, obj["" + (gs.gp(method,"name")) + ""]]);
+          return gs.mc(gSobject,"onChange",[gs.plus("#", shortName), obj["" + (gs.gp(method,"name")) + ""]]);
         };
       };
     }]);
