@@ -6,6 +6,7 @@ import org.codehaus.groovy.ast.expr.ListExpression
 import org.codehaus.groovy.ast.AnnotationNode
 import org.codehaus.groovy.ast.FieldNode
 import org.codehaus.groovy.ast.MethodNode
+import org.grooscript.convert.ConversionOptions
 
 import static org.grooscript.JsNames.*
 /**
@@ -66,7 +67,7 @@ class ClassNodeHandler extends TraitBaseHandler {
                 checkDelegateAnnotation(field, node.nameWithoutPackage)
                 if (isOnlyFieldOfClassNode(field, node)) {
                     if (!field.isStatic()) {
-                        addPropertyToClass(field,false)
+                        addPropertyToClass(field, false)
                     } else {
                         addPropertyStaticToClass(field.name)
                     }
@@ -248,13 +249,34 @@ class ClassNodeHandler extends TraitBaseHandler {
             previous = ''
         }
 
-        if (fieldOrProperty.initialExpression) {
+        if (isRequireJsModuleAnnotated(fieldOrProperty) &&
+                conversionFactory.converter.conversionOptions[ConversionOptions.REQUIRE_JS_MODULE.text] == true) {
+            out.addScript("${previous}.${fieldOrProperty.name} = ${fieldOrProperty.name};", true)
+            addRequireJsDependency(fieldOrProperty)
+        } else if (fieldOrProperty.initialExpression) {
             out.addScript("${previous}.${fieldOrProperty.name} = ")
             conversionFactory.visitNode(fieldOrProperty.initialExpression)
             out.addScript(';', true)
         } else {
             out.addScript("${previous}.${fieldOrProperty.name} = null;", true)
         }
+    }
+
+    private boolean isRequireJsModuleAnnotated(fieldOrProperty) {
+        def annotations = (fieldOrProperty instanceof PropertyNode ?
+                fieldOrProperty.field.annotations : fieldOrProperty.annotations)
+        annotations.any { AnnotationNode annotationNode ->
+            annotationNode.getClassNode().name == 'org.grooscript.asts.RequireJsModule'
+        }
+    }
+
+    private addRequireJsDependency(fieldOrProperty) {
+        def annotations = (fieldOrProperty instanceof PropertyNode ?
+                fieldOrProperty.field.annotations : fieldOrProperty.annotations)
+        AnnotationNode annotationNode = annotations.find {
+            it.getClassNode().name == 'org.grooscript.asts.RequireJsModule'
+        }
+        conversionFactory.converter.addRequireJsDependency(annotationNode.getMember('path').value, fieldOrProperty.name)
     }
 
     private addPropertyStaticToClass(String name) {
@@ -416,7 +438,7 @@ class ClassNodeHandler extends TraitBaseHandler {
                 if (!(it.name in notAddThisMethods) && !it.synthetic) {
                     if (it.name in METHODS_THAT_MAYBE_NOT_DEFINED_IN_TRAIT) {
                         out.addScript("if (${traitClassNode.nameWithoutPackage}['${it.name}']) {", true)
-                        out.addScript(out.TAB)
+                        out.addTab()
                     }
                     staticMethod(it, GS_OBJECT, traitClassNode.nameWithoutPackage, true)
                     if (it.name in METHODS_THAT_MAYBE_NOT_DEFINED_IN_TRAIT) {

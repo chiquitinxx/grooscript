@@ -39,11 +39,14 @@ class RequireJsFileGeneratorSpec extends Specification {
 
     void 'module with dependencies'() {
         when:
-        requireTemplate.dependencies = ['a.b.A', 'C']
+        requireTemplate.dependencies = [
+                new RequireJsDependency(path: 'a/b/A', name: 'A'),
+                new RequireJsDependency(path: 'C', name: 'D')
+        ]
         require.generate(requireTemplate)
 
         then:
-        1 * fileSolver.saveFile(destFileName, "define(['a/b/A','C'], function (A,C) {${LS}jsCode${LS}});")
+        1 * fileSolver.saveFile(destFileName, "define(['a/b/A','C'], function (A,D) {${LS}jsCode${LS}});")
     }
 
     void 'returns one class'() {

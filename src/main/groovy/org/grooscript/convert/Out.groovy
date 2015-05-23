@@ -7,8 +7,9 @@ import static org.grooscript.util.Util.LINE_SEPARATOR as LS
  */
 class Out {
 
-    def indent = 0
-    static final TAB = '  '
+    private static final TAB = '  '
+
+    int indent = 0
     String resultScript = ''
 
     /**
@@ -24,6 +25,13 @@ class Out {
             resultScript = ''
         }
         indent.times { resultScript += TAB }
+    }
+
+    /**
+     * Add a tab to out
+     */
+    void addTab() {
+        resultScript += TAB
     }
 
     /**

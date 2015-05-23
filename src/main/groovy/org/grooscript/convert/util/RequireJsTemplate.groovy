@@ -10,7 +10,13 @@ class RequireJsTemplate {
 
     String destinationFile
     String requireFolder
-    List<String> dependencies
+    List<RequireJsDependency> dependencies
     String jsCode
     List<String> classes
+}
+
+@EqualsAndHashCode
+class RequireJsDependency {
+    String path
+    String name
 }

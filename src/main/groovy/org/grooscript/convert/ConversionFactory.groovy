@@ -18,7 +18,7 @@ class ConversionFactory {
     Context context
     Out out
     Functions functions
-    def converter
+    GsConverter converter
     Traits traits
 
     Map converters = [

@@ -2,6 +2,7 @@ package org.grooscript.convert
 
 import org.grooscript.GrooScript
 import org.grooscript.convert.ast.AstTreeGenerator
+import org.grooscript.convert.util.RequireJsDependency
 
 import static org.grooscript.JsNames.*
 
@@ -25,7 +26,9 @@ class GsConverter {
     boolean consoleInfo = false
 
     //Conversion Options
-    Map conversionOptions
+    Map<String, Object> conversionOptions
+
+    List<RequireJsDependency> requireJsDependencies = []
 
     /**
      * Converts Groovy script to Javascript
@@ -86,6 +89,11 @@ class GsConverter {
             context = conversionFactory.context
             context.nativeFunctions = nativeFunctions
             out = conversionFactory.out
+            if (conversionOptions[ConversionOptions.REQUIRE_JS_MODULE.text] == true) {
+                requireJsDependencies = []
+                out.indent++
+                out.addTab()
+            }
 
             if (conversionOptions[ConversionOptions.MAIN_CONTEXT_SCOPE.text]) {
                 conversionOptions[ConversionOptions.MAIN_CONTEXT_SCOPE.text].each { var ->
@@ -149,6 +157,10 @@ class GsConverter {
             result = out.resultScript
         }
         result
+    }
+
+    public void addRequireJsDependency(String path, String name) {
+        requireJsDependencies << new RequireJsDependency(path: path, name: name)
     }
 
     //Process list of classes in correct order, inheritance order

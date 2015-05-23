@@ -160,6 +160,20 @@ class TestFiles extends Specification {
         new File(destinationFolder).deleteDir()
     }
 
+    void 'convert requirejs with require js (ast) module'() {
+        when:
+        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, FILES_CLASSPATH)
+        GrooScript.convertRequireJs("${sourceFolder}files${SEP}Require.groovy", destinationFolder)
+        def resultFile = new File("${destinationFolder}${SEP}files${SEP}Require.js")
+
+        then:
+        folderContainsFiles("${destinationFolder}${SEP}files", ['Require.js'])
+        resultFile.text.startsWith("define(['lib/data'], function (data) {")
+
+        cleanup:
+        new File(destinationFolder).deleteDir()
+    }
+
     private boolean folderContainsFiles(String pathFolder, List files) {
         File folder = new File(pathFolder)
         boolean allFound = true

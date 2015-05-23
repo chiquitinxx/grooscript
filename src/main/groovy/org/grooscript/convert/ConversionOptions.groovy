@@ -12,7 +12,8 @@ enum ConversionOptions {
     INITIAL_TEXT('initialText', null),
     FINAL_TEXT('finalText', null),
     RECURSIVE('recursive', false),
-    ADD_GS_LIB('addGsLib', null)
+    ADD_GS_LIB('addGsLib', null),
+    REQUIRE_JS_MODULE('requireJs', false)
 
     String text
     def defaultValue

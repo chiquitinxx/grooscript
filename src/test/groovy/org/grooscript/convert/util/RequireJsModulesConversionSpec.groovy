@@ -90,13 +90,14 @@ class RequireJsModulesConversionSpec extends Specification {
         then:
         result == [new ConvertedFile('File.groovy', 'File.js')]
         1 * dependenciesSolver.processFile(validFile) >> []
-        1 * localDependenciesSolver.fromText(validFileCode) >> ['uh']
-        1 * codeConverter.toJs(validFileCode, null) >> convertedCode
+        1 * localDependenciesSolver.fromText(validFileCode) >> ['thing.uh']
+        1 * codeConverter.toJs(validFileCode, [requireJs: true]) >> convertedCode
+        1 * codeConverter.getRequireJsDependencies() >> [requireJsDependency]
         1 * astTreeGenerator.classNodeNamesFromText(validFileCode) >> validFileClasses
         1 * requireJsModuleGenerator.generate(new RequireJsTemplate(
                 destinationFile: 'File.js',
                 requireFolder: destinationFolder,
-                dependencies: ['uh'],
+                dependencies: [new RequireJsDependency(path: 'thing/uh', name: 'uh'), requireJsDependency],
                 jsCode: convertedCode,
                 classes: validFileClasses
         ))
@@ -128,4 +129,7 @@ class RequireJsModulesConversionSpec extends Specification {
             requireJsFileGenerator: requireJsModuleGenerator,
             localDependenciesSolver: localDependenciesSolver
     )
+    private getRequireJsDependency() {
+        new RequireJsDependency(path: 'to/path', name: 'data')
+    }
 }

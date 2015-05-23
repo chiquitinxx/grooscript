@@ -31,17 +31,18 @@ class RequireJsModulesConversion {
         if (fileSolver.exists(sourceFilePath)) {
             def dependencies = dependenciesSolver.processFile(sourceFilePath)
             def classPath = classPathFolder(conversionOptions)
+            def requireJsConversionOptions = addRequireJsConversionOption(conversionOptions)
             //Generate dependencies
             dependencies.each {
                 def filePath = fileSolver.filePathFromClassName(it, classPath)
                 if (filePath != sourceFilePath && !convertedFiles.any { it.sourceFilePath == filePath }) {
                     convertedFiles << generateTemplate(filePath, destinationFolder,
-                            destinationFromDependency(it), conversionOptions)
+                            destinationFromDependency(it), requireJsConversionOptions)
                 }
             }
             //Generate initial file last one
             convertedFiles << generateTemplate(sourceFilePath, destinationFolder,
-                    destinationFromFilePath(sourceFilePath, classPath), conversionOptions)
+                    destinationFromFilePath(sourceFilePath, classPath), requireJsConversionOptions)
         } else {
             error("File ${sourceFilePath} doesn't exists.")
         }
@@ -50,12 +51,12 @@ class RequireJsModulesConversion {
 
     private ConvertedFile generateTemplate(String sourceFilePath, String destinationFolder,
                                     String destinationFile, Map conversionOptions) {
-        def sourceCode = fileSolver.readFile(sourceFilePath)
+        String sourceCode = fileSolver.readFile(sourceFilePath)
+        String jsCode = codeConverter.toJs(sourceCode, conversionOptions)
+        List<RequireJsDependency> dependencies = getLocalDependencies(sourceCode) + codeConverter.requireJsDependencies
         def requireTemplate = new RequireJsTemplate(
-                destinationFile: destinationFile,
-                requireFolder: destinationFolder,
-                dependencies: localDependenciesSolver.fromText(sourceCode) as List,
-                jsCode: codeConverter.toJs(sourceCode, conversionOptions),
+                destinationFile: destinationFile, requireFolder: destinationFolder,
+                dependencies: dependencies, jsCode: jsCode,
                 classes: astTreeGenerator.classNodeNamesFromText(sourceCode)
         )
         requireJsFileGenerator.generate(requireTemplate)
@@ -82,6 +83,12 @@ class RequireJsModulesConversion {
         }
     }
 
+    private Map addRequireJsConversionOption(conversionOptions) {
+        def result = conversionOptions ?: [:]
+        result[ConversionOptions.REQUIRE_JS_MODULE.text] = true
+        result
+    }
+
     private String firstFolderFrom(classPath) {
         if (classPath instanceof String && fileSolver.isFolder(classPath)) {
             return classPath
@@ -90,5 +97,15 @@ class RequireJsModulesConversion {
             return classPath.find { fileSolver.isFolder(it) } ?: DEFAULT_PATH
         }
         DEFAULT_PATH
+    }
+
+    private List<RequireJsDependency> getLocalDependencies(sourceCode) {
+        def list = localDependenciesSolver.fromText(sourceCode) as List
+        list.collect {
+            new RequireJsDependency(
+                    name: it.split("\\.").last(),
+                    path: it.replaceAll("\\.", '/')
+            )
+        }
     }
 }

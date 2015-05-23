@@ -35,9 +35,9 @@ class RequireJsFileGenerator {
                 requireTemplate.jsCode + LINE_SEPARATOR + returnClasses(requireTemplate.classes) + END_MODULE
     }
 
-    private String moduleWithDependencies(List<String> dependencies) {
-        def paths = dependencies.collect { "'" + it.replaceAll("\\.", '/') + "'" }
-        def moduleNames = dependencies.collect { it.split("\\.") }.collect { it.last() }
+    private String moduleWithDependencies(List<RequireJsDependency> dependencies) {
+        def paths = dependencies.collect { "'" + it.path + "'" }
+        def moduleNames = dependencies.collect { it.name }
         'define([' + paths.join(',')+'], function ('+moduleNames.join(',')+') {' + LINE_SEPARATOR
     }
 

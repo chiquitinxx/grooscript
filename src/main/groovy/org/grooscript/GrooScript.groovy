@@ -249,7 +249,7 @@ class GrooScript {
         }
     }
 
-    static Map getDefaultOptions() {
+    static Map<String, Object> getDefaultOptions() {
         ConversionOptions.values().inject([:]) { map, value ->
             map[value.text] = value.defaultValue
             map

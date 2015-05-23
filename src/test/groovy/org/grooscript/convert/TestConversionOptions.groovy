@@ -237,6 +237,17 @@ class TestConversionOptions extends Specification {
         result.contains(new File('src/main/resources/META-INF/resources/jquery.min.js').text)
     }
 
+    def 'test convert a class as require.js module'() {
+        when:
+        GrooScript.setConversionProperty(ConversionOptions.REQUIRE_JS_MODULE.text, true)
+        def asRequireJsModuleResult = GrooScript.convert('class A {}')
+        GrooScript.clearAllOptions()
+        def normalConversion = GrooScript.convert('class A {}')
+
+        then:
+        asRequireJsModuleResult != normalConversion
+    }
+
     private void expectedInitialValues() {
         assert GrooScript.debug == false
         assert GrooScript.options == null
