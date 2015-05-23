@@ -18,7 +18,7 @@ class FilesDaemonSpec extends Specification {
         daemon.files == files
         daemon.options == [
             actionOnStartup: false,
-            time: 400,
+            time: 200,
             recursive: false
         ]
     }
@@ -122,7 +122,7 @@ class FilesDaemonSpec extends Specification {
     private static final ACTION = { files -> files }
     private static final NEW_OPTIONS = [
         actionOnStartup: true,
-        time: 200,
+        time: 300,
         recursive: true
     ]
     private static final FILE1_NAME = 'File1'

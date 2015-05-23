@@ -9,10 +9,11 @@ import static groovyx.gpars.dataflow.Dataflow.task
  */
 class FilesDaemon {
 
+    private static final WAIT_TIME = 200
     final List<String> files
     final Closure action
     Map options = [
-        time: 400,
+        time: WAIT_TIME,
         actionOnStartup: false,
         recursive: false
     ]
