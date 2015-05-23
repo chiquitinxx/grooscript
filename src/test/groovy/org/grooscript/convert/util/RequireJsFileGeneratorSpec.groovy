@@ -55,7 +55,7 @@ class RequireJsFileGeneratorSpec extends Specification {
         require.generate(requireTemplate)
 
         then:
-        1 * fileSolver.saveFile(destFileName, "define(function () {${LS}jsCode${LS}return A;${LS}});")
+        1 * fileSolver.saveFile(destFileName, "define(function () {${LS}jsCode${LS}  return A;${LS}});")
     }
 
     void 'returns more than one class'() {
@@ -64,7 +64,7 @@ class RequireJsFileGeneratorSpec extends Specification {
         require.generate(requireTemplate)
 
         then:
-        1 * fileSolver.saveFile(destFileName, "define(function () {${LS}jsCode${LS}return {A:A,B:B};${LS}});")
+        1 * fileSolver.saveFile(destFileName, "define(function () {${LS}jsCode${LS}  return {A:A,B:B};${LS}});")
     }
 
     private basicModuleResult = "define(function () {${LS}jsCode${LS}});"

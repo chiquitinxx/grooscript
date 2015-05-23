@@ -46,10 +46,10 @@ class RequireJsFileGenerator {
             ''
         } else {
             if (classes.size() == 1) {
-                "return ${classes[0]};${LINE_SEPARATOR}"
+                "  return ${classes[0]};${LINE_SEPARATOR}"
             } else {
                 def mapClasses = classes.collect { "${it}:${it}" }.join(',')
-                "return {${mapClasses}};${LINE_SEPARATOR}"
+                "  return {${mapClasses}};${LINE_SEPARATOR}"
             }
         }
     }

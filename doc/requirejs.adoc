@@ -25,13 +25,43 @@ dependency will be added in `*Initial.js*` module.
 Then, you don't have to take care about all the files and dependencies, each time that you convert `*Initial.groovy*`, all
 groovy files will be converted to modules, and all dependencies will be include in that modules.
 
+=== Add javascript dependencies
+
+If you want to include dependencies to other external require.js modules, you can use AST @RequireJsModule. For example,
+in this class we are going to use data from a require.js module in `*lib/data.js*`.
+
+[source,groovy]
+--
+include::../src/test/src/files/Require.groovy[]
+--
+
+The javascript result of this conversion is:
+
+[source,javascript]
+--
+define(['lib/data'], function (data) {
+
+  function Require() {
+    //..
+    gSobject.data = data;
+    //..
+
+    return gSobject;
+  };
+
+  return Require;
+});
+--
+
+In groovy you can use and test `*data*` field as a normal field.
+
 === Using it
 
 You have all that javascript modules, now you can use in your require.js application. You have to be sure that
 you include `*grooscript.js*` in your require.js dependencies. All require.js modules that you have generated are converted
 groovy code that needs `*grooscript.js*` to run.
 
-This is an example require.js initial file:
+Some examples require.js initial file:
 
 [source,javascript]
 --
@@ -45,6 +75,22 @@ requirejs.config({
 requirejs(['lib/grooscript.min'], function() {
     requirejs(['Initial']);
 });
+--
+
+[source,javascript]
+--
+requirejs.config({
+    baseUrl: 'js/app',
+    paths: {
+        lib: '../lib',
+        jquery: '../lib/jquery'
+    },
+    shim: {
+        'bookDemo': ['lib/grooscript.min', 'lib/grooscript-tools']
+    }
+});
+
+requirejs(['jquery', 'bookDemo']);
 --
 
 And that's all, you don't have to worry about more groovy files, just add javascript dependencies in your project.

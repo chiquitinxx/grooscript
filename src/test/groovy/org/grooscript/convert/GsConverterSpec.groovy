@@ -4,6 +4,8 @@ import org.grooscript.convert.util.RequireJsDependency
 import org.grooscript.test.ConversionMixin
 import spock.lang.Specification
 
+import static org.grooscript.util.Util.LINE_SEPARATOR
+
 /**
  * User: jorgefrancoleza
  * Date: 23/05/15
@@ -13,43 +15,23 @@ class GsConverterSpec extends Specification {
 
     void 'test basic conversion'() {
         expect:
-        converter.toJs(BASIC_CLASS).startsWith '''function A() {
-  var gSobject = gs.inherit(gs.baseClass,'A');
-  gSobject.clazz = { name: 'A', simpleName: 'A'};
-  gSobject.clazz.superclass = { name: 'java.lang.Object', simpleName: 'Object'};
-  if (arguments.length == 1) {gs.passMapToObject(arguments[0],gSobject);};'''
+        converter.toJs(BASIC_CLASS).startsWith '''function A() {'''
     }
 
     void 'convert as a require.js module add spaces'() {
         expect:
-        converter.toJs(BASIC_CLASS, conversionOptionsWithRequireJs()).startsWith('  ' + '''
-  function A() {
-    var gSobject = gs.inherit(gs.baseClass,'A');
-    gSobject.clazz = { name: 'A', simpleName: 'A'};
-    gSobject.clazz.superclass = { name: 'java.lang.Object', simpleName: 'Object'};
-    if (arguments.length == 1) {gs.passMapToObject(arguments[0],gSobject);};''')
+        converter.toJs(BASIC_CLASS, conversionOptionsWithRequireJs()).startsWith("  ${LINE_SEPARATOR}  function A() {")
     }
 
     void 'initialize require.js modules (ast) converting as require.js module'() {
         expect:
-        converter.toJs(CLASS_WITH_REQUIRE_MODULE, conversionOptionsWithRequireJs()).startsWith('  ' + '''
-  function A() {
-    var gSobject = gs.inherit(gs.baseClass,'A');
-    gSobject.clazz = { name: 'A', simpleName: 'A'};
-    gSobject.clazz.superclass = { name: 'java.lang.Object', simpleName: 'Object'};
-    gSobject.module = module;
-    if (arguments.length == 1) {gs.passMapToObject(arguments[0],gSobject);};''')
+        converter.toJs(CLASS_WITH_REQUIRE_MODULE, conversionOptionsWithRequireJs()).contains('gSobject.module = module;')
         converter.requireJsDependencies == [new RequireJsDependency(path: 'any/path', name: 'module')]
     }
 
     void 'ignore require.js modules (ast) converting normal'() {
         expect:
-        converter.toJs(CLASS_WITH_REQUIRE_MODULE).startsWith('''function A() {
-  var gSobject = gs.inherit(gs.baseClass,'A');
-  gSobject.clazz = { name: 'A', simpleName: 'A'};
-  gSobject.clazz.superclass = { name: 'java.lang.Object', simpleName: 'Object'};
-  gSobject.module = null;
-  if (arguments.length == 1) {gs.passMapToObject(arguments[0],gSobject);};''')
+        converter.toJs(CLASS_WITH_REQUIRE_MODULE).contains('gSobject.module = null;')
         converter.requireJsDependencies == []
     }
 
