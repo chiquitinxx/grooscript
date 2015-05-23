@@ -51,7 +51,8 @@ class FilesDaemonSpec extends Specification {
         given:
         def conditions = new PollingConditions(initialDelay: 0.3)
         GroovySpy(GsConsole, global:true)
-        def daemon = new FilesDaemon(files, {
+        def daemon = new FilesDaemon(files, { list ->
+            assert list == [tempFile.path]
             throw new Exception('error')
         }, [actionOnStartup: true])
 
@@ -61,55 +62,32 @@ class FilesDaemonSpec extends Specification {
         then:
         1 * GsConsole.error("Error executing action at start in files ([${tempFile.path}]): error")
         conditions.eventually {
-            daemon.actor.isActive()
+            assert daemon.actor.isActive()
         }
 
         cleanup:
         daemon.stop()
     }
 
-    void 'show error if exception in action during execution, and continue execution'() {
+    void 'change detected and continue execution'() {
         given:
-        def conditions = new PollingConditions(timeout: 2, initialDelay: 0.3)
-        boolean fileError = false
-        GsConsole.error("Error executing action in files ([${tempFile.path}]): error") >> { fileError = true }
-        GroovySpy(GsConsole, global:true)
+        def changed = false
         def daemon = new FilesDaemon(files, { List<String> files ->
+            assert files == [tempFile.path]
+            changed = true
             throw new Exception('error')
         }, [actionOnStartup: false])
 
         when:
         daemon.start()
+        sleep(1000)
+        def conditions = new PollingConditions(timeout: 2)
         modifyFile()
 
         then:
         conditions.eventually {
-            fileError
-            daemon.actor.isActive()
-        }
-
-        cleanup:
-        daemon.stop()
-    }
-
-    void 'starts the actor and detects change of file'() {
-        given:
-        def conditions = new PollingConditions(timeout: 2, initialDelay: 0.3)
-        def actionExecutions = 0
-        def daemon = new FilesDaemon(files, { List<String> changingFiles ->
-            println 'Executing action.'
-            assert changingFiles == files
-            actionExecutions++
-        }, [time: 100])
-
-        when:
-        daemon.start()
-        modifyFile()
-
-        then:
-        conditions.eventually {
-            actionExecutions == 1
-            daemon.actor.isActive()
+            assert changed
+            assert daemon.actor.isActive()
         }
 
         cleanup:

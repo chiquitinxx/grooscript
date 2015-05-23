@@ -38,8 +38,8 @@ class FilesDaemon {
         task {
             actor = new FilesActor(action: action, restTime: options.time).start()
             actor << files
+            GsConsole.message('Listening file changes in : ' + files)
         }
-        GsConsole.message('Listening file changes in : ' + files)
     }
 
     void stop() {

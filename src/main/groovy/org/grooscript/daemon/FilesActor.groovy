@@ -13,7 +13,7 @@ class FilesActor extends DefaultActor {
     static final FINISH = 'finish'
 
     Closure action
-    long restTime = 500
+    long restTime = 200
     boolean recursive = false
 
     private List<String> filesChanged
