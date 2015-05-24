@@ -6,7 +6,7 @@
     "author"        : "Jorge Franco <grooscript@gmail.com>",
     "repository"    : {"type": "git", "url": "git://github.com/chiquitinxx/grooscript.git"},
     "main"          : "grooscript.js",
-    "version"       : "1.1.0",
+    "version"       : "1.1.1",
     "licenses": [
         {
             "type": "APACHE2",
