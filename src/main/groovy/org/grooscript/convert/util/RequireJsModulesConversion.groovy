@@ -4,6 +4,7 @@ import org.grooscript.convert.ConversionOptions
 import org.grooscript.convert.GsConverter
 import org.grooscript.convert.ast.AstTreeGenerator
 import org.grooscript.util.FileSolver
+import org.grooscript.util.GrooScriptException
 
 import java.util.regex.Matcher
 
@@ -44,7 +45,7 @@ class RequireJsModulesConversion {
             convertedFiles << generateTemplate(sourceFilePath, destinationFolder,
                     destinationFromFilePath(sourceFilePath, classPath), requireJsConversionOptions)
         } else {
-            error("File ${sourceFilePath} doesn't exists.")
+            throw new GrooScriptException("File ${sourceFilePath} doesn't exists.")
         }
         convertedFiles
     }

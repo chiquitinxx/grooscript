@@ -3,6 +3,7 @@ package org.grooscript.convert.util
 import org.grooscript.convert.GsConverter
 import org.grooscript.convert.ast.AstTreeGenerator
 import org.grooscript.util.FileSolver
+import org.grooscript.util.GrooScriptException
 import org.grooscript.util.GsConsole
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -71,12 +72,10 @@ class RequireJsModulesConversionSpec extends Specification {
         GroovySpy(GsConsole, global: true)
 
         when:
-        def result = requireJs.convert(invalidFile, destinationFolder)
+        requireJs.convert(invalidFile, destinationFolder)
 
         then:
-        1 * GsConsole.error("File ${invalidFile} doesn't exists.")
-        0 * codeConverter._
-        result == []
+        thrown(GrooScriptException)
     }
 
     void 'convert require modules without dependencies'() {

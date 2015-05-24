@@ -174,6 +174,20 @@ class TestFiles extends Specification {
         new File(destinationFolder).deleteDir()
     }
 
+    void 'convert requirejs a non exists file, then an exception thrown'() {
+        given:
+        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, FILES_CLASSPATH)
+
+        when:
+        GrooScript.convertRequireJs("${sourceFolder}files${SEP}none.groovy", destinationFolder)
+
+        then:
+        thrown(GrooScriptException)
+
+        cleanup:
+        new File(destinationFolder).deleteDir()
+    }
+
     private boolean folderContainsFiles(String pathFolder, List files) {
         File folder = new File(pathFolder)
         boolean allFound = true

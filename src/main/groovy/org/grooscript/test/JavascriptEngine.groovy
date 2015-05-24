@@ -121,7 +121,7 @@ class JavascriptEngine {
                 testResult.assertFails = testResult.bind.gSfails
                 testResult.console = testResult.bind.gSconsole
 
-            } catch (e) {
+            } catch (Throwable e) {
                 throw new GrooScriptException("Fail evaluating Js Script! - ${e.message}")
             }
         }

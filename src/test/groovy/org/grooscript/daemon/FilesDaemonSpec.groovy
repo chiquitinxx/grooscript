@@ -75,7 +75,7 @@ class FilesDaemonSpec extends Specification {
         def daemon = new FilesDaemon(files, { List<String> files ->
             assert files == [tempFile.path]
             changed = true
-            throw new Exception('error')
+            throw new Throwable('error')
         }, [actionOnStartup: false])
 
         when:

@@ -146,7 +146,7 @@ class GrooScript {
             } else {
                 GsConsole.error('No files to be converted. *.groovy or *.java files not found.')
             }
-        } catch (e) {
+        } catch (Throwable e) {
             throw new GrooScriptException("Convert Exception: ${e.message}")
         }
     }
@@ -299,25 +299,29 @@ class GrooScript {
     }
 
     static List<ConvertedFile> convertRequireJs(String initialFile, String destinationFolder) {
-        FileSolver fileSolver = new FileSolver()
-        Map compilerOptions = [
-                classPath: options[ConversionOptions.CLASSPATH.text],
-                customization: options[ConversionOptions.CUSTOMIZATION.text]
-        ]
-        LocalDependenciesSolver localDependenciesSolver = new LocalDependenciesSolver(compilerOptions)
-        RequireJsModulesConversion reqJs = new RequireJsModulesConversion(
-                fileSolver: fileSolver,
-                codeConverter: newConverter,
-                astTreeGenerator: new AstTreeGenerator(compilerOptions),
-                requireJsFileGenerator: new RequireJsFileGenerator(fileSolver: fileSolver),
-                localDependenciesSolver: localDependenciesSolver
-        )
-        String classPath = reqJs.classPathFolder(options)
-        reqJs.dependenciesSolver = new DependenciesSolver(
-                fileSolver: fileSolver,
-                classPath: classPath,
-                localDependenciesSolver: localDependenciesSolver
-        )
-        reqJs.convert(initialFile, destinationFolder, options)
+        try {
+            FileSolver fileSolver = new FileSolver()
+            Map compilerOptions = [
+                    classPath: options[ConversionOptions.CLASSPATH.text],
+                    customization: options[ConversionOptions.CUSTOMIZATION.text]
+            ]
+            LocalDependenciesSolver localDependenciesSolver = new LocalDependenciesSolver(compilerOptions)
+            RequireJsModulesConversion reqJs = new RequireJsModulesConversion(
+                    fileSolver: fileSolver,
+                    codeConverter: newConverter,
+                    astTreeGenerator: new AstTreeGenerator(compilerOptions),
+                    requireJsFileGenerator: new RequireJsFileGenerator(fileSolver: fileSolver),
+                    localDependenciesSolver: localDependenciesSolver
+            )
+            String classPath = reqJs.classPathFolder(options)
+            reqJs.dependenciesSolver = new DependenciesSolver(
+                    fileSolver: fileSolver,
+                    classPath: classPath,
+                    localDependenciesSolver: localDependenciesSolver
+            )
+            return reqJs.convert(initialFile, destinationFolder, options)
+        } catch (Throwable e) {
+            throw new GrooScriptException("Error converting ${initialFile} to require.js modules")
+        }
     }
 }

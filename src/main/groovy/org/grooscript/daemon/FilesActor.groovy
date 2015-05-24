@@ -30,8 +30,8 @@ class FilesActor extends DefaultActor {
                     if (filesChanged && action) {
                         try {
                             action(filesChanged)
-                        } catch (e) {
-                            GsConsole.error("Error executing action in files (${filesChanged}): ${e.message}")
+                        } catch (Throwable e) {
+                            GsConsole.error("Exception executing action in files (${filesChanged}): ${e.message}")
                         }
                     }
                     sleep(restTime)
