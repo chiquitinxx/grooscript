@@ -321,7 +321,8 @@ class GrooScript {
             )
             return reqJs.convert(initialFile, destinationFolder, options)
         } catch (Throwable e) {
-            throw new GrooScriptException("Error converting ${initialFile} to require.js modules")
+            throw new GrooScriptException(
+                    "Error converting ${initialFile} to require.js modules. Exception: ${e.message}")
         }
     }
 }
