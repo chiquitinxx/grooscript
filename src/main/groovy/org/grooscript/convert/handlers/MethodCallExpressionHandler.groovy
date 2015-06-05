@@ -185,7 +185,16 @@ class MethodCallExpressionHandler extends BaseHandler {
     }
 
     private addParametersWithoutParenthesis(expression) {
-        conversionFactory.visitNode(expression.arguments, false)
+        def arguments = expression.arguments
+        if (context.actualTraitMethod && arguments?.getExpressions()) {
+            //Inside a trait method, we remove $self as first argument
+            def exp = arguments.getExpression(0)
+            if (exp instanceof VariableExpression && exp.variable == '$self' &&
+                    expression.methodAsString in context.actualTraitMethod.declaringClass.methods.collect { it.name }) {
+                arguments = new ArgumentListExpression(arguments.getExpressions().tail())
+            }
+        }
+        conversionFactory.visitNode(arguments, false)
     }
 
     private addParametersAsList(expression) {
@@ -240,8 +249,8 @@ class MethodCallExpressionHandler extends BaseHandler {
             if (conversionFactory.isThis(expression.objectExpression) && context.staticProcessNode) {
                 out.addScript(context.staticProcessNode.nameWithoutPackage)
             } else {
-                if (conversionFactory.isThis(expression.objectExpression) && context.actualTraitMethodName) {
-                    out.addScript(context.actualTraitMethodName)
+                if (conversionFactory.isThis(expression.objectExpression) && context.actualTraitMethod) {
+                    out.addScript(context.actualTraitMethod.parameters[0].name)
                 } else {
                     conversionFactory.visitNode(expression.objectExpression)
                 }
@@ -259,7 +268,7 @@ class MethodCallExpressionHandler extends BaseHandler {
         if (conversionFactory.isThis(expression.objectExpression) && !context.mainContext &&
                 context.insideClass && !context.currentVariableScopingHasMethod(methodName) &&
                 !context.staticProcessNode) {
-            out.addScript(", ${GS_OBJECT}")
+            out.addScript(", ${context.actualTraitMethod ? '$self' : GS_OBJECT}")
         }
         out.addScript(')')
     }

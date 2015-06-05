@@ -33,7 +33,7 @@ class Context {
     boolean addClosureSwitchInitialization = false
 
     boolean insideWith = false
-    String actualTraitMethodName
+    MethodNode actualTraitMethod
 
     //Prefix and postfix for variables without clear scope
     String prefixOperator = '', postfixOperator = ''
