@@ -102,6 +102,6 @@ class TestTraits extends Specification {
 
     def 'using this in trait functions'() {
         expect:
-        convertAndEvaluate('traits/UsingThis', true)
+        convertAndEvaluate('traits/UsingThis')
     }
 }

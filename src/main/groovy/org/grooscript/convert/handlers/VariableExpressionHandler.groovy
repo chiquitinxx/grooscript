@@ -12,7 +12,9 @@ class VariableExpressionHandler extends BaseHandler {
 
     void handle(VariableExpression expression, isDeclaringVariable = false) {
         //println "name:${expression.name} - ${expression.isThisExpression()}"
-        if (context.variableScoping.peek().contains(expression.name) &&
+        if (context.actualScope.peek().contains(expression.name)) {
+            out.addScript(addPrefixOrPostfixIfNeeded(expression.name))
+        } else if (context.variableScoping.peek().contains(expression.name) &&
                 !(context.allActualScopeContains(expression.name))) {
             addObjectVariable(expression.name)
         } else if (context.variableStaticScoping.peek().contains(expression.name) &&
