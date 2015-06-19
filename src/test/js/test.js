@@ -89,6 +89,11 @@ describe('initial tests on gs', function(){
         assert.equal(gs.isGroovyObj(5), false);
         assert.equal(gs.isGroovyObj({}), false);
         assert.equal(gs.isGroovyObj(function () {}), false);
+        assert.equal(gs.isGroovyObj(null), false);
+        assert.equal(gs.isGroovyObj(undefined), false);
+        assert.equal(gs.isGroovyObj([]), false);
+        assert.equal(gs.isGroovyObj(false), false);
+        assert.equal(gs.isGroovyObj(true), false);
     });
 
     it('convert to groovy object of a class', function() {

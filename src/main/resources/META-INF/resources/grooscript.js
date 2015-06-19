@@ -143,7 +143,8 @@
         },
         getMetaClass : function() {
             return gs.metaClass(this);
-        }
+        },
+        clazz: {}
     };
 
     function applyBaseClassFunctions(item) {
@@ -2656,7 +2657,7 @@
     ////////////////////////////////////////////////////////////
     gs.stringBuffer = function() {
 
-        var object = gs.inherit(gs.baseClass,'StringBuffer');
+        var object = gs.inherit(gs.baseClass, 'StringBuffer');
         object.value = '';
 
         if (arguments.length == 1 && typeof arguments[0] === 'string') {
@@ -2860,11 +2861,7 @@
     };
 
     gs.isGroovyObj = function(maybeGroovyObject) {
-        return maybeGroovyObject !== null &&
-                (maybeGroovyObject.withz !== undefined &&
-                typeof(maybeGroovyObject.withz) === "function") ||
-            (maybeGroovyObject.clazz !== undefined &&
-                maybeGroovyObject.clazz.name == 'java.util.LinkedHashMap');
+        return maybeGroovyObject !== null && maybeGroovyObject !== undefined && maybeGroovyObject.clazz !== undefined;
     };
 
     gs.execStatic = function(obj, methodName, thisObject, params) {
