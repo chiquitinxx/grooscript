@@ -9,7 +9,7 @@ assert sayHelloTo('Groovy') == 'Hello Groovy!'
 
 def getCode = { house ->
     def minValue = 5
-    if (house?.number>minValue) {
+    if (house?.number > minValue) {
         return 1
     } else {
         return 0

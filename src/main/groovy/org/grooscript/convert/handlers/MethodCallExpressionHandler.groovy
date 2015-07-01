@@ -239,7 +239,7 @@ class MethodCallExpressionHandler extends BaseHandler {
         staticMethod
     }
 
-    private doFullMethodCall(methodName, expression) {
+    private doFullMethodCall(String methodName, MethodCallExpression expression) {
         out.addScript("${GS_METHOD_CALL}(")
         //Object
         if (conversionFactory.isThis(expression.objectExpression) &&
@@ -265,11 +265,22 @@ class MethodCallExpressionHandler extends BaseHandler {
         //Parameters
         addParametersAsList(expression)
 
+        //Helper
         if (conversionFactory.isThis(expression.objectExpression) && !context.mainContext &&
                 context.insideClass && !context.currentVariableScopingHasMethod(methodName) &&
                 !context.staticProcessNode) {
             out.addScript(", ${context.actualTraitMethod ? '$self' : GS_OBJECT}")
+        } else {
+            if (expression.safe) {
+                out.addScript(', null')
+            }
         }
+
+        //Safe navigation
+        if (expression.safe) {
+            out.addScript(', true')
+        }
+
         out.addScript(')')
     }
 

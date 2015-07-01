@@ -62,16 +62,14 @@ class Functions {
             conversionFactory.context.addToActualScope('it')
         } else {
 
-            functionOrMethod.parameters?.eachWithIndex { Parameter param, index ->
+            functionOrMethod.parameters?.each { Parameter param ->
 
                 //If the last parameter is an Object[] then, maybe, can get more parameters as optional
-                if (param.type.name=='[Ljava.lang.Object;' && index + 1 == functionOrMethod.parameters.size()) {
+                if (isArray(param) && functionOrMethod.parameters.last() == param) {
                     lastParameterCanBeMore = true
                 }
-                //println 'pe->'+param.toString()+' - '+param.type.name //+' - '+param.type
 
                 if (param.getInitialExpression()) {
-                    //println 'Initial->'+param.getInitialExpression()
                     initalValues.putAt(param.name,param.getInitialExpression())
                 }
                 if (!first) {
@@ -137,5 +135,10 @@ class Functions {
         conversionFactory.out.indent--
         conversionFactory.out.removeTabScript()
         conversionFactory.out.addScript('}', true)
+    }
+
+    private boolean isArray(Parameter param) {
+        //'[Ljava.lang.Object;'
+        param.type.name.startsWith('[L') && param.type.name.endsWith(';')
     }
 }

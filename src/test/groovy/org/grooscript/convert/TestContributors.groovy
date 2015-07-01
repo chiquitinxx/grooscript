@@ -93,10 +93,10 @@ class TestContributors extends Specification {
         convertAndEvaluate('contribution/Twitter1')
     }
 
-    @Unroll('Testing mySelf #file')
-    def 'myself'() {
+    @Unroll('My test #file')
+    def 'my tests and experiments'() {
         expect:
-        convertAndEvaluate(file)
+        convertAndEvaluate(file, true)
 
         where:
         file                       | _
@@ -116,6 +116,7 @@ class TestContributors extends Specification {
         'contribution/MySelf14'    | _
         'contribution/MySelf15'    | _
         'contribution/MySelf16'    | _
+        'contribution/MySelf17'    | _
     }
 
     @Unroll
