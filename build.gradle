@@ -113,7 +113,7 @@ task testUnit(type: Test) {
 testUnit.description = 'Run only unit tests'
 
 compileJava.dependsOn gulp_compress
-test.dependsOn generateGrooscriptToolsFile, gulp_tests
+test.dependsOn generateGrooscriptToolsFile, gulp_tests, gulp_test_require
 
 node {
     // Version of node to use.
