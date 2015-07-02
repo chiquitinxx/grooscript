@@ -2,7 +2,6 @@ package org.grooscript.java;
 
 import org.grooscript.GrooScript;
 import org.junit.Test;
-
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -28,10 +27,11 @@ public class TestConversion {
         String destination = "src/test/resources";
         Path path = Paths.get(destination + "/Numbers.js");
         try {
+            GrooScript.clearAllOptions();
             GrooScript.convert(source, destination);
 
             List<String> lines = Files.readAllLines(path, ENCODING);
-            assertEquals(lines.get(0), "function Numbers() {");
+            assertEquals("function Numbers() {", lines.get(0));
         } catch (Exception e) {
             fail("Don't have to fail convert java file " + source);
         } finally {
