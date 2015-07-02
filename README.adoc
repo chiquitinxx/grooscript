@@ -42,7 +42,7 @@ Releases are available from link:https://search.maven.org/#search%7Cga%7C1%7Ca%3
 
 == Build
 
-Using gradle wrapper, version 2.4. Only GPars 1.2.1 and Groovy dependencies in the project. You need JDK 1.7+ to build and test the project.
+Using gradle wrapper, version 2.4. Only Groovy dependencies in the project. You need JDK 1.7+ to build and test the project.
 
 First time, you have to install Node.js stuff, maybe you have to run as administrator, do it with:
 
@@ -62,7 +62,9 @@ Build project:
 
 == Tools
 
-Grails link:http://grails.org/plugin/grooscript[plugin]
+Grails 2 link:http://grails.org/plugin/grooscript[plugin]
+
+Grails 3 link:http://grooscript.org/grails3-plugin[plugin]
 
 Gradle link:http://plugins.gradle.org/plugin/org.grooscript.conversion[plugin]
 
