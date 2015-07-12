@@ -18,16 +18,6 @@ import static org.grooscript.util.Util.SEP
 @Mixin([ConversionMixin])
 class TestFiles extends Specification {
 
-    private static final String FILES_CLASSPATH = "src${SEP}test${SEP}src"
-
-    private Map options
-    private destinationFolder = 'reqjs'
-    private sourceFolder = "src${SEP}test${SEP}src${SEP}"
-
-    def setup() {
-        options = [classPath: FILES_CLASSPATH]
-    }
-
     def 'initial inheritance on distinct files'() {
         when:
         def result = convertFile('files/Car', options)
@@ -92,8 +82,7 @@ class TestFiles extends Specification {
 
     void 'convert requirejs Car'() {
         when:
-        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, FILES_CLASSPATH)
-        def result = GrooScript.convertRequireJs("${sourceFolder}files${SEP}Car.groovy", destinationFolder)
+        def result = GrooScript.convertRequireJs("${sourceFolder}files${SEP}Car.groovy", destinationFolder, options)
 
         then:
         result == [new ConvertedFile("${sourceFolder}files${SEP}Vehicle.groovy", "files${SEP}Vehicle.js"),
@@ -112,8 +101,7 @@ class TestFiles extends Specification {
 
     void 'convert requirejs Vehicles'() {
         when:
-        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, FILES_CLASSPATH)
-        GrooScript.convertRequireJs("${sourceFolder}files${SEP}Vehicles.groovy", destinationFolder)
+        GrooScript.convertRequireJs("${sourceFolder}files${SEP}Vehicles.groovy", destinationFolder, options)
 
         then:
         !new File("${destinationFolder}${SEP}files${SEP}Vehicles.js").text.
@@ -125,8 +113,7 @@ class TestFiles extends Specification {
 
     void 'convert requirejs using trait'() {
         when:
-        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, FILES_CLASSPATH)
-        GrooScript.convertRequireJs("${sourceFolder}files${SEP}UsingTrait.groovy", destinationFolder)
+        GrooScript.convertRequireJs("${sourceFolder}files${SEP}UsingTrait.groovy", destinationFolder, options)
 
         then:
         folderContainsFiles("${destinationFolder}${SEP}files", ['MyTrait.js', 'UsingTrait.js'])
@@ -137,8 +124,7 @@ class TestFiles extends Specification {
 
     void 'convert requirejs with ast'() {
         when:
-        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, FILES_CLASSPATH)
-        GrooScript.convertRequireJs("${sourceFolder}files${SEP}Train.groovy", destinationFolder)
+        GrooScript.convertRequireJs("${sourceFolder}files${SEP}Train.groovy", destinationFolder, options)
 
         then:
         folderContainsFiles("${destinationFolder}${SEP}files", ['Train.js'])
@@ -150,8 +136,7 @@ class TestFiles extends Specification {
 
     void 'convert requirejs with circular dependencies'() {
         when:
-        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, FILES_CLASSPATH)
-        GrooScript.convertRequireJs("${sourceFolder}files${SEP}Garage.groovy", destinationFolder)
+        GrooScript.convertRequireJs("${sourceFolder}files${SEP}Garage.groovy", destinationFolder, options)
 
         then:
         folderContainsFiles("${destinationFolder}${SEP}files", ['Car.js', 'Garage.js', 'Vehicle.js'])
@@ -162,8 +147,7 @@ class TestFiles extends Specification {
 
     void 'convert requirejs with require js (ast) module'() {
         when:
-        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, FILES_CLASSPATH)
-        GrooScript.convertRequireJs("${sourceFolder}files${SEP}Require.groovy", destinationFolder)
+        GrooScript.convertRequireJs("${sourceFolder}files${SEP}Require.groovy", destinationFolder, options)
         def resultFile = new File("${destinationFolder}${SEP}files${SEP}Require.js")
 
         then:
@@ -175,17 +159,24 @@ class TestFiles extends Specification {
     }
 
     void 'convert requirejs a non exists file, then an exception thrown'() {
-        given:
-        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, FILES_CLASSPATH)
-
         when:
-        GrooScript.convertRequireJs("${sourceFolder}files${SEP}none.groovy", destinationFolder)
+        GrooScript.convertRequireJs("${sourceFolder}files${SEP}none.groovy", destinationFolder, options)
 
         then:
         thrown(GrooScriptException)
 
         cleanup:
         new File(destinationFolder).deleteDir()
+    }
+
+    private static final String FILES_CLASSPATH = "src${SEP}test${SEP}src"
+
+    private Map options
+    private destinationFolder = 'reqjs'
+    private sourceFolder = "src${SEP}test${SEP}src${SEP}"
+
+    def setup() {
+        options = [classPath: FILES_CLASSPATH]
     }
 
     private boolean folderContainsFiles(String pathFolder, List files) {

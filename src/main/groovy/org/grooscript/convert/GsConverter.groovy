@@ -36,7 +36,7 @@ class GsConverter {
      * @return String script in javascript
      */
     String toJs(String script, Map options = null) {
-        String result
+        String result = null
         //Script not empty plz!
         def phase = 0
         conversionOptions = options ?: GrooScript.defaultOptions

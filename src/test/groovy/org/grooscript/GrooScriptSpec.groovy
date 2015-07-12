@@ -34,8 +34,7 @@ class GrooScriptSpec extends Specification {
     @Unroll
     def 'convert some groovy files to one .js file'() {
         given:
-        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, SOURCES_CLASSPATH)
-        GrooScript.convert(SOURCES_FOLDER, destinationFile)
+        GrooScript.convert(SOURCES_FOLDER, destinationFile, [classPath: SOURCES_CLASSPATH])
 
         expect:
         new File(destinationFile).exists()
@@ -51,8 +50,7 @@ class GrooScriptSpec extends Specification {
     @Unroll
     def 'convert some files to one file'() {
         given:
-        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, SOURCES_CLASSPATH)
-        GrooScript.convert([new File(SOURCES_FOLDER)], new File(destinationFile))
+        GrooScript.convert([new File(SOURCES_FOLDER)], new File(destinationFile), [classPath: SOURCES_CLASSPATH])
 
         expect:
         new File(destinationFile).exists()
@@ -67,8 +65,7 @@ class GrooScriptSpec extends Specification {
 
     def 'convert some groovy files to one folder that not exists'() {
         given:
-        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, SOURCES_CLASSPATH)
-        GrooScript.convert(SOURCES_FOLDER, FOLDER)
+        GrooScript.convert(SOURCES_FOLDER, FOLDER, [classPath: SOURCES_CLASSPATH])
 
         expect:
         new File(FOLDER).exists()
@@ -83,11 +80,8 @@ class GrooScriptSpec extends Specification {
         def jqueryLibCount = 0
         def initialTextCount = 0
         def finalTextCount = 0
-        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, SOURCES_CLASSPATH)
-        GrooScript.setConversionProperty(ConversionOptions.INITIAL_TEXT.text, INITIAL)
-        GrooScript.setConversionProperty(ConversionOptions.FINAL_TEXT.text, FINAL)
-        GrooScript.setConversionProperty(ConversionOptions.ADD_GS_LIB.text, 'jquery.min')
-        GrooScript.convert(SOURCES_FOLDER, BIG_JS_FILE)
+        def options = [classPath: SOURCES_CLASSPATH, initialText: INITIAL, finalText: FINAL, addGsLib: 'jquery.min']
+        GrooScript.convert(SOURCES_FOLDER, BIG_JS_FILE, options)
 
         when:
         new File(BIG_JS_FILE).eachLine { line ->
@@ -223,10 +217,6 @@ nativeJs('hello')
 '''
         expect:
         GrooScript.convert(code) == 'hello;' + Util.LINE_SEPARATOR
-    }
-
-    def setup() {
-        GrooScript.clearAllOptions()
     }
 
     private static final FOLDER = 'folder'

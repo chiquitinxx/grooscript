@@ -27,7 +27,6 @@ public class TestConversion {
         String destination = "src/test/resources";
         Path path = Paths.get(destination + "/Numbers.js");
         try {
-            GrooScript.clearAllOptions();
             GrooScript.convert(source, destination);
 
             List<String> lines = Files.readAllLines(path, ENCODING);

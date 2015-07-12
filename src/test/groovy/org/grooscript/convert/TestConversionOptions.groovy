@@ -25,7 +25,6 @@ class TestConversionOptions extends Specification {
     private static final DESTINATION_FILE = 'destination.js'
 
     def setup() {
-        GrooScript.clearAllOptions()
         new File(SOURCE_DIR).mkdir()
         new File(DESTINATION_DIR).mkdir()
     }
@@ -35,17 +34,6 @@ class TestConversionOptions extends Specification {
         new File(SOURCE_DIR).deleteDir()
         new File(DESTINATION_FILE).delete()
         new File(DESTINATION_DIR).deleteDir()
-    }
-
-    def 'initial values for conversion'() {
-        expect:
-        expectedInitialValues()
-
-        when:
-        GrooScript.clearAllOptions()
-
-        then:
-        expectedInitialValues()
     }
 
     def 'convert a groovy file'() {
@@ -73,23 +61,14 @@ class TestConversionOptions extends Specification {
         destinationDirContainsFiles(DESTINATION_DIR, 2)
     }
 
-    def 'cat set options more than 1 time'() {
-        when:
-        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, FOLDER_NEED_DEPENDENCY)
-        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, FOLDER_NEED_DEPENDENCY)
-
-        then:
-        GrooScript.options[ConversionOptions.CLASSPATH.text] == FOLDER_NEED_DEPENDENCY
-    }
-
     def 'check dependency resolution'() {
 
         given:
         setupNeedDirectory()
-        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, FOLDER_NEED_DEPENDENCY)
+        def options = [classPath: FOLDER_NEED_DEPENDENCY]
 
         when: 'convert a class with need dependency'
-        String result = GrooScript.convert("class A {};def need = new ${CLASS_NEED_DEPENDENCY}()")
+        String result = GrooScript.convert("class A {};def need = new ${CLASS_NEED_DEPENDENCY}()", options)
 
         then:
         result.startsWith('function A()')
@@ -103,10 +82,10 @@ class TestConversionOptions extends Specification {
 
         given:
         setupNeedDirectory()
+        def options = [classPath: [FOLDER_NEED_DEPENDENCY]]
 
-        when: 'we set classpath as list'
-        GrooScript.setConversionProperty(ConversionOptions.CLASSPATH.text, [FOLDER_NEED_DEPENDENCY])
-        String result = GrooScript.convert("class B { Need c = new Need() }")
+        when:
+        String result = GrooScript.convert("class B { Need c = new Need() }", options)
 
         then: 'conversion done'
         result
@@ -135,10 +114,10 @@ class TestConversionOptions extends Specification {
         def customization = {
             ast(astChecking)
         }
+        def options = [customization: customization]
 
         when:
-        GrooScript.setConversionProperty(ConversionOptions.CUSTOMIZATION.text, customization)
-        GrooScript.convert('class A {  def say() { println aaaa }}')
+        GrooScript.convert('class A {  def say() { println aaaa }}', customization)
 
         then:
         thrown(Exception)
@@ -165,10 +144,10 @@ class TestConversionOptions extends Specification {
     def 'define main context scope variables'() {
         given:
         def code = 'def addToB = { a ->  console.log("Hello!"); a + b }'
-        GrooScript.setConversionProperty(ConversionOptions.MAIN_CONTEXT_SCOPE.text, ['b', 'console'])
+        def options = [mainContextScope: ['b', 'console']]
 
         when:
-        def result = GrooScript.convert(code)
+        def result = GrooScript.convert(code, options)
 
         then:
         result == "var addToB = function(a) {$LS" +
@@ -181,28 +160,29 @@ class TestConversionOptions extends Specification {
     def 'add text before and after in generated result'() {
         given:
         def code = 'def a = 0'
+        def options = [:]
 
         when:
-        GrooScript.setConversionProperty(option, 'Text')
-        def result = GrooScript.convert(code)
+        options[option] = 'Text'
+        def result = GrooScript.convert(code, options)
 
         then:
         result == expectedResult
 
         where:
-        option                              | expectedResult
-        ConversionOptions.INITIAL_TEXT.text | "Text${Util.LINE_SEPARATOR}var a = 0;${Util.LINE_SEPARATOR}"
-        ConversionOptions.FINAL_TEXT.text   | "var a = 0;${Util.LINE_SEPARATOR}${Util.LINE_SEPARATOR}Text"
+        option        | expectedResult
+        'initialText' | "Text${LS}var a = 0;${LS}"
+        'finalText'   | "var a = 0;${LS}${LS}Text"
     }
 
     @Unroll
     def 'test recursive conversion'() {
         given:
         createFolderWithSubfolderAndFilesInEachDir(SOURCE_DIR, sourceFiles)
+        def options = [recursive: true]
 
         when:
-        GrooScript.setConversionProperty(ConversionOptions.RECURSIVE.text, true)
-        GrooScript.convert(SOURCE_DIR, DESTINATION_DIR)
+        GrooScript.convert(SOURCE_DIR, DESTINATION_DIR, options)
 
         then:
         destinationDirContainsFiles(DESTINATION_DIR, destinationFiles)
@@ -217,20 +197,20 @@ class TestConversionOptions extends Specification {
     @Unroll
     def 'test add grooscript js archive at the beginning of the conversion'() {
         when:
-        GrooScript.setConversionProperty(ConversionOptions.ADD_GS_LIB.text, fileName)
-        def result = GrooScript.convert('println "Hello!"')
+        def options = [addGsLib: fileName]
+        def result = GrooScript.convert('println "Hello!"', options)
 
         then:
         result.startsWith(new File("src/main/resources/META-INF/resources/${fileName}.js").text)
 
         where:
-        fileName << ['grooscript', 'grooscript.min']
+        fileName << ['grooscript', 'grooscript.min', 'grooscript-tools']
     }
 
     def 'test add two grooscript js archives at the beginning of the conversion'() {
         when:
-        GrooScript.setConversionProperty(ConversionOptions.ADD_GS_LIB.text, 'grooscript.min, jquery.min')
-        def result = GrooScript.convert('println "Hello!"')
+        def options = [addGsLib: 'grooscript.min, jquery.min']
+        def result = GrooScript.convert('println "Hello!"', options)
 
         then:
         result.startsWith(new File('src/main/resources/META-INF/resources/grooscript.min.js').text)
@@ -239,18 +219,11 @@ class TestConversionOptions extends Specification {
 
     def 'test convert a class as require.js module'() {
         when:
-        GrooScript.setConversionProperty(ConversionOptions.REQUIRE_JS_MODULE.text, true)
-        def asRequireJsModuleResult = GrooScript.convert('class A {}')
-        GrooScript.clearAllOptions()
+        def asRequireJsModuleResult = GrooScript.convert('class A {}', [requireJs: true])
         def normalConversion = GrooScript.convert('class A {}')
 
         then:
         asRequireJsModuleResult != normalConversion
-    }
-
-    private void expectedInitialValues() {
-        assert GrooScript.debug == false
-        assert GrooScript.options == null
     }
 
     private setupNeedDirectory() {

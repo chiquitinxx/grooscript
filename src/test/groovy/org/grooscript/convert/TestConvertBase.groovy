@@ -18,8 +18,9 @@ class TestConvertBase extends Specification {
 
         then:
         converter
-        //Returns null if no script passed
-        !converter.toJs(null)
+
+        and: 'Returns null if no script passed'
+        converter.toJs(null) == null
     }
 
     def 'conversion basic'() {
@@ -46,7 +47,6 @@ class TestConvertBase extends Specification {
 
     def 'use static class converter'() {
         when:
-        GrooScript.clearAllOptions()
         def result = GrooScript.convert('def a=0')
 
         then:

@@ -61,7 +61,7 @@ public class TestTypes {
 
     final static Charset ENCODING = StandardCharsets.UTF_8;
 
-    private void evaluateInJavascript(String nameClass) throws IOException {
+    private void evaluateInJavascript(String nameClass) throws Exception {
         String result = GrooScript.convert(readFile(nameClass));
         result += Util.getLINE_SEPARATOR() + nameClass + "().validate();";
         //System.out.println("**-"+result);
