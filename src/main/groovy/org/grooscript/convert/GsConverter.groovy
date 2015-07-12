@@ -22,9 +22,6 @@ class GsConverter {
     Out out
     Functions functions
 
-    //Adds a console info if activated
-    boolean consoleInfo = false
-
     //Conversion Options
     Map<String, Object> conversionOptions
 
@@ -33,6 +30,7 @@ class GsConverter {
     /**
      * Converts Groovy script to Javascript
      * @param String script in groovy
+     * @param Map conversion options
      * @return String script in javascript
      */
     String toJs(String script, Map options = null) {
@@ -609,5 +607,9 @@ class GsConverter {
 
     private processEmptyExpression(EmptyExpression expression) {
         //Nothing to do
+    }
+
+    private boolean isConsoleInfo() {
+        conversionOptions && conversionOptions[ConversionOptions.CONSOLE_INFO.text] == true
     }
 }

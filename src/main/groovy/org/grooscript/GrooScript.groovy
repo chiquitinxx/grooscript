@@ -73,6 +73,7 @@ class GrooScript {
      * Converts a list of files to a destination js file or path
      * @param sources
      * @param destination
+     * @param conversion options
      */
     static void convert(List<File> sources, File destination, Map options = defaultOptions) {
         if (sources && destination) {
@@ -108,14 +109,18 @@ class GrooScript {
         }
     }
 
-    static void joinListOfFiles(... params) {
-        if (params.size() < 3) {
+    /**
+     * Join files to a destination file
+     * @param filePaths last is destination file
+     */
+    static void joinListOfFiles(... filePaths) {
+        if (filePaths.size() < 3) {
             GsConsole.error('Params are files to join and destination file')
             return
         }
-        File destinationFile = new File(params.last())
+        File destinationFile = new File(filePaths.last())
         destinationFile.text = ''
-        def filesToJoin = params - params.last()
+        def filesToJoin = filePaths - filePaths.last()
         filesToJoin.each { sourceFile ->
             def file = new File(sourceFile)
             if (file.isFile()) {
@@ -126,6 +131,10 @@ class GrooScript {
         }
     }
 
+    /**
+     * Get default conversion options
+     * @return
+     */
     static Map<String, Object> getDefaultOptions() {
         ConversionOptions.values().inject([:]) { map, value ->
             map[value.text] = value.defaultValue
@@ -137,6 +146,7 @@ class GrooScript {
      * Evaluate a piece of groovy code
      * @param code that will be evaluated using grooscript.min
      * @param comma separated js libs to add for evaluation
+     * @param conversion options
      * @return JsTestResult
      */
     static JsTestResult evaluateGroovyCode(String code, String jsLibs = null, Map options = defaultOptions) {
@@ -155,26 +165,59 @@ class GrooScript {
         testResult
     }
 
+    /**
+     * Get content of a javascript library inside grooscript.jar
+     * grooscript, grooscript.min, grooscript-tools or jquery.min
+     * @param nameJsLib
+     * @return
+     */
     static String getJsLibText(String nameJsLib) {
         GrooScript.classLoader.getResourceAsStream('META-INF/resources/' + nameJsLib + '.js').text
     }
 
+    /**
+     * In converted code, convert data to 'groovy'
+     * @param data
+     * @return
+     */
     static toGroovy(data) {
         data
     }
 
+    /**
+     * In converted code convert data to 'javascript'
+     * @param data
+     * @return
+     */
     static toJavascript(data) {
         data
     }
 
+    /**
+     * In converted code, convert data to 'javascript object'
+     * @param data
+     * @return
+     */
     static toJsObj(data) {
         data
     }
 
+    /**
+     * In converted code, code is not converted
+     * @param code must be a quotes string 'console.log("1")'
+     * @return
+     */
     static nativeJs(String code) {
         code
     }
 
+    /**
+     * Convert a file to require.js modules, all dependencies are converted
+     * @param initialFile
+     * @param destinationFolder
+     * @param conversion options
+     * @return
+     */
     static List<ConvertedFile> convertRequireJs(String initialFile, String destinationFolder, Map options = defaultOptions) {
         try {
             FileSolver fileSolver = new FileSolver()

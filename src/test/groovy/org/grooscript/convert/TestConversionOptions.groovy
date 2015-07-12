@@ -204,7 +204,7 @@ class TestConversionOptions extends Specification {
         result.startsWith(new File("src/main/resources/META-INF/resources/${fileName}.js").text)
 
         where:
-        fileName << ['grooscript', 'grooscript.min', 'grooscript-tools']
+        fileName << ['grooscript', 'grooscript.min']
     }
 
     def 'test add two grooscript js archives at the beginning of the conversion'() {
@@ -224,6 +224,11 @@ class TestConversionOptions extends Specification {
 
         then:
         asRequireJsModuleResult != normalConversion
+    }
+
+    def 'conversion with consoleInfo'() {
+        expect:
+        GrooScript.convert('class A {}', [consoleInfo: true])
     }
 
     private setupNeedDirectory() {
