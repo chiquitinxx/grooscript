@@ -19,7 +19,7 @@ group = 'org.grooscript'
 
 ext {
     appName = 'grooscript'
-    groovyVersion = '2.4.3'
+    groovyVersion = '2.4.4'
 }
 
 repositories {
