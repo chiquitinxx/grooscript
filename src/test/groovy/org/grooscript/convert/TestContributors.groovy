@@ -177,11 +177,12 @@ class TestContributors extends Specification {
         convertAndEvaluate('contribution/H1romas4GsNative')
     }
 
-    def 'groovy site code fragments'() {
+    @Unroll
+    def 'groovy site code fragment #number'() {
         expect:
-        convertAndEvaluate("contribution/GroovySite${number}")
+        convertAndEvaluate("contribution/GroovySite${number}", true)
 
         where:
-        number << [0]
+        number << [0, 1]
     }
 }

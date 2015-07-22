@@ -10,6 +10,8 @@ Let's see examples of some conversions.
 include::../src/test/resources/advanced/StringSecrets.groovy[tags=strings,indent=0]
 --
 
+Lazy evaluation with `${-> resource}` is not supported.
+
 ==== Default constructor, optional parameters, pointer methods, multiple assignment
 
 [source,groovy]
