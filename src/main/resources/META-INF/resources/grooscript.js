@@ -2432,14 +2432,18 @@
                 } else if (delegates.length > 0 && delegatesFunc('methodMissing')) {
                     return gs.mc(delegatesFunc('methodMissing'), methodName, values);
                 } else {
-                    //Maybe there is a function in the script with the name of the method
-                    //In Node.js 'this.xxFunction()' in the main context fails
-                    if (typeof eval(methodName) === 'function') {
-                        return eval(methodName).apply(this, values);
-                    }
+                    if (item.invokeMethod && item.invokeMethod !== gs.baseClass.invokeMethod) {
+                        return item.invokeMethod(methodName, values);
+                    } else {
+                        //Maybe there is a function in the script with the name of the method
+                        //In Node.js 'this.xxFunction()' in the main context fails
+                        if (typeof eval(methodName) === 'function') {
+                            return eval(methodName).apply(this, values);
+                        }
 
-                    //Not exist the method, throw exception
-                    throw 'gs.mc Method ' + methodName + ' not exist in ' + item;
+                        //Not exist the method, throw exception
+                        throw 'gs.mc Method ' + methodName + ' not exist in ' + item;
+                    }
                 }
             }
 

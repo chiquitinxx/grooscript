@@ -96,7 +96,7 @@ class TestContributors extends Specification {
     @Unroll('My test #file')
     def 'my tests and experiments'() {
         expect:
-        convertAndEvaluate(file, true)
+        convertAndEvaluate(file)
 
         where:
         file                       | _
@@ -175,5 +175,13 @@ class TestContributors extends Specification {
     def 'h1romas4 repeated GsNative'() {
         expect:
         convertAndEvaluate('contribution/H1romas4GsNative')
+    }
+
+    def 'groovy site code fragments'() {
+        expect:
+        convertAndEvaluate("contribution/GroovySite${number}")
+
+        where:
+        number << [0]
     }
 }

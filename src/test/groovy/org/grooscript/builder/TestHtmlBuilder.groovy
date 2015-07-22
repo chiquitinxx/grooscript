@@ -32,7 +32,7 @@ class TestHtmlBuilder extends Specification {
             }
 
             assert result == "<body><p>hola</p></body>"
-        ''', false)
+        ''')
     }
 
     void 'works with tag options and yield function'() {
