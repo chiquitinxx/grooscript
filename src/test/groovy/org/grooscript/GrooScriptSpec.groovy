@@ -12,23 +12,19 @@ import spock.lang.Unroll
  */
 class GrooScriptSpec extends Specification {
 
-    def 'conversion options'() {
-        expect:
-        ConversionOptions.values().size() == 9
-    }
-
     def 'default options'() {
         expect:
         GrooScript.defaultOptions == [
-            classpath: null,
-            customization: null,
-            mainContextScope: null,
-            initialText: null,
-            finalText: null,
-            addGsLib: null,
-            recursive: false,
-            requireJsModule: false,
-            consoleInfo: false
+                classpath: null,
+                customization: null,
+                mainContextScope: null,
+                initialText: null,
+                finalText: null,
+                addGsLib: null,
+                recursive: false,
+                requireJsModule: false,
+                consoleInfo: false,
+                includeDependencies: false
         ]
     }
 

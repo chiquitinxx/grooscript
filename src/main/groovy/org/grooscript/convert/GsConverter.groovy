@@ -3,6 +3,7 @@ package org.grooscript.convert
 import org.grooscript.GrooScript
 import org.grooscript.convert.ast.AstTreeGenerator
 import org.grooscript.convert.util.RequireJsDependency
+import org.grooscript.util.GrooScriptException
 
 import static org.grooscript.JsNames.*
 
@@ -37,8 +38,8 @@ class GsConverter {
         String result = null
         //Script not empty plz!
         def phase = 0
-        conversionOptions = options ?: GrooScript.defaultOptions
-        if (script) {
+        if (script && validateConversionOptions(options)) {
+            conversionOptions = options ?: GrooScript.defaultOptions
             try {
                 if (consoleInfo) {
                     GsConsole.message('Getting ast from code...')
@@ -611,5 +612,19 @@ class GsConverter {
 
     private boolean isConsoleInfo() {
         conversionOptions && conversionOptions[ConversionOptions.CONSOLE_INFO.text] == true
+    }
+
+    private boolean validateConversionOptions(Map options) {
+        options ? areCompatibles(options) : true
+    }
+
+    private boolean areCompatibles(Map options) {
+        if (options[ConversionOptions.REQUIRE_JS_MODULE.text] == true &&
+                options[ConversionOptions.INCLUDE_DEPENDENCIES.text] == true
+        ) {
+            throw new GrooScriptException("Incompatible conversion options " +
+                    "(${ConversionOptions.REQUIRE_JS_MODULE.text} - ${ConversionOptions.INCLUDE_DEPENDENCIES.text})")
+        }
+        true
     }
 }

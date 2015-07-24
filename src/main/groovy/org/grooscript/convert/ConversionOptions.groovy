@@ -15,7 +15,8 @@ enum ConversionOptions {
     RECURSIVE('recursive', false),
     ADD_GS_LIB('addGsLib', null),
     REQUIRE_JS_MODULE('requireJsModule', false),
-    CONSOLE_INFO('consoleInfo', false)
+    CONSOLE_INFO('consoleInfo', false),
+    INCLUDE_DEPENDENCIES('includeDependencies', false)
 
     String text
     def defaultValue

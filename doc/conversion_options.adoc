@@ -7,3 +7,4 @@ mainContextScope:: you can help the converted, specifying functions and variable
 addGsLib:: you can add a grooscript js lib at the beginning of the converted file. For example you can add grooscript.js to the result, and then you don't have to worry about include that dependency in javascript +''grooscript''+
 requireJsModule:: the result javascript code will be as a require.js module.
 consoleInfo:: you get info in console about conversion process setting to true. Is mainly a debug option.
+includeDependencies:: in the result javascript file, will be added conversion of dependencies. You can't set both includeDependencies and requireJsModule to true.

@@ -36,6 +36,11 @@ class TestConversionOptions extends Specification {
         new File(DESTINATION_DIR).deleteDir()
     }
 
+    def 'number conversion options'() {
+        expect:
+        ConversionOptions.values().size() == 10
+    }
+
     def 'convert a groovy file'() {
         given:
         def name = 'name'

@@ -2,6 +2,7 @@ package org.grooscript.convert
 
 import org.grooscript.convert.util.RequireJsDependency
 import org.grooscript.test.ConversionMixin
+import org.grooscript.util.GrooScriptException
 import spock.lang.Specification
 
 import static org.grooscript.util.Util.LINE_SEPARATOR
@@ -50,6 +51,21 @@ class GsConverterSpec extends Specification {
 
         then:
         converter.requireJsDependencies == [new RequireJsDependency(path: PATH, name: NAME)]
+    }
+
+    void 'incompatible conversion options'() {
+        given:
+        def conversionOptions = [:]
+        conversionOptions.put(ConversionOptions.REQUIRE_JS_MODULE.text, true)
+        conversionOptions.put(ConversionOptions.INCLUDE_DEPENDENCIES.text, true)
+
+        when:
+        converter.toJs('println "Hola!"', conversionOptions)
+
+        then:
+        def e = thrown(GrooScriptException)
+        e.message == "Incompatible conversion options (${ConversionOptions.REQUIRE_JS_MODULE.text} " +
+                "- ${ConversionOptions.INCLUDE_DEPENDENCIES.text})"
     }
 
     private GsConverter converter = new GsConverter()
