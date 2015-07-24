@@ -20,14 +20,14 @@ class GrooScriptSpec extends Specification {
     def 'default options'() {
         expect:
         GrooScript.defaultOptions == [
-            classPath: null,
+            classpath: null,
             customization: null,
             mainContextScope: null,
             initialText: null,
             finalText: null,
             addGsLib: null,
             recursive: false,
-            requireJs: false,
+            requireJsModule: false,
             consoleInfo: false
         ]
     }
@@ -35,7 +35,7 @@ class GrooScriptSpec extends Specification {
     @Unroll
     def 'convert some groovy files to one .js file'() {
         given:
-        GrooScript.convert(SOURCES_FOLDER, destinationFile, [classPath: SOURCES_CLASSPATH])
+        GrooScript.convert(SOURCES_FOLDER, destinationFile, [classpath: SOURCES_CLASSPATH])
 
         expect:
         new File(destinationFile).exists()
@@ -51,7 +51,7 @@ class GrooScriptSpec extends Specification {
     @Unroll
     def 'convert some files to one file'() {
         given:
-        GrooScript.convert([new File(SOURCES_FOLDER)], new File(destinationFile), [classPath: SOURCES_CLASSPATH])
+        GrooScript.convert([new File(SOURCES_FOLDER)], new File(destinationFile), [classpath: SOURCES_CLASSPATH])
 
         expect:
         new File(destinationFile).exists()
@@ -66,7 +66,7 @@ class GrooScriptSpec extends Specification {
 
     def 'convert some groovy files to one folder that not exists'() {
         given:
-        GrooScript.convert(SOURCES_FOLDER, FOLDER, [classPath: SOURCES_CLASSPATH])
+        GrooScript.convert(SOURCES_FOLDER, FOLDER, [classpath: SOURCES_CLASSPATH])
 
         expect:
         new File(FOLDER).exists()
@@ -81,7 +81,7 @@ class GrooScriptSpec extends Specification {
         def jqueryLibCount = 0
         def initialTextCount = 0
         def finalTextCount = 0
-        def options = [classPath: SOURCES_CLASSPATH, initialText: INITIAL, finalText: FINAL, addGsLib: 'jquery.min']
+        def options = [classpath: SOURCES_CLASSPATH, initialText: INITIAL, finalText: FINAL, addGsLib: 'jquery.min']
         GrooScript.convert(SOURCES_FOLDER, BIG_JS_FILE, options)
 
         when:

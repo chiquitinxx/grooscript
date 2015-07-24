@@ -29,6 +29,9 @@ GrooScript.convert('path/to/file/or/folder', 'path/to/destination/folder')
 GrooScript.convert(['file', 'folder', ...], 'path/to/destination/folder')
 //Also can convert all source files to one javascript file
 GrooScript.convert('any/number/of/sources', 'path/file.js')
+//You can set conversionOptions, is an optional parameter
+Map conversionOptions = [anyConversionOption: value]
+GrooScript.convert('source', 'destionation', conversionOptions)
 --
 
 When the number of files is increasing, or want to automatize conversions, the gradle plugin helps a lot, and

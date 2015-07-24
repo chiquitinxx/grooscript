@@ -65,7 +65,7 @@ class TestConversionOptions extends Specification {
 
         given:
         setupNeedDirectory()
-        def options = [classPath: FOLDER_NEED_DEPENDENCY]
+        def options = [classpath: FOLDER_NEED_DEPENDENCY]
 
         when: 'convert a class with need dependency'
         String result = GrooScript.convert("class A {};def need = new ${CLASS_NEED_DEPENDENCY}()", options)
@@ -82,7 +82,7 @@ class TestConversionOptions extends Specification {
 
         given:
         setupNeedDirectory()
-        def options = [classPath: [FOLDER_NEED_DEPENDENCY]]
+        def options = [classpath: [FOLDER_NEED_DEPENDENCY]]
 
         when:
         String result = GrooScript.convert("class B { Need c = new Need() }", options)
@@ -219,7 +219,7 @@ class TestConversionOptions extends Specification {
 
     def 'test convert a class as require.js module'() {
         when:
-        def asRequireJsModuleResult = GrooScript.convert('class A {}', [requireJs: true])
+        def asRequireJsModuleResult = GrooScript.convert('class A {}', [requireJsModule: true])
         def normalConversion = GrooScript.convert('class A {}')
 
         then:

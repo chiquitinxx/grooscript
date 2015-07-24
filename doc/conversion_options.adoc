@@ -1,7 +1,9 @@
-classPath:: List of folders or jar's to find dependencies. Before groovy code is converted to javascript, that code have to be successfully compiled. For example: +[''src/groovy'']+
+classpath:: List of folders or jar's to find dependencies. Before groovy code is converted to javascript, that code have to be successfully compiled. For example: +[''src/groovy'']+
 customization:: to each file to be converted, will be applied a groovy http://docs.codehaus.org/display/GROOVY/Advanced+compiler+configuration[customization]. For example you can for example type check all the groovy classes to be converted with +{ -> ast(TypeChecked)}+
 initialText:: you can add test at the beginning of your converted javascript file. You can add comments or javascript code. For example: +''//This code has been generated with grooscript''+
 finalText:: like initialText, but at the end of the converted file. For example: +''MyClass().init();''+
 recursive:: if you specify a folder with the *source* conversion option, by default will not convert files inside folders. To convert recursive, just set to +true+
 mainContextScope:: you can help the converted, specifying functions and variables that will be availables in the main context of the javascript environment. For example: +[''$'', ''window'',''myFunction'']+
 addGsLib:: you can add a grooscript js lib at the beginning of the converted file. For example you can add grooscript.js to the result, and then you don't have to worry about include that dependency in javascript +''grooscript''+
+requireJsModule:: the result javascript code will be as a require.js module.
+consoleInfo:: you get info in console about conversion process setting to true. Is mainly a debug option.

@@ -29,10 +29,10 @@ class RequireJsModulesConversionSpec extends Specification {
         map                                  | expectedClassPath
         null                                 | DEFAULT_PATH
         [one: 1]                             | DEFAULT_PATH
-        [classPath: GOOD_CLASSPATH]          | GOOD_CLASSPATH
-        [classPath: 'any']                   | DEFAULT_PATH
-        [classPath: ['any', GOOD_CLASSPATH]] | GOOD_CLASSPATH
-        [classPath: ['any', 'other']]        | DEFAULT_PATH
+        [classpath: GOOD_CLASSPATH]          | GOOD_CLASSPATH
+        [classpath: 'any']                   | DEFAULT_PATH
+        [classpath: ['any', GOOD_CLASSPATH]] | GOOD_CLASSPATH
+        [classpath: ['any', 'other']]        | DEFAULT_PATH
     }
 
     @Unroll
@@ -90,7 +90,7 @@ class RequireJsModulesConversionSpec extends Specification {
         result == [new ConvertedFile('File.groovy', 'File.js')]
         1 * dependenciesSolver.processFile(validFile) >> []
         1 * localDependenciesSolver.fromText(validFileCode) >> ['thing.uh']
-        1 * codeConverter.toJs(validFileCode, [requireJs: true]) >> convertedCode
+        1 * codeConverter.toJs(validFileCode, [requireJsModule: true]) >> convertedCode
         1 * codeConverter.getRequireJsDependencies() >> [requireJsDependency]
         1 * astTreeGenerator.classNodeNamesFromText(validFileCode) >> validFileClasses
         1 * requireJsModuleGenerator.generate(new RequireJsTemplate(

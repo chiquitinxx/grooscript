@@ -31,7 +31,7 @@ class GrooScript {
     /**
      * Convert a piece of groovy code to javascript
      * @param String text groovy code
-     * @param Map options conversion options
+     * @param Map options conversion options(optional)
      * @return String javascript result code
      * @throws Exception If conversion fails or text is null
      */
@@ -48,7 +48,7 @@ class GrooScript {
      * Result files will be .js with same name that groovy file if destination is a folder, or just one .js file
      * @param source (String or List of String's) directories with groovy files, or groovy files
      * @param destination folder or path to .js file
-     * @param options conversion options
+     * @param options conversion options(optional)
      * @throws Exception something fails
      */
     static void convert(source, String destination, Map options = defaultOptions) throws GrooScriptException {
@@ -73,7 +73,7 @@ class GrooScript {
      * Converts a list of files to a destination js file or path
      * @param sources
      * @param destination
-     * @param conversion options
+     * @param conversion options(optional)
      */
     static void convert(List<File> sources, File destination, Map options = defaultOptions) {
         if (sources && destination) {
@@ -146,7 +146,7 @@ class GrooScript {
      * Evaluate a piece of groovy code
      * @param code that will be evaluated using grooscript.min
      * @param comma separated js libs to add for evaluation
-     * @param conversion options
+     * @param conversion options(optional)
      * @return JsTestResult
      */
     static JsTestResult evaluateGroovyCode(String code, String jsLibs = null, Map options = defaultOptions) {

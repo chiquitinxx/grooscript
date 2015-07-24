@@ -34,17 +34,15 @@ You can activate a daemon to automatically convert groovy code when files are mo
 
 === Options
 
-To help in conversion process, you can set some conversion options. To set conversion options:
+To help or improve conversion process, you can set some conversion options when you convert groovy code. There is an
+enum with available conversion options:
 
 [source,groovy]
 --
-//Set a conversion property
-GrooScript.setConversionProperty('recursive', true)
-GrooScript.setConversionProperty('customization', {
-    ast(CompileStatic)
-})
-//Applied to next conversions
+include::../src/main/groovy/org/grooscript/convert/ConversionOptions.groovy[tags=options]
 --
+
+More info about conversion options:
 
 include::conversion_options.adoc[]
 

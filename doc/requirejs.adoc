@@ -12,8 +12,8 @@ classpath for the conversions, that classpath will be used to find groovy files.
 --
 import org.grooscript.GrooScript
 
-GrooScript.setConversionProperty('classPath', 'src/main/groovy')
-GrooScript.convertRequireJs('src/main/groovy/Initial.groovy', 'jsModules')
+Map conversionOptions = [classpath: 'src/main/groovy']
+GrooScript.convertRequireJs('src/main/groovy/Initial.groovy', 'jsModules', conversionOptions)
 --
 
 If you run this, a file `*jsModules/Initial.js*` will be generated. The source files has to be inside the classPath folder.

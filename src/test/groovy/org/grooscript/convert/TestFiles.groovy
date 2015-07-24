@@ -176,7 +176,7 @@ class TestFiles extends Specification {
     private sourceFolder = "src${SEP}test${SEP}src${SEP}"
 
     def setup() {
-        options = [classPath: FILES_CLASSPATH]
+        options = [classpath: FILES_CLASSPATH]
     }
 
     private boolean folderContainsFiles(String pathFolder, List files) {
