@@ -39,13 +39,13 @@ class GsConverter {
         //Script not empty plz!
         def phase = 0
         if (script && validateConversionOptions(options)) {
-            conversionOptions = options ?: GrooScript.defaultOptions
+            conversionOptions = options ?: GrooScript.defaultConversionOptions
             try {
                 if (consoleInfo) {
                     GsConsole.message('Getting ast from code...')
                 }
                 def (astList, nativeFunctions) = new AstTreeGenerator(consoleInfo: consoleInfo,
-                        classPath: conversionOptions[ConversionOptions.CLASSPATH.text],
+                        classpath: conversionOptions[ConversionOptions.CLASSPATH.text],
                         customization: conversionOptions[ConversionOptions.CUSTOMIZATION.text]).fromText(script)
 
                 if (consoleInfo) {

@@ -63,5 +63,5 @@ class LocalDependenciesSolverSpec extends Specification {
         localDependenciesSolver.fromText(script) == ['files.MyTrait'] as Set
     }
 
-    private localDependenciesSolver = new LocalDependenciesSolver(classPath: 'src/test/src')
+    private localDependenciesSolver = new LocalDependenciesSolver(classpath: 'src/test/src')
 }

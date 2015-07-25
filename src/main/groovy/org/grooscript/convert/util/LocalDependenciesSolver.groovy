@@ -2,13 +2,13 @@ package org.grooscript.convert.util
 
 import org.codehaus.groovy.control.CompilationUnit
 import org.grooscript.convert.ast.CodeVisitor
-import org.grooscript.convert.ast.GrooscriptCompiler
+import org.grooscript.convert.ast.GrooScriptCompiler
 
 /**
  * User: jorgefrancoleza
  * Date: 14/2/15
  */
-class LocalDependenciesSolver extends GrooscriptCompiler {
+class LocalDependenciesSolver extends GrooScriptCompiler {
 
     private Map<String, Set<String>> cache = [:]
 

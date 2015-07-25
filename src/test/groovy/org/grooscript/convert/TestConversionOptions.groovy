@@ -83,6 +83,20 @@ class TestConversionOptions extends Specification {
         !result.contains("function ${CLASS_NEED_DEPENDENCY}()")
     }
 
+    def 'include dependencies in conversion'() {
+
+        given:
+        setupNeedDirectory()
+        def options = [classpath: FOLDER_NEED_DEPENDENCY, includeDependencies: true]
+
+        when:
+        String result = GrooScript.convert("class A {};def need = new ${CLASS_NEED_DEPENDENCY}()", options)
+
+        then:
+        result.count('function A()') == 1
+        result.count("function ${CLASS_NEED_DEPENDENCY}()") == 1
+    }
+
     def 'can set classpath as List'() {
 
         given:

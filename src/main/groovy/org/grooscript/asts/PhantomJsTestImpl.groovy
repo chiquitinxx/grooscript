@@ -146,7 +146,7 @@ page.open('{{URL}}', function (status) {
             GsConverter converter = new GsConverter()
 
             try {
-                converter.conversionOptions = GrooScript.defaultOptions
+                converter.conversionOptions = GrooScript.defaultConversionOptions
                 converter.conversionOptions.mainContextScope = ['$', 'gs', 'window', 'document']
                 jsTest = converter.processAstListToJs([method])
             } catch (e) {

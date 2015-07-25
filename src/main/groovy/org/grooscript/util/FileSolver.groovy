@@ -9,6 +9,8 @@ import static org.grooscript.util.Util.GROOVY_EXTENSION
  */
 class FileSolver {
 
+    public static final DEFAULT_PATH = '.'
+
     boolean exists(String pathFile) {
         def file = new File(pathFile)
         file && file.exists() && file.file
@@ -40,5 +42,24 @@ class FileSolver {
     boolean isFolder(String pathFolder) {
         File file = new File(pathFolder)
         file && file.exists() && file.directory
+    }
+
+
+    String classPathFolder(classpath) {
+        if (!classpath) {
+            return DEFAULT_PATH
+        } else {
+            return firstFolderFrom(classpath)
+        }
+    }
+
+    private String firstFolderFrom(classPath) {
+        if (classPath instanceof String && isFolder(classPath)) {
+            return classPath
+        }
+        if (classPath instanceof List) {
+            return classPath.find { isFolder(it) } ?: DEFAULT_PATH
+        }
+        DEFAULT_PATH
     }
 }

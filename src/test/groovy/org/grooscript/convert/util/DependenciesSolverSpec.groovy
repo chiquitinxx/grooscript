@@ -54,7 +54,7 @@ class DependenciesSolverSpec extends Specification {
     private emptySet = [] as Set
     private String filePath = 'file.groovy'
     private String otherFilePath = 'otherFile.groovy'
-    private String classPath = 'classPath'
+    private String classpath = 'classpath'
     private String fileContent = 'content'
     private String otherFileContent = 'other content'
     private String fullClassName = 'org.grooscript.GrooScript'
@@ -64,12 +64,12 @@ class DependenciesSolverSpec extends Specification {
     private FileSolver fileSolver = Stub(FileSolver) {
         it.readFile(filePath) >> fileContent
         it.readFile(otherFilePath) >> otherFileContent
-        it.filePathFromClassName(fullClassName, classPath) >> filePath
-        it.filePathFromClassName(otherClassName, classPath) >> otherFilePath
+        it.filePathFromClassName(fullClassName, classpath) >> filePath
+        it.filePathFromClassName(otherClassName, classpath) >> otherFilePath
     }
     private DependenciesSolver dependenciesSolver = new DependenciesSolver(
             localDependenciesSolver: localDependenciesSolver,
-            classPath: classPath,
+            classpath: classpath,
             fileSolver: fileSolver
     )
 }

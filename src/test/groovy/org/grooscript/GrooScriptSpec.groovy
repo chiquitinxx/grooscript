@@ -1,6 +1,5 @@
 package org.grooscript
 
-import org.grooscript.convert.ConversionOptions
 import org.grooscript.util.GsConsole
 import org.grooscript.util.Util
 import spock.lang.Specification
@@ -14,7 +13,7 @@ class GrooScriptSpec extends Specification {
 
     def 'default options'() {
         expect:
-        GrooScript.defaultOptions == [
+        GrooScript.defaultConversionOptions == [
                 classpath: null,
                 customization: null,
                 mainContextScope: null,

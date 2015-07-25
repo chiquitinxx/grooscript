@@ -27,11 +27,11 @@ class RequireJsModulesConversion {
     RequireJsFileGenerator requireJsFileGenerator
     LocalDependenciesSolver localDependenciesSolver
 
-    List<ConvertedFile> convert(String sourceFilePath, String destinationFolder, Map conversionOptions = null) {
+    List<ConvertedFile> convert(String sourceFilePath, String destinationFolder, Map conversionOptions = [:]) {
         List<ConvertedFile> convertedFiles = []
         if (fileSolver.exists(sourceFilePath)) {
             def dependencies = dependenciesSolver.processFile(sourceFilePath)
-            def classPath = classPathFolder(conversionOptions)
+            def classPath = fileSolver.classPathFolder(conversionOptions[ConversionOptions.CLASSPATH.text])
             def requireJsConversionOptions = addRequireJsConversionOption(conversionOptions)
             //Generate dependencies
             dependencies.each {
@@ -76,28 +76,10 @@ class RequireJsModulesConversion {
         result.substring(0, result.size() - GROOVY_EXTENSION.size()) + JS_EXTENSION
     }
 
-    String classPathFolder(Map conversionOptions) {
-        if (!conversionOptions || !conversionOptions[ConversionOptions.CLASSPATH.text]) {
-            return DEFAULT_PATH
-        } else {
-            return firstFolderFrom(conversionOptions[ConversionOptions.CLASSPATH.text])
-        }
-    }
-
     private Map addRequireJsConversionOption(conversionOptions) {
         def result = conversionOptions ?: [:]
         result[ConversionOptions.REQUIRE_JS_MODULE.text] = true
         result
-    }
-
-    private String firstFolderFrom(classPath) {
-        if (classPath instanceof String && fileSolver.isFolder(classPath)) {
-            return classPath
-        }
-        if (classPath instanceof List) {
-            return classPath.find { fileSolver.isFolder(it) } ?: DEFAULT_PATH
-        }
-        DEFAULT_PATH
     }
 
     private List<RequireJsDependency> getLocalDependencies(sourceCode) {

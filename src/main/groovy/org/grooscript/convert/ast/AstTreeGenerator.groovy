@@ -15,7 +15,7 @@ import org.grooscript.util.GsConsole
  * User: jorgefrancoleza
  * Date: 13/10/13
  */
-class AstTreeGenerator extends GrooscriptCompiler {
+class AstTreeGenerator extends GrooScriptCompiler {
 
     boolean consoleInfo = false
     Traits traits = new Traits()
@@ -28,7 +28,7 @@ class AstTreeGenerator extends GrooscriptCompiler {
     List fromText(String sourceCode) {
         if (consoleInfo) {
             GsConsole.message('Converting string code to AST')
-            GsConsole.message(' Classpath: ' + classPath)
+            GsConsole.message(' Classpath: ' + classpath)
             GsConsole.message(' Customization: ' + customization)
         }
         //All the imports in a file are added to the source to be compiled, if not added, compiler fails

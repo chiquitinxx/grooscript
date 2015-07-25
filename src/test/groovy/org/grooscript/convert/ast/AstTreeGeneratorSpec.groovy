@@ -62,5 +62,5 @@ class AstTreeGeneratorSpec extends Specification {
         ['Fly', 'A'] | 'trait Fly {}; class A implements Fly{}'
     }
 
-    private astTreeGenerator = new AstTreeGenerator(classPath: 'src/test/src')
+    private astTreeGenerator = new AstTreeGenerator(classpath: 'src/test/src')
 }

@@ -10,11 +10,11 @@ import static org.codehaus.groovy.control.customizers.builder.CompilerCustomizat
 /**
  * Created by jorgefrancoleza on 14/2/15.
  */
-class GrooscriptCompiler {
+class GrooScriptCompiler {
 
     private static int GROOSCRIPT_PHASE = CompilePhase.SEMANTIC_ANALYSIS.phaseNumber
 
-    def classPath
+    def classpath
     Closure customization
 
     protected CompilationUnit compiledCode(
@@ -47,17 +47,17 @@ class GrooscriptCompiler {
     }
 
     private void addClassPathToGroovyClassLoader(GroovyClassLoader classLoader) {
-        if (classPath) {
-            if (!(classPath instanceof String || classPath instanceof GString || classPath instanceof Collection)) {
+        if (classpath) {
+            if (!(classpath instanceof String || classpath instanceof GString || classpath instanceof Collection)) {
                 throw new GrooScriptException('The classpath must be a String or a List')
             }
 
-            if (classPath instanceof Collection) {
-                classPath.each {
+            if (classpath instanceof Collection) {
+                classpath.each {
                     classLoader.addClasspath(it)
                 }
             } else {
-                classLoader.addClasspath(classPath)
+                classLoader.addClasspath(classpath)
             }
         }
     }

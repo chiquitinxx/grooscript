@@ -8,11 +8,15 @@ import org.grooscript.util.FileSolver
 class DependenciesSolver {
 
     LocalDependenciesSolver localDependenciesSolver
-    String classPath
+    String classpath
     FileSolver fileSolver
 
     List<String> processFile(String filePath) {
         resolveDependencies(fileSolver.readFile(filePath), [] as Set, [filePath] as Set).toList().unique()
+    }
+
+    List<String> processCode(String groovyCode) {
+        resolveDependencies(groovyCode, [] as Set, [] as Set).toList().unique()
     }
 
     private Set<String> resolveDependencies(String content,
@@ -20,7 +24,7 @@ class DependenciesSolver {
         def currentDependencies = dependencies + localDependenciesSolver.fromText(content)
         def result = [] as Set
         currentDependencies.each { className ->
-            String filePath = fileSolver.filePathFromClassName(className, classPath)
+            String filePath = fileSolver.filePathFromClassName(className, classpath)
             if (!(filePath in processedFiles)) {
                 processedFiles << filePath
                 result = result + resolveDependencies(fileSolver.readFile(filePath), currentDependencies, processedFiles)

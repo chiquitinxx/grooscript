@@ -169,6 +169,24 @@ class TestFiles extends Specification {
         new File(destinationFolder).deleteDir()
     }
 
+    void 'convert file with included dependencies, not repeating converted code'() {
+        given:
+        def conversionOptions = options
+        options[ConversionOptions.INCLUDE_DEPENDENCIES.text] = true
+
+        when:
+        GrooScript.convert("${sourceFolder}files${SEP}Car.groovy", destinationFolder, conversionOptions)
+        def destinationFile = new File("${destinationFolder}${SEP}Car.js")
+
+        then:
+        destinationFile.text.count('function Car() {') == 1
+        destinationFile.text.count('function Garage() {') == 1
+        destinationFile.text.count('function Vehicle() {') == 1
+
+        cleanup:
+        new File(destinationFolder).deleteDir()
+    }
+
     private static final String FILES_CLASSPATH = "src${SEP}test${SEP}src"
 
     private Map options

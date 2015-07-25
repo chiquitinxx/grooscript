@@ -31,14 +31,14 @@ class GrooScript {
     /**
      * Convert a piece of groovy code to javascript
      * @param String text groovy code
-     * @param Map options conversion options(optional)
+     * @param Map conversionOptions(optional)
      * @return String javascript result code
      * @throws Exception If conversion fails or text is null
      */
-    static String convert(String text, Map options = defaultOptions) throws GrooScriptException {
+    static String convert(String text, Map conversionOptions = defaultConversionOptions) throws GrooScriptException {
         if (text) {
-            def jsResult = newConverter.toJs(text, options)
-            return completeJsResult(jsResult, options)
+            def jsResult = convertGroovyCode(text, conversionOptions)
+            return completeJsResult(jsResult, conversionOptions)
         }
         throw new GrooScriptException('Nothing to Convert.')
     }
@@ -48,22 +48,22 @@ class GrooScript {
      * Result files will be .js with same name that groovy file if destination is a folder, or just one .js file
      * @param source (String or List of String's) directories with groovy files, or groovy files
      * @param destination folder or path to .js file
-     * @param options conversion options(optional)
+     * @param Map  conversionOptions(optional)
      * @throws Exception something fails
      */
-    static void convert(source, String destination, Map options = defaultOptions) throws GrooScriptException {
+    static void convert(source, String destination, Map conversionOptions = defaultConversionOptions) throws GrooScriptException {
         if (source && destination) {
             List<File> files = []
             if (source instanceof String || source instanceof GString) {
-                files = addFileToBeConverted(new File(source), files, options)
+                files = addFileToBeConverted(new File(source), files, conversionOptions)
             } else if (source instanceof List) {
                 source.each {
-                    files = addFileToBeConverted(new File(it), files, options)
+                    files = addFileToBeConverted(new File(it), files, conversionOptions)
                 }
             } else {
                 throw new GrooScriptException('Source must be a String or a list.')
             }
-            convertFiles(files, new File(destination), options)
+            convertFiles(files, new File(destination), conversionOptions)
         } else {
             throw new GrooScriptException('Have to define source and destination.')
         }
@@ -73,15 +73,15 @@ class GrooScript {
      * Converts a list of files to a destination js file or path
      * @param sources
      * @param destination
-     * @param conversion options(optional)
+     * @param Map conversionOptions(optional)
      */
-    static void convert(List<File> sources, File destination, Map options = defaultOptions) {
+    static void convert(List<File> sources, File destination, Map conversionOptions = defaultConversionOptions) {
         if (sources && destination) {
             List<File> files = []
             sources.each {
-                files = addFileToBeConverted(it, files, options)
+                files = addFileToBeConverted(it, files, conversionOptions)
             }
-            convertFiles(files, destination, options)
+            convertFiles(files, destination, conversionOptions)
         } else {
             throw new GrooScriptException('Have to define sources and destination.')
         }
@@ -135,7 +135,7 @@ class GrooScript {
      * Get default conversion options
      * @return
      */
-    static Map<String, Object> getDefaultOptions() {
+    static Map<String, Object> getDefaultConversionOptions() {
         ConversionOptions.values().inject([:]) { map, value ->
             map[value.text] = value.defaultValue
             map
@@ -146,10 +146,10 @@ class GrooScript {
      * Evaluate a piece of groovy code
      * @param code that will be evaluated using grooscript.min
      * @param comma separated js libs to add for evaluation
-     * @param conversion options(optional)
+     * @param Map conversionPptions(optional)
      * @return JsTestResult
      */
-    static JsTestResult evaluateGroovyCode(String code, String jsLibs = null, Map options = defaultOptions) {
+    static JsTestResult evaluateGroovyCode(String code, String jsLibs = null, Map conversionOptions = defaultConversionOptions) {
         String jsCode = convert(code)
 
         def jsScript = getJsLibText('grooscript.min')
@@ -215,63 +215,71 @@ class GrooScript {
      * Convert a file to require.js modules, all dependencies are converted
      * @param initialFile
      * @param destinationFolder
-     * @param conversion options
+     * @param Map conversionOptions
      * @return
      */
-    static List<ConvertedFile> convertRequireJs(String initialFile, String destinationFolder, Map options = defaultOptions) {
+    static List<ConvertedFile> convertRequireJs(String initialFile, String destinationFolder, Map conversionOptions = defaultConversionOptions) {
         try {
-            FileSolver fileSolver = new FileSolver()
-            Map compilerOptions = [
-                    classPath: options[ConversionOptions.CLASSPATH.text],
-                    customization: options[ConversionOptions.CUSTOMIZATION.text]
-            ]
-            LocalDependenciesSolver localDependenciesSolver = new LocalDependenciesSolver(compilerOptions)
+            DependenciesSolver dependenciesSolver = newDependenciesSolver(conversionOptions)
             RequireJsModulesConversion reqJs = new RequireJsModulesConversion(
-                    fileSolver: fileSolver,
+                    fileSolver: dependenciesSolver.fileSolver,
                     codeConverter: newConverter,
-                    astTreeGenerator: new AstTreeGenerator(compilerOptions),
-                    requireJsFileGenerator: new RequireJsFileGenerator(fileSolver: fileSolver),
-                    localDependenciesSolver: localDependenciesSolver
+                    astTreeGenerator: new AstTreeGenerator(compilerOptions(conversionOptions)),
+                    requireJsFileGenerator: new RequireJsFileGenerator(fileSolver: dependenciesSolver.fileSolver),
+                    localDependenciesSolver: dependenciesSolver.localDependenciesSolver,
+                    dependenciesSolver: dependenciesSolver
             )
-            String classPath = reqJs.classPathFolder(options)
-            reqJs.dependenciesSolver = new DependenciesSolver(
-                    fileSolver: fileSolver,
-                    classPath: classPath,
-                    localDependenciesSolver: localDependenciesSolver
-            )
-            return reqJs.convert(initialFile, destinationFolder, options)
+            return reqJs.convert(initialFile, destinationFolder, conversionOptions)
         } catch (Throwable e) {
             throw new GrooScriptException(
                     "Error converting ${initialFile} to require.js modules. Exception: ${e.message}")
         }
     }
 
-    private static List<File> addFileToBeConverted(File fSource, List<File> files, Map options) {
+    private static DependenciesSolver newDependenciesSolver(Map conversionOptions) {
+        FileSolver fileSolver = new FileSolver()
+        LocalDependenciesSolver localDependenciesSolver = new LocalDependenciesSolver(compilerOptions(conversionOptions))
+        new DependenciesSolver(
+                fileSolver: fileSolver,
+                classpath: fileSolver.classPathFolder(conversionOptions[ConversionOptions.CLASSPATH.text]),
+                localDependenciesSolver: localDependenciesSolver
+        )
+    }
+
+    private static Map compilerOptions(Map conversionOptions) {
+        [
+                classpath: conversionOptions[ConversionOptions.CLASSPATH.text],
+                customization: conversionOptions[ConversionOptions.CUSTOMIZATION.text]
+        ]
+    }
+
+    private static List<File> addFileToBeConverted(File fSource, List<File> files, Map conversionOptions) {
 
         if (fSource.exists()) {
             if (fSource.isDirectory()) {
                 fSource.eachFile { file ->
-                    addFileIfValid(files, file)
+                    files = addFileIfValid(files, file)
                 }
-                if (options && options[ConversionOptions.RECURSIVE.text]) {
+                if (conversionOptions && conversionOptions[ConversionOptions.RECURSIVE.text]) {
                     fSource.eachDir { File dir ->
-                        files = addFileToBeConverted(dir, files, options)
+                        files = addFileToBeConverted(dir, files, conversionOptions)
                     }
                 }
             } else {
-                addFileIfValid(files, fSource)
+                files = addFileIfValid(files, fSource)
             }
         }
         files
     }
 
-    private static addFileIfValid(List<File> files, File file) {
+    private static List<File> addFileIfValid(List<File> files, File file) {
         if (file && file.isFile() && (file.name.endsWith(GROOVY_EXTENSION) || file.name.endsWith(JAVA_EXTENSION))) {
             files << file
         }
+        files
     }
 
-    private static convertFiles(List<File> files, File destination, Map options) {
+    private static void convertFiles(List<File> files, File destination, Map conversionOptions) {
 
         try {
             if (files) {
@@ -279,7 +287,7 @@ class GrooScript {
                 String allConvertedJs = ''
 
                 files.each { File file ->
-                    def jsResult = newConverter.toJs(file.text, options)
+                    def jsResult = convertGroovyCode(file.text, conversionOptions)
                     if (toOneFile) {
                         allConvertedJs += jsResult
                     } else {
@@ -288,11 +296,11 @@ class GrooScript {
                         }
                         def name = file.name.split(/\./)[0]
                         def newFile = new File("${destination.path}$SEP$name$JS_EXTENSION")
-                        saveFile(newFile, completeJsResult(jsResult, options))
+                        saveFile(newFile, completeJsResult(jsResult, conversionOptions))
                     }
                 }
                 if (toOneFile) {
-                    saveFile(destination, completeJsResult(allConvertedJs, options))
+                    saveFile(destination, completeJsResult(allConvertedJs, conversionOptions))
                 }
             } else {
                 GsConsole.error('No files to be converted. *.groovy or *.java files not found.')
@@ -302,16 +310,39 @@ class GrooScript {
         }
     }
 
-    private static String completeJsResult(String result, Map options) {
-        if (options) {
-            if (options[ConversionOptions.INITIAL_TEXT.text]) {
-                result = options[ConversionOptions.INITIAL_TEXT.text] + LINE_SEPARATOR + result
+    private static String convertGroovyCode(String source, Map conversionOptions) {
+        String result = ''
+        if (conversionOptions && conversionOptions[ConversionOptions.INCLUDE_DEPENDENCIES.text] == true) {
+            DependenciesSolver dependenciesSolver = newDependenciesSolver(conversionOptions)
+            FileSolver fileSolver = dependenciesSolver.fileSolver
+            List<String> dependencies = dependenciesSolver.processCode(source)
+            dependencies.each {
+                def filePath = fileSolver.filePathFromClassName(it, dependenciesSolver.classpath)
+                result = addIfNotExists(newConverter.toJs(new File(filePath).text, conversionOptions), result)
             }
-            if (options[ConversionOptions.FINAL_TEXT.text]) {
-                result = result + LINE_SEPARATOR + options[ConversionOptions.FINAL_TEXT.text]
+        }
+        result = addIfNotExists(newConverter.toJs(source, conversionOptions), result)
+        result
+    }
+
+    private static String addIfNotExists(String code, String all) {
+        String result = all
+        if (!all.contains(code)) {
+            result += code
+        }
+        result
+    }
+
+    private static String completeJsResult(String result, Map conversionOptions) {
+        if (conversionOptions) {
+            if (conversionOptions[ConversionOptions.INITIAL_TEXT.text]) {
+                result = conversionOptions[ConversionOptions.INITIAL_TEXT.text] + LINE_SEPARATOR + result
             }
-            if (options[ConversionOptions.ADD_GS_LIB.text]) {
-                def files = options[ConversionOptions.ADD_GS_LIB.text].split(',').reverse()
+            if (conversionOptions[ConversionOptions.FINAL_TEXT.text]) {
+                result = result + LINE_SEPARATOR + conversionOptions[ConversionOptions.FINAL_TEXT.text]
+            }
+            if (conversionOptions[ConversionOptions.ADD_GS_LIB.text]) {
+                def files = conversionOptions[ConversionOptions.ADD_GS_LIB.text].split(',').reverse()
                 files.each { fileName ->
                     def file = GrooScript.classLoader.getResourceAsStream(
                             "META-INF/resources/${fileName.trim()}.js")

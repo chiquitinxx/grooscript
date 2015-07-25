@@ -17,25 +17,6 @@ import static org.grooscript.util.Util.SEP
 class RequireJsModulesConversionSpec extends Specification {
 
     @Unroll
-    void 'get first classpath folder from conversion options'() {
-        given:
-        fileSolver.isFolder(GOOD_CLASSPATH) >> true
-        fileSolver.isFolder(_) >> false
-
-        expect:
-        requireJs.classPathFolder(map) == expectedClassPath
-
-        where:
-        map                                  | expectedClassPath
-        null                                 | DEFAULT_PATH
-        [one: 1]                             | DEFAULT_PATH
-        [classpath: GOOD_CLASSPATH]          | GOOD_CLASSPATH
-        [classpath: 'any']                   | DEFAULT_PATH
-        [classpath: ['any', GOOD_CLASSPATH]] | GOOD_CLASSPATH
-        [classpath: ['any', 'other']]        | DEFAULT_PATH
-    }
-
-    @Unroll
     void 'destination js file from dependency'() {
         given:
         fileSolver.filePathFromClassName(dependency) >> dependency
@@ -75,7 +56,8 @@ class RequireJsModulesConversionSpec extends Specification {
         requireJs.convert(invalidFile, destinationFolder)
 
         then:
-        thrown(GrooScriptException)
+        def e = thrown(GrooScriptException)
+        e.message == 'File invalid doesn\'t exists.'
     }
 
     void 'convert require modules without dependencies'() {
@@ -103,7 +85,6 @@ class RequireJsModulesConversionSpec extends Specification {
         0 * _
     }
 
-    private static final GOOD_CLASSPATH = 'good'
     private validFile = 'File.groovy'
     private invalidFile = 'invalid'
     private validFileCode = 'file code'
