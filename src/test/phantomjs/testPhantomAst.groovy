@@ -1,5 +1,5 @@
 @GrabConfig(systemClassLoader=true)
-@Grab('org.grooscript:grooscript:1.1.2')
+@Grab('org.grooscript:grooscript:1.2.0')
 
 import org.grooscript.asts.PhantomJsTest
 

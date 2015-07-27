@@ -3,8 +3,8 @@ plugins {
     id "com.moowork.gulp" version "0.10"
     id "com.bmuschko.nexus" version "2.3.1"
     id "org.asciidoctor.convert" version "1.5.2"
-    id "net.saliman.cobertura" version "2.2.6"
-    id "com.github.kt3k.coveralls" version "2.3.1"
+    id "net.saliman.cobertura" version "2.2.8"
+    id "com.github.kt3k.coveralls" version "2.4.0"
 }
 
 apply plugin: 'idea'
