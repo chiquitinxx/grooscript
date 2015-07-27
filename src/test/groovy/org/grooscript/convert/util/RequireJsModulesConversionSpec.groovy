@@ -78,7 +78,7 @@ class RequireJsModulesConversionSpec extends Specification {
         1 * requireJsModuleGenerator.generate(new RequireJsTemplate(
                 destinationFile: 'File.js',
                 requireFolder: destinationFolder,
-                dependencies: [new RequireJsDependency(path: 'thing/uh', name: 'uh'), requireJsDependency],
+                dependencies: [new RequireJsDependency(path: "thing${SEP}uh", name: 'uh'), requireJsDependency],
                 jsCode: convertedCode,
                 classes: validFileClasses
         ))
