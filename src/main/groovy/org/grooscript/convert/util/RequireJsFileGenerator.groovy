@@ -2,6 +2,8 @@ package org.grooscript.convert.util
 
 import org.grooscript.util.FileSolver
 
+import java.util.regex.Matcher
+
 import static org.grooscript.util.Util.LINE_SEPARATOR
 import static org.grooscript.util.Util.SEP
 
@@ -36,7 +38,7 @@ class RequireJsFileGenerator {
     }
 
     private String moduleWithDependencies(List<RequireJsDependency> dependencies) {
-        def paths = dependencies.collect { "'" + it.path + "'" }
+        def paths = dependencies.collect { "'" + jsPath(it.path) + "'" }
         def moduleNames = dependencies.collect { it.name }
         'define([' + paths.join(',')+'], function ('+moduleNames.join(',')+') {' + LINE_SEPARATOR
     }
@@ -52,5 +54,9 @@ class RequireJsFileGenerator {
                 "  return {${mapClasses}};${LINE_SEPARATOR}"
             }
         }
+    }
+
+    private String jsPath(String path) {
+        path.replaceAll("\\\\", Matcher.quoteReplacement('/'))
     }
 }
