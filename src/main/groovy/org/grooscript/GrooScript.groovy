@@ -314,7 +314,6 @@ class GrooScript {
         String result = ''
         if (conversionOptions && conversionOptions[ConversionOptions.INCLUDE_DEPENDENCIES.text] == true) {
             DependenciesSolver dependenciesSolver = newDependenciesSolver(conversionOptions)
-            FileSolver fileSolver = dependenciesSolver.fileSolver
             List<File> dependencies = dependenciesSolver.processCode(source)
             dependencies.each {
                 result = addIfNotExists(newConverter.toJs(it.text, conversionOptions), result)
