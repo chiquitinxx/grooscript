@@ -62,8 +62,8 @@ class RequireJsModulesConversionSpec extends Specification {
 
     void 'convert require modules without dependencies'() {
         given:
-        fileSolver.canonicalPath(validFile) >> "/${validFile}"
-        fileSolver.canonicalPath(DEFAULT_PATH) >> '/'
+        fileSolver.canonicalPath(validFile) >> "${SEP}${validFile}"
+        fileSolver.canonicalPath(DEFAULT_PATH) >> SEP
 
         when:
         def result = requireJs.convert(validFile, destinationFolder)
@@ -78,7 +78,7 @@ class RequireJsModulesConversionSpec extends Specification {
         1 * requireJsModuleGenerator.generate(new RequireJsTemplate(
                 destinationFile: 'File.js',
                 requireFolder: destinationFolder,
-                dependencies: [new RequireJsDependency(path: "thing${SEP}uh", name: 'uh'), requireJsDependency],
+                dependencies: [new RequireJsDependency("thing${SEP}uh", 'uh'), requireJsDependency],
                 jsCode: convertedCode,
                 classes: validFileClasses
         ))
@@ -110,6 +110,6 @@ class RequireJsModulesConversionSpec extends Specification {
             localDependenciesSolver: localDependenciesSolver
     )
     private getRequireJsDependency() {
-        new RequireJsDependency(path: 'to/path', name: 'data')
+        new RequireJsDependency("to${SEP}path", 'data')
     }
 }

@@ -1,7 +1,6 @@
 package org.grooscript.convert.util
 
 import groovy.transform.Canonical
-import groovy.transform.EqualsAndHashCode
 
 /**
  * Created by jorgefrancoleza on 13/4/15.
@@ -16,7 +15,7 @@ class RequireJsTemplate {
     List<String> classes
 }
 
-@EqualsAndHashCode
+@Canonical
 class RequireJsDependency {
     String path
     String name
