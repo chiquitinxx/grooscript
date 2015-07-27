@@ -1,11 +1,12 @@
 package org.grooscript.convert.util
 
+import groovy.transform.Canonical
 import groovy.transform.EqualsAndHashCode
 
 /**
  * Created by jorgefrancoleza on 13/4/15.
  */
-@EqualsAndHashCode
+@Canonical
 class RequireJsTemplate {
 
     String destinationFile
