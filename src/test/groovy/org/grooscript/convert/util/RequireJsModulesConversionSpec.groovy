@@ -98,6 +98,8 @@ class RequireJsModulesConversionSpec extends Specification {
         it.exists(invalidFile) >> false
         it.exists(validFile) >> true
         it.readFile(validFile) >> validFileCode
+        it.filePathFromClassName("to.path") >> "to${SEP}path"
+        it.filePathFromClassName("thing.uh") >> "thing${SEP}uh"
     }
     private RequireJsFileGenerator requireJsModuleGenerator = Mock()
     private localDependenciesSolver = Mock(LocalDependenciesSolver)

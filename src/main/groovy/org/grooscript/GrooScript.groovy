@@ -236,7 +236,12 @@ class GrooScript {
         }
     }
 
-    private static DependenciesSolver newDependenciesSolver(Map conversionOptions) {
+    /**
+     * Get dependencies from groovy code, using classpath. Mainly used by gradle plugin
+     * @param conversionOptions
+     * @return DependenciesSolver
+     */
+    static DependenciesSolver newDependenciesSolver(Map conversionOptions) {
         FileSolver fileSolver = new FileSolver()
         LocalDependenciesSolver localDependenciesSolver = new LocalDependenciesSolver(compilerOptions(conversionOptions))
         new DependenciesSolver(
