@@ -315,10 +315,9 @@ class GrooScript {
         if (conversionOptions && conversionOptions[ConversionOptions.INCLUDE_DEPENDENCIES.text] == true) {
             DependenciesSolver dependenciesSolver = newDependenciesSolver(conversionOptions)
             FileSolver fileSolver = dependenciesSolver.fileSolver
-            List<String> dependencies = dependenciesSolver.processCode(source)
+            List<File> dependencies = dependenciesSolver.processCode(source)
             dependencies.each {
-                def filePath = fileSolver.filePathFromClassName(it, dependenciesSolver.classpath)
-                result = addIfNotExists(newConverter.toJs(new File(filePath).text, conversionOptions), result)
+                result = addIfNotExists(newConverter.toJs(it.text, conversionOptions), result)
             }
         }
         result = addIfNotExists(newConverter.toJs(source, conversionOptions), result)

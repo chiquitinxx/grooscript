@@ -15,8 +15,11 @@ class DependenciesSolver {
         resolveDependencies(fileSolver.readFile(filePath), [] as Set, [filePath] as Set).toList().unique()
     }
 
-    List<String> processCode(String groovyCode) {
-        resolveDependencies(groovyCode, [] as Set, [] as Set).toList().unique()
+    List<File> processCode(String groovyCode) {
+        resolveDependencies(groovyCode, [] as Set, [] as Set).toList().unique().collect {
+            def filePath = fileSolver.filePathFromClassName(it, classpath)
+            new File(filePath)
+        }
     }
 
     private Set<String> resolveDependencies(String content,

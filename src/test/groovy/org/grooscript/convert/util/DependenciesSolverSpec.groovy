@@ -51,6 +51,17 @@ class DependenciesSolverSpec extends Specification {
         dependenciesSolver.processFile(filePath) == [otherClassName, fullClassName]
     }
 
+    void 'process groovy code to get dependencies'() {
+        given:
+        def groovyCode = 'println "Hello World!"'
+        localDependenciesSolver.fromText(groovyCode) >> ([] as Set)
+        localDependenciesSolver.fromText(fileContent) >> ([otherClassName] as Set)
+
+        expect:
+        dependenciesSolver.processCode(groovyCode) == []
+        dependenciesSolver.processCode(fileContent) == [new File(otherFilePath)]
+    }
+
     private emptySet = [] as Set
     private String filePath = 'file.groovy'
     private String otherFilePath = 'otherFile.groovy'
