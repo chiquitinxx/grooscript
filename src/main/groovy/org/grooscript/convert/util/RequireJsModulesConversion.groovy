@@ -87,7 +87,7 @@ class RequireJsModulesConversion {
         list.collect {
             new RequireJsDependency(
                     name: it.split("\\.").last(),
-                    path: it.replaceAll("\\.", '/')
+                    path: it.replaceAll("\\.", SEP)
             )
         }
     }
