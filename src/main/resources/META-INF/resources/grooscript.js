@@ -1109,12 +1109,7 @@
         if (this['clazz'] === undefined) {
             return this.oldToString();
         } else if (this.length > 0) {
-            var i, result = '[';
-            for (i = 0; i < this.length - 1; i++) {
-                result = result + this[i] + ', ';
-            }
-            result = result + this[this.length - 1] + ']';
-            return result;
+            return '[' + this.join(', ') + ']';
         } else {
             return '[]';
         }
@@ -1273,8 +1268,7 @@
     };
 
     Array.prototype.takeWhile = function(closure) {
-        var result = [];
-        var i, exit=false;
+        var result = [], i, exit=false;
         for (i = 0; !exit && i < this.length; i++) {
             if (closure(this[i])) {
                 result[i] = this[i];
@@ -1363,6 +1357,22 @@
             }
         }
         return result;
+    };
+
+    Array.prototype.tail = function() {
+        var i, result = [];
+        for (i = 1; i < this.length; i++) {
+            result.push(this[i]);
+        }
+        return gs.list(result);
+    };
+
+    Array.prototype.init = function() {
+        var i, result = [];
+        for (i = 0; i < this.length - 1; i++) {
+            result.push(this[i]);
+        }
+        return gs.list(result);
     };
 
     /////////////////////////////////////////////////////////////////
