@@ -8,7 +8,7 @@ import java.util.Map;
  * Date: 19/08/14
  */
 public class Maps {
-    public void validate() throws Exception {
+    public boolean validate() throws Exception {
         Map map = new HashMap();
         map.clear();
 
@@ -16,10 +16,7 @@ public class Maps {
         map.put("key2", "element 2");
         map.put("key3", "element 3");
 
-        assert map.size() == 3;
-
         String elem1 = (String) map.get("key1");
-        assert elem1 == "element 1";
 
         Map<String, String> stringMap = new HashMap<String, String>();
         for(Object key : map.keySet()) {
@@ -27,6 +24,6 @@ public class Maps {
             stringMap.put((String)key, (String)value);
         }
 
-        assert stringMap.size() == 3;
+        return map.size() == 3 && elem1.equals("element 1") && stringMap.size() == 3;
     }
 }

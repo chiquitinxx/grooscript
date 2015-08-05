@@ -18,9 +18,7 @@ public class Numbers {
         bigDecimalNumber = new BigDecimal("10");
     }
 
-    public void validate() throws Exception {
-        assert intNumber == 5;
-        assert doubleNumber == 12.34;
-        assert bigDecimalNumber.intValue() == 10;
+    public boolean validate() throws Exception {
+        return intNumber == 5 && doubleNumber == 12.34 &&  bigDecimalNumber.intValue() == 10;
     }
 }

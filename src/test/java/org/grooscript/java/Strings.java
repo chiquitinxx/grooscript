@@ -6,11 +6,10 @@ package org.grooscript.java;
  */
 public class Strings {
 
-    public void validate() throws Exception {
+    public boolean validate() throws Exception {
         String hello = "hello";
         String bye = new String("bye");
 
-        assert hello.substring(1, 2).equals("e");
-        assert (hello + bye).equals("hellobye");
+        return hello.substring(1, 2).equals("e") && (hello + bye).equals("hellobye");
     }
 }

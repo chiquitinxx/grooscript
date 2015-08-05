@@ -8,11 +8,10 @@ import java.util.Date;
  */
 public class Dates {
 
-    public void validate() throws Exception {
+    public boolean validate() throws Exception {
         Date initial = new Date();
 
         initial.setTime(0);
-        assert new Date().after(initial);
-        assert initial.before(new Date());
+        return new Date().after(initial) && initial.before(new Date());
     }
 }

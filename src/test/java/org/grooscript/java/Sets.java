@@ -8,25 +8,23 @@ import java.util.Set;
  * Date: 27/08/14
  */
 public class Sets {
-    public void validate() throws Exception {
+    public boolean validate() throws Exception {
         Set<String> set = new HashSet<String>();
         set.clear();
 
         set.add("Hello");
         set.add("Hello");
 
-        assert set.contains("Hello") == true;
-        assert set.size() == 1;
+        boolean partial = (set.size() == 1);
 
         for (String elem : set) {
-            assert elem == "Hello";
+            partial = partial && elem.equals("Hello");
         }
 
         set.add("Bye");
         Set<String> otherSet = new HashSet<String>();
         otherSet.add("Bye");
 
-        assert set.containsAll(otherSet);
-        assert set.remove("Hello") == true;
+        return set.contains("Hello") == true && partial && set.containsAll(otherSet) && set.remove("Hello") == true;
     }
 }

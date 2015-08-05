@@ -24,38 +24,38 @@ public class TestTypes {
     @Test
     public void testNumbers() throws Exception {
         //First validate java code
-        new Numbers().validate();
+        assertTrue(new Numbers().validate());
         //Convert and validate javascript converted code
         evaluateInJavascript("Numbers");
     }
 
     @Test
     public void testMaps() throws Exception {
-        new Maps().validate();
+        assertTrue(new Maps().validate());
         evaluateInJavascript("Maps");
     }
 
     @Test
     public void testSets() throws Exception {
-        new Sets().validate();
+        assertTrue(new Sets().validate());
         evaluateInJavascript("Sets");
     }
 
     @Test
     public void testLists() throws Exception {
-        new Lists().validate();
+        assertTrue(new Lists().validate());
         evaluateInJavascript("Lists");
     }
 
     @Test
     public void testStrings() throws Exception {
-        new Strings().validate();
+        assertTrue(new Strings().validate());
         evaluateInJavascript("Strings");
     }
 
     @Test
     public void testDates() throws Exception {
-        new Dates().validate();
+        assertTrue(new Dates().validate());
         evaluateInJavascript("Dates");
     }
 
