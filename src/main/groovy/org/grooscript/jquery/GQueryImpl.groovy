@@ -7,92 +7,26 @@ import org.grooscript.rx.Observable
  * Created by jorge on 15/02/14.
  */
 class GQueryImpl implements GQuery {
-    @GsNative
-    def bind(String selector, target, String nameProperty, Closure closure = null) { /*
 
-        var sourceDom = $(selector);
-        //Create set method
-        var nameSetMethod = 'set'+nameProperty.capitalize();
+    GQueryList bind(String selector, target, String nameProperty, Closure closure = null) {
+        GQueryList.of(selector).bind(target, nameProperty, closure)
+    }
 
-        if (sourceDom.is(":text")) {
-            target[nameSetMethod] = function(newValue) {
-                this[nameProperty] = newValue;
-                sourceDom.val(newValue);
-                if (closure) { closure(newValue); };
-            };
-            sourceDom.bind('input', function() {
-                var currentVal = $(this).val();
-                target[nameProperty] = currentVal;
-                if (closure) { closure(currentVal); };
-            });
-        } else if (sourceDom.is('textarea')) {
-            target[nameSetMethod] = function(newValue) {
-                this[nameProperty] = newValue;
-                sourceDom.val(newValue);
-                if (closure) { closure(newValue); };
-            };
-            sourceDom.bind('input propertychange', function() {
-                var currentVal = $(this).val();
-                target[nameProperty] = currentVal;
-                if (closure) { closure(currentVal); };
-            });
-        } else if (sourceDom.is(":checkbox")) {
-            target[nameSetMethod] = function(newValue) {
-                this[nameProperty] = newValue;
-                sourceDom.prop('checked', newValue);
-                if (closure) { closure(newValue); };
-            };
-            sourceDom.change(function() {
-                var currentVal = $(this).is(':checked');
-                target[nameProperty] = currentVal;
-                if (closure) { closure(currentVal); };
-            });
-        } else if (sourceDom.is(":radio")) {
-            target[nameSetMethod] = function(newValue) {
-                this[nameProperty] = newValue;
-                $(selector +'[value="' + newValue + '"]').prop('checked', true);
-                if (closure) { closure(newValue); };
-            };
-            sourceDom.change(function() {
-                var currentVal = $(this).val();
-                target[nameProperty] = currentVal;
-                if (closure) { closure(currentVal); };
-            });
-        } else if (sourceDom.is("select")) {
-            target[nameSetMethod] = function(newValue) {
-                this[nameProperty] = newValue;
-                sourceDom.val(newValue);
-                if (closure) { closure(newValue); };
-            };
-            sourceDom.bind('change', function() {
-                var currentVal = $(this).val();
-                target[nameProperty] = currentVal;
-                if (closure) { closure(currentVal); };
-            });
-        } else {
-            console.log('Not supporting bind for selector ' + selector);
-        }
-    */}
+    boolean existsId(String id) {
+        GQueryList.of("#${id}").hasResults()
+    }
 
-    @GsNative
-    boolean existsId(String id) {/*
-        return $("#" + id).length > 0
-    */}
+    boolean existsName(String name) {
+        GQueryList.of("[name='${name}']").hasResults()
+    }
 
-    @GsNative
-    boolean existsName(String name) {/*
-        return $("[name='" + name + "']").length > 0
-    */}
+    boolean existsGroup(String name) {
+        GQueryList.of("input:radio[name='${name}']").hasResults()
+    }
 
-    @GsNative
-    boolean existsGroup(String name) {/*
-        return $("input:radio[name='" + name + "']").length > 0
-    */}
-
-    @GsNative
-    void onEvent(String selector, String nameEvent, Closure func) {/*
-        $(selector).on(nameEvent, func);
-    */}
+    GQueryList onEvent(String selector, String nameEvent, Closure func) {
+        GQueryList.of(selector).onEvent(nameEvent, func)
+    }
 
     @GsNative
     void doRemoteCall(String url, String type, params, Closure onSuccess, Closure onFailure, objectResult = null) {/*
@@ -141,49 +75,13 @@ class GQueryImpl implements GQuery {
         }
     }
 
-    @GsNative
-    void onChange(String selector, Closure closure) {/*
-        var sourceDom = $(selector);
+    GQueryList onChange(String selector, Closure closure) {
+        GQueryList.of(selector).onChange closure
+    }
 
-        if (sourceDom.is(":text")) {
-            sourceDom.bind('input', function() {
-                closure($(this).val());
-            });
-        } else if (sourceDom.is('textarea')) {
-            sourceDom.bind('input propertychange', function() {
-                closure($(this).val());
-            });
-        } else if (sourceDom.is(":checkbox")) {
-            sourceDom.change(function() {
-                closure($(this).is(':checked'));
-            });
-        } else if (sourceDom.is(":radio")) {
-            sourceDom.change(function() {
-                closure($(this).val());
-            });
-        } else if (sourceDom.is("select")) {
-            sourceDom.bind('change', function() {
-                closure($(this).val());
-            });
-        } else {
-            console.log('Not supporting onChange for selector: ' + selector);
-        }
-    */}
-
-    @GsNative
-    void focusEnd(String selector) {/*
-        var sourceDom = $(selector);
-
-        if (sourceDom) {
-            if (sourceDom.is(":text") || sourceDom.is('textarea')) {
-                var originalValue = sourceDom.val();
-                sourceDom.val('');
-                sourceDom.blur().focus().val(originalValue);
-            } else {
-                sourceDom.focus();
-            }
-        }
-    */}
+    GQueryList focusEnd(String selector) {
+        GQueryList.of(selector).focusEnd()
+    }
 
     void bindAllProperties(target) {
         target.properties.each { name, value ->
@@ -194,7 +92,7 @@ class GQueryImpl implements GQuery {
                 bind("[name='$name']", target, name)
             }
             if (existsGroup(name)) {
-                bind("input:radio[name=${name}]", target, name)
+                bind("input:radio[name='${name}']", target, name)
             }
         }
     }
@@ -213,23 +111,163 @@ class GQueryImpl implements GQuery {
     }
 
     GQueryList call(String selector) {
-        new GQueryList(selector)
+        GQueryList.of(selector)
     }
 }
 
 class GQueryList {
+
     def list
+    String selec
+
+    static GQueryList of(String selector) {
+        new GQueryList(selector)
+    }
+
     GQueryList(String selector) {
+        selec = selector
         list = jqueryList(selector)
     }
 
     @GsNative
-    def jqueryList(String selector) {/*
-        return $(selector);
+    def methodMissing(String name, args) {/*
+        return gSobject.list[name].apply(gSobject.list, args);
     */}
 
     @GsNative
-    def methodMissing(String name, args) {/*
-        return gSobject.list[name].apply(gSobject.list, args);
+    GQueryList withResultList(Closure cl) {/*
+        if (gSobject.list.length) {
+            cl(gSobject.list.toArray());
+        }
+        return gSobject;
+    */}
+
+    @GsNative
+    boolean hasResults() {/*
+        return gSobject.list.length > 0;
+    */}
+
+    @GsNative
+    GQueryList onEvent(String nameEvent, Closure cl) {/*
+        gSobject.list.on(nameEvent, cl);
+        return gSobject;
+    */}
+
+    @GsNative
+    GQueryList onChange(Closure cl) {/*
+        var jq = gSobject.list;
+
+        if (jq.is(":text")) {
+            jq.bind('input', function() {
+                cl($(this).val());
+            });
+        } else if (jq.is('textarea')) {
+            jq.bind('input propertychange', function() {
+                cl($(this).val());
+            });
+        } else if (jq.is(":checkbox")) {
+            jq.change(function() {
+                cl($(this).is(':checked'));
+            });
+        } else if (jq.is(":radio")) {
+            jq.change(function() {
+                cl($(this).val());
+            });
+        } else if (jq.is("select")) {
+            jq.bind('change', function() {
+                cl($(this).val());
+            });
+        } else {
+            console.log('Not supporting onChange for selector: ' + gSobject.selec);
+        }
+        return gSobject;
+    */}
+
+    @GsNative
+    GQueryList focusEnd() {/*
+        var jq = gSobject.list;
+
+        if (jq.length) {
+            if (jq.is(":text") || jq.is('textarea')) {
+                var originalValue = jq.val();
+                jq.val('');
+                jq.blur().focus().val(originalValue);
+            } else {
+                jq.focus();
+            }
+        }
+        return gSobject;
+    */}
+
+    @GsNative
+    GQueryList bind(target, String nameProperty, Closure closure = null) { /*
+        var jq = gSobject.list;
+        //Create set method
+        var nameSetMethod = 'set'+nameProperty.capitalize();
+
+        if (jq.is(":text")) {
+            target[nameSetMethod] = function(newValue) {
+                this[nameProperty] = newValue;
+                jq.val(newValue);
+                if (closure) { closure(newValue); };
+            };
+            jq.bind('input', function() {
+                var currentVal = $(this).val();
+                target[nameProperty] = currentVal;
+                if (closure) { closure(currentVal); };
+            });
+        } else if (jq.is('textarea')) {
+            target[nameSetMethod] = function(newValue) {
+                this[nameProperty] = newValue;
+                jq.val(newValue);
+                if (closure) { closure(newValue); };
+            };
+            jq.bind('input propertychange', function() {
+                var currentVal = $(this).val();
+                target[nameProperty] = currentVal;
+                if (closure) { closure(currentVal); };
+            });
+        } else if (jq.is(":checkbox")) {
+            target[nameSetMethod] = function(newValue) {
+                this[nameProperty] = newValue;
+                jq.prop('checked', newValue);
+                if (closure) { closure(newValue); };
+            };
+            jq.change(function() {
+                var currentVal = $(this).is(':checked');
+                target[nameProperty] = currentVal;
+                if (closure) { closure(currentVal); };
+            });
+        } else if (jq.is(":radio")) {
+            target[nameSetMethod] = function(newValue) {
+                this[nameProperty] = newValue;
+                $(gSobject.selec +'[value="' + newValue + '"]').prop('checked', true);
+                if (closure) { closure(newValue); };
+            };
+            jq.change(function() {
+                var currentVal = $(this).val();
+                target[nameProperty] = currentVal;
+                if (closure) { closure(currentVal); };
+            });
+        } else if (jq.is("select")) {
+            target[nameSetMethod] = function(newValue) {
+                this[nameProperty] = newValue;
+                jq.val(newValue);
+                if (closure) { closure(newValue); };
+            };
+            jq.bind('change', function() {
+                var currentVal = $(this).val();
+                target[nameProperty] = currentVal;
+                if (closure) { closure(currentVal); };
+            });
+        } else {
+            console.log('Not supporting bind for selector ' + gSobject.selec);
+        }
+        return gSobject;
+    */}
+
+    @GsNative
+    private jqueryList(String selec) {/*
+        return $(selec);
     */}
 }

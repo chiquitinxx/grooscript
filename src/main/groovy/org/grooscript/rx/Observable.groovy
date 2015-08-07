@@ -5,15 +5,15 @@ package org.grooscript.rx
  */
 class Observable {
 
-    def subscribers = []
-    def sourceList = null
-    def chain = []
+    List subscribers = []
+    List sourceList = null
+    List chain = []
 
-    static listen() {
+    static Observable listen() {
         new Observable()
     }
 
-    static from(list) {
+    static Observable from(List list) {
         new Observable(sourceList: list)
     }
 
@@ -41,7 +41,7 @@ class Observable {
 
     void subscribe(Closure cl) {
         while (chain) {
-            cl = cl << chain.remove(chain.size() - 1)
+            cl = cl << chain.pop()
         }
         subscribers << cl
         if (sourceList) {
