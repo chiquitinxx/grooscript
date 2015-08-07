@@ -54,13 +54,29 @@ class GQueryImplSpec extends Specification {
         click == 1 && submit == 1 && change == 1
     }
 
+    def 'chain methods'() {
+        given:
+        GroovySpy(GQueryList, global: true)
+        def queryList = Mock(GQueryList)
+        def cl = { -> println 'Hello!' }
+
+        when:
+        def result = gQueryImpl.focusEnd(selector).withResultList(cl).hasResults()
+
+        then:
+        1 * GQueryList.of(selector) >> queryList
+        1 * queryList.focusEnd() >> queryList
+        1 * queryList.withResultList(cl) >> queryList
+        1 * queryList.hasResults() >> true
+        result == true
+    }
+
     def 'observe event'() {
         given:
         GroovySpy(Observable, global: true)
         GroovySpy(GQueryList, global: true)
         def observable = Stub(Observable)
         def queryList = Mock(GQueryList)
-        def selector = 'select'
         def nameEvent = 'even'
         def data = [a: 1]
 
@@ -80,6 +96,7 @@ class GQueryImplSpec extends Specification {
         def id3Change() {}
     }
 
+    private selector = 'select'
     private GQueryImpl gQueryImpl = new GQueryImpl()
     private hasResults = Stub(GQueryList) { it.hasResults() >> true }
     private hasNotResults = Stub(GQueryList) { it.hasResults() >> false }

@@ -27,10 +27,10 @@ import static org.grooscript.util.Util.USER_HOME
 @GroovyASTTransformation(phase=CompilePhase.SEMANTIC_ANALYSIS)
 public class PhantomJsTestImpl implements ASTTransformation {
 
-    static final MAX_TIME_WAITING = 10000L
-    static final HEAD = '[PhantomJs Test]'
-    static final CONSOLE = '  [Console]'
-
+    static final long MAX_TIME_WAITING = 10000L
+    static final String HEAD = '[PhantomJs Test]'
+    static final String CONSOLE = '  [Console]'
+    static final String TEMP_FILE_NAME = 'gsPhantom.js'
     static final PHANTOM_JS_TEXT = '''
 var page = require('webpage').create();
 
@@ -168,7 +168,7 @@ page.open('{{URL}}', function (status) {
         if (!jsHome) {
             try {
 
-                def userHome = USER_HOME
+                String userHome = USER_HOME
 
                 if (userHome) {
                     def version = Util.grooscriptVersion
@@ -198,55 +198,27 @@ page.open('{{URL}}', function (status) {
                 assert false, 'Need define property JS_LIBRARIES_PATH, folder with grooscript.min.js and jquery.min.js'
             }
         }
-        jsHome
+        Util.isWindows() ? jsHome.replace(SEP, '/') : jsHome
     }
 
     static def doPhantomJsTest(String url, String testCode, String methodName, int waitSeconds = 0,
                                 String capture = null, List parameters = null, String messageError = null,
                                 boolean withInfo = false) {
-        def nameFile = 'phantomjs.js'
         def result = null
         try {
             if (messageError) {
                 assert false, 'PhantomJs Initial Error: ' + messageError
             }
-            def jsHome = jsLibrariesPath
-            String phantomJsHome
-            if (!System.getProperty('PHANTOMJS_HOME') && !System.getenv('PHANTOMJS_HOME')) {
-                assert false, 'Need define PHANTOMJS_HOME as property or environment variable; the PhantomJs folder'
-            } else {
-                phantomJsHome = System.getProperty('PHANTOMJS_HOME') ?: System.getenv('PHANTOMJS_HOME')
-            }
-            message "Starting Test in ${url}", HEAD
+            String jsHome = jsLibrariesPath
+            String command = phantomJsCommand
 
-            if (Util.isWindows()) {
-                jsHome = jsHome.replace(SEP, '/')
+            message "Starting Test in ${url}", HEAD
+            if (withInfo) {
+                showTestInfo(url, methodName, parameters, messageError, command, jsHome)
             }
 
             //Save the file
-            new File(nameFile).text = getScriptText(url, testCode, waitSeconds, capture, jsHome, methodName, parameters)
-
-            //Execute PhantomJs
-            String command = phantomJsHome
-            if (Util.isWindows()) {
-                command += "${SEP}phantomjs.exe "
-            } else {
-                command += "${SEP}bin${SEP}phantomjs "
-            }
-            command += nameFile
-
-            if (withInfo) {
-                message '**************************************************** INFO BEGIN', HEAD
-                message 'Url: ' + url, HEAD
-                message 'MethodName: ' + methodName, HEAD
-                message 'Parameters: ' + parameters, HEAD
-                message 'MessageError: ' + messageError, HEAD
-                message 'Operating system: ' + Util.OS_NAME, HEAD
-                message 'PhantomJs Home used: ' + phantomJsHome, HEAD
-                message 'Execution command: ' + command, HEAD
-                message 'Library path used: ' + jsHome, HEAD
-                message '**************************************************** INFO END', HEAD
-            }
+            new File(TEMP_FILE_NAME).text = getScriptText(url, testCode, waitSeconds, capture, jsHome, methodName, parameters)
 
             def proc = command.execute()
             proc.waitForOrKill(MAX_TIME_WAITING)
@@ -256,23 +228,7 @@ page.open('{{URL}}', function (status) {
                 message '  return code: ' + proc.exitValue() + ' stderr: ' + proc.err.text, HEAD
                 assert false, 'Error launching PhantomJs'
             } else {
-                exit.eachLine { String line->
-                    if (line.contains('Result: FAIL') || line.contains('Result:FAIL')) {
-                        assert false, line.substring(line.indexOf(' Desc:') + 6)
-                    } else if (line.toUpperCase().startsWith('CONSOLE:')) {
-                        message line.substring(8), CONSOLE
-                    } else if (line.contains('Result:OK')) {
-                        assert true, line.substring(line.indexOf(' Desc:') + 6)
-                    } else if (line.toUpperCase().startsWith('GSRESULT:')) {
-                        if (line.substring(9).trim() != '') {
-                            def slurper = new JsonSlurper()
-                            result = slurper.parseText(line.substring(9))
-                        }
-                    } else {
-                        if (line.trim())
-                            message line, HEAD
-                    }
-                }
+                result = getResultFromConsole(exit)
             }
             message "Result \u001B[92mSUCCESS\u001B[0m.", HEAD
         } catch (AssertionError ae) {
@@ -282,24 +238,82 @@ page.open('{{URL}}', function (status) {
         } catch (e) {
             exception e.message, HEAD
             if (e.message && e.message.startsWith('Cannot run program')) {
-                assert false,"Don't find PhantomJs: ${e.message}"
+                assert false, "Don't find PhantomJs: ${e.message}"
             } else {
-                assert false,'Error executing PhantomJs: ' + e.message
+                assert false, 'Error executing PhantomJs: ' + e.message
             }
         } finally {
-            File file = new File(nameFile)
-            if (withInfo) {
-                message '**************************************************** BEGIN JS TEST', HEAD
-                file.text.eachLine { line ->
-                    println line
+            closeTempFile(withInfo)
+        }
+        result
+    }
+
+    private static String getPhantomJsCommand() {
+        //Find phantom js home
+        String phantomJsHome
+        if (!System.getProperty('PHANTOMJS_HOME') && !System.getenv('PHANTOMJS_HOME')) {
+            assert false, 'Need define PHANTOMJS_HOME as property or environment variable; the PhantomJs folder'
+        } else {
+            phantomJsHome = System.getProperty('PHANTOMJS_HOME') ?: System.getenv('PHANTOMJS_HOME')
+        }
+
+        //PhantomJs execution command
+        String command = phantomJsHome
+        if (Util.isWindows()) {
+            command += "${SEP}phantomjs.exe "
+        } else {
+            command += "${SEP}bin${SEP}phantomjs "
+        }
+        command += TEMP_FILE_NAME
+        command
+    }
+
+    private static void showTestInfo(url, methodName, parameters, messageError, command, jsHome) {
+        message '**************************************************** INFO BEGIN', HEAD
+        message 'Url: ' + url, HEAD
+        message 'MethodName: ' + methodName, HEAD
+        message 'Parameters: ' + parameters, HEAD
+        message 'MessageError: ' + messageError, HEAD
+        message 'Operating system: ' + Util.OS_NAME, HEAD
+        message 'Execution command: ' + command, HEAD
+        message 'Library path used: ' + jsHome, HEAD
+        message '**************************************************** INFO END', HEAD
+    }
+
+    private static Object getResultFromConsole(String consoleExit) {
+        def result = null
+        consoleExit.eachLine { String line->
+            if (line.contains('Result: FAIL') || line.contains('Result:FAIL')) {
+                assert false, line.substring(line.indexOf(' Desc:') + 6)
+            } else if (line.toUpperCase().startsWith('CONSOLE:')) {
+                message line.substring(8), CONSOLE
+            } else if (line.contains('Result:OK')) {
+                assert true, line.substring(line.indexOf(' Desc:') + 6)
+            } else if (line.toUpperCase().startsWith('GSRESULT:')) {
+                if (line.substring(9).trim() != '') {
+                    def slurper = new JsonSlurper()
+                    result = slurper.parseText(line.substring(9))
                 }
-                message '**************************************************** END JS TEST', HEAD
-            }
-            if (file && file.exists()) {
-                file.delete()
+            } else {
+                if (line.trim())
+                    message line, HEAD
             }
         }
         result
+    }
+
+    private static closeTempFile(boolean withInfo) {
+        File file = new File(TEMP_FILE_NAME)
+        if (withInfo) {
+            message '**************************************************** BEGIN JS TEST', HEAD
+            file.text.eachLine { line ->
+                println line
+            }
+            message '**************************************************** END JS TEST', HEAD
+        }
+        if (file && file.exists()) {
+            file.delete()
+        }
     }
 
     private static String getParametersText(List parameters) {
@@ -316,7 +330,7 @@ page.open('{{URL}}', function (status) {
         return parametersText
     }
 
-    private static getScriptText(url, testCode, waitSeconds, capture, jsHome, methodName, parameters) {
+    private static String getScriptText(url, testCode, waitSeconds, capture, jsHome, methodName, parameters) {
         def scriptText
         scriptText = PHANTOM_JS_TEXT
         scriptText = scriptText.replace('{{URL}}', url)
