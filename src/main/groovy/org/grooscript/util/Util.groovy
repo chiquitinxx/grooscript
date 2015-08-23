@@ -1,3 +1,16 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.grooscript.util
 
 import org.grooscript.convert.NativeFunction
@@ -5,9 +18,6 @@ import org.grooscript.test.JavascriptEngine
 import org.grooscript.convert.GsConverter
 import org.grooscript.test.JsTestResult
 
-/**
- * JFL 29/08/12
- */
 class Util {
 
     static final String USER_HOME = System.getProperty('user.home')

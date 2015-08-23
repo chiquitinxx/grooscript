@@ -119,7 +119,7 @@ class GrooScriptSpec extends Specification {
 
         then:
         testResult.console == 'Hello!'
-        testResult.jsScript.contains 'Apache 2 License'
+        testResult.jsScript.contains 'Apache License, Version 2.0'
 
         where:
         libs << ['grooscript', 'grooscript, grooscript.min']
