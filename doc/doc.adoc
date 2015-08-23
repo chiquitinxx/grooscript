@@ -80,8 +80,9 @@ include::tricks.adoc[]
 
 == Tools
 
-Grooscript itself is just a Java library. We have created some tools to improve the experience using it, in your
-http://gradle.org/[Gradle] projects, using it in http://grails.org/[Grails] and with your http://nodejs.org/[Node.js] projects.
+Grooscript itself is just a Java/Groovy library. We have created some tools to improve the experience using it, in your
+http://gradle.org/[Gradle] projects, using it in http://grails.org/[Grails] 2 or 3, in http://nodejs.org/[Node.js] projects or
+adding javascript lib dependencies with http://bower.io/[Bower].
 
 === Gradle plugin
 
@@ -96,6 +97,8 @@ There is an available http://grails.org/plugin/grooscript[plugin] for grails 2.4
 classes in the client, websocket support or put groovy code in your gsp's that will be run in javascript. Take a look
 at the link:grails-plugin/index.html[documentation] for more info. Github https://github.com/chiquitinxx/grails-grooscript[source code].
 
+Also, it exists a Grails 3 plugin, you can take a look at http://grooscript.org/grails3-plugin/[documentation] or source code in https://github.com/chiquitinxx/grooscript-grails3-plugin[github]
+
 === Npm package
 
 If you have a Node.js project, and you want to use some converted code, you can use grooscript npm
@@ -109,6 +112,16 @@ eval(fs.readFileSync('aConvertedFile.js')+'');
 --
 
 Little link:nodejs_example.html[guide]
+
+=== Bower package
+
+You can add grooscript libs using http://bower.io/[Bower] with `>bower install grooscript`, Then you can add grooscript.js,
+grooscript.min.js or grooscript-tools.js dependencies in your project.
+
+[source,javascript]
+--
+<script src="bower_components/grooscript/src/main/resources/META-INF/resources/grooscript.js"></script>
+--
 
 == Require.js modules
 

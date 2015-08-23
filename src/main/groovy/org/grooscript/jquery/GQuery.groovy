@@ -11,6 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+//tag::gquery[]
 package org.grooscript.jquery
 
 import org.grooscript.rx.Observable
@@ -48,3 +49,4 @@ interface GQuery {
     //Call
     GQueryList call(String selector)
 }
+//end::gquery[]

@@ -76,7 +76,7 @@ The implementation is added to `grooscript-tools.js`. The interface is:
 
 [source,groovy]
 --
-include::../src/main/groovy/org/grooscript/jquery/GQuery.groovy[indent=0]
+include::../src/main/groovy/org/grooscript/jquery/GQuery.groovy[tags=gquery,indent=0]
 --
 
 `GQueryList` is a class with a method missing to execute jquery functions in the result of the selector
