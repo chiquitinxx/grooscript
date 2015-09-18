@@ -39,6 +39,7 @@ class JsNames {
 
     static final GS_ASSERT = "${GS}assert"
     static final GS_PRINTLN = "${GS}println"
+    static final GS_PRINT_NASHORN = "${GS}printNashorn"
     static final GS_PASS_MAP_TO_OBJECT = "${GS}passMapToObject"
     static final GS_LIST = "${GS}list"
     static final GS_RANGE = "${GS}range"

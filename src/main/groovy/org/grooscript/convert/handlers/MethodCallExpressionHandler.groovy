@@ -15,6 +15,7 @@ package org.grooscript.convert.handlers
 
 import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.expr.*
+import org.grooscript.convert.ConversionOptions
 
 import static org.grooscript.JsNames.*
 
@@ -30,7 +31,11 @@ class MethodCallExpressionHandler extends BaseHandler {
 
         //Change println for javascript function
         if (methodName == 'println') {
-            out.addScript(GS_PRINTLN)
+            if (conversionFactory.converter.conversionOptions[ConversionOptions.NASHORN_CONSOLE] == true) {
+                out.addScript(GS_PRINT_NASHORN)
+            } else {
+                out.addScript(GS_PRINTLN)
+            }
             addParametersWithParenthesis(expression)
         //rehydrate and dehydrate are ignored
         } else if (methodName in ['rehydrate', 'dehydrate'] && expression.objectExpression instanceof ClosureExpression) {
