@@ -17,6 +17,7 @@ import org.codehaus.groovy.control.CompilationUnit
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.grooscript.util.GrooScriptException
+import org.grooscript.util.GsConsole
 
 import static org.codehaus.groovy.control.customizers.builder.CompilerCustomizationBuilder.withConfig
 
@@ -26,14 +27,23 @@ class GrooScriptCompiler {
 
     def classpath
     Closure customization
+    public boolean consoleInfo = false
 
     protected CompilationUnit compiledCode(
             String sourceCode, String scriptClassName = defaultScriptName, int phaseNumber = GROOSCRIPT_PHASE) {
-        def conf = getCustomizedCompilerConfiguration()
-        def compilationUnitFinal = new CompilationUnit(conf, null, grooscriptClassLoader(conf))
-        compilationUnitFinal.addSource(scriptClassName, sourceCode)
-        compilationUnitFinal.compile(phaseNumber)
-        compilationUnitFinal
+        try {
+            def conf = getCustomizedCompilerConfiguration()
+            def compilationUnitFinal = new CompilationUnit(conf, null, grooscriptClassLoader(conf))
+            compilationUnitFinal.addSource(scriptClassName, sourceCode)
+            compilationUnitFinal.compile(phaseNumber)
+            return compilationUnitFinal
+        } catch (e) {
+            GsConsole.error "Compilation error in ${CompilePhase.phases[phaseNumber].name()} phase"
+            if (consoleInfo) {
+                e.printStackTrace()
+            }
+            throw e
+        }
     }
 
     protected String getDefaultScriptName() {

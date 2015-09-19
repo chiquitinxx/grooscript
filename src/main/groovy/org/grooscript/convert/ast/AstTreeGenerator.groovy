@@ -26,7 +26,6 @@ import org.grooscript.util.GsConsole
 
 class AstTreeGenerator extends GrooScriptCompiler {
 
-    boolean consoleInfo = false
     Traits traits = new Traits()
 
     /**
@@ -57,8 +56,18 @@ class AstTreeGenerator extends GrooScriptCompiler {
 
         def scriptClassName = defaultScriptName
 
+        if (consoleInfo) {
+            GsConsole.message('Preparing compilation of code -------------------------')
+            GsConsole.message(sourceCode)
+            GsConsole.message('-------------------------')
+        }
         CompilationUnit cu = astCompiledCode(sourceCode, scriptClassName)
 
+        if (consoleInfo) {
+            GsConsole.message('Sending nodes to convert')
+            GsConsole.message(' Classes: ' + classesToConvert)
+            GsConsole.message(' Traits: ' + traitsToConvert)
+        }
         [
             listAstNodes(cu.ast.modules, scriptClassName, classesToConvert, traitsToConvert),
             nativeFunctionsFromOtherSources(cu.ast.modules)
@@ -73,12 +82,7 @@ class AstTreeGenerator extends GrooScriptCompiler {
     }
 
     private CompilationUnit astCompiledCode(String sourceCode, String scriptClassName) {
-        try {
-            compiledCode(sourceCode, scriptClassName, CompilePhase.INSTRUCTION_SELECTION.phaseNumber)
-         } catch (e) {
-            GsConsole.error 'Compilation error in INSTRUCTION_SELECTION phase'
-            throw e
-        }
+        compiledCode(sourceCode, scriptClassName, CompilePhase.INSTRUCTION_SELECTION.phaseNumber)
         compiledCode(sourceCode, scriptClassName)
     }
 

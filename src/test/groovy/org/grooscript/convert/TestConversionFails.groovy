@@ -13,8 +13,10 @@
  */
 package org.grooscript.convert
 
+import org.grooscript.GrooScript
 import org.grooscript.test.ConversionMixin
 import org.grooscript.test.JsTestResult
+import org.grooscript.util.GrooScriptException
 import org.grooscript.util.Util
 import spock.lang.Specification
 
@@ -47,6 +49,14 @@ class TestConversionFails extends Specification {
 
         then:
         Exception e = thrown()
-        e.message.startsWith 'Compiler END ERROR on Script -Not allowed access metaClass'
+        e.message.startsWith 'Compiler END ERROR on Script - Not allowed access metaClass'
+    }
+
+    def 'get exception converting wrong code'() {
+        when:
+        GrooScript.convert('new A()', [(ConversionOptions.CONSOLE_INFO.text): true])
+
+        then:
+        thrown(GrooScriptException)
     }
 }

@@ -72,9 +72,9 @@ class GsConverter {
                 GsConsole.error("Error getting AST from script " +
                         "(Groovy: ${Util.groovyVersion} Grooscript: ${Util.grooscriptVersion}): " + e.message)
                 if (phase == 0) {
-                    throw new Exception("Compiler ERROR on Script -" + e.message)
+                    throw new GrooScriptException("Compiler ERROR on Script - " + e.message)
                 } else {
-                    throw new Exception("Compiler END ERROR on Script -" + e.message)
+                    throw new GrooScriptException("Compiler END ERROR on Script - " + e.message)
                 }
             }
         }

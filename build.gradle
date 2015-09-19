@@ -118,7 +118,7 @@ test.dependsOn generateGrooscriptToolsFile, gulp_tests, gulp_test_require
 
 node {
     // Version of node to use.
-    version = '4.1.0'
+    version = '0.12.6'
 
     // If true, it will download node using above parameters.
     // If false, it will try to use globally installed node.
