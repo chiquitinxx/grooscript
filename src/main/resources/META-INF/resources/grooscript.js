@@ -72,7 +72,7 @@
 
     //Function that used for print and println in groovy
     gs.println = function(value) {
-        if (gs.consoleOutput && console) {
+        if (gs.consoleOutput) {
             console.log(value);
         } else {
             if (gs.consoleData !== "") {
@@ -80,6 +80,10 @@
             }
             gs.consoleData = gs.consoleData + value;
         }
+    };
+
+    gs.printNashorn = function(value) {
+        print(value);
     };
 
     //TODO We don't know if a function is constructor, atm if function name starts with uppercase, it is

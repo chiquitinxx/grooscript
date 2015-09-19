@@ -32,7 +32,8 @@ class GrooScriptSpec extends Specification {
                 recursive: false,
                 requireJsModule: false,
                 consoleInfo: false,
-                includeDependencies: false
+                includeDependencies: false,
+                nashornConsole: false
         ]
     }
 

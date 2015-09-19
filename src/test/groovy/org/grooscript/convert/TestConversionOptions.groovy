@@ -19,6 +19,9 @@ import spock.lang.IgnoreIf
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import javax.script.ScriptEngine
+import javax.script.ScriptEngineManager
+
 import static org.grooscript.util.Util.LINE_SEPARATOR as LS
 import static org.grooscript.util.Util.SEP
 
@@ -47,7 +50,7 @@ class TestConversionOptions extends Specification {
 
     def 'number conversion options'() {
         expect:
-        ConversionOptions.values().size() == 10
+        ConversionOptions.values().size() == 11
     }
 
     def 'convert a groovy file'() {
@@ -257,6 +260,21 @@ class TestConversionOptions extends Specification {
     def 'conversion with consoleInfo'() {
         expect:
         GrooScript.convert('class A {}', [consoleInfo: true])
+    }
+
+    def 'convert using nashorn engine to print in console'() {
+        given:
+        ScriptEngineManager factory = new ScriptEngineManager()
+        ScriptEngine engine = factory.getEngineByName('JavaScript')
+
+        when:
+        engine.eval(
+                GrooScript.convert('println "Hello World!"',
+                        [(ConversionOptions.ADD_GS_LIB.text): 'grooscript',
+                         (ConversionOptions.NASHORN_CONSOLE): true]))
+
+        then:
+        notThrown(Throwable)
     }
 
     private setupNeedDirectory() {
