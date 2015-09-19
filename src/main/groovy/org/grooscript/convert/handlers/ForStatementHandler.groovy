@@ -18,18 +18,26 @@ import org.codehaus.groovy.ast.stmt.ForStatement
 
 class ForStatementHandler extends BaseHandler {
 
+    private static counter = 0
+
     void handle(ForStatement statement) {
         context.variableScoping.push([])
+        out.addScript 'for ('
         if (statement?.variable != ForStatement.FOR_LOOP_DUMMY) {
-            //We change this for in...  for a call lo closure each, that works fine in javascript
-            conversionFactory.visitNode(statement?.collectionExpression)
-            out.addScript('.each(function(')
-            conversionFactory.visitNode(statement.variable)
-            context.addToActualScope(statement.variable.name)
-
+            //Example: i = 0, name = names[i];i < names.length;name = names[++i]
+            def countName = "_i${counter++}"
+            def varName = statement.variable.name
+            out.addScript("${countName} = 0, ${varName} = ")
+            addCollectionExpression(statement)
+            out.addScript("[0]; ${countName} < ")
+            addCollectionExpression(statement)
+            out.addScript(".length; ${varName} = ")
+            addCollectionExpression(statement)
+            out.addScript("[++${countName}]")
+            //Add var to context
+            context.addToActualScope(varName)
         } else {
-            out.addScript 'for ('
-            conversionFactory.visitNode(statement?.collectionExpression)
+            addCollectionExpression(statement)
         }
         out.addScript ') {'
         out.indent++
@@ -44,9 +52,10 @@ class ForStatementHandler extends BaseHandler {
         out.indent--
         out.removeTabScript()
         out.addScript('}')
-        if (statement?.variable != ForStatement.FOR_LOOP_DUMMY) {
-            out.addScript(')')
-        }
         context.variableScoping.pop()
+    }
+
+    private addCollectionExpression(ForStatement statement) {
+        conversionFactory.visitNode(statement?.collectionExpression)
     }
 }

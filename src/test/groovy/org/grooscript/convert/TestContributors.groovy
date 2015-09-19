@@ -202,5 +202,6 @@ class TestContributors extends Specification {
         expect:
         convertAndEvaluate('contribution/Dilvan')
         convertAndEvaluate('contribution/DilvanEmpty')
+        convertAndEvaluate('contribution/DilvanBreak')
     }
 }
