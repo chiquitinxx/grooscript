@@ -197,6 +197,15 @@ class TestFiles extends Specification {
         new File(destinationFolder).deleteDir()
     }
 
+    void 'convert an interface does nothing'() {
+        when:
+        GrooScript.convert("${sourceFolder}files${SEP}interfaces${SEP}AnInterface.groovy", destinationFolder, options)
+        def destinationFile = new File("${destinationFolder}${SEP}AnInterface.js")
+
+        then:
+        !destinationFile.exists()
+    }
+
     private static final String FILES_CLASSPATH = "src${SEP}test${SEP}src"
 
     private Map options
@@ -207,7 +216,7 @@ class TestFiles extends Specification {
         options = [classpath: FILES_CLASSPATH]
     }
 
-    private boolean folderContainsFiles(String pathFolder, List files) {
+    private boolean folderContainsFiles(String pathFolder, List<String> files) {
         File folder = new File(pathFolder)
         boolean allFound = true
         int numberFiles = 0
