@@ -1,8 +1,8 @@
 :project-name: grooscript
 :project-full-path: chiquitinxx/grooscript
 :github-branch: master
-:current-version: 1.2.0
-:next-version: 1.2.1-SNAPSHOT
+:current-version: 1.2.1
+:next-version: 1.2.2-SNAPSHOT
 
 image:https://snap-ci.com/{project-full-path}/branch/{github-branch}/build_image["Build Status", link="https://snap-ci.com/{project-full-path}/branch//{github-branch}"]
 image:https://travis-ci.org/{project-full-path}.svg?branch={github-branch}["Build Status", link="https://travis-ci.org/{project-full-path}"]
@@ -36,7 +36,7 @@ println result
 
 == Latest Versions
 
-The latest release version is *{current-version}*, released on 2015-08-01. The current development version is *{next-version}*.
+The latest release version is *{current-version}*, released on 2015-09-19. The current development version is *{next-version}*.
 
 Releases are available from link:https://search.maven.org/#search%7Cga%7C1%7Ca%3A%22grooscript%22[Maven Central] and link:https://bintray.com/chiquitinxx/grooscript/org.grooscript%3Agrooscript/view[Bintray].
 
