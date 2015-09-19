@@ -2798,6 +2798,10 @@
         };
     };
 
+    Function.prototype.run = function() {
+        return this();
+    };
+
     //MISC Find scope of a var
     gs.fs = function(name, thisScope) {
         if (thisScope && thisScope[name] !== undefined) {

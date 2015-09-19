@@ -192,9 +192,15 @@ class TestContributors extends Specification {
     @Unroll
     def 'groovy site code fragment #number'() {
         expect:
-        convertAndEvaluate("contribution/GroovySite${number}", true)
+        convertAndEvaluate("contribution/GroovySite${number}")
 
         where:
         number << [0, 1]
+    }
+
+    def 'Dilvan errors found'() {
+        expect:
+        convertAndEvaluate('contribution/Dilvan')
+        convertAndEvaluate('contribution/DilvanEmpty')
     }
 }

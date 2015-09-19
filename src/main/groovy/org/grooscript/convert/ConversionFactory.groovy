@@ -55,6 +55,7 @@ class ConversionFactory {
         'TryCatchStatement': TryCatchStatementHandler,
         'StaticMethodCallExpression': StaticMethodCallExpressionHandler,
         'SwitchStatement': SwitchStatementHandler,
+        'EmptyStatement': EmptyStatementHandler,
     ]
 
     ConversionFactory() {

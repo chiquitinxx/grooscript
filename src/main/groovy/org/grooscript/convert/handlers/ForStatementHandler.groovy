@@ -13,6 +13,7 @@
  */
 package org.grooscript.convert.handlers
 
+import org.codehaus.groovy.ast.stmt.BlockStatement
 import org.codehaus.groovy.ast.stmt.ForStatement
 
 class ForStatementHandler extends BaseHandler {
@@ -35,6 +36,10 @@ class ForStatementHandler extends BaseHandler {
         out.addLine()
 
         conversionFactory.visitNode(statement?.loopBlock)
+
+        if (!(statement.loopBlock instanceof BlockStatement)) {
+            out.addScript(';', true)
+        }
 
         out.indent--
         out.removeTabScript()
