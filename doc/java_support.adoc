@@ -24,6 +24,27 @@ Not much work with enums, just good as a set of values, stuff like 'values' are 
 include::../src/test/resources/enums.groovy[tags=enums,indent=0]
 --
 
+==== Nested Classes
+
+The support of creating classes inside other classes has not been tested well. Take care with them:
+
+[source,groovy]
+--
+class OuterClass {
+    ...
+    class NestedClass {
+        ...
+    }
+}
+--
+
+The use of anonymous classes is not allowed, and you will get an exception:
+
+[source,groovy]
+--
+include::../src/test/resources/contribution/DilvanInnerRunnable.groovy[tags=anonymous,indent=0]
+--
+
 ==== Types
 
 Good support in:

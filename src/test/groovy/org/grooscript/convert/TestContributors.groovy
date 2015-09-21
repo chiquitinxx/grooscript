@@ -15,6 +15,7 @@ package org.grooscript.convert
 
 import org.grooscript.test.ConversionMixin
 import org.grooscript.test.JsTestResult
+import org.grooscript.util.GrooScriptException
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -203,5 +204,15 @@ class TestContributors extends Specification {
         convertAndEvaluate('contribution/Dilvan')
         convertAndEvaluate('contribution/DilvanEmpty')
         convertAndEvaluate('contribution/DilvanBreak')
+    }
+
+    def 'not supporting anonymous classes'() {
+        when:
+        convertAndEvaluate('contribution/DilvanInnerRunnable', true)
+
+        then:
+        def e = thrown(GrooScriptException)
+        e.message == 'Compiler END ERROR on Script - Not supporting anonymous classes(java.lang.Runnable) ' +
+                'in class contribution.WithRunnable'
     }
 }

@@ -121,6 +121,11 @@ class GsConverter {
                     listBlocks << it
                 } else if (it instanceof ClassNode) {
                     if (!it.isInterface()) {
+                        if (it.outerClass && it.name.endsWith('$1')) {
+                            throw new GrooScriptException("Not supporting " +
+                                    "anonymous classes(${it.interfaces.collect { itf -> itf.name }.join(', ')}) " +
+                                    "in class ${it.outerClass.name}")
+                        }
                         classList << it
                     }
                 } else if (it instanceof MethodNode) {
