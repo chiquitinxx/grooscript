@@ -10,6 +10,8 @@ plugins {
 
 apply plugin: 'idea'
 apply plugin: 'groovy'
+apply from: "$rootDir/gradle/node.gradle"
+apply from: "$rootDir/gradle/release.gradle"
 
 def compatibilityVersion = 1.6
 sourceCompatibility = compatibilityVersion
@@ -19,8 +21,7 @@ version = '1.2.2-SNAPSHOT'
 group = 'org.grooscript'
 
 ext {
-    appName = 'grooscript'
-    groovyVersion = '2.4.4'
+    groovyVersion = '2.4.5'
 }
 
 repositories {
@@ -44,7 +45,7 @@ cobertura.coverageSourceDirs = sourceSets.main.groovy.srcDirs
 
 jar {
     manifest {
-        attributes("Implementation-Title": appName, "Implementation-Version": version)
+        attributes("Implementation-Title": rootProject.name, "Implementation-Version": version)
     }
     exclude 'META-INF/resources/**/grooscript-b*.js',
             'META-INF/resources/**/test*.js',
@@ -54,41 +55,6 @@ jar {
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.7'
-}
-
-modifyPom {
-    project {
-        name 'Grooscript'
-        description 'Grooscript converts your groovy code to javascript'
-        url 'http://grooscript.org/'
-        inceptionYear '2012'
-
-        scm {
-            url 'scm:git@github.com:chiquitinxx/grooscript.git'
-            connection 'scm:git@github.com:chiquitinxx/grooscript.git'
-            developerConnection 'scm:git@github.com:chiquitinxx/grooscript.git'
-        }
-
-        licenses {
-            license {
-                name 'The Apache Software License, Version 2.0'
-                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                distribution 'repo'
-            }
-        }
-
-        developers {
-            developer {
-                id 'chiquitinxx'
-                name 'Jorge Franco'
-                email 'jorge.franco.leza@gmail.com'
-            }
-            developer {
-                id 'abelsromero'
-                name 'Abel Salgado Romero'
-            }
-        }
-    }
 }
 
 task generateGrooscriptToolsFile(type: JavaExec) {
@@ -115,18 +81,6 @@ testUnit.description = 'Run only unit tests'
 
 compileJava.dependsOn gulp_compress
 test.dependsOn generateGrooscriptToolsFile, gulp_tests, gulp_test_require, licenseMain, licenseTest
-
-node {
-    // Version of node to use.
-    version = '0.12.6'
-
-    // If true, it will download node using above parameters.
-    // If false, it will try to use globally installed node.
-    download = true
-
-    // Set the work directory for unpacking node
-    workDir = file("${project.buildDir}/nodejs")
-}
 
 asciidoctor {
     sourceDir = project.file 'doc'

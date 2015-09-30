@@ -1,0 +1,11 @@
+node {
+    // Version of node to use.
+    version = '0.12.6'
+
+    // If true, it will download node using above parameters.
+    // If false, it will try to use globally installed node.
+    download = true
+
+    // Set the work directory for unpacking node
+    workDir = file("${project.buildDir}/nodejs")
+}
