@@ -2167,12 +2167,7 @@
     //For some special cases where access a property with this."${name}"
     //This can be a closure
     gs.thisOrObject = function(thisItem, objectItem) {
-        //this can only be used for our objects, our object must have withz function
-        if (thisItem.withz === undefined && objectItem) {
-            return objectItem;
-        } else {
-            return thisItem;
-        }
+        return objectItem || thisItem;
     };
 
     // spread operator (*)
