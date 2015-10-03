@@ -163,6 +163,7 @@ describe('convert objects between groovy and js', function() {
     it('convert to groovy object with null class', function() {
         var jsObject = {a: 3, b: 4};
         var groovyObject = gs.toGroovy(jsObject, null);
+        assert.equal(groovyObject.a, 3);
         assert.equal(groovyObject.clazz.name, 'java.util.LinkedHashMap');
     });
 
@@ -182,6 +183,12 @@ describe('convert objects between groovy and js', function() {
         assert.equal(groovyObject.clazz.name, 'MyClass');
         assert.equal(gs.equals(groovyObject.b[0], gs.map({c: 5, d: 6})), true);
         assert.equal(groovyObject.b[0].clazz.name, 'java.util.LinkedHashMap');
+    });
+
+    it ('converto to groovy wrong items', function() {
+        assert.equal(gs.toGroovy("hello", MyClass), "hello");
+        assert.equal(gs.toGroovy(5, MyClass), 5);
+        assert.equal(gs.toGroovy({hello: "hello"}, MyClass).hello, "hello");
     });
 
     it('convert groovy map to javascript object', function() {
