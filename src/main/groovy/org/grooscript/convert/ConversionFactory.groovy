@@ -56,7 +56,8 @@ class ConversionFactory {
         'StaticMethodCallExpression': StaticMethodCallExpressionHandler,
         'SwitchStatement': SwitchStatementHandler,
         'EmptyStatement': EmptyStatementHandler,
-        'FieldExpression': FieldExpressionHandler
+        'FieldExpression': FieldExpressionHandler,
+        'ContinueStatement': ContinueStatementHandler
     ]
 
     ConversionFactory() {

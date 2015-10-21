@@ -11,25 +11,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.grooscript.convert
+package groovy
 
-import org.grooscript.test.ConversionMixin
-import org.grooscript.util.Util
-import spock.lang.IgnoreIf
-import spock.lang.Specification
+import groovy.transform.TailRecursive
 
-@Mixin([ConversionMixin])
-class GroovyAstsSpec extends Specification {
-
-    @IgnoreIf({ !Util.groovyVersionAtLeast('2.3') })
-    def 'using @Builder ast' () {
-        expect:
-        convertAndEvaluate('groovy/builderAst')
-    }
-
-    @IgnoreIf({ !Util.groovyVersionAtLeast('2.3') })
-    def 'using @TailRecursive ast' () {
-        expect:
-        convertAndEvaluate('groovy/tailRecursiveAst')
+@TailRecursive
+long sizeOfList(list, counter = 0) {
+    if (list.size() == 0) {
+        counter
+    } else {
+        sizeOfList(list.tail(), counter + 1)
     }
 }
+
+assert sizeOfList(1..1000) == 1000
