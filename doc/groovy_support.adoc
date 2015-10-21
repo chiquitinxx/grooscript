@@ -137,7 +137,7 @@ include::../src/test/resources/contribution/Anonymous1.groovy[tags=mark,indent=0
 
 ==== Closures
 
-Closures are converted to javascript functions. call, curry, rcurry, ncurry, leftShift are supported. If you
+Closures are converted to javascript functions. call, curry, rcurry, ncurry, memoize, leftShift are supported. If you
 set delegate of a closure, it will be used. dehydrate and rehydrate are not supported. Support closures
 as last argument in methods, and closure composition.
 
@@ -172,7 +172,7 @@ include::../src/test/resources/doc/Metaprogramming.groovy[tags=mark,indent=0]
 
 ==== AST's
 
-Support to @Mixin, @Category and @Delegate. Annotations in semantic phase, will be applied and converted, is phase
+Support to @Mixin, @Builder, @Category and @Delegate. Annotations in semantic phase, will be applied and converted, is phase
 where grooscript converts compiled code.
 
 ==== Traits

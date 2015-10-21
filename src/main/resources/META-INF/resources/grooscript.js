@@ -2801,6 +2801,28 @@
         return this();
     };
 
+    Function.prototype.memoize = function() {
+        var that = this;
+        that._input = [];
+        that._output = [];
+        return function() {
+            var i, result, foundPos = -1, inputs = Array.prototype.slice.call(arguments);
+            for (i = 0; i < that._input.length && foundPos < 0; i++) {
+                if (gs.equals(inputs, that._input[i])) {
+                    foundPos = i;
+                }
+            }
+            if (foundPos > -1) {
+                result = that._output[foundPos];
+            } else {
+                that._input.push(inputs);
+                result = that.apply(null, inputs);
+                that._output.push(result);
+            }
+            return result;
+        };
+    };
+
     //MISC Find scope of a var
     gs.fs = function(name, thisScope) {
         if (thisScope && thisScope[name] !== undefined) {

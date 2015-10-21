@@ -13,31 +13,18 @@
  */
 package contribution
 
-class This1 {
-    def value
+def closure = { x, y -> x * y}
+assert closure.call(5, 3) == 15
 
-    def execute(closure) {
-        closure(this.value)
-    }
-}
+assert { x, y -> x * y}.call(3, 5) == 15
+assert { x, y -> x * y}(3, 5) == 15
 
-class This2 {
-    def value
-    def otherThis
-
-    def execute(closure) {
-        2.times {
-            closure(otherThis.value)
-            closure(this.value)
-            closure(otherThis.execute({ it * this.value}))
-        }
-    }
-}
-
-def this1 = new This1(value: 5)
-assert this1.execute({ it * 2}) == 10
-
-def sum = 0
-def this2 = new This2(value: 3, otherThis: this1)
-this2.execute({ sum += it })
-assert sum == 46
+def number = 0
+def memoized = { x, y -> number++; x * y }.memoize()
+def memoized2 = memoized.memoize()
+assert memoized(3, 2) == 6
+assert number == 1
+assert memoized(3, 2) == 6
+assert number == 1
+assert memoized2(3, 2) == 6
+assert number == 1
