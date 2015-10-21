@@ -11,19 +11,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.grooscript.convert
+package contribution
 
-import org.grooscript.test.ConversionMixin
-import org.grooscript.util.Util
-import spock.lang.IgnoreIf
-import spock.lang.Specification
+class This1 {
+    def value
 
-@Mixin([ConversionMixin])
-class GroovyAstsSpec extends Specification {
-
-    @IgnoreIf({ !Util.groovyVersionAtLeast('2.3') })
-    def 'using @Builder ast' () {
-        expect:
-        convertAndEvaluate('groovy/builderAst')
+    def execute(closure) {
+        closure(this.value)
     }
 }
+
+class This2 {
+    def value
+    def otherThis
+
+    def execute(closure) {
+        2.times {
+            closure(otherThis.value)
+            closure(this.value)
+            closure(otherThis.execute({ it * this.value}))
+        }
+    }
+}
+
+def this1 = new This1(value: 5)
+assert this1.execute({ it * 2}) == 10
+
+def sum = 0
+def this2 = new This2(value: 3, otherThis: this1)
+this2.execute({ sum += it })
+assert sum == 46
