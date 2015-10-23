@@ -216,33 +216,16 @@ describe('memoize', function() {
     it('memoize a function', function () {
         var index = 0;
         var func = function(a, b) { index++; return a * b};
-        func._input = [];
-        func._output = [];
-        var memoized = function() {
-            var that = func;
-            var i, result, inputs = [];
-            for (i = 0; i < arguments.length; i++) {
-                inputs.push(arguments[i]);
-            }
-
-            var foundPos = -1;
-            for (i = 0; i < that._input.length && foundPos == -1; i++) {
-                if (gs.equals(inputs, that._input[i])) {
-                    foundPos = i;
-                }
-            }
-            if (foundPos > -1) {
-                result = that._output[foundPos];
-            } else {
-                that._input.push(inputs);
-                result = func.apply(null, inputs);
-                that._output.push(result);
-            }
-            return result;
-        };
+        var memoized = func.memoize();
         assert.equal(memoized(4, 3), 12);
         assert.equal(index, 1);
         assert.equal(memoized(4, 3), 12);
         assert.equal(index, 1);
+        assert.equal(memoized(7, 9), 63);
+        assert.equal(index, 2);
+        assert.equal(memoized(7, 9), 63);
+        assert.equal(index, 2);
+        assert.equal(memoized(4, 3), 12);
+        assert.equal(index, 2);
     });
 });
