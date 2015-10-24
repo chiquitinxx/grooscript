@@ -222,7 +222,7 @@
 
     function createClassNames(item, items) {
         var number = items.length, i, container;
-        for (i=0; i < number ; i++) {
+        for (i = 0; i < number ; i++) {
             if (i === 0) {
                 container = {};
                 item.clazz = container;
@@ -257,7 +257,7 @@
             object = value;
         }
 
-        createClassNames(object,['java.util.HashSet']);
+        createClassNames(object, ['java.util.HashSet']);
 
         object.isSet = true;
 
@@ -389,380 +389,378 @@
     function GsGroovyMap() {
         this.clazz = { name: 'java.util.LinkedHashMap', simpleName: 'LinkedHashMap',
             superclass: { name: 'java.util.HashMap', simpleName: 'HashMap'}};
-        this.add = function(key,value) {
-            if (key=="spreadMap") {
-                //We insert items of the map, from spread operator
-                var ob;
-                for (ob in value) {
-                    if (!isMapProperty(ob)) {
-                        this[ob] = value[ob];
-                    }
+        this.gSdefaultValue = null;
+        this.withz = gs.baseClass.withz;
+    }
+
+    GsGroovyMap.prototype.add = function(key,value) {
+        if (key == "spreadMap") {
+            //We insert items of the map, from spread operator
+            var ob;
+            for (ob in value) {
+                if (!isMapProperty(ob)) {
+                    this[ob] = value[ob];
                 }
-            } else {
-                this[key] = value;
             }
-            return this;
-        };
-        this.put = function(key,value) {
+        } else {
+            this[key] = value;
+        }
+        return this;
+    };
+    GsGroovyMap.prototype.put = function(key,value) {
+        return this.add(key,value);
+    };
+    GsGroovyMap.prototype.leftShift = function(key,value) {
+        if (arguments.length == 1) {
+            return this.plus(arguments[0]);
+        } else {
             return this.add(key,value);
-        };
-        this.leftShift = function(key,value) {
-            if (arguments.length == 1) {
-                return this.plus(arguments[0]);
-            } else {
-                return this.add(key,value);
+        }
+    };
+    GsGroovyMap.prototype.putAt = function(key,value) {
+        this.put(key,value);
+    };
+    GsGroovyMap.prototype.size = function() {
+        var number = 0,ob;
+        for (ob in this) {
+            if (!isMapProperty(ob)) {
+                number++;
             }
-        };
-        this.putAt = function(key,value) {
-            this.put(key,value);
-        };
-        this.size = function() {
-            var number = 0,ob;
-            for (ob in this) {
-                if (!isMapProperty(ob)) {
-                    number++;
+        }
+        return number;
+    };
+    GsGroovyMap.prototype.isEmpty = function() {
+        return (this.size() === 0);
+    };
+    GsGroovyMap.prototype.remove = function(key) {
+        if (this[key]) {
+            delete this[key];
+        }
+    };
+    GsGroovyMap.prototype.each = function(closure) {
+        var ob;
+        for (ob in this) {
+            if (!isMapProperty(ob)) {
+                var f = arguments[0];
+                //Nice, number of arguments in length property
+                if (f.length == 1) {
+                    closure({key: ob, value: this[ob]});
+                }
+                if (f.length == 2) {
+                    closure(ob,this[ob]);
                 }
             }
-            return number;
-        };
-        this.isEmpty = function() {
-            return (this.size() === 0);
-        };
-        this.remove = function(key) {
-            if (this[key]) {
-                delete this[key];
-            }
-        };
-        this.each = function(closure) {
-            var ob;
-            for (ob in this) {
-                if (!isMapProperty(ob)) {
-                    var f = arguments[0];
-                    //Nice, number of arguments in length property
-                    if (f.length == 1) {
-                        closure({key: ob, value: this[ob]});
-                    }
-                    if (f.length == 2) {
-                        closure(ob,this[ob]);
-                    }
-                }
-            }
-        };
+        }
+    };
 
-        this.count = function(closure) {
-            var number = 0, ob;
-            for (ob in this) {
-                if (!isMapProperty(ob)) {
-                    if (closure.length == 1) {
-                        if (closure({key: ob, value: this[ob]})) {
-                            number++;
-                        }
+    GsGroovyMap.prototype.count = function(closure) {
+        var number = 0, ob;
+        for (ob in this) {
+            if (!isMapProperty(ob)) {
+                if (closure.length == 1) {
+                    if (closure({key: ob, value: this[ob]})) {
+                        number++;
                     }
-                    if (closure.length == 2) {
-                        if (closure(ob, this[ob])) {
-                            number++;
-                        }
+                }
+                if (closure.length == 2) {
+                    if (closure(ob, this[ob])) {
+                        number++;
                     }
                 }
             }
-            return number;
-        };
+        }
+        return number;
+    };
 
-        this.any = function(closure) {
-            var ob;
-            for (ob in this) {
-                if (!isMapProperty(ob)) {
-                    var f = arguments[0];
-                    if (f.length == 1) {
-                        if (closure({key:ob, value: this[ob]})) {
-                            return true;
-                        }
+    GsGroovyMap.prototype.any = function(closure) {
+        var ob;
+        for (ob in this) {
+            if (!isMapProperty(ob)) {
+                var f = arguments[0];
+                if (f.length == 1) {
+                    if (closure({key:ob, value: this[ob]})) {
+                        return true;
                     }
-                    if (f.length == 2) {
-                        if (closure(ob, this[ob])) {
-                            return true;
-                        }
+                }
+                if (f.length == 2) {
+                    if (closure(ob, this[ob])) {
+                        return true;
                     }
                 }
             }
-            return false;
-        };
+        }
+        return false;
+    };
 
-        this.every = function(closure) {
-            var ob;
-            for (ob in this) {
-                if (!isMapProperty(ob)) {
-                    var f = arguments[0];
-                    if (f.length == 1) {
-                        if (!closure({key: ob, value: this[ob]})) {
-                            return false;
-                        }
+    GsGroovyMap.prototype.every = function(closure) {
+        var ob;
+        for (ob in this) {
+            if (!isMapProperty(ob)) {
+                var f = arguments[0];
+                if (f.length == 1) {
+                    if (!closure({key: ob, value: this[ob]})) {
+                        return false;
                     }
-                    if (f.length == 2) {
-                        if (!closure(ob, this[ob])) {
-                            return false;
-                        }
+                }
+                if (f.length == 2) {
+                    if (!closure(ob, this[ob])) {
+                        return false;
                     }
                 }
             }
-            return true;
-        };
+        }
+        return true;
+    };
 
-        this.find = function(closure) {
-            var ob;
-            for (ob in this) {
-                if (!isMapProperty(ob)) {
-                    var f = arguments[0];
-                    if (f.length == 1) {
-                        var entry = {key: ob, value: this[ob]};
-                        if (closure(entry)) {
-                            return entry;
-                        }
-                    }
-                    if (f.length == 2) {
-                        if (closure(ob, this[ob])) {
-                            return {key: ob, value: this[ob]};
-                        }
-                    }
-                }
-            }
-            return null;
-        };
-
-        this.dropWhile = function(closure) {
-            var result = gs.map(), ob;
-            for (ob in this) {
-                if (!isMapProperty(ob)) {
+    GsGroovyMap.prototype.find = function(closure) {
+        var ob;
+        for (ob in this) {
+            if (!isMapProperty(ob)) {
+                var f = arguments[0];
+                if (f.length == 1) {
                     var entry = {key: ob, value: this[ob]};
-
-                    var f = arguments[0];
-                    if (f.length == 1) {
-                        if (!closure(entry)) {
-                            result.add(entry.key, entry.value);
-                        }
+                    if (closure(entry)) {
+                        return entry;
                     }
-                    if (f.length == 2) {
-                        if (!closure(entry.key, entry.value)) {
-                            result.add(entry.key, entry.value);
-                        }
+                }
+                if (f.length == 2) {
+                    if (closure(ob, this[ob])) {
+                        return {key: ob, value: this[ob]};
                     }
                 }
             }
-            return result;
-        };
+        }
+        return null;
+    };
 
-        this.drop = function(number) {
-            var result = gs.map(), ob, count = 0;
-            for (ob in this) {
-                if (!isMapProperty(ob)) {
-                    count ++;
-                    if (count > number) {
+    GsGroovyMap.prototype.dropWhile = function(closure) {
+        var result = gs.map(), ob;
+        for (ob in this) {
+            if (!isMapProperty(ob)) {
+                var entry = {key: ob, value: this[ob]};
+
+                var f = arguments[0];
+                if (f.length == 1) {
+                    if (!closure(entry)) {
+                        result.add(entry.key, entry.value);
+                    }
+                }
+                if (f.length == 2) {
+                    if (!closure(entry.key, entry.value)) {
+                        result.add(entry.key, entry.value);
+                    }
+                }
+            }
+        }
+        return result;
+    };
+
+    GsGroovyMap.prototype.drop = function(number) {
+        var result = gs.map(), ob, count = 0;
+        for (ob in this) {
+            if (!isMapProperty(ob)) {
+                count ++;
+                if (count > number) {
+                    result.add(ob, this[ob]);
+                }
+            }
+        }
+        return result;
+    };
+
+    GsGroovyMap.prototype.findAll = function(closure) {
+        var result = gs.map(), ob;
+        for (ob in this) {
+            if (!isMapProperty(ob)) {
+                var f = arguments[0];
+                if (f.length == 1) {
+                    var entry = {key: ob, value: this[ob]};
+                    if (closure(entry)) {
+                        result.add(entry.key, entry.value);
+                    }
+                }
+                if (f.length == 2) {
+                    if (closure(ob, this[ob])) {
                         result.add(ob, this[ob]);
                     }
                 }
             }
+        }
+        return result;
+    };
+
+    GsGroovyMap.prototype.collect = function(closure) {
+        var result = gs.list([]), ob;
+        for (ob in this) {
+            if (!isMapProperty(ob)) {
+                var f = arguments[0];
+                if (f.length==1) {
+                    result.add(closure({key:ob, value:this[ob]}));
+                }
+                if (f.length==2) {
+                    result.add(closure(ob,this[ob]));
+                }
+            }
+        }
+        if (result.size()>0) {
             return result;
-        };
+        } else {
+            return null;
+        }
+    };
 
-        this.findAll = function(closure) {
-            var result = gs.map(), ob;
-            for (ob in this) {
-                if (!isMapProperty(ob)) {
-                    var f = arguments[0];
-                    if (f.length == 1) {
-                        var entry = {key: ob, value: this[ob]};
-                        if (closure(entry)) {
-                            result.add(entry.key, entry.value);
-                        }
-                    }
-                    if (f.length == 2) {
-                        if (closure(ob, this[ob])) {
-                            result.add(ob, this[ob]);
-                        }
-                    }
+    GsGroovyMap.prototype.containsKey = function(key) {
+        if (this[key] === undefined || this[key] === null) {
+            return false;
+        } else {
+            return true;
+        }
+    };
+
+    GsGroovyMap.prototype.containsValue = function(value) {
+        var ob, gotIt = false;
+        for (ob in this) {
+            if (!isMapProperty(ob)) {
+                if (gs.equals(this[ob],value)) {
+                    gotIt = true;
+                    break;
                 }
             }
-            return result;
-        };
+        }
+        return gotIt;
+    };
 
-        this.collect = function(closure) {
-            var result = gs.list([]), ob;
-            for (ob in this) {
-                if (!isMapProperty(ob)) {
-                    var f = arguments[0];
-                    if (f.length==1) {
-                        result.add(closure({key:ob, value:this[ob]}));
-                    }
-                    if (f.length==2) {
-                        result.add(closure(ob,this[ob]));
-                    }
+    GsGroovyMap.prototype.get = function(key, defaultValue) {
+        if (!this.containsKey(key)) {
+            this[key] = defaultValue;
+        }
+        return this[key];
+    };
+
+    GsGroovyMap.prototype.toString = function() {
+        var items = '';
+        this.each (function(key,value) {
+            items = items + key+': '+value+' ,';
+        });
+        return '[' + items + ']';
+    };
+
+    GsGroovyMap.prototype.equals = function(otherMap) {
+        var result = true, ob;
+        for (ob in this) {
+            if (!isMapProperty(ob)) {
+                if (!gs.equals(this[ob],otherMap[ob])) {
+                    result = false;
                 }
             }
-            if (result.size()>0) {
-                return result;
-            } else {
-                return null;
-            }
-        };
+        }
+        return result;
+    };
 
-        this.containsKey = function(key) {
-            if (this[key] === undefined || this[key] === null) {
-                return false;
-            } else {
-                return true;
+    GsGroovyMap.prototype.keySet = function() {
+        var result = gs.list([]), ob;
+        for (ob in this) {
+            if (!isMapProperty(ob)) {
+                result.add(ob);
             }
-        };
+        }
+        return result;
+    };
 
-        this.containsValue = function(value) {
-            var ob, gotIt = false;
-            for (ob in this) {
-                if (!isMapProperty(ob)) {
-                    if (gs.equals(this[ob],value)) {
-                        gotIt = true;
-                        break;
-                    }
+    GsGroovyMap.prototype.values = function() {
+        var result = gs.list([]), ob;
+        for (ob in this) {
+            if (!isMapProperty(ob)) {
+                result.add(this[ob]);
+            }
+        }
+        return result;
+    };
+
+    GsGroovyMap.prototype.withDefault = function(closure) {
+        this.gSdefaultValue = closure;
+        return this;
+    };
+
+    GsGroovyMap.prototype.inject = function(initial,closure) {
+        var ob;
+        for (ob in this) {
+            if (!isMapProperty(ob)) {
+                if (closure.length == 2) {
+                    var entry = {key:ob, value:this[ob]};
+                    initial = closure(initial, entry);
+                }
+                if (closure.length == 3) {
+                    initial = closure(initial, ob, this[ob]);
                 }
             }
-            return gotIt;
-        };
+        }
+        return initial;
+    };
 
-        this.get = function(key, defaultValue) {
-            if (!this.containsKey(key)) {
-                this[key] = defaultValue;
+    GsGroovyMap.prototype.putAll = function (items) {
+        if (items instanceof Array) {
+            var i;
+            for (i=0;i<items.length;i++) {
+                var item = items[i];
+                this.add(item.key,item.value);
             }
-            return this[key];
-        };
-
-        this.toString = function() {
-            var items = '';
-            this.each (function(key,value) {
-                items = items + key+': '+value+' ,';
-            });
-            return '[' + items + ']';
-        };
-
-        this.equals = function(otherMap) {
-
-            var result = true, ob;
-            for (ob in this) {
-                if (!isMapProperty(ob)) {
-                    if (!gs.equals(this[ob],otherMap[ob])) {
-                        result = false;
-                    }
-                }
-            }
-            return result;
-        };
-
-        this.keySet = function() {
-            var result = gs.list([]), ob;
-            for (ob in this) {
-                if (!isMapProperty(ob)) {
-                    result.add(ob);
-                }
-            }
-            return result;
-        };
-
-        this.values = function() {
-            var result = gs.list([]), ob;
-            for (ob in this) {
-                if (!isMapProperty(ob)) {
-                    result.add(this[ob]);
-                }
-            }
-            return result;
-        };
-
-        this.gSdefaultValue = null;
-
-        this.withDefault = function(closure) {
-            this.gSdefaultValue = closure;
-            return this;
-        };
-
-        this.inject = function(initial,closure) {
+        } else {
             var ob;
-            for (ob in this) {
+            for (ob in items) {
                 if (!isMapProperty(ob)) {
-                    if (closure.length == 2) {
-                        var entry = {key:ob, value:this[ob]};
-                        initial = closure(initial, entry);
-                    }
-                    if (closure.length == 3) {
-                        initial = closure(initial, ob, this[ob]);
-                    }
+                    this.add(ob,items[ob]);
                 }
             }
-            return initial;
-        };
+        }
+        return this;
+    };
 
-        this.putAll = function (items) {
-            if (items instanceof Array) {
-                var i;
-                for (i=0;i<items.length;i++) {
-                    var item = items[i];
-                    this.add(item.key,item.value);
-                }
-            } else {
-                var ob;
-                for (ob in items) {
-                    if (!isMapProperty(ob)) {
-                        this.add(ob,items[ob]);
-                    }
-                }
-            }
-            return this;
-        };
-
-        this.plus = function(other) {
-            var result = this.clone();
-            if (other instanceof Array) {
-                result.putAll(other);
-            } else {
-                var ob;
-                for (ob in other) {
-                    if (!isMapProperty(ob)) {
-                        result.add(ob,other[ob]);
-                    }
-                }
-            }
-            return result;
-        };
-
-        this.clone = function() {
-            var result = gs.map(), ob;
-            for (ob in this) {
-                if (!isMapProperty(ob)) {
-                    result.add(ob, this[ob]);
-                }
-            }
-            return result;
-        };
-
-        this.minus = function(other) {
-            var result = this.clone(), ob;
+    GsGroovyMap.prototype.plus = function(other) {
+        var result = this.clone();
+        if (other instanceof Array) {
+            result.putAll(other);
+        } else {
+            var ob;
             for (ob in other) {
                 if (!isMapProperty(ob)) {
-                    if (result[ob] !== null && result[ob] !==undefined && gs.equals(result[ob],other[ob])) {
-                        delete result[ob];
-                    }
+                    result.add(ob,other[ob]);
                 }
             }
-            return result;
-        };
+        }
+        return result;
+    };
 
-        this.clear = function() {
-            var ob;
-            for (ob in this) {
-                if (!isMapProperty(ob)) {
-                    delete this[ob];
+    GsGroovyMap.prototype.clone = function() {
+        var result = gs.map(), ob;
+        for (ob in this) {
+            if (!isMapProperty(ob)) {
+                result.add(ob, this[ob]);
+            }
+        }
+        return result;
+    };
+
+    GsGroovyMap.prototype.minus = function(other) {
+        var result = this.clone(), ob;
+        for (ob in other) {
+            if (!isMapProperty(ob)) {
+                if (result[ob] !== null && result[ob] !==undefined && gs.equals(result[ob],other[ob])) {
+                    delete result[ob];
                 }
             }
-        };
+        }
+        return result;
+    };
 
-        this.withz = gs.baseClass.withz;
-    }
+    GsGroovyMap.prototype.clear = function() {
+        var ob;
+        for (ob in this) {
+            if (!isMapProperty(ob)) {
+                delete this[ob];
+            }
+        }
+    };
 
     /////////////////////////////////////////////////////////////////
     // Array prototype changes
