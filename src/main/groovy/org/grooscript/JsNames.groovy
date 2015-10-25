@@ -25,9 +25,7 @@ class JsNames {
     static final WITH_TRAITS = 'withTraits'
     static final CONSTRUCTOR = 'constructor'
 
-    static final GS_BASE_CLASS = "${GS}baseClass"
-    static final GS_INHERIT = "${GS}inherit"
-
+    static final GS_INIT_CLASS = "${GS}init"
     static final GS_METHOD_CALL = "${GS}mc"
     static final GS_SET_PROPERTY = "${GS}sp"
     static final GS_GET_PROPERTY = "${GS}gp"

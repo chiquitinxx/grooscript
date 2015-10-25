@@ -1,5 +1,5 @@
 function HtmlBuilder() {
-  var gSobject = gs.inherit(gs.baseClass,'HtmlBuilder');
+  var gSobject = gs.init('HtmlBuilder');
   gSobject.clazz = { name: 'org.grooscript.builder.HtmlBuilder', simpleName: 'HtmlBuilder'};
   gSobject.clazz.superclass = { name: 'java.lang.Object', simpleName: 'Object'};
   gSobject.tagSolver = function(name, args) {
@@ -96,7 +96,7 @@ HtmlBuilder.build = function(closure) {
 }
 
 function Observable() {
-  var gSobject = gs.inherit(gs.baseClass,'Observable');
+  var gSobject = gs.init('Observable');
   gSobject.clazz = { name: 'org.grooscript.rx.Observable', simpleName: 'Observable'};
   gSobject.clazz.superclass = { name: 'java.lang.Object', simpleName: 'Object'};
   gSobject.subscribers = gs.list([]);
@@ -157,7 +157,7 @@ Observable.from = function(list) {
 }
 
 function GQueryImpl() {
-  var gSobject = gs.inherit(gs.baseClass,'GQueryImpl');
+  var gSobject = gs.init('GQueryImpl');
   gSobject.clazz = { name: 'org.grooscript.jquery.GQueryImpl', simpleName: 'GQueryImpl'};
   gSobject.clazz.superclass = { name: 'java.lang.Object', simpleName: 'Object'};
   gSobject.clazz.interfaces = [{ name: 'org.grooscript.jquery.GQuery', simpleName: 'GQuery'}];
@@ -262,7 +262,7 @@ function GQueryImpl() {
 };
 
 function GQueryList() {
-  var gSobject = gs.inherit(gs.baseClass,'GQueryList');
+  var gSobject = gs.init('GQueryList');
   gSobject.clazz = { name: 'org.grooscript.jquery.GQueryList', simpleName: 'GQueryList'};
   gSobject.clazz.superclass = { name: 'java.lang.Object', simpleName: 'Object'};
   gSobject.list = null;

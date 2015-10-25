@@ -10,7 +10,7 @@ function add(a, b) {
 }
 
 function MyClass() {
-    var gSobject = gs.inherit(gs.baseClass,'MyClass');
+    var gSobject = gs.init('MyClass');
     gSobject.clazz = { name: 'MyClass', simpleName: 'MyClass'};
     gSobject.clazz.superclass = { name: 'java.lang.Object', simpleName: 'Object'};
     gSobject.a = null;

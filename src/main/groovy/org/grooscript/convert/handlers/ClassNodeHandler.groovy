@@ -50,7 +50,7 @@ class ClassNodeHandler extends TraitBaseHandler {
                 //We add to this class scope variables of fathers
                 addSuperClassesToScope(node.superClass)
             } else {
-                out.addScript("var ${GS_OBJECT} = ${GS_INHERIT}(${GS_BASE_CLASS},'${node.nameWithoutPackage}');", true)
+                out.addScript("var ${GS_OBJECT} = ${GS_INIT_CLASS}('${node.nameWithoutPackage}');", true)
             }
 
             //Class names and interfaces
