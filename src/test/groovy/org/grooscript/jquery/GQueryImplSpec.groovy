@@ -44,6 +44,33 @@ class GQueryImplSpec extends Specification {
         0 * _
     }
 
+    def 'bind all properties with prefix'() {
+        given:
+        GroovySpy(GQueryList, global: true)
+        def item = new Expando(namep: 'nameValue', idp: 'idValue', groupp: 'groupValue')
+        def binded = 0
+        def prefix = 'prefix '
+        hasResults.bind(item, 'namep', _) >> { binded++; hasResults }
+        hasResults.bind(item, 'idp', _) >> { binded++; hasResults }
+        hasResults.bind(item, 'groupp', _) >> { binded++; hasResults }
+
+        when:
+        gQueryImpl.bindAllProperties(item, prefix)
+
+        then:
+        1 * GQueryList.of(prefix + '#namep') >> hasNotResults
+        2 * GQueryList.of(prefix + '#idp') >> hasResults
+        1 * GQueryList.of(prefix + '#groupp') >> hasNotResults
+        2 * GQueryList.of(prefix + "[name='namep']") >> hasResults
+        1 * GQueryList.of(prefix + "[name='idp']") >> hasNotResults
+        1 * GQueryList.of(prefix + "[name='groupp']") >> hasNotResults
+        1 * GQueryList.of(prefix + "input:radio[name='namep']") >> hasNotResults
+        1 * GQueryList.of(prefix + "input:radio[name='idp']") >> hasNotResults
+        2 * GQueryList.of(prefix + "input:radio[name='groupp']") >> hasResults
+        binded == 3
+        0 * _
+    }
+
     def 'bind methods'() {
         given:
         GroovySpy(GQueryList, global: true)
@@ -61,6 +88,18 @@ class GQueryImplSpec extends Specification {
         2 * GQueryList.of('#id2') >> hasResults
         2 * GQueryList.of('#id3') >> hasResults
         click == 1 && submit == 1 && change == 1
+    }
+
+    def 'exists selector'() {
+        given:
+        GroovySpy(GQueryList, global: true)
+        def selector = 'selector'
+
+        when:
+        gQueryImpl.existsSelector(selector) == true
+
+        then:
+        1 * GQueryList.of(selector) >> hasResults
     }
 
     def 'chain methods'() {
