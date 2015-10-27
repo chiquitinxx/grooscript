@@ -211,6 +211,14 @@ describe('convert objects between groovy and js', function() {
     });
 });
 
+describe('string functions', function() {
+
+    it('endsWith', function () {
+        assert.equal("init".endsWith("Click"), false);
+        assert.equal("init".endsWith("init"), true);
+    });
+});
+
 describe('memoize', function() {
 
     it('memoize a function', function () {

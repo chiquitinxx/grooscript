@@ -1762,7 +1762,7 @@
     };
 
     String.prototype.endsWith = function(value) {
-        return this.indexOf(value) == (this.length - value.length);
+        return this.indexOf(value) > -1 && this.indexOf(value) == (this.length - value.length);
     };
 
     String.prototype.count = function(value) {
