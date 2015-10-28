@@ -23,9 +23,9 @@ class GQueryImplSpec extends Specification {
         GroovySpy(GQueryList, global: true)
         def item = new Expando(namep: 'nameValue', idp: 'idValue', groupp: 'groupValue')
         def binded = 0
-        hasResults.bind(item, 'namep', _) >> { binded++; hasResults }
-        hasResults.bind(item, 'idp', _) >> { binded++; hasResults }
-        hasResults.bind(item, 'groupp', _) >> { binded++; hasResults }
+        hasResults.bind(item, 'namep') >> { binded++; hasResults }
+        hasResults.bind(item, 'idp') >> { binded++; hasResults }
+        hasResults.bind(item, 'groupp') >> { binded++; hasResults }
 
         when:
         gQueryImpl.bindAllProperties(item)
@@ -44,29 +44,29 @@ class GQueryImplSpec extends Specification {
         0 * _
     }
 
-    def 'bind all properties with prefix'() {
+    def 'bind all properties with parent'() {
         given:
         GroovySpy(GQueryList, global: true)
         def item = new Expando(namep: 'nameValue', idp: 'idValue', groupp: 'groupValue')
         def binded = 0
-        def prefix = 'prefix '
-        hasResults.bind(item, 'namep', _) >> { binded++; hasResults }
-        hasResults.bind(item, 'idp', _) >> { binded++; hasResults }
-        hasResults.bind(item, 'groupp', _) >> { binded++; hasResults }
+        def parent = Mock(GQueryList)
+        hasResults.bind(item, 'namep') >> { binded++; hasResults }
+        hasResults.bind(item, 'idp') >> { binded++; hasResults }
+        hasResults.bind(item, 'groupp') >> { binded++; hasResults }
 
         when:
-        gQueryImpl.bindAllProperties(item, prefix)
+        gQueryImpl.bindAllProperties(item, parent)
 
         then:
-        1 * GQueryList.of(prefix + '#namep') >> hasNotResults
-        2 * GQueryList.of(prefix + '#idp') >> hasResults
-        1 * GQueryList.of(prefix + '#groupp') >> hasNotResults
-        2 * GQueryList.of(prefix + "[name='namep']") >> hasResults
-        1 * GQueryList.of(prefix + "[name='idp']") >> hasNotResults
-        1 * GQueryList.of(prefix + "[name='groupp']") >> hasNotResults
-        1 * GQueryList.of(prefix + "input:radio[name='namep']") >> hasNotResults
-        1 * GQueryList.of(prefix + "input:radio[name='idp']") >> hasNotResults
-        2 * GQueryList.of(prefix + "input:radio[name='groupp']") >> hasResults
+        1 * parent.find('#namep') >> hasNotResults
+        2 * parent.find('#idp') >> hasResults
+        1 * parent.find('#groupp') >> hasNotResults
+        2 * parent.find("[name='namep']") >> hasResults
+        1 * parent.find("[name='idp']") >> hasNotResults
+        1 * parent.find("[name='groupp']") >> hasNotResults
+        1 * parent.find("input:radio[name='namep']") >> hasNotResults
+        1 * parent.find("input:radio[name='idp']") >> hasNotResults
+        2 * parent.find("input:radio[name='groupp']") >> hasResults
         binded == 3
         0 * _
     }
@@ -100,6 +100,19 @@ class GQueryImplSpec extends Specification {
 
         then:
         1 * GQueryList.of(selector) >> hasResults
+    }
+
+    def 'exists selector with parent'() {
+        given:
+        GroovySpy(GQueryList, global: true)
+        def parent = Mock(GQueryList)
+        def selector = 'selector'
+
+        when:
+        gQueryImpl.existsSelector(selector, parent) == true
+
+        then:
+        1 * parent.find(selector) >> hasResults
     }
 
     def 'chain methods'() {
@@ -136,6 +149,22 @@ class GQueryImplSpec extends Specification {
         1 * GQueryList.of(selector) >> queryList
         1 * queryList.on(nameEvent, data, _)
         result == observable
+    }
+
+    def 'check gQueryList methods'() {
+        given:
+        def closure = { -> true}
+        def gq = new GQueryList(selector)
+
+        expect:
+        gq.selec == selector
+        gq.list == null
+        gq.focusEnd() == null
+        gq.hasResults() == false
+        gq.onChange(closure) == null
+        gq.onEvent('name', closure) == null
+        gq.bind(this, 'name', closure) == null
+        gq.withResultList(closure) == null
     }
 
     class WithEvens {

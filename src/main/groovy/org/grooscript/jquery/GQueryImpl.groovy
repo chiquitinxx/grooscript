@@ -22,24 +22,28 @@ class GQueryImpl implements GQuery {
         GQueryList.of(selector).bind(target, nameProperty, closure)
     }
 
-    boolean existsSelector(String selector) {
-        GQueryList.of(selector).hasResults()
+    GQueryList bindProperty(String selector, target, String nameProperty, GQueryList parent = null) {
+        resolveSelector(selector, parent).bind(target, nameProperty)
     }
 
-    boolean existsId(String id, String prefix = '') {
-        GQueryList.of("${prefix}#${id}").hasResults()
+    boolean existsSelector(String selector, GQueryList parent = null) {
+        resolveSelector(selector, parent).hasResults()
     }
 
-    boolean existsName(String name, String prefix = '') {
-        GQueryList.of("${prefix}[name='${name}']").hasResults()
+    boolean existsId(String id, GQueryList parent = null) {
+        resolveSelector("#${id}", parent).hasResults()
     }
 
-    boolean existsGroup(String name, String prefix = '') {
-        GQueryList.of("${prefix}input:radio[name='${name}']").hasResults()
+    boolean existsName(String name, GQueryList parent = null) {
+        resolveSelector("[name='${name}']", parent).hasResults()
     }
 
-    GQueryList onEvent(String selector, String nameEvent, Closure func) {
-        GQueryList.of(selector).onEvent(nameEvent, func)
+    boolean existsGroup(String name, GQueryList parent = null) {
+        resolveSelector("input:radio[name='${name}']", parent).hasResults()
+    }
+
+    GQueryList onEvent(String selector, String nameEvent, Closure func, GQueryList parent = null) {
+        resolveSelector(selector, parent).onEvent(nameEvent, func)
     }
 
     @GsNative
@@ -66,54 +70,54 @@ class GQueryImpl implements GQuery {
         $(document).ready(func);
     */}
 
-    void attachMethodsToDomEvents(obj, String prefix = '') {
+    void attachMethodsToDomEvents(obj, GQueryList parent = null) {
         obj.metaClass.methods.each { method ->
             if (method.name.endsWith('Click')) {
                 def shortName = method.name.substring(0, method.name.length() - 5)
-                if (existsSelector(prefix + '#' + shortName)) {
-                    onEvent(prefix + '#'+shortName, 'click', obj.&"${method.name}")
+                if (existsId(shortName, parent)) {
+                    onEvent('#'+shortName, 'click', obj.&"${method.name}", parent)
                 }
             }
             if (method.name.endsWith('Submit')) {
                 def shortName = method.name.substring(0, method.name.length() - 6)
-                if (existsSelector(prefix + '#' + shortName)) {
-                    onEvent(prefix + '#'+shortName, 'submit', obj.&"${method.name}" << { it.preventDefault() })
+                if (existsId(shortName, parent)) {
+                    onEvent('#'+shortName, 'submit', obj.&"${method.name}" << { it.preventDefault() }, parent)
                 }
             }
             if (method.name.endsWith('Change')) {
                 def shortName = method.name.substring(0, method.name.length() - 6)
-                if (existsSelector(prefix + '#' + shortName)) {
-                    onChange(prefix + '#'+shortName, obj.&"${method.name}")
+                if (existsId(shortName, parent)) {
+                    onChange('#'+shortName, obj.&"${method.name}", parent)
                 }
             }
         }
     }
 
-    GQueryList onChange(String selector, Closure closure) {
-        GQueryList.of(selector).onChange closure
+    GQueryList onChange(String selector, Closure closure, GQueryList parent = null) {
+        resolveSelector(selector, parent).onChange closure
     }
 
-    GQueryList focusEnd(String selector) {
-        GQueryList.of(selector).focusEnd()
+    GQueryList focusEnd(String selector, GQueryList parent = null) {
+        resolveSelector(selector, parent).focusEnd()
     }
 
-    void bindAllProperties(target, String prefix = '') {
+    void bindAllProperties(target, GQueryList parent = null) {
         target.properties.each { String name, value ->
-            if (existsId(name, prefix)) {
-                bind(prefix + "#$name", target, name)
+            if (existsId(name, parent)) {
+                bindProperty("#$name", target, name, parent)
             }
-            if (existsName(name, prefix)) {
-                bind(prefix + "[name='$name']", target, name)
+            if (existsName(name, parent)) {
+                bindProperty("[name='$name']", target, name, parent)
             }
-            if (existsGroup(name, prefix)) {
-                bind(prefix + "input:radio[name='${name}']", target, name)
+            if (existsGroup(name, parent)) {
+                bindProperty("input:radio[name='${name}']", target, name, parent)
             }
         }
     }
 
-    void bindAll(target, String prefix = '') {
-        bindAllProperties(target, prefix)
-        attachMethodsToDomEvents(target, prefix)
+    void bindAll(target, GQueryList parent = null) {
+        bindAllProperties(target, parent)
+        attachMethodsToDomEvents(target, parent)
     }
 
     Observable observeEvent(String selector, String nameEvent, Map data = [:]) {
@@ -126,6 +130,10 @@ class GQueryImpl implements GQuery {
 
     GQueryList call(String selector) {
         GQueryList.of(selector)
+    }
+
+    private GQueryList resolveSelector(String selector, GQueryList parent) {
+        parent != null ? parent.find(selector) : GQueryList.of(selector)
     }
 }
 

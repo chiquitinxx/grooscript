@@ -20,19 +20,23 @@ interface GQuery {
     //Bind a selector to a property of an object
     GQueryList bind(String selector, target, String nameProperty)
     GQueryList bind(String selector, target, String nameProperty, Closure closure)
+    GQueryList bindProperty(String selector, target, String nameProperty)
+    GQueryList bindProperty(String selector, target, String nameProperty, GQueryList parent)
     //Exist selector
     boolean existsSelector(String selector)
+    boolean existsSelector(String selector, GQueryList parent)
     //Exist dom element with id
     boolean existsId(String id)
-    boolean existsId(String id, String prefix)
+    boolean existsId(String id, GQueryList parent)
     //Exist dom element with name
     boolean existsName(String name)
-    boolean existsName(String name, String prefix)
+    boolean existsName(String name, GQueryList parent)
     //Exist dom radio group with that name
     boolean existsGroup(String name)
-    boolean existsGroup(String name, String prefix)
+    boolean existsGroup(String name, GQueryList parent)
     //Launch closure on dom event, closure not receive params
     GQueryList onEvent(String selector, String nameEvent, Closure func)
+    GQueryList onEvent(String selector, String nameEvent, Closure func, GQueryList parent)
     //Remote call to server to receive JSON
     void doRemoteCall(String url, String type, params, Closure onSuccess, Closure onFailure)
     void doRemoteCall(String url, String type, params, Closure onSuccess, Closure onFailure, objectResult)
@@ -40,17 +44,19 @@ interface GQuery {
     void onReady(Closure func)
     //Atach methods of an object to dom elements with that id (Click, Submit, Change)
     void attachMethodsToDomEvents(target)
-    void attachMethodsToDomEvents(target, String prefix)
+    void attachMethodsToDomEvents(target, GQueryList parent)
     //Launch closure on input change event, closure receive a param with the new value
     GQueryList onChange(String selector, Closure closure)
+    GQueryList onChange(String selector, Closure closure, GQueryList parent)
     //Focus dom object, on input put cursor at the end
     GQueryList focusEnd(String selector)
+    GQueryList focusEnd(String selector, GQueryList parent)
     //Bind all properties of an object to dom elements, find dom elements by id or name
     void bindAllProperties(target)
-    void bindAllProperties(target, String prefix)
+    void bindAllProperties(target, GQueryList parent)
     //Bind all
     void bindAll(target)
-    void bindAll(target, String prefix)
+    void bindAll(target, GQueryList parent)
     //Returns an Observable from a event
     Observable observeEvent(String selector, String nameEvent)
     Observable observeEvent(String selector, String nameEvent, Map data)
