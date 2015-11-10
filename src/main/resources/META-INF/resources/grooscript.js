@@ -395,7 +395,7 @@
         superclass: { name: 'java.util.HashMap', simpleName: 'HashMap'}};
     GsGroovyMap.prototype.gSdefaultValue = null;
     GsGroovyMap.prototype.withz = BaseClass.prototype.withz;
-    GsGroovyMap.prototype.add = function(key,value) {
+    GsGroovyMap.prototype.add = function(key, value) {
         if (key == "spreadMap") {
             //We insert items of the map, from spread operator
             var ob;
@@ -2882,16 +2882,9 @@
             } else {
                 if (obj instanceof Object) {
                     var ob;
-                    if (objClass) {
-                        result = objClass();
-                        for (ob in obj) {
-                            result[ob] = gs.toGroovy(obj[ob]);
-                        }
-                    } else {
-                        result = gs.map();
-                        for (ob in obj) {
-                            result.add(ob, gs.toGroovy(obj[ob]));
-                        }
+                    result = (objClass ? objClass() : gs.map());
+                    for (ob in obj) {
+                        result[ob] = gs.toGroovy(obj[ob]);
                     }
                 } else {
                     result = obj;

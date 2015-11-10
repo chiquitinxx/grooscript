@@ -274,7 +274,7 @@ function GQueryImpl() {
     return gs.execStatic(GQueryList,'of', this,[selector]);
   }
   gSobject['resolveSelector'] = function(selector, parent) {
-    return (parent != null ? gs.mc(parent,"find",[selector]) : gs.execStatic(GQueryList,'of', this,[selector]));
+    return gs.execStatic(GQueryList,'of', this,[(parent != null ? gs.mc(parent,"find",[selector]) : selector)]);
   }
   if (arguments.length == 1) {gs.passMapToObject(arguments[0],gSobject);};
   
@@ -286,7 +286,6 @@ function GQueryList() {
   gSobject.clazz = { name: 'org.grooscript.jquery.GQueryList', simpleName: 'GQueryList'};
   gSobject.clazz.superclass = { name: 'java.lang.Object', simpleName: 'Object'};
   gSobject.list = null;
-  gSobject.selec = null;
   gSobject.of = function(x0) { return GQueryList.of(x0); }
   gSobject.methodMissing = function(name, args) {
     return gSobject.list[name].apply(gSobject.list, args);
@@ -328,7 +327,8 @@ function GQueryList() {
                 cl($(this).val());
             });
         } else {
-            console.log('Not supporting onChange for selector: ' + gSobject.selec);
+            console.log('Not supporting onChange for jquery element');
+            console.log(jq);
         }
         return gSobject;
   }
@@ -388,7 +388,9 @@ function GQueryList() {
         } else if (jq.is(":radio")) {
             target[nameSetMethod] = function(newValue) {
                 this[nameProperty] = newValue;
-                $(gSobject.selec +'[value="' + newValue + '"]').prop('checked', true);
+                jq.each(function(idx, elem) {
+                    if (elem.value == newValue) { $(elem).prop('checked', true) }
+                });
                 if (closure) { closure(newValue); };
             };
             jq.change(function() {
@@ -408,23 +410,23 @@ function GQueryList() {
                 if (closure) { closure(currentVal); };
             });
         } else {
-            console.log('Not supporting bind for selector ' + gSobject.selec);
+            console.log('Not supporting bind for jquery element');
+            console.log(jq);
         }
         return gSobject;
   }
   gSobject.jqueryList = function(selec) {
     return $(selec);
   }
-  gSobject['GQueryList1'] = function(selector) {
-    gSobject.selec = selector;
-    gSobject.list = gs.mc(gSobject,"jqueryList",[selector]);
+  gSobject['GQueryList1'] = function(selecOrJq) {
+    gSobject.list = (gs.instanceOf(selecOrJq, "String") ? gs.mc(gSobject,"jqueryList",[selecOrJq]) : selecOrJq);
     return this;
   }
   if (arguments.length==1) {gSobject.GQueryList1(arguments[0]); }
   
   return gSobject;
 };
-GQueryList.of = function(selector) {
-  return GQueryList(selector);
+GQueryList.of = function(selecOrJq) {
+  return GQueryList(selecOrJq);
 }
 

@@ -58,6 +58,8 @@ class GQueryImplSpec extends Specification {
         gQueryImpl.bindAllProperties(item, parent)
 
         then:
+        6 * GQueryList.of(hasNotResults) >> hasNotResults
+        6 * GQueryList.of(hasResults) >> hasResults
         1 * parent.find('#namep') >> hasNotResults
         2 * parent.find('#idp') >> hasResults
         1 * parent.find('#groupp') >> hasNotResults
@@ -157,7 +159,6 @@ class GQueryImplSpec extends Specification {
         def gq = new GQueryList(selector)
 
         expect:
-        gq.selec == selector
         gq.list == null
         gq.focusEnd() == null
         gq.hasResults() == false

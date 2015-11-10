@@ -209,6 +209,13 @@ describe('convert objects between groovy and js', function() {
         jsObj = gs.toJsObj(groovyMap);
         assert.equal(jsObj.map.c, 'c');
     });
+
+    it('convert remove to groovy', function() {
+        var result = gs.toGroovy([{remove: 'remove'}, "remove", ["remove"]]);
+        assert.equal(result[0].remove, "remove");
+        assert.equal(result[1], "remove");
+        assert.equal(result[2][0], "remove");
+    });
 });
 
 describe('string functions', function() {

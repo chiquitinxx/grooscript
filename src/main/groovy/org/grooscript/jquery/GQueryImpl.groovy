@@ -133,22 +133,20 @@ class GQueryImpl implements GQuery {
     }
 
     private GQueryList resolveSelector(String selector, GQueryList parent) {
-        parent != null ? parent.find(selector) : GQueryList.of(selector)
+        GQueryList.of(parent != null ? parent.find(selector) : selector)
     }
 }
 
 class GQueryList {
 
-    def list
-    String selec
+    def list //$()
 
-    static GQueryList of(String selector) {
-        new GQueryList(selector)
+    static GQueryList of(selecOrJq) {
+        new GQueryList(selecOrJq)
     }
 
-    GQueryList(String selector) {
-        selec = selector
-        list = jqueryList(selector)
+    GQueryList(selecOrJq) {
+        list = (selecOrJq instanceof String ? jqueryList(selecOrJq) : selecOrJq)
     }
 
     @GsNative
@@ -200,7 +198,8 @@ class GQueryList {
                 cl($(this).val());
             });
         } else {
-            console.log('Not supporting onChange for selector: ' + gSobject.selec);
+            console.log('Not supporting onChange for jquery element');
+            console.log(jq);
         }
         return gSobject;
     */}
@@ -263,7 +262,9 @@ class GQueryList {
         } else if (jq.is(":radio")) {
             target[nameSetMethod] = function(newValue) {
                 this[nameProperty] = newValue;
-                $(gSobject.selec +'[value="' + newValue + '"]').prop('checked', true);
+                jq.each(function(idx, elem) {
+                    if (elem.value == newValue) { $(elem).prop('checked', true) }
+                });
                 if (closure) { closure(newValue); };
             };
             jq.change(function() {
@@ -283,7 +284,8 @@ class GQueryList {
                 if (closure) { closure(currentVal); };
             });
         } else {
-            console.log('Not supporting bind for selector ' + gSobject.selec);
+            console.log('Not supporting bind for jquery element');
+            console.log(jq);
         }
         return gSobject;
     */}
