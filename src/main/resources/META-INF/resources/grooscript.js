@@ -2820,8 +2820,10 @@
     };
 
     //MISC Find scope of a var
-    gs.fs = function(name, thisScope) {
-        if (thisScope && thisScope[name] !== undefined) {
+    gs.fs = function(name, thisScope, objScope) {
+        if (objScope && objScope[name] !== undefined) {
+            return objScope[name];
+        } else if (thisScope && thisScope[name] !== undefined) {
             return thisScope[name];
         } else {
             var value = gs.gp(thisScope, name);

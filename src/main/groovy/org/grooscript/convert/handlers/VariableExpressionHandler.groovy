@@ -33,7 +33,11 @@ class VariableExpressionHandler extends BaseHandler {
             if (context.traitFieldScopeContains(expression.name)) {
                 out.addScript("${GS_OBJECT}.get${expression.name.capitalize()}()")
             } else if (context.isVariableWithMissingScope(expression) && !isDeclaringVariable) {
-                out.addScript("${GS_FIND_SCOPE}('${addPrefixOrPostfixIfNeeded(expression.name)}', this)")
+                out.addScript("${GS_FIND_SCOPE}('${addPrefixOrPostfixIfNeeded(expression.name)}', this")
+                if (!context.classNameStack.empty() && context.classNameStack.peek() && !context.staticProcessNode) {
+                    out.addScript(", ${GS_OBJECT}")
+                }
+                out.addScript(')')
             } else if (!isDeclaringVariable && context.variableStaticScoping && context.classNameStack &&
                     !context.actualScope.peek().contains(expression.name) &&
                     context.variableStaticScoping.peek() && expression.name in context.variableStaticScoping.peek()) {
