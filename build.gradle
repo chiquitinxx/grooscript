@@ -1,8 +1,8 @@
 plugins {
-    id "com.moowork.node" version "0.10"
-    id "com.moowork.gulp" version "0.10"
+    id "com.moowork.node" version "0.11"
+    id "com.moowork.gulp" version "0.11"
     id "com.bmuschko.nexus" version "2.3.1"
-    id "org.asciidoctor.convert" version "1.5.2"
+    id "org.asciidoctor.convert" version "1.5.3"
     id "net.saliman.cobertura" version "2.2.6"
     id "com.github.kt3k.coveralls" version "2.3.1"
     id "com.github.hierynomus.license" version "0.11.0"
@@ -54,7 +54,7 @@ jar {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.8'
+    gradleVersion = '2.9'
 }
 
 task generateGrooscriptToolsFile(type: JavaExec) {
