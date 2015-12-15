@@ -149,4 +149,14 @@ class TestHtmlBuilder extends Specification {
         expect:
         result == "<script src='aFile.js'></script><br/>"
     }
+
+    void 'properties and content as text'() {
+        given:
+        def result = HtmlBuilder.build {
+            button(class: 'aClass', 'a')
+        }
+
+        expect:
+        result == '<button class=\'aClass\'>a</button>'
+    }
 }
