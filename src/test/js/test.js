@@ -244,3 +244,19 @@ describe('memoize', function() {
         assert.equal(index, 2);
     });
 });
+
+describe('ecmascript 2015', function() {
+
+    it('reverse', function () {
+        var list = [1, 2, 3];
+        list.reverse();
+        assert.equal(list[0], 3);
+        list = gs.list(list).reverse();
+        assert.equal(list[0], 1);
+    });
+
+    it('find', function() {
+        var list = [1, 9, 3];
+        assert.equal(list.find(function(n) { return n > 5 }), 9);
+    });
+});

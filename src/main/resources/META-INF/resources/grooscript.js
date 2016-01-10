@@ -179,6 +179,10 @@
             'getMethods','invokeMethod','constructor', 'asType', 'withTraits'].indexOf(name) >= 0;
     }
 
+    function isJsArray(array) {
+        return array['clazz'] === undefined
+    }
+
     gs.expando = function() {
         var object = gs.init('Expando');
 
@@ -907,12 +911,18 @@
         return false;
     };
 
+    Array.prototype.oldValues = Array.prototype.values;
+
     Array.prototype.values = function() {
-        var i, result = [];
-        for (i = 0; i < this.length; i++) {
-            result[i]=this[i];
+        if (isJsArray(this) && Array.prototype.oldValues) {
+            return this.oldValues();
+        } else {
+            var i, result = [];
+            for (i = 0; i < this.length; i++) {
+                result[i] = this[i];
+            }
+            return result;
         }
-        return result;
     };
     //Remove only 1 item from the list
     Array.prototype.remove = function(indexOrValue) {
@@ -1017,15 +1027,17 @@
         return gs.list(values);
     };
 
-    Array.prototype.find = function(closure) {
-        var result, i;
-        for (i = 0; !result && i < this.length; i++) {
-            if (closure(this[i])) {
-                result = this[i];
+    if (!Array.prototype.find) {
+        Array.prototype.find = function (closure) {
+            var result, i;
+            for (i = 0; !result && i < this.length; i++) {
+                if (closure(this[i])) {
+                    result = this[i];
+                }
             }
-        }
-        return result;
-    };
+            return result;
+        };
+    }
 
     Array.prototype.first = function() {
         return this[0];
@@ -1122,7 +1134,7 @@
     Array.prototype.oldToString = Array.prototype.toString;
 
     Array.prototype.toString = function() {
-        if (this['clazz'] === undefined) {
+        if (isJsArray(this)) {
             return this.oldToString();
         } else if (this.length > 0) {
             return '[' + this.join(', ') + ']';
@@ -1255,9 +1267,13 @@
         }
     };
 
+    Array.prototype.oldReverse = Array.prototype.reverse;
+
     Array.prototype.reverse = function() {
         var i, count = 0;
-        if (arguments.length == 1 && arguments[0] === true) {
+        if (isJsArray(this)) {
+            return this.oldReverse();
+        } else if (arguments.length == 1 && arguments[0] === true) {
             for (i = this.length - 1; i > count; i--) {
                 var temp = this[count];
                 this[count++] = this[i];
