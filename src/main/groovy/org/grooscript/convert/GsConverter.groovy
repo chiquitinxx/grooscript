@@ -592,8 +592,19 @@ class GsConverter {
     }
 
     private processThrowStatement(ThrowStatement statement) {
-        out.addScript('throw "Exception"')
-        //println 'throw expression'+statement.expression.text
+        out.addScript('throw ')
+        if (statement.expression && statement.expression instanceof ConstructorCallExpression
+                && statement.expression.type.name in
+                    ['Exception', 'java.lang.Exception', 'Throwable', 'java.lang.Throwable']
+                && statement.expression.arguments instanceof ArgumentListExpression
+                && statement.expression.arguments.expressions
+                && statement.expression.arguments.expressions.size() == 1) {
+            out.addScript('{message: ')
+            conversionFactory.visitNode(statement.expression.arguments.expressions.first())
+            out.addScript('}')
+        } else {
+            out.addScript('"Exception"')
+        }
     }
 
     private processElvisOperatorExpression(ElvisOperatorExpression expression) {

@@ -142,4 +142,9 @@ class TestGroovyBasics extends Specification {
         expect:
         convertAndEvaluate('operatorOverload')
     }
+
+    def 'try and catch'() {
+        expect:
+        convertAndEvaluate('trycatch')
+    }
 }
