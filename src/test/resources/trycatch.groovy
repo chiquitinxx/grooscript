@@ -12,6 +12,12 @@
  * limitations under the License.
  */
 
+class Any {
+    def thing(msg) {
+        throw new Throwable("Exception: " + msg)
+    }
+}
+
 try {
     try {
         throw new Exception("hola")
@@ -20,9 +26,9 @@ try {
     }
 
     try {
-        throw new Throwable("chau")
+        new Any().thing("uh")
     } catch (Throwable t) {
-        assert t.message == "chau"
+        assert t.message == "Exception: uh"
     }
 } catch (e) {
     assert false
