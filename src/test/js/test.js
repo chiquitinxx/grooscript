@@ -260,3 +260,44 @@ describe('ecmascript 2015', function() {
         assert.equal(list.find(function(n) { return n > 5 }), 9);
     });
 });
+
+describe('empty values in lists and maps', function() {
+
+    it('values in maps', function () {
+        var obj = {a: 0, b: null, c: -1, d: '', e: []};
+        var groovyMap = gs.toGroovy(obj);
+        assert.equal(gs.gp(groovyMap, 'a'), 0);
+        assert.equal(gs.gp(groovyMap, 'b'), null);
+        assert.equal(gs.equals([], gs.gp(groovyMap, 'e')), true);
+    });
+
+    it('values in a class', function () {
+        var obj = {a: 0, b: gs.map()};
+        var groovyObj = MyClass(obj);
+        assert.equal(gs.gp(groovyObj, 'a'), 0);
+        assert.equal(gs.equals(gs.map(), gs.gp(groovyObj, 'b')), true);
+    });
+
+    it('values in a list', function () {
+        var list = [0, [], null];
+        var groovyList = gs.list(list);
+        assert.equal(groovyList[0], 0);
+        assert.equal(groovyList[2], null);
+        assert.equal(gs.equals(groovyList[1], gs.list()), true);
+
+        var groovyLst = gs.toGroovy(list);
+        assert.equal(groovyLst[0], 0);
+        assert.equal(gs.equals(groovyLst[1], gs.list()), true);
+    });
+
+    it('values to javascript', function() {
+        var obj = {a: 0, b: null, c: -1, d: '', e: [], f: {}};
+        var groovyMap = gs.toGroovy(obj);
+        var jsMap = gs.toJavascript(groovyMap);
+        assert.equal(jsMap['a'], 0);
+        assert.equal(jsMap['b'], null);
+        assert.equal(jsMap['d'], '');
+        assert.equal(gs.equals(jsMap['e'], gs.list()), true);
+        assert.equal(gs.equals(jsMap['f'], gs.map()), true);
+    });
+});
