@@ -21,7 +21,7 @@ version = '1.2.3-SNAPSHOT'
 group = 'org.grooscript'
 
 ext {
-    groovyVersion = '2.4.5'
+    groovyVersion = '2.4.6'
 }
 
 repositories {
