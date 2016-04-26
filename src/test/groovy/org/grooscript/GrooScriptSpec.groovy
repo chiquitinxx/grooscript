@@ -149,7 +149,7 @@ class GrooScriptSpec extends Specification {
         GrooScript.toJsObj(data) == data
 
         where:
-        testData << [null, '', 'hello', 55, [1, 2, 3], [one: 1, two: 2]]
+        testData << [null, '', 'hello', 55, [1, 2, 3], [one: 1, two: 2], 0, false]
     }
 
     @Unroll

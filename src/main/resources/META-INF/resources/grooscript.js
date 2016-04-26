@@ -2889,7 +2889,7 @@
 
     //Convert a javascript object to 'groovy', if you define groovy type, will use it, and not a map
     gs.toGroovy = function(obj, objClass) {
-        var result;
+        var result = obj;
         if (obj !== undefined && !isFunction(obj)) {
             if (obj instanceof Array) {
                 result = gs.list([]);
