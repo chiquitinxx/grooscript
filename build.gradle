@@ -21,7 +21,7 @@ version = '1.2.4-SNAPSHOT'
 group = 'org.grooscript'
 
 ext {
-    groovyVersion = '2.4.6'
+    groovyVersion = '2.4.7'
 }
 
 repositories {
@@ -54,7 +54,7 @@ jar {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.12'
+    gradleVersion = '2.13'
 }
 
 task generateGrooscriptToolsFile(type: JavaExec) {
