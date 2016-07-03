@@ -79,7 +79,7 @@ class BlockStatementHandler extends BaseHandler {
 
         //Adds ;
         if (out.resultScript && !(statement instanceof BlockStatement) && !(statement instanceof EmptyStatement)) {
-            out.resultScript += ';'
+            out.addText(';')
             out.addLine()
         }
     }
