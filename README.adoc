@@ -91,6 +91,7 @@ Grooscript licensed under the terms of the link:http://www.apache.org/licenses/L
 - Alberto Navarrete
 - Jonatas Emidio
 - yellowsnow
+- ulrichenslin
 
 == Contact
 
