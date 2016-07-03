@@ -184,7 +184,7 @@ class TestConversionOptions extends Specification {
         result == "var addToB = function(a) {$LS" +
                   "  gs.mc(console,\"log\",[\"Hello!\"]);$LS" +
                   "  return gs.plus(a, b);$LS" +
-                  "};$LS"
+                  " };$LS"
     }
 
     @Unroll

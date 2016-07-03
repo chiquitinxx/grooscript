@@ -15,58 +15,60 @@ package org.grooscript.builder
 
 class HtmlBuilder {
 
-    private String htmCd
+    private StringBuffer htmCd = new StringBuffer()
 
     HtmlBuilder() {
-        htmCd = ''
     }
 
     static String build(@DelegatesTo(HtmlBuilder) Closure closure) {
         def mc = new ExpandoMetaClass(HtmlBuilder, false, true)
         mc.initialize()
         def builder = new HtmlBuilder()
+
         builder.metaClass = mc
         closure.delegate = builder
         closure()
 
-        builder.htmCd
+        builder.htmCd.toString()
     }
 
     def yield(String text) {
         text.each { ch ->
             switch (ch) {
                 case '&':
-                    htmCd += "&amp;"
+                    htmCd << "&amp;"
                     break
                 case '<':
-                    htmCd += "&lt;"
+                    htmCd << "&lt;"
                     break
                 case '>':
-                    htmCd += "&gt;"
+                    htmCd << "&gt;"
                     break
                 case '"':
-                    htmCd += "&quot;"
+                    htmCd << "&quot;"
                     break
                 case '\'':
-                    htmCd +=  "&apos;"
+                    htmCd <<  "&apos;"
                     break
                 default:
-                    htmCd += ch
+                    htmCd << ch
                     break
             }
         }
     }
 
     def yieldUnescaped(String text) {
-        htmCd += text
+        htmCd << text
     }
 
     def comment(String text) {
-        htmCd += '<!--' + text + '-->'
+        htmCd << '<!--'
+        htmCd << text
+        htmCd << '-->'
     }
 
     def newLine() {
-        htmCd += '\n'
+        htmCd << '\n'
     }
 
     def methodMissing(String name, args) {
@@ -75,13 +77,13 @@ class HtmlBuilder {
     }
 
     def tagSolver = { String name, args ->
-        htmCd += "<${name}"
+        htmCd << "<${name}"
         if (args && args.size() > 0 && !(args[0] instanceof String) && !(args[0] instanceof Closure)) {
             args[0].each { key, value ->
-                htmCd += " ${key}='${value}'"
+                htmCd << " ${key}='${value}'"
             }
         }
-        htmCd += !args ? '/>' : '>'
+        htmCd << (!args ? '/>' : '>')
         if (args) {
             if (args.size() == 1 && args[0] instanceof String) {
                 yield args[0]
@@ -95,7 +97,7 @@ class HtmlBuilder {
                     yield lastArg
                 }
             }
-            htmCd += "</${name}>"
+            htmCd << "</${name}>"
         }
     }
 }
