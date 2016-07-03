@@ -167,7 +167,7 @@ class GsConverter {
                 }
             }
 
-            result = out.resultScript
+            result = out.finalScript
         }
         result
     }

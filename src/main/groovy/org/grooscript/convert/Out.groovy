@@ -17,40 +17,53 @@ import static org.grooscript.util.Util.LINE_SEPARATOR as LS
 
 class Out {
 
-    private static final TAB = '  '
+    private static final String TAB = '  '
 
     int indent = 0
-    String resultScript = ''
+    private StringBuffer resultScript = new StringBuffer()
+
+    /**
+     * the final script buffer as string
+     * @return
+     */
+    String getFinalScript() {
+        resultScript.toString()
+    }
+
+    /**
+     * Add text to the script buffer
+     * @param text
+     */
+    void addText(String scriptText) {
+        resultScript << scriptText
+    }
 
     /**
      * Add a line to javascript output
-     * @param script
-     * @param line
      * @return
      */
     void addLine() {
-        if (resultScript) {
-            resultScript += LS
-        } else {
-            resultScript = ''
+        if (resultScript.size() > 0) {
+            resultScript << LS
         }
-        indent.times { resultScript += TAB }
+        indent.times { resultScript << TAB }
     }
 
     /**
      * Add a tab to out
      */
     void addTab() {
-        resultScript += TAB
+        resultScript << TAB
     }
 
     /**
      * Add a text to javascript output
      * @param text
+     * @param addNewLineChar
      * @return
      */
     private void addScript(text, addNewLineChar = false) {
-        resultScript += text
+        resultScript << text
         if (addNewLineChar) {
             addLine()
         }
@@ -62,8 +75,8 @@ class Out {
      * @param position
      * @return
      */
-    void addScriptAt(text,position) {
-        resultScript = resultScript.substring(0,position) + text + resultScript.substring(position)
+    void addScriptAt(text, position) {
+        resultScript.insert(position, text)
     }
 
     /**
@@ -79,16 +92,16 @@ class Out {
      * @return
      */
     void removeTabScript() {
-        resultScript = resultScript[0..resultScript.size()-1-TAB.size()]
+        resultScript.delete(resultScript.size() - TAB.size(), resultScript.size() - 1)
     }
 
     void block(String text = '', Closure cl) {
         addScript(text + '{')
-        indent ++
+        indent++
         addLine()
         cl()
         addLine()
-        indent --
+        indent--
         removeTabScript()
         addScript('};', true)
     }
