@@ -805,7 +805,7 @@
         if (element === undefined) {
             this.push(pos);
         } else {
-            this[pos] = element;
+            this.splice(pos, 0, element);
         }
         return this;
     };
