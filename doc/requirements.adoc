@@ -8,7 +8,6 @@ groovy dependencies:
 --
 compile 'org.grooscript:grooscript:{grooscript-version}', {
     exclude module: "groovy"
-    exclude module: "groovy-json"
 }
 --
 
