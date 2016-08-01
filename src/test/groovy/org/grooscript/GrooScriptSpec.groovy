@@ -86,16 +86,16 @@ class GrooScriptSpec extends Specification {
 
     def 'not repeating js conversion options when converting to a file'() {
         given:
-        def jqueryLibCount = 0
+        def testCount = 0
         def initialTextCount = 0
         def finalTextCount = 0
-        def options = [classpath: SOURCES_CLASSPATH, initialText: INITIAL, finalText: FINAL, addGsLib: 'jquery.min']
+        def options = [classpath: SOURCES_CLASSPATH, initialText: INITIAL, finalText: FINAL, addGsLib: 'testWithNode']
         GrooScript.convert(SOURCES_FOLDER, BIG_JS_FILE, options)
 
         when:
         new File(BIG_JS_FILE).eachLine { line ->
-            if (line.startsWith('/*! jQuery v1.11.1')) {
-                jqueryLibCount++
+            if (line.startsWith('var gs = require(\'./grooscript.js\');')) {
+                testCount++
             }
             if (line.startsWith(INITIAL)) {
                 initialTextCount++
@@ -106,7 +106,7 @@ class GrooScriptSpec extends Specification {
         }
 
         then:
-        jqueryLibCount == 1
+        testCount == 1
         initialTextCount == 1
         finalTextCount == 1
 

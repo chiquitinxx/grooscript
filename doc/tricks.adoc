@@ -4,7 +4,7 @@
 - Don't abuse @GsNative, is code untested. Better write it in javascript and keep that code tested.
 - Grooscript doesn't support all groovy and java, use link:conversions.html[online] convert before use it, to check support.
 - You can activate `debug` console info in javascript with `gs.consoleInfo = true;`.
-- Remember import `grooscript-tools.js` if you use Observable, HtmlBuilder or GQuery.
+- Remember import `grooscript-tools.js` if you use HtmlBuilder.
 - Use grooscript gradle plugin daemon task to do groovy changes, and see immediately in your browser.
 - You can test dom manipulation with http://jsoup.org/[jsoup].
 - Try develop functional, don't abuse this or variables from other contexts.

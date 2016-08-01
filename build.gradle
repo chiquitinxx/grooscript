@@ -47,10 +47,7 @@ jar {
     manifest {
         attributes("Implementation-Title": rootProject.name, "Implementation-Version": version)
     }
-    exclude 'META-INF/resources/**/grooscript-b*.js',
-            'META-INF/resources/**/test*.js',
-            'META-INF/resources/**/obser*.js',
-            'META-INF/resources/**/gQ*.js'
+    exclude 'META-INF/resources/**/test*.js'
 }
 
 task wrapper(type: Wrapper) {

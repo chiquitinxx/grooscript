@@ -121,28 +121,6 @@ class GrooScript {
     }
 
     /**
-     * Join files to a destination file
-     * @param filePaths last is destination file
-     */
-    static void joinListOfFiles(... filePaths) {
-        if (filePaths.size() < 3) {
-            GsConsole.error('Params are files to join and destination file')
-            return
-        }
-        File destinationFile = new File(filePaths.last())
-        destinationFile.text = ''
-        def filesToJoin = filePaths - filePaths.last()
-        filesToJoin.each { sourceFile ->
-            def file = new File(sourceFile)
-            if (file.isFile()) {
-                destinationFile.append(file.text + LINE_SEPARATOR)
-            } else {
-                GsConsole.error 'Error joining file ' + sourceFile
-            }
-        }
-    }
-
-    /**
      * Get default conversion options
      * @return
      */
@@ -178,7 +156,7 @@ class GrooScript {
 
     /**
      * Get content of a javascript library inside grooscript.jar
-     * grooscript, grooscript.min, grooscript-tools or jquery.min
+     * grooscript, grooscript.min or grooscript-tools
      * @param nameJsLib
      * @return
      */

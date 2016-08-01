@@ -14,6 +14,7 @@
 package org.grooscript.convert
 
 import org.grooscript.GrooScript
+import org.grooscript.util.GrooScriptException
 import org.grooscript.util.Util
 import spock.lang.IgnoreIf
 import spock.lang.Specification
@@ -148,10 +149,11 @@ class TestConversionOptions extends Specification {
         def options = [customization: customization]
 
         when:
-        GrooScript.convert('class A {  def say() { println aaaa }}', customization)
+        GrooScript.convert('class A {  def say() { println aaaa }}', options)
 
         then:
-        thrown(Exception)
+        def exception = thrown(GrooScriptException)
+        exception.message.contains 'The variable [aaaa] is undeclared'
 
         where:
         astChecking << [groovy.transform.TypeChecked, groovy.transform.CompileStatic]
@@ -240,12 +242,12 @@ class TestConversionOptions extends Specification {
 
     def 'test add two grooscript js archives at the beginning of the conversion'() {
         when:
-        def options = [addGsLib: 'grooscript.min, jquery.min']
+        def options = [addGsLib: 'grooscript.min, testWithNode']
         def result = GrooScript.convert('println "Hello!"', options)
 
         then:
         result.startsWith(new File('src/main/resources/META-INF/resources/grooscript.min.js').text)
-        result.contains(new File('src/main/resources/META-INF/resources/jquery.min.js').text)
+        result.contains(new File('src/main/resources/META-INF/resources/testWithNode.js').text)
     }
 
     def 'test convert a class as require.js module'() {

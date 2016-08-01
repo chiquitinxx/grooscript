@@ -10,9 +10,5 @@ grooscript.iws
 Dependency.js
 initial.png
 *.class
-grooscript-binder.js
 grooscript-builder.js
-observable.js
-gQueryImpl.js
-gQueryTrait.js
 node_modules
