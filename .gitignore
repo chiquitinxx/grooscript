@@ -9,7 +9,6 @@ grooscript.ipr
 grooscript.iws
 Dependency.js
 initial.png
-gSphantomJsTest.js
 *.class
 grooscript-binder.js
 grooscript-builder.js

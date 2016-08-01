@@ -67,18 +67,6 @@ task generateGrooscriptToolsFile(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task testUnit(type: Test) {
-    exclude 'org/grooscript/asts/TestPhantom*'
-    exclude 'org/grooscript/daemon/**'
-    exclude 'org/grooscript/jquery/TestFunctional*'
-    exclude 'org/grooscript/builder/TestFunctional*'
-    exclude 'org/grooscript/GrooScriptSpec*'
-    exclude 'org/grooscript/convert/TestFiles*'
-    exclude 'org/grooscript/rx/TestFunctional*'
-}
-
-testUnit.description = 'Run only unit tests'
-
 compileJava.dependsOn gulp_compress
 test.dependsOn generateGrooscriptToolsFile, gulp_tests, gulp_test_require, licenseMain, licenseTest
 

@@ -3,64 +3,66 @@ function HtmlBuilder() {
   gSobject.clazz = { name: 'org.grooscript.builder.HtmlBuilder', simpleName: 'HtmlBuilder'};
   gSobject.clazz.superclass = { name: 'java.lang.Object', simpleName: 'Object'};
   gSobject.tagSolver = function(name, args) {
-    gSobject.htmCd += "<" + (name) + "";
+    gs.mc(gSobject.htmCd,'leftShift', gs.list(["<" + (name) + ""]));
     if ((((gs.bool(args)) && (gs.mc(args,"size",[]) > 0)) && (!gs.bool(gs.instanceOf((args[0]), "String")))) && (!gs.bool(gs.instanceOf((args[0]), "Closure")))) {
       gs.mc(args[0],"each",[function(key, value) {
-        return gSobject.htmCd += " " + (key) + "='" + (value) + "'";
-      }]);
-    };
-    gSobject.htmCd += (!gs.bool(args) ? "/>" : ">");
+        return gs.mc(gSobject.htmCd,'leftShift', gs.list([" " + (key) + "='" + (value) + "'"]));
+       }]);
+     };
+    gs.mc(gSobject.htmCd,'leftShift', gs.list([(!gs.bool(args) ? "/>" : ">")]));
     if (gs.bool(args)) {
       if ((gs.equals(gs.mc(args,"size",[]), 1)) && (gs.instanceOf((args[0]), "String"))) {
         gs.mc(gSobject,"yield",[args[0]]);
-      } else {
+       } else {
         var lastArg = gs.mc(args,"last",[]);
         if (gs.instanceOf(lastArg, "Closure")) {
           gs.sp(lastArg,"delegate",this);
           gs.execCall(lastArg, this, []);
-        };
+         };
         if ((gs.instanceOf(lastArg, "String")) && (gs.mc(args,"size",[]) > 1)) {
           gs.mc(gSobject,"yield",[lastArg]);
-        };
-      };
-      return gSobject.htmCd += "</" + (name) + ">";
-    };
-  };
-  gSobject.htmCd = null;
+         };
+       };
+      return gs.mc(gSobject.htmCd,'leftShift', gs.list(["</" + (name) + ">"]));
+     };
+   };
+  gSobject.htmCd = gs.stringBuffer();
   gSobject.build = function(x0) { return HtmlBuilder.build(x0); }
   gSobject['yield'] = function(text) {
     return gs.mc(text,"each",[function(ch) {
       var gSswitch0 = ch;
       if (gs.equals(gSswitch0, "&")) {
-        gSobject.htmCd += "&amp;";
+        gs.mc(gSobject.htmCd,'leftShift', gs.list(["&amp;"]));
         ;
-      } else if (gs.equals(gSswitch0, "<")) {
-        gSobject.htmCd += "&lt;";
+       } else if (gs.equals(gSswitch0, "<")) {
+        gs.mc(gSobject.htmCd,'leftShift', gs.list(["&lt;"]));
         ;
-      } else if (gs.equals(gSswitch0, ">")) {
-        gSobject.htmCd += "&gt;";
+       } else if (gs.equals(gSswitch0, ">")) {
+        gs.mc(gSobject.htmCd,'leftShift', gs.list(["&gt;"]));
         ;
-      } else if (gs.equals(gSswitch0, "\"")) {
-        gSobject.htmCd += "&quot;";
+       } else if (gs.equals(gSswitch0, "\"")) {
+        gs.mc(gSobject.htmCd,'leftShift', gs.list(["&quot;"]));
         ;
-      } else if (gs.equals(gSswitch0, "'")) {
-        gSobject.htmCd += "&apos;";
+       } else if (gs.equals(gSswitch0, "'")) {
+        gs.mc(gSobject.htmCd,'leftShift', gs.list(["&apos;"]));
         ;
-      } else {
-        gSobject.htmCd += ch;
+       } else {
+        gs.mc(gSobject.htmCd,'leftShift', gs.list([ch]));
         ;
-      };
-    }]);
-  }
+       };
+     }]);
+   }
   gSobject['yieldUnescaped'] = function(text) {
-    return gSobject.htmCd += text;
-  }
+    return gs.mc(gSobject.htmCd,'leftShift', gs.list([text]));
+   }
   gSobject['comment'] = function(text) {
-    return gSobject.htmCd += (gs.plus((gs.plus("<!--", text)), "-->"));
-  }
+    gs.mc(gSobject.htmCd,'leftShift', gs.list(["<!--"]));
+    gs.mc(gSobject.htmCd,'leftShift', gs.list([text]));
+    return gs.mc(gSobject.htmCd,'leftShift', gs.list(["-->"]));
+   }
   gSobject['newLine'] = function(it) {
-    return gSobject.htmCd += "\n";
-  }
+    return gs.mc(gSobject.htmCd,'leftShift', gs.list(["\n"]));
+   }
   gSobject['methodMissing'] = function(name, args) {
     gs.sp(this,"" + (name) + "",function(ars) {
       if (arguments.length == 1 && arguments[0] instanceof Array) { ars=gs.list(arguments[0]); } else 
@@ -73,18 +75,17 @@ function HtmlBuilder() {
         }
       }
       return gs.mc(gSobject,"tagSolver",[name, ars]);
-    });
+     });
     return gs.mc(this,"invokeMethod",[name, args], gSobject);
-  }
+   }
   gSobject['HtmlBuilder0'] = function(it) {
-    gSobject.htmCd = "";
     return this;
   }
   if (arguments.length==0) {gSobject.HtmlBuilder0(); }
   if (arguments.length == 1) {gs.passMapToObject(arguments[0],gSobject);};
   
   return gSobject;
-};
+ };
 HtmlBuilder.build = function(closure) {
   var mc = gs.expandoMetaClass(HtmlBuilder, false, true);
   gs.mc(mc,"initialize",[]);
@@ -92,8 +93,8 @@ HtmlBuilder.build = function(closure) {
   gs.sp(builder,"metaClass",mc);
   gs.sp(closure,"delegate",builder);
   gs.execCall(closure, this, []);
-  return gs.gp(builder,"htmCd");
-}
+  return gs.mc(gs.gp(builder,"htmCd"),"toString",[]);
+ }
 
 function Observable() {
   var gSobject = gs.init('Observable');
@@ -107,54 +108,54 @@ function Observable() {
   gSobject['produce'] = function(event) {
     return gs.mc(gSobject.subscribers,"each",[function(it) {
       return gs.mc(gSobject,"processFunction",[event, it]);
-    }]);
-  }
+     }]);
+   }
   gSobject['map'] = function(cl) {
     gs.mc(gSobject.chain,'leftShift', gs.list([cl]));
     return this;
-  }
+   }
   gSobject['filter'] = function(cl) {
     gs.mc(gSobject.chain,'leftShift', gs.list([function(it) {
       if (gs.execCall(cl, this, [it])) {
         return it;
-      } else {
+       } else {
         throw "Exception";
-      };
-    }]));
+       };
+     }]));
     return this;
-  }
+   }
   gSobject['subscribe'] = function(cl) {
     while (gs.bool(gSobject.chain)) {
       cl = (gs.mc(cl,'leftShift', gs.list([gs.mc(gSobject.chain,"pop",[])])));
-    };
+     };
     gs.mc(gSobject.subscribers,'leftShift', gs.list([cl]));
     if (gs.bool(gSobject.sourceList)) {
       return gs.mc(gSobject.sourceList,"each",[function(it) {
         return gs.mc(gSobject,"processFunction",[it, cl]);
-      }]);
-    };
-  }
+       }]);
+     };
+   }
   gSobject['removeSubscribers'] = function(it) {
     return gSobject.subscribers = gs.list([]);
-  }
+   }
   gSobject['processFunction'] = function(data, cl) {
     try {
       gs.execCall(cl, this, [data]);
-    }
+     }
     catch (e) {
-    }
+     }
     ;
-  }
+   }
   if (arguments.length == 1) {gs.passMapToObject(arguments[0],gSobject);};
   
   return gSobject;
-};
+ };
 Observable.listen = function(it) {
   return Observable();
-}
+ }
 Observable.from = function(list) {
   return Observable(gs.map().add("sourceList",list));
-}
+ }
 
 function GQueryImpl() {
   var gSobject = gs.init('GQueryImpl');
@@ -164,31 +165,31 @@ function GQueryImpl() {
   gSobject['bind'] = function(selector, target, nameProperty, closure) {
     if (closure === undefined) closure = null;
     return gs.mc(gs.execStatic(GQueryList,'of', this,[selector]),"bind",[target, nameProperty, closure]);
-  }
+   }
   gSobject['bindProperty'] = function(selector, target, nameProperty, parent) {
     if (parent === undefined) parent = null;
     return gs.mc(gs.mc(gSobject,"resolveSelector",[selector, parent]),"bind",[target, nameProperty]);
-  }
+   }
   gSobject['existsSelector'] = function(selector, parent) {
     if (parent === undefined) parent = null;
     return gs.mc(gs.mc(gSobject,"resolveSelector",[selector, parent]),"hasResults",[]);
-  }
+   }
   gSobject['existsId'] = function(id, parent) {
     if (parent === undefined) parent = null;
     return gs.mc(gs.mc(gSobject,"resolveSelector",["#" + (id) + "", parent]),"hasResults",[]);
-  }
+   }
   gSobject['existsName'] = function(name, parent) {
     if (parent === undefined) parent = null;
     return gs.mc(gs.mc(gSobject,"resolveSelector",["[name='" + (name) + "']", parent]),"hasResults",[]);
-  }
+   }
   gSobject['existsGroup'] = function(name, parent) {
     if (parent === undefined) parent = null;
     return gs.mc(gs.mc(gSobject,"resolveSelector",["input:radio[name='" + (name) + "']", parent]),"hasResults",[]);
-  }
+   }
   gSobject['onEvent'] = function(selector, nameEvent, func, parent) {
     if (parent === undefined) parent = null;
     return gs.mc(gs.mc(gSobject,"resolveSelector",[selector, parent]),"onEvent",[nameEvent, func]);
-  }
+   }
   gSobject.doRemoteCall = function(url, type, params, onSuccess, onFailure, objectResult) {
     if (objectResult === undefined) objectResult = null;
     $.ajax({
@@ -206,10 +207,10 @@ function GQueryImpl() {
                 onFailure(error);
             }
         });
-  }
+   }
   gSobject.onReady = function(func) {
     $(document).ready(func);
-  }
+   }
   gSobject['attachMethodsToDomEvents'] = function(obj, parent) {
     if (parent === undefined) parent = null;
     return gs.mc(gs.gp((obj = gs.metaClass(obj)),"methods"),"each",[function(method) {
@@ -217,69 +218,69 @@ function GQueryImpl() {
         var shortName = gs.mc(gs.gp(method,"name"),"substring",[0, gs.minus(gs.mc(gs.gp(method,"name"),"length",[]), 5)]);
         if (gs.mc(gSobject,"existsId",[shortName, parent])) {
           gs.mc(gSobject,"onEvent",[gs.plus("#", shortName), "click", obj["" + (gs.gp(method,"name")) + ""], parent]);
-        };
-      };
+         };
+       };
       if (gs.mc(gs.gp(method,"name"),"endsWith",["Submit"])) {
         var shortName = gs.mc(gs.gp(method,"name"),"substring",[0, gs.minus(gs.mc(gs.gp(method,"name"),"length",[]), 6)]);
         if (gs.mc(gSobject,"existsId",[shortName, parent])) {
           gs.mc(gSobject,"onEvent",[gs.plus("#", shortName), "submit", gs.mc(obj["" + (gs.gp(method,"name")) + ""],'leftShift', gs.list([function(it) {
             return gs.mc(it,"preventDefault",[]);
-          }])), parent]);
-        };
-      };
+           }])), parent]);
+         };
+       };
       if (gs.mc(gs.gp(method,"name"),"endsWith",["Change"])) {
         var shortName = gs.mc(gs.gp(method,"name"),"substring",[0, gs.minus(gs.mc(gs.gp(method,"name"),"length",[]), 6)]);
         if (gs.mc(gSobject,"existsId",[shortName, parent])) {
           return gs.mc(gSobject,"onChange",[gs.plus("#", shortName), obj["" + (gs.gp(method,"name")) + ""], parent]);
-        };
-      };
-    }]);
-  }
+         };
+       };
+     }]);
+   }
   gSobject['onChange'] = function(selector, closure, parent) {
     if (parent === undefined) parent = null;
     return gs.mc(gs.mc(gSobject,"resolveSelector",[selector, parent]),"onChange",[closure]);
-  }
+   }
   gSobject['focusEnd'] = function(selector, parent) {
     if (parent === undefined) parent = null;
     return gs.mc(gs.mc(gSobject,"resolveSelector",[selector, parent]),"focusEnd",[]);
-  }
+   }
   gSobject['bindAllProperties'] = function(target, parent) {
     if (parent === undefined) parent = null;
     return gs.mc(gs.gp(target,"properties"),"each",[function(name, value) {
       if (gs.mc(gSobject,"existsId",[name, parent])) {
         gs.mc(gSobject,"bindProperty",["#" + (name) + "", target, name, parent]);
-      };
+       };
       if (gs.mc(gSobject,"existsName",[name, parent])) {
         gs.mc(gSobject,"bindProperty",["[name='" + (name) + "']", target, name, parent]);
-      };
+       };
       if (gs.mc(gSobject,"existsGroup",[name, parent])) {
         return gs.mc(gSobject,"bindProperty",["input:radio[name='" + (name) + "']", target, name, parent]);
-      };
-    }]);
-  }
+       };
+     }]);
+   }
   gSobject['bindAll'] = function(target, parent) {
     if (parent === undefined) parent = null;
     gs.mc(gSobject,"bindAllProperties",[target, parent]);
     return gs.mc(gSobject,"attachMethodsToDomEvents",[target, parent]);
-  }
+   }
   gSobject['observeEvent'] = function(selector, nameEvent, data) {
     if (data === undefined) data = gs.map();
     var observable = gs.execStatic(Observable,'listen', this,[]);
     gs.mc(gs.execCall(this, this, [selector]),"on",[nameEvent, data, function(event) {
       return gs.mc(observable,"produce",[event]);
-    }]);
+     }]);
     return observable;
-  }
+   }
   gSobject['call'] = function(selector) {
     return gs.execStatic(GQueryList,'of', this,[selector]);
-  }
+   }
   gSobject['resolveSelector'] = function(selector, parent) {
     return gs.execStatic(GQueryList,'of', this,[(parent != null ? gs.mc(parent,"find",[selector]) : selector)]);
-  }
+   }
   if (arguments.length == 1) {gs.passMapToObject(arguments[0],gSobject);};
   
   return gSobject;
-};
+ };
 
 function GQueryList() {
   var gSobject = gs.init('GQueryList');
@@ -289,20 +290,20 @@ function GQueryList() {
   gSobject.of = function(x0) { return GQueryList.of(x0); }
   gSobject.methodMissing = function(name, args) {
     return gSobject.list[name].apply(gSobject.list, args);
-  }
+   }
   gSobject.withResultList = function(cl) {
     if (gSobject.list.length) {
             cl(gSobject.list.toArray());
         }
         return gSobject;
-  }
+   }
   gSobject.hasResults = function() {
     return gSobject.list.length > 0;
-  }
+   }
   gSobject.onEvent = function(nameEvent, cl) {
     gSobject.list.on(nameEvent, cl);
         return gSobject;
-  }
+   }
   gSobject.onChange = function(cl) {
     var jq = gSobject.list;
 
@@ -331,7 +332,7 @@ function GQueryList() {
             console.log(jq);
         }
         return gSobject;
-  }
+   }
   gSobject.focusEnd = function() {
     var jq = gSobject.list;
 
@@ -345,7 +346,7 @@ function GQueryList() {
             }
         }
         return gSobject;
-  }
+   }
   gSobject.bind = function(target, nameProperty, closure) {
     if (closure === undefined) closure = null;
     var jq = gSobject.list;
@@ -414,10 +415,10 @@ function GQueryList() {
             console.log(jq);
         }
         return gSobject;
-  }
+   }
   gSobject.jqueryList = function(selec) {
     return $(selec);
-  }
+   }
   gSobject['GQueryList1'] = function(selecOrJq) {
     gSobject.list = (gs.instanceOf(selecOrJq, "String") ? gs.mc(gSobject,"jqueryList",[selecOrJq]) : selecOrJq);
     return this;
@@ -425,8 +426,8 @@ function GQueryList() {
   if (arguments.length==1) {gSobject.GQueryList1(arguments[0]); }
   
   return gSobject;
-};
+ };
 GQueryList.of = function(selecOrJq) {
   return GQueryList(selecOrJq);
-}
+ }
 

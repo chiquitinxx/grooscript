@@ -62,10 +62,6 @@ include::groovy_support.adoc[]
 
 include::converted_code.adoc[]
 
-== PhantomJs tests
-
-include::phantomjstest.adoc[]
-
 == Annotations
 
 include::annotations.adoc[]

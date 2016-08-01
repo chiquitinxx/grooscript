@@ -10,7 +10,6 @@
         }
     ],
     "dependencies": {
-        "phantomjs": "^1.9.7",
         "mocha": "^2.4.5",
         "gulp": "^3.9.1",
         "gulp-rename": "^1.2.2",
