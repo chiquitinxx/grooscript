@@ -147,4 +147,9 @@ class TestGroovyBasics extends Specification {
         expect:
         convertAndEvaluate('trycatch')
     }
+
+    def 'switch case'() {
+        expect:
+        convertAndEvaluate('switchCase')
+    }
 }
