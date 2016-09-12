@@ -19,7 +19,11 @@ class JsGenerator {
 
     public static final HTML_BUILDER_SOURCE = 'src/main/groovy/org/grooscript/builder/HtmlBuilder.groovy'
 
-    static void generateGrooscriptHtmlBuilderJs(String pathSource, String pathJsDestination) {
+    public static void generateHtmlBuilder(String pathJsDestination) {
+        generateGrooscriptConvertedJs(HTML_BUILDER_SOURCE, pathJsDestination)
+    }
+
+    private static void generateGrooscriptConvertedJs(String pathSource, String pathJsDestination) {
         File source = new File(pathSource)
         convertFile(source, pathJsDestination)
         GsConsole.info("File $pathJsDestination has been generated.")
@@ -30,7 +34,4 @@ class JsGenerator {
     }
 }
 
-JsGenerator.generateGrooscriptHtmlBuilderJs(
-        JsGenerator.HTML_BUILDER_SOURCE,
-        'src/main/resources/META-INF/resources/grooscript-html-builder.js'
-)
+JsGenerator.generateHtmlBuilder('src/main/resources/META-INF/resources/grooscript-html-builder.js')

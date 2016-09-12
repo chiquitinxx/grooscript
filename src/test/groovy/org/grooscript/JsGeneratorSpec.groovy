@@ -13,14 +13,30 @@
  */
 package org.grooscript
 
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
 class JsGeneratorSpec extends Specification {
-    def 'test generation of js files'() {
+
+    @Rule
+    TemporaryFolder folder = new TemporaryFolder()
+
+    def 'test generation of html builder js file'() {
+        given:
+        String destination = folder.newFile('htmlbuilder.js').getPath()
+
         expect:
-        JsGenerator.generateGrooscriptHtmlBuilderJs(
-                'src/main/groovy/org/grooscript/builder/HtmlBuilder.groovy',
-                'src/main/resources/META-INF/resources/grooscript-html-builder.js'
-        )
+        sizeOfDestinationFile(destination) == 0
+
+        when:
+        JsGenerator.generateHtmlBuilder(destination)
+
+        then:
+        sizeOfDestinationFile(destination) > 100
+    }
+
+    private int sizeOfDestinationFile(String destination) {
+        new File(destination).text.size()
     }
 }
