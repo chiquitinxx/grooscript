@@ -53,8 +53,8 @@ task wrapper(type: Wrapper) {
     gradleVersion = '2.14.1'
 }
 
-task generateGrooscriptToolsFile(type: JavaExec) {
-    description 'Generate grooscript-tools.js'
+task generateGrooscriptToolsFiles(type: JavaExec) {
+    description 'Generate grooscript js tools files'
 
     // Set main property to name of Groovy script class.
     main = 'org.grooscript.GenerateGrooscripTools'
@@ -64,7 +64,7 @@ task generateGrooscriptToolsFile(type: JavaExec) {
 }
 
 compileJava.dependsOn gulp_compress
-test.dependsOn generateGrooscriptToolsFile, gulp_tests, gulp_test_require, licenseMain, licenseTest
+test.dependsOn generateGrooscriptToolsFiles, gulp_tests, gulp_test_require, licenseMain, licenseTest
 
 asciidoctor {
     sourceDir = project.file 'doc'

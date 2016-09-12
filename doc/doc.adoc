@@ -112,7 +112,7 @@ Little link:nodejs_example.html[guide]
 === Bower package
 
 You can add grooscript libs using http://bower.io/[Bower] with `>bower install grooscript`, Then you can add grooscript.js,
-grooscript.min.js or grooscript-tools.js dependencies in your project.
+grooscript.min.js or grooscript-html-builder.js dependencies in your project.
 
 [source,javascript]
 --

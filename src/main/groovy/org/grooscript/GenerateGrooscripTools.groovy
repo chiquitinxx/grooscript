@@ -17,14 +17,12 @@ import org.grooscript.util.GsConsole
 
 class JsGenerator {
 
-    static final HTML_BUILDER_SOURCE = 'src/main/groovy/org/grooscript/builder/HtmlBuilder.groovy'
+    public static final HTML_BUILDER_SOURCE = 'src/main/groovy/org/grooscript/builder/HtmlBuilder.groovy'
 
-    static final GROOSCRIPT_TOOLS_FILE = 'src/main/resources/META-INF/resources/grooscript-tools.js'
-
-    static void generateGrooscriptToolsJs() {
-        File source = new File(HTML_BUILDER_SOURCE)
-        convertFile(source, GROOSCRIPT_TOOLS_FILE)
-        GsConsole.info("File $GROOSCRIPT_TOOLS_FILE has been generated.")
+    static void generateGrooscriptHtmlBuilderJs(String pathSource, String pathJsDestination) {
+        File source = new File(pathSource)
+        convertFile(source, pathJsDestination)
+        GsConsole.info("File $pathJsDestination has been generated.")
     }
 
     private static void convertFile(File file, String destinationFile, Map conversionOptions = null) {
@@ -32,4 +30,7 @@ class JsGenerator {
     }
 }
 
-JsGenerator.generateGrooscriptToolsJs()
+JsGenerator.generateGrooscriptHtmlBuilderJs(
+        JsGenerator.HTML_BUILDER_SOURCE,
+        'src/main/resources/META-INF/resources/grooscript-html-builder.js'
+)

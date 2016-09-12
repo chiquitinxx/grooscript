@@ -156,7 +156,7 @@ class GrooScript {
 
     /**
      * Get content of a javascript library inside grooscript.jar
-     * grooscript, grooscript.min or grooscript-tools
+     * grooscript, grooscript.min or grooscript-html-builder
      * @param nameJsLib
      * @return
      */

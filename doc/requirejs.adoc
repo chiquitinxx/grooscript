@@ -86,7 +86,7 @@ requirejs.config({
         jquery: '../lib/jquery'
     },
     shim: {
-        'bookDemo': ['lib/grooscript.min', 'lib/grooscript-tools']
+        'bookDemo': ['lib/grooscript.min', 'lib/grooscript-html-builder']
     }
 });
 

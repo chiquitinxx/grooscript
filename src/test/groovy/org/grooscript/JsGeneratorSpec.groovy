@@ -18,6 +18,9 @@ import spock.lang.Specification
 class JsGeneratorSpec extends Specification {
     def 'test generation of js files'() {
         expect:
-        JsGenerator.generateGrooscriptToolsJs()
+        JsGenerator.generateGrooscriptHtmlBuilderJs(
+                'src/main/groovy/org/grooscript/builder/HtmlBuilder.groovy',
+                'src/main/resources/META-INF/resources/grooscript-html-builder.js'
+        )
     }
 }

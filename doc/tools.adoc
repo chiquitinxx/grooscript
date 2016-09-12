@@ -1,5 +1,5 @@
 Grooscript comes with some tools. This tools are some classes that you can use in your groovy code. If you convert
-code that use this tools, you need the js code of that tools. This code is in `grooscript-tools.js` file. You
+code that use this tools, you need the js code of that tools. Actually only `grooscript-html-builder.js` file. You
 can find it inside the jar or you can link:downloads.html[download] it.
 
 This tools are little helpers, with only a bit lines of code, don't expect full libraries. I have introduced
@@ -54,7 +54,7 @@ class HtmlBuilder {
     static String build(@DelegatesTo(HtmlBuilder) Closure closure)
 --
 
-The groovy code can be converted to javascript and will run if you add `grooscript-tools.js`
+The groovy code can be converted to javascript and will run if you add `grooscript-html-builder.js`
 
 [source,groovy]
 --
