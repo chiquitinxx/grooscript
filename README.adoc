@@ -93,6 +93,7 @@ Grooscript licensed under the terms of the link:http://www.apache.org/licenses/L
 - yellowsnow
 - ulrichenslin
 - Lourens van Heerden
+- Ruaan van der Spuy
 
 == Contact
 
