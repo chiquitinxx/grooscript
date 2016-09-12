@@ -1,7 +1,7 @@
 :project-name: grooscript
 :project-full-path: chiquitinxx/grooscript
 :github-branch: master
-:release-date: 23-02-2016
+:release-date: 12-09-2016
 :current-version: 1.3.0
 :next-version: 1.3.1-SNAPSHOT
 
