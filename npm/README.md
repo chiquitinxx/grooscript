@@ -1,4 +1,4 @@
-grooscript 1.2.3
+grooscript 1.3.0
 ================
 
 This module contains javascript file to work with grooscript generated code. [Grooscript](http://grooscript.org) is a library that converts groovy code to javascript.

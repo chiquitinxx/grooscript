@@ -2,8 +2,8 @@
 :project-full-path: chiquitinxx/grooscript
 :github-branch: master
 :release-date: 23-02-2016
-:current-version: 1.2.3
-:next-version: 1.3.0-SNAPSHOT
+:current-version: 1.3.0
+:next-version: 1.3.1-SNAPSHOT
 
 image:https://snap-ci.com/{project-full-path}/branch/{github-branch}/build_image["Build Status", link="https://snap-ci.com/{project-full-path}/branch//{github-branch}"]
 image:https://travis-ci.org/{project-full-path}.svg?branch={github-branch}["Build Status", link="https://travis-ci.org/{project-full-path}"]
