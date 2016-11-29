@@ -101,4 +101,6 @@ Twitter: link:http://twitter.com/grooscript:[@grooscript]
 
 Email: mailto:grooscript@gmail.com[]
 
+#grooscript channel in link:https://groovycommunity.com/[Apache Groovy Community Slack]
+
 Please all feedback welcome, thank you!
