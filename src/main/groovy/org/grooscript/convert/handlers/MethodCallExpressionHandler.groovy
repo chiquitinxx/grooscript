@@ -31,7 +31,7 @@ class MethodCallExpressionHandler extends BaseHandler {
 
         //Change println for javascript function
         if (methodName == 'println') {
-            if (conversionFactory.converter.conversionOptions[ConversionOptions.NASHORN_CONSOLE] == true) {
+            if (conversionFactory.converter.conversionOptions[ConversionOptions.NASHORN_CONSOLE.text] == true) {
                 out.addScript(GS_PRINT_NASHORN)
             } else {
                 out.addScript(GS_PRINTLN)

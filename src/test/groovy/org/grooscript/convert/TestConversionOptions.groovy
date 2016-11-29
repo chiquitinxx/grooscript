@@ -273,7 +273,7 @@ class TestConversionOptions extends Specification {
         engine.eval(
                 GrooScript.convert('println "Hello World!"',
                         [(ConversionOptions.ADD_GS_LIB.text): 'grooscript',
-                         (ConversionOptions.NASHORN_CONSOLE): true]))
+                         (ConversionOptions.NASHORN_CONSOLE.text): true]))
 
         then:
         notThrown(Throwable)
