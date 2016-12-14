@@ -2470,8 +2470,9 @@
                     } else {
                         //Maybe there is a function in the script with the name of the method
                         //In Node.js 'this.xxFunction()' in the main context fails
-                        if (isFunction(eval(methodName))) {
-                            return eval(methodName).apply(this, values);
+                        var evalMethod = eval(methodName);
+                        if (isFunction(evalMethod)) {
+                            return evalMethod.apply(this, values);
                         }
 
                         //Not exist the method, throw exception
