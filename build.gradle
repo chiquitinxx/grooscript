@@ -1,6 +1,6 @@
 plugins {
-    id "com.moowork.node" version "0.11"
-    id "com.moowork.gulp" version "0.11"
+    id "com.moowork.node" version "1.0.1"
+    id "com.moowork.gulp" version "1.0.1"
     id "com.bmuschko.nexus" version "2.3.1"
     id "org.asciidoctor.convert" version "1.5.3"
     id "net.saliman.cobertura" version "2.2.6"
