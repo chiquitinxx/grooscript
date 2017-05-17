@@ -155,6 +155,8 @@ describe('convert objects between groovy and js', function() {
     it('convert to groovy', function(){
         assert.equal(gs.toGroovy(5), 5);
         assert.equal(gs.toGroovy('hello'), 'hello');
+        var testDate = new Date();
+        assert.equal(gs.toGroovy(testDate), testDate);
         var list = [1, [1, 2], {a:1, b:2}];
         var result = gs.equals(gs.toGroovy(list), gs.list([1, [1, 2], gs.map().add('a',1).add('b', 2)]));
         assert.equal(result, true);
