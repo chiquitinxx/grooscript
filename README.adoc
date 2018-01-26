@@ -16,7 +16,7 @@ image:https://maven-badges.herokuapp.com/maven-central/org.grooscript/grooscript
 Converts your Groovy or Java code to JavaScript(Groovy 2.x to Javascript ECMAScript 5). You need groovy jar greater than 2.0 to make conversions. For more information about the project, see http://grooscript.org[grooscript.org]
 
 Not a full groovy to javascript conversion. Some groovy and java features not supported, check link:http://grooscript.org/doc.html[documentation] for more info. 
-Converted code, needs link:https://github.com/{project-full-path}/blob/master/src/main/resources/META-INF/resources/grooscript.js:[grooscript.js] to run. grooscript.js inside the jar in META-INF/resources for servlet 3.0 support. Also a Node.js link:http://www.npmjs.org/package/grooscript[npm] module imports it.
+Converted code, needs link:https://github.com/{project-full-path}/blob/master/src/main/resources/META-INF/resources/grooscript.js[grooscript.js] to run. grooscript.js inside the jar in META-INF/resources for servlet 3.0 support. Also a Node.js link:http://www.npmjs.org/package/grooscript[npm] module imports it.
 
 Try online conversions link:http://grooscript.org/conversions.html[here]. Can convert .java and .groovy files or a text fragment as:
 
