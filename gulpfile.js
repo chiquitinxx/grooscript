@@ -1,13 +1,13 @@
 var gulp = require('gulp');
+var mocha = require('gulp-mocha');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
-var mocha = require('gulp-mocha');
 
 gulp.task('compress', function() {
-    return gulp.src('src/main/resources/META-INF/resources/grooscript.js')
+    return gulp.src('dist/grooscript.js')
         .pipe(rename({suffix: '.min'}))
         .pipe(uglify())
-        .pipe(gulp.dest('src/main/resources/META-INF/resources'))
+        .pipe(gulp.dest('dist'))
 });
 
 gulp.task('tests', function () {

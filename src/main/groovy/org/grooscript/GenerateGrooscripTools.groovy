@@ -34,4 +34,4 @@ class JsGenerator {
     }
 }
 
-JsGenerator.generateHtmlBuilder('src/main/resources/META-INF/resources/grooscript-html-builder.js')
+JsGenerator.generateHtmlBuilder('dist/grooscript-html-builder.js')

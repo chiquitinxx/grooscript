@@ -1,11 +1,11 @@
 plugins {
-    id "com.moowork.node" version "1.0.1"
-    id "com.moowork.gulp" version "1.0.1"
+    id "com.moowork.node" version "1.2.0"
+    id "com.moowork.gulp" version "1.2.0"
     id "com.bmuschko.nexus" version "2.3.1"
-    id "org.asciidoctor.convert" version "1.5.3"
+    id "org.asciidoctor.convert" version "1.5.7"
     id "net.saliman.cobertura" version "2.2.6"
     id "com.github.kt3k.coveralls" version "2.3.1"
-    id "com.github.hierynomus.license" version "0.11.0"
+    id "com.github.hierynomus.license" version "0.14.0"
 }
 
 apply plugin: 'idea'
@@ -13,15 +13,15 @@ apply plugin: 'groovy'
 apply from: "$rootDir/gradle/node.gradle"
 apply from: "$rootDir/gradle/release.gradle"
 
-def compatibilityVersion = 1.6
+def compatibilityVersion = 1.8
 sourceCompatibility = compatibilityVersion
 targetCompatibility = compatibilityVersion
 
-version = '1.3.1-SNAPSHOT'
+version = '2.0.0-SNAPSHOT'
 group = 'org.grooscript'
 
 ext {
-    groovyVersion = '2.4.13'
+    groovyVersion = '3.0.0-alpha-1'
 }
 
 repositories {
@@ -31,10 +31,6 @@ repositories {
 dependencies {
     compile "org.codehaus.groovy:groovy:${groovyVersion}"
     runtime 'org.apache.ivy:ivy:2.4.0'
-    testCompile('org.spockframework:spock-core:1.1-groovy-2.4') {
-        exclude module: 'groovy-all'
-        exclude module: 'junit-dep'
-    }
     testCompile 'cglib:cglib-nodep:3.1'
     testCompile "org.codehaus.groovy:groovy-test:${groovyVersion}"
 }
@@ -50,7 +46,7 @@ jar {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.5'
+    gradleVersion = '4.6'
 }
 
 task generateGrooscriptToolsFiles(type: JavaExec) {
@@ -64,7 +60,7 @@ task generateGrooscriptToolsFiles(type: JavaExec) {
 }
 
 compileJava.dependsOn gulp_compress
-test.dependsOn generateGrooscriptToolsFiles, gulp_tests, gulp_test_require, licenseMain, licenseTest
+test.dependsOn generateGrooscriptToolsFiles, gulp_tests, licenseMain, licenseTest
 
 asciidoctor {
     sourceDir = project.file 'doc'

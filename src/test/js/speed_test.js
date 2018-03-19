@@ -1,4 +1,4 @@
-var gs = require('../../main/resources/META-INF/resources/grooscript.js');
+var gs = require('../../../dist/grooscript.js');
 
 var assert = require("assert");
 

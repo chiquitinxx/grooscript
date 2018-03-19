@@ -1,7 +1,7 @@
 //Need mocha installed to run this test, use sudo if fails
 //npm install -g mocha
 //to run tests: mocha
-var gs = require('../../main/resources/META-INF/resources/grooscript.js');
+var gs = require('../../../dist/grooscript.js');
 
 var assert = require("assert");
 

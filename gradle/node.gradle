@@ -1,6 +1,6 @@
 node {
     // Version of node to use.
-    version = '6.9.2'
+    version = '8.10.0'
 
     // If true, it will download node using above parameters.
     // If false, it will try to use globally installed node.

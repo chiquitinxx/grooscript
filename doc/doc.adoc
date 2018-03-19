@@ -116,7 +116,7 @@ grooscript.min.js or grooscript-html-builder.js dependencies in your project.
 
 [source,javascript]
 --
-<script src="bower_components/grooscript/src/main/resources/META-INF/resources/grooscript.js"></script>
+<script src="bower_components/grooscript/dist/grooscript.js"></script>
 --
 
 == Require.js modules

@@ -1,8 +1,11 @@
 {
-    "name"          : "build",
-    "homepage"      : "http://grooscript.org",
-    "author"        : "Jorge Franco <grooscript@gmail.com>",
-    "repository"    : {"type": "git", "url": "git://github.com/chiquitinxx/grooscript.git"},
+    "name": "build",
+    "homepage": "http://grooscript.org",
+    "author": "Jorge Franco <grooscript@gmail.com>",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/chiquitinxx/grooscript.git"
+    },
     "licenses": [
         {
             "type": "APACHE2",
@@ -10,11 +13,12 @@
         }
     ],
     "dependencies": {
-        "mocha": "^2.4.5",
-        "gulp": "^3.9.1",
+        "mocha": "^5.0.4",
         "gulp-rename": "^1.2.2",
-        "gulp-uglify": "^2.0.0",
-        "gulp-mocha": "^2.2.0",
-        "requirejs": "^2.2.0"
+        "gulp-uglify": "^3.0.0",
+        "gulp-mocha": "^5.0.0"
+    },
+    "devDependencies": {
+        "gulp": "^3.9.1"
     }
 }
