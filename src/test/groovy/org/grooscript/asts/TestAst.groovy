@@ -15,11 +15,9 @@ package org.grooscript.asts
 
 import org.grooscript.test.ConversionMixin
 import org.grooscript.test.JavascriptEngine
-import spock.lang.Specification
 import org.grooscript.util.Util
 
-@Mixin([ConversionMixin])
-class TestAst extends Specification {
+class TestAst extends GroovyTestCase implements ConversionMixin {
 
     def readAndConvert(nameOfFile,consoleOutput) {
 

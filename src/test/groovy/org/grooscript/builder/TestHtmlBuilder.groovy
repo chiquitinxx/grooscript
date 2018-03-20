@@ -14,10 +14,8 @@
 package org.grooscript.builder
 
 import org.grooscript.test.ConversionMixin
-import spock.lang.Specification
 
-@Mixin(ConversionMixin)
-class TestHtmlBuilder extends Specification {
+class TestHtmlBuilder extends GroovyTestCase implements ConversionMixin {
 
     static final TEXT = 'text'
 

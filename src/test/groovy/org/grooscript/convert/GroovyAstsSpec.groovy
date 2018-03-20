@@ -14,22 +14,14 @@
 package org.grooscript.convert
 
 import org.grooscript.test.ConversionMixin
-import org.grooscript.util.Util
-import spock.lang.IgnoreIf
-import spock.lang.Specification
 
-@Mixin([ConversionMixin])
-class GroovyAstsSpec extends Specification {
+class GroovyAstsSpec extends GroovyTestCase implements ConversionMixin {
 
-    @IgnoreIf({ !Util.groovyVersionAtLeast('2.3') })
-    def 'using @Builder ast' () {
-        expect:
-        convertAndEvaluate('groovy/builderAst')
+    void testUsingGroovyBuilderAst() {
+        assert convertAndEvaluate('groovy/builderAst')
     }
 
-    @IgnoreIf({ !Util.groovyVersionAtLeast('2.3') })
-    def 'using @TailRecursive ast' () {
-        expect:
-        convertAndEvaluate('groovy/tailRecursiveAst')
+    void testGroovyTailRecursiveAst () {
+        assert convertAndEvaluate('groovy/tailRecursiveAst')
     }
 }

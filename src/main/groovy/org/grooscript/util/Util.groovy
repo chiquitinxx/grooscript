@@ -30,7 +30,7 @@ class Util {
 
     //Where Js stuff is
     static String getJsPath() {
-        "src${SEP}main${SEP}resources${SEP}META-INF${SEP}resources${SEP}"
+        "dist${SEP}"
     }
 
     //Location of groovy script examples

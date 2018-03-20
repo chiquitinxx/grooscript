@@ -13,13 +13,10 @@
  */
 package org.grooscript
 
+import org.codehaus.groovy.GroovyException
 import org.grooscript.convert.ConversionOptions
-import org.grooscript.convert.ast.AstTreeGenerator
-import org.grooscript.convert.util.ConvertedFile
 import org.grooscript.convert.util.DependenciesSolver
 import org.grooscript.convert.util.LocalDependenciesSolver
-import org.grooscript.convert.util.RequireJsFileGenerator
-import org.grooscript.convert.util.RequireJsModulesConversion
 import org.grooscript.test.JavascriptEngine
 import org.grooscript.test.JsTestResult
 import org.grooscript.convert.GsConverter
@@ -161,7 +158,7 @@ class GrooScript {
      * @return
      */
     static String getJsLibText(String nameJsLib) {
-        GrooScript.classLoader.getResourceAsStream('META-INF/resources/' + nameJsLib + '.js').text
+        GrooScript.classLoader.getResourceAsStream(nameJsLib + '.js')?.text
     }
 
     /**
@@ -198,31 +195,6 @@ class GrooScript {
      */
     static nativeJs(String code) {
         code
-    }
-
-    /**
-     * Convert a file to require.js modules, all dependencies are converted
-     * @param initialFile
-     * @param destinationFolder
-     * @param Map conversionOptions
-     * @return
-     */
-    static List<ConvertedFile> convertRequireJs(String initialFile, String destinationFolder, Map conversionOptions = defaultConversionOptions) {
-        try {
-            DependenciesSolver dependenciesSolver = newDependenciesSolver(conversionOptions)
-            RequireJsModulesConversion reqJs = new RequireJsModulesConversion(
-                    fileSolver: dependenciesSolver.fileSolver,
-                    codeConverter: newConverter,
-                    astTreeGenerator: new AstTreeGenerator(compilerOptions(conversionOptions)),
-                    requireJsFileGenerator: new RequireJsFileGenerator(fileSolver: dependenciesSolver.fileSolver),
-                    localDependenciesSolver: dependenciesSolver.localDependenciesSolver,
-                    dependenciesSolver: dependenciesSolver
-            )
-            return reqJs.convert(initialFile, destinationFolder, conversionOptions)
-        } catch (Throwable e) {
-            throw new GrooScriptException(
-                    "Error converting ${initialFile} to require.js modules. Exception: ${e.message}")
-        }
     }
 
     /**
@@ -336,10 +308,11 @@ class GrooScript {
             if (conversionOptions[ConversionOptions.ADD_GS_LIB.text]) {
                 def files = conversionOptions[ConversionOptions.ADD_GS_LIB.text].split(',').reverse()
                 files.each { fileName ->
-                    def file = GrooScript.classLoader.getResourceAsStream(
-                            "META-INF/resources/${fileName.trim()}.js")
-                    if (file) {
-                        result = file.text + LINE_SEPARATOR + result
+                    def fileText = getJsLibText(fileName)
+                    if (fileText) {
+                        result = fileText + LINE_SEPARATOR + result
+                    } else {
+                        throw new GroovyException('Converting, this library does not exists: ' + fileName)
                     }
                 }
             }

@@ -13,6 +13,7 @@
  */
 package org.grooscript.test
 
+import org.grooscript.GrooScript
 import org.grooscript.util.GrooScriptException
 import org.grooscript.util.GsConsole
 
@@ -57,11 +58,7 @@ class JavascriptEngine {
     }
 
     static String addJsLibraries(text) {
-        //We get gscript functions file
-        File file = Util.getJsFile('grooscript.js')
-        //Add that file to javascript code
-        def result = file.text + addEvaluationVars(text)
-        result
+        GrooScript.getJsLibText('grooscript') + addEvaluationVars(text)
     }
 
     static String addEvaluationVars(text) {

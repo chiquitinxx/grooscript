@@ -13,12 +13,9 @@
  */
 package org.grooscript.convert
 
-import spock.lang.Specification
+class NativeFunctionSpec extends GroovyTestCase {
 
-class NativeFunctionSpec extends Specification {
-
-    def 'native function to string'() {
-        expect:
-        new NativeFunction(className: 'cn', methodName: 'mn').toString() == 'cn - mn'
+    def testNativeFunctionToString() {
+        assert new NativeFunction(className: 'cn', methodName: 'mn').toString() == 'cn - mn'
     }
 }

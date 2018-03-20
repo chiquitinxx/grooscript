@@ -14,17 +14,9 @@
 package org.grooscript.util
 
 import org.grooscript.convert.NativeFunction
-import spock.lang.Specification
-import spock.lang.Unroll
 
-class TestUtil extends Specification {
+class TestUtil extends GroovyTestCase {
 
-    def 'test actual version'() {
-        expect:
-        Util.groovyVersionAtLeast('2.0')
-    }
-
-    @Unroll
     def 'native functions with code'() {
         given:
         def text = """
@@ -52,7 +44,6 @@ class A {
         '@GsNative'                     | 'void a()'                                 | 'doIt'
     }
 
-    @Unroll
     def 'native functions with distinct containers'() {
         given:
         def text = """
@@ -75,7 +66,6 @@ ${container} A {
         container << ['public class', 'public final class', 'class', 'trait', 'private trait']
     }
 
-    @Unroll
     def 'native functions empty'() {
         expect:
         Util.getNativeFunctions(code) == []

@@ -18,10 +18,8 @@ import org.grooscript.test.ConversionMixin
 import org.grooscript.test.JsTestResult
 import org.grooscript.util.GrooScriptException
 import org.grooscript.util.Util
-import spock.lang.Specification
 
-@Mixin([ConversionMixin])
-class TestConversionFails extends Specification {
+class TestConversionFails extends GroovyTestCase implements ConversionMixin {
 
     def 'test fail assertion' () {
         when:

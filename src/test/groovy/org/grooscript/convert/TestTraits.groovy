@@ -14,103 +14,78 @@
 package org.grooscript.convert
 
 import org.grooscript.test.ConversionMixin
-import org.grooscript.util.Util
-import spock.lang.IgnoreIf
-import spock.lang.Specification
 
-@Mixin([ConversionMixin])
-@IgnoreIf({ !Util.groovyVersionAtLeast('2.3') })
-class TestTraits extends Specification {
+class TestTraits extends GroovyTestCase implements ConversionMixin {
 
     def 'initial traits support'() {
-        expect:
-        convertAndEvaluate('traits/Starting')
+        assert convertAndEvaluate('traits/Starting')
     }
 
     def 'abstract methods'() {
-        expect:
-        convertAndEvaluate('traits/AbstractMethods')
+        assert convertAndEvaluate('traits/AbstractMethods')
     }
 
     def 'private methods'() {
-        expect:
-        convertAndEvaluate('traits/PrivateMethods')
+        assert convertAndEvaluate('traits/PrivateMethods')
     }
 
     def 'inheritance and interfaces'() {
-        expect:
-        convertAndEvaluate('traits/Inheritance')
+        assert convertAndEvaluate('traits/Inheritance')
     }
 
     def 'properties'() {
-        expect:
-        convertAndEvaluate('traits/Properties')
+        assert convertAndEvaluate('traits/Properties')
     }
 
     def 'private fields'() {
-        expect:
-        convertAndEvaluate('traits/PrivateFields')
+        assert convertAndEvaluate('traits/PrivateFields')
     }
 
     def 'composition and order'() {
-        expect:
-        convertAndEvaluate('traits/Composition')
+        assert convertAndEvaluate('traits/Composition')
     }
 
     def 'extending'() {
-        expect:
-        convertAndEvaluate('traits/Extending')
+        assert convertAndEvaluate('traits/Extending')
     }
 
     def 'dynamic'() {
-        expect:
-        convertAndEvaluate('traits/Dynamic')
+        assert convertAndEvaluate('traits/Dynamic')
     }
 
     def 'with traits'() {
-        expect:
-        convertAndEvaluate('traits/WithTraits')
+        assert convertAndEvaluate('traits/WithTraits')
     }
 
     def 'as runtime'() {
-        expect:
-        convertAndEvaluate('traits/Runtime')
+        assert convertAndEvaluate('traits/Runtime')
     }
 
     def 'use GsNative in traits'() {
-        expect:
-        convertAndEvaluate('traits/Native')
+        assert convertAndEvaluate('traits/Native')
     }
 
     def 'initialization of trait fields'() {
-        expect:
-        convertAndEvaluate('traits/Initialization')
+        assert convertAndEvaluate('traits/Initialization')
     }
 
     def 'method calling'() {
-        expect:
-        convertAndEvaluate('traits/MethodCalling')
+        assert convertAndEvaluate('traits/MethodCalling')
     }
 
-    @IgnoreIf({ !Util.groovyVersionAtLeast('2.4') })
     def 'static properties'() {
-        expect:
-        convertAndEvaluate('traits/Static')
+        assert convertAndEvaluate('traits/Static')
     }
 
     def 'confusing method call'() {
-        expect:
-        convertAndEvaluate('traits/ConfusingMethod')
+        assert convertAndEvaluate('traits/ConfusingMethod')
     }
 
-    @IgnoreIf({ !Util.groovyVersionAtLeast('2.4') })
     def 'get object properties'() {
-        expect:
-        convertAndEvaluate('traits/ObjectProperties')
+        assert convertAndEvaluate('traits/ObjectProperties')
     }
 
     def 'using this in trait functions'() {
-        expect:
-        convertAndEvaluate('traits/UsingThis')
+        assert convertAndEvaluate('traits/UsingThis')
     }
 }

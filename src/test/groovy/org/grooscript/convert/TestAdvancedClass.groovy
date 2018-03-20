@@ -15,10 +15,8 @@ package org.grooscript.convert
 
 import org.grooscript.test.ConversionMixin
 import org.grooscript.test.JsTestResult
-import spock.lang.Specification
 
-@Mixin([ConversionMixin])
-class TestAdvancedClass extends Specification {
+class TestAdvancedClass extends GroovyTestCase implements ConversionMixin {
 
     def 'test class names' () {
         expect:

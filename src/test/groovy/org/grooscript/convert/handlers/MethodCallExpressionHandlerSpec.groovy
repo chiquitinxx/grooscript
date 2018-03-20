@@ -17,12 +17,9 @@ import org.codehaus.groovy.ast.expr.ClosureExpression
 import org.codehaus.groovy.ast.expr.MethodCallExpression
 import org.grooscript.convert.ConversionFactory
 import org.grooscript.convert.Out
-import spock.lang.Specification
-import spock.lang.Unroll
 
-class MethodCallExpressionHandlerSpec extends Specification {
+class MethodCallExpressionHandlerSpec extends GroovyTestCase {
 
-    @Unroll
     void 'rehydrate and dehydrate are ignored and just process the closure'() {
         given:
         def closureExpression = new ClosureExpression(null, null)

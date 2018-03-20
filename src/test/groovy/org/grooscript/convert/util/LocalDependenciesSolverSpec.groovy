@@ -13,9 +13,7 @@
  */
 package org.grooscript.convert.util
 
-import spock.lang.Specification
-
-class LocalDependenciesSolverSpec extends Specification {
+class LocalDependenciesSolverSpec extends GroovyTestCase {
 
     void 'get local dependencies from basic script'() {
         given:

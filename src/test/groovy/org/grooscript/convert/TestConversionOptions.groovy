@@ -16,9 +16,6 @@ package org.grooscript.convert
 import org.grooscript.GrooScript
 import org.grooscript.util.GrooScriptException
 import org.grooscript.util.Util
-import spock.lang.IgnoreIf
-import spock.lang.Specification
-import spock.lang.Unroll
 
 import javax.script.ScriptEngine
 import javax.script.ScriptEngineManager
@@ -26,7 +23,7 @@ import javax.script.ScriptEngineManager
 import static org.grooscript.util.Util.LINE_SEPARATOR as LS
 import static org.grooscript.util.Util.SEP
 
-class TestConversionOptions extends Specification {
+class TestConversionOptions extends GroovyTestCase {
 
     private static final FILE_BASIC_NAME = 'BasicClass'
     private static final FILE_BASIC_GROOVY_SOURCE = "src/test/resources/classes/${FILE_BASIC_NAME}.groovy"
@@ -37,246 +34,188 @@ class TestConversionOptions extends Specification {
     private static final DESTINATION_DIR = 'destination'
     private static final DESTINATION_FILE = 'destination.js'
 
-    def setup() {
+    void setUp() {
         new File(SOURCE_DIR).mkdir()
         new File(DESTINATION_DIR).mkdir()
     }
 
-    def cleanup() {
+    void tearDown() {
         new File(FOLDER_NEED_DEPENDENCY).deleteDir()
         new File(SOURCE_DIR).deleteDir()
         new File(DESTINATION_FILE).delete()
         new File(DESTINATION_DIR).deleteDir()
     }
 
-    def 'number conversion options'() {
-        expect:
-        ConversionOptions.values().size() == 11
+    void testNumberConversionOptions() {
+        assert ConversionOptions.values().size() == 10
     }
 
-    def 'convert a groovy file'() {
-        given:
+    void testConvertAGroovyFile() {
         def name = 'name'
         createFolderWithFiles(SOURCE_DIR, 1, name)
 
-        when:
         GrooScript.convert("${SOURCE_DIR + SEP + name}0.groovy", DESTINATION_DIR)
 
-        then:
         destinationDirContainsFiles(DESTINATION_DIR, 1)
     }
 
-    def 'convert a list of groovy files'() {
-        given:
+    void testConvertAListOfGroovyFiles() {
         def name = 'name'
         createFolderWithFiles(SOURCE_DIR, 2, name)
 
-        when:
         GrooScript.convert(["${SOURCE_DIR + SEP + name}0.groovy",
                 "${SOURCE_DIR + SEP + name}1.groovy"], DESTINATION_DIR)
 
-        then:
         destinationDirContainsFiles(DESTINATION_DIR, 2)
     }
 
-    def 'check dependency resolution'() {
+    void testCheckDependencyResolution() {
 
-        given:
         setupNeedDirectory()
         def options = [classpath: FOLDER_NEED_DEPENDENCY]
 
-        when: 'convert a class with need dependency'
         String result = GrooScript.convert("class A {};def need = new ${CLASS_NEED_DEPENDENCY}()", options)
 
-        then:
-        result.startsWith('function A()')
-        result.endsWith("var need = ${CLASS_NEED_DEPENDENCY}();${Util.LINE_SEPARATOR}")
+        assert result.startsWith('function A()')
+        assert result.endsWith("var need = ${CLASS_NEED_DEPENDENCY}();${Util.LINE_SEPARATOR}")
 
-        and: 'class need not converted'
-        !result.contains("function ${CLASS_NEED_DEPENDENCY}()")
+        assert !result.contains("function ${CLASS_NEED_DEPENDENCY}()")
     }
 
-    def 'include dependencies in conversion'() {
+    void testIncludeDependenciesInConversion() {
 
-        given:
         setupNeedDirectory()
         def options = [classpath: FOLDER_NEED_DEPENDENCY, includeDependencies: true]
 
-        when:
         String result = GrooScript.convert("class A {};def need = new ${CLASS_NEED_DEPENDENCY}()", options)
 
-        then:
-        result.count('function A()') == 1
-        result.count("function ${CLASS_NEED_DEPENDENCY}()") == 1
+        assert result.count('function A()') == 1
+        assert result.count("function ${CLASS_NEED_DEPENDENCY}()") == 1
     }
 
-    def 'can set classpath as List'() {
+    void testCanSetClasspathAsList() {
 
-        given:
         setupNeedDirectory()
         def options = [classpath: [FOLDER_NEED_DEPENDENCY]]
 
-        when:
         String result = GrooScript.convert("class B { Need c = new Need() }", options)
 
-        then: 'conversion done'
-        result
-        !result.contains('function Need()')
-        result.contains('c = Need();')
+        assert result
+        assert !result.contains('function Need()')
+        assert result.contains('c = Need();')
     }
 
-    def 'convert a file'() {
+    void testConvertAFile() {
 
-        given:
         setupNeedDirectory()
 
-        when: 'no dependencies to convert in a file in a package'
         GrooScript.convert(FILE_BASIC_GROOVY_SOURCE, FOLDER_NEED_DEPENDENCY)
         def file = new File(FILE_BASIC_JS)
 
-        then: 'Conversion returns data converted'
-        file.text.startsWith("function ${FILE_BASIC_NAME}()")
+        assert file.text.startsWith("function ${FILE_BASIC_NAME}()")
     }
 
-    @IgnoreIf({ !Util.groovyVersionAtLeast('2.1') })
-    @Unroll
-    def 'customization option with a type check customization'() {
+    void testCustomizationOptionWithATypeCheckCustomization() {
 
-        given:
-        def customization = {
-            ast(astChecking)
+        [groovy.transform.TypeChecked, groovy.transform.CompileStatic].each { typeAst ->
+            def customization = {
+                ast(typeAst)
+            }
+            def options = [customization: customization]
+            def message = shouldFail (GrooScriptException) {
+                GrooScript.convert('class A {  def say() { println aaaa }}', options)
+            }
+            assert message.contains('The variable [aaaa] is undeclared')
+
         }
-        def options = [customization: customization]
-
-        when:
-        GrooScript.convert('class A {  def say() { println aaaa }}', options)
-
-        then:
-        def exception = thrown(GrooScriptException)
-        exception.message.contains 'The variable [aaaa] is undeclared'
-
-        where:
-        astChecking << [groovy.transform.TypeChecked, groovy.transform.CompileStatic]
     }
 
-    def 'test join js files in one file'() {
+    void testJoinJsFilesInOneFile() {
 
-        given:
         setupFilesWithNumbers(SOURCE_DIR, 5)
 
-        when:
         GrooScript.joinFiles(SOURCE_DIR, DESTINATION_FILE)
         File file = new File(DESTINATION_FILE)
 
-        then:
         ('0'..'4').every {
-            file.text.indexOf(it) >= 0
+            assert file.text.indexOf(it) >= 0
         }
     }
 
-    def 'define main context scope variables'() {
-        given:
+    void testDefineMainContextScopeVariables() {
         def code = 'def addToB = { a ->  console.log("Hello!"); a + b }'
         def options = [mainContextScope: ['b', 'console']]
 
-        when:
         def result = GrooScript.convert(code, options)
 
-        then:
-        result == "var addToB = function(a) {$LS" +
+        assert result == "var addToB = function(a) {$LS" +
                   "  gs.mc(console,\"log\",[\"Hello!\"]);$LS" +
                   "  return gs.plus(a, b);$LS" +
                   " };$LS"
     }
 
-    @Unroll
-    def 'add text before and after in generated result'() {
-        given:
+    void testAddTextBeforeInGeneratedResult() {
         def code = 'def a = 0'
-        def options = [:]
+        def options = [initialText: 'Text']
 
-        when:
-        options[option] = 'Text'
         def result = GrooScript.convert(code, options)
 
-        then:
-        result == expectedResult
-
-        where:
-        option        | expectedResult
-        'initialText' | "Text${LS}var a = 0;${LS}"
-        'finalText'   | "var a = 0;${LS}${LS}Text"
+        assert result == "Text${LS}var a = 0;${LS}"
     }
 
-    @Unroll
-    def 'test recursive conversion'() {
-        given:
-        createFolderWithSubfolderAndFilesInEachDir(SOURCE_DIR, sourceFiles)
-        def options = [recursive: true]
+    void testAddTextAfterInGeneratedResult() {
+        def code = 'def a = 0'
+        def options = [finalText: 'Text']
 
-        when:
-        GrooScript.convert(SOURCE_DIR, DESTINATION_DIR, options)
+        def result = GrooScript.convert(code, options)
 
-        then:
-        destinationDirContainsFiles(DESTINATION_DIR, destinationFiles)
-
-        where:
-        sourceFiles | destinationFiles
-        0           | 0
-        1           | 2
-        3           | 6
+        assert result == "var a = 0;${LS}${LS}Text"
     }
 
-    @Unroll
-    def 'test add grooscript js archive at the beginning of the conversion'() {
-        when:
-        def options = [addGsLib: fileName]
-        def result = GrooScript.convert('println "Hello!"', options)
+    void testRecursiveConversion() {
+        [0, 1, 3].each { sourceFiles ->
+            createFolderWithSubfolderAndFilesInEachDir(SOURCE_DIR, sourceFiles)
 
-        then:
-        result.startsWith(new File("src/main/resources/META-INF/resources/${fileName}.js").text)
+            GrooScript.convert(SOURCE_DIR, DESTINATION_DIR, [recursive: true])
 
-        where:
-        fileName << ['grooscript', 'grooscript.min']
+            destinationDirContainsFiles(DESTINATION_DIR, sourceFiles * 2)
+        }
     }
 
-    def 'test add two grooscript js archives at the beginning of the conversion'() {
-        when:
+    void testAddGrooscriptJsArchiveAtTheBeginningOfTheConversion() {
+        ['grooscript', 'grooscript.min'].each { fileName ->
+            def result = GrooScript.convert('println "Hello!"', [addGsLib: fileName])
+
+            assert result.startsWith(new File("src/main/resources/${fileName}.js").text)
+        }
+    }
+
+    void testAddTwoGrooscriptJsArchivesAtTheBeginning() {
         def options = [addGsLib: 'grooscript.min, testWithNode']
         def result = GrooScript.convert('println "Hello!"', options)
 
-        then:
-        result.startsWith(new File('src/main/resources/META-INF/resources/grooscript.min.js').text)
-        result.contains(new File('src/main/resources/META-INF/resources/testWithNode.js').text)
+        assert result.startsWith(new File('src/main/resources/grooscript.min.js').text)
+        assert result.contains(new File('src/main/resources/testWithNode.js').text)
     }
 
-    def 'test convert a class as require.js module'() {
-        when:
-        def asRequireJsModuleResult = GrooScript.convert('class A {}', [requireJsModule: true])
-        def normalConversion = GrooScript.convert('class A {}')
-
-        then:
-        asRequireJsModuleResult != normalConversion
-    }
-
-    def 'conversion with consoleInfo'() {
-        expect:
+    void testConversionWithConsoleInfo() {
         GrooScript.convert('class A {}', [consoleInfo: true])
     }
 
-    def 'convert using nashorn engine to print in console'() {
-        given:
+    void testConvertUsingNashornEngineToPrintInConsole() {
+
         ScriptEngineManager factory = new ScriptEngineManager()
         ScriptEngine engine = factory.getEngineByName('JavaScript')
 
-        when:
-        engine.eval(
-                GrooScript.convert('println "Hello World!"',
-                        [(ConversionOptions.ADD_GS_LIB.text): 'grooscript',
-                         (ConversionOptions.NASHORN_CONSOLE.text): true]))
-
-        then:
-        notThrown(Throwable)
+        try {
+            engine.eval(
+                    GrooScript.convert('println "Hello World!"',
+                            [(ConversionOptions.ADD_GS_LIB.text)     : 'grooscript',
+                             (ConversionOptions.NASHORN_CONSOLE.text): true]))
+            assert true
+        } catch (Throwable t) {
+            fail('No!')
+        }
     }
 
     private setupNeedDirectory() {

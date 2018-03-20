@@ -17,9 +17,9 @@ import org.grooscript.util.GsConsole
 
 class JsGenerator {
 
-    public static final HTML_BUILDER_SOURCE = 'src/main/groovy/org/grooscript/builder/HtmlBuilder.groovy'
+    static final HTML_BUILDER_SOURCE = 'src/main/groovy/org/grooscript/builder/HtmlBuilder.groovy'
 
-    public static void generateHtmlBuilder(String pathJsDestination) {
+    static void generateHtmlBuilder(String pathJsDestination) {
         generateGrooscriptConvertedJs(HTML_BUILDER_SOURCE, pathJsDestination)
     }
 
@@ -34,4 +34,4 @@ class JsGenerator {
     }
 }
 
-JsGenerator.generateHtmlBuilder('dist/grooscript-html-builder.js')
+JsGenerator.generateHtmlBuilder('src/main/resources/grooscript-html-builder.js')

@@ -15,10 +15,8 @@ package org.grooscript.convert.ast
 
 import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.stmt.BlockStatement
-import spock.lang.Specification
-import spock.lang.Unroll
 
-class AstTreeGeneratorSpec extends Specification {
+class AstTreeGeneratorSpec extends GroovyTestCase {
 
     void 'get ast from basic script'() {
         given:
@@ -57,7 +55,6 @@ class AstTreeGeneratorSpec extends Specification {
         result[1] == []
     }
 
-    @Unroll
     void 'get class node names from script'() {
         expect:
         nodeNames == astTreeGenerator.classNodeNamesFromText(script)

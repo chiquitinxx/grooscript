@@ -13,16 +13,14 @@
  */
 package org.grooscript.test
 
-import spock.lang.Specification
 import javax.script.ScriptEngine
 import javax.script.Bindings
 
-@Mixin([ConversionMixin])
-class TestJavaScriptEngine extends Specification {
+class TestJavaScriptEngine extends GroovyTestCase implements ConversionMixin {
 
-    ScriptEngine engine
+    private ScriptEngine engine
 
-    def setup() {
+    void setUp() {
         engine = JavascriptEngine.javascriptEngine
     }
 
@@ -45,12 +43,11 @@ class TestJavaScriptEngine extends Specification {
 
     }
 
-    def 'short way for testing'() {
+    void testShortWayOfTesting() {
 
-        def map = JavascriptEngine.jsEval('a="Hello "+a;c=b*5;', [a: 'Jorge', b: 5])
+        JsTestResult result = JavascriptEngine.jsEval('a="Hello "+a;c=b*5;', [a: 'Jorge', b: 5])
 
-        expect:
-        map.bind.c == 25
+        assert result.bind.c == 25
     }
 
     def 'function gSassert results'() {
@@ -67,16 +64,12 @@ class TestJavaScriptEngine extends Specification {
         '1==2'  | true
     }
 
-    def 'speed javascript engine'() {
-        when:
+    void testSpeedJavascriptEngine() {
         def result = convertAndEvaluateWithJsEngine('TestSpeed')
-
-        then:
-        !result.assertFails
+        assert !result.assertFails
     }
 
-    def 'problems with reserved words'() {
-        expect:
-        !convertAndEvaluateWithJsEngine('ReservedWords').assertFails
+    void testProblemsWithReservedWords() {
+        assert !convertAndEvaluateWithJsEngine('ReservedWords').assertFails
     }
 }

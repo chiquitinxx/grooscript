@@ -15,25 +15,20 @@ package org.grooscript
 
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-import spock.lang.Specification
 
-class JsGeneratorSpec extends Specification {
+class JsGeneratorSpec extends GroovyTestCase {
 
     @Rule
     TemporaryFolder folder = new TemporaryFolder()
 
-    def 'test generation of html builder js file'() {
-        given:
+    void testGenerationOfHtmlBuilderFile() {
+        folder.create()
         String destination = folder.newFile('htmlbuilder.js').getPath()
 
-        expect:
-        sizeOfDestinationFile(destination) == 0
+        assert sizeOfDestinationFile(destination) == 0
 
-        when:
         JsGenerator.generateHtmlBuilder(destination)
-
-        then:
-        sizeOfDestinationFile(destination) > 100
+        assert sizeOfDestinationFile(destination) > 100
     }
 
     private int sizeOfDestinationFile(String destination) {

@@ -15,10 +15,9 @@ package org.grooscript.convert
 
 import org.grooscript.GrooScript
 import org.grooscript.test.JsTestResult
-import spock.lang.Specification
 import org.grooscript.util.Util
 
-class TestConvertBase extends Specification {
+class TestConvertBase extends GroovyTestCase {
 
     //Just started well
     def 'converter ready'() {

@@ -13,44 +13,36 @@
  */
 package org.grooscript.util
 
-import spock.lang.Specification
-import spock.lang.Unroll
-
 import static org.grooscript.util.Util.SEP
 import static org.grooscript.util.FileSolver.DEFAULT_PATH
 
-class FileSolverSpec extends Specification {
+class FileSolverSpec extends GroovyTestCase {
 
     void 'file exists'() {
         expect:
         fileSolver.exists(FILE_PATH)
     }
 
-    void 'file path from class name'() {
-        expect:
-        fileSolver.filePathFromClassName('Name', null) == 'Name.groovy'
-        fileSolver.filePathFromClassName('Name', '') == 'Name.groovy'
-        fileSolver.filePathFromClassName('Name', '/gol') == "/gol${SEP}Name.groovy"
-        fileSolver.filePathFromClassName('org.Name', '') == "org${SEP}Name.groovy"
-        fileSolver.filePathFromClassName('org.Name', "src${SEP}main${SEP}groovy") ==
+    void testFilePathFromClassName() {
+        assert fileSolver.filePathFromClassName('Name', null) == 'Name.groovy'
+        assert fileSolver.filePathFromClassName('Name', '') == 'Name.groovy'
+        assert fileSolver.filePathFromClassName('Name', '/gol') == "/gol${SEP}Name.groovy"
+        assert fileSolver.filePathFromClassName('org.Name', '') == "org${SEP}Name.groovy"
+        assert fileSolver.filePathFromClassName('org.Name', "src${SEP}main${SEP}groovy") ==
                 "src${SEP}main${SEP}groovy${SEP}org${SEP}Name.groovy"
     }
 
-    void 'read file content'() {
-        expect:
-        new File(FILE_PATH).text == fileSolver.readFile(FILE_PATH)
+    void testReadFileContent() {
+        assert new File(FILE_PATH).text == fileSolver.readFile(FILE_PATH)
     }
 
-    void 'save a file'() {
-        given:
+    void testSaveAFile() {
         def fileName = 'CASUAL'
         def content = 'content file'
 
-        when:
         fileSolver.saveFile(fileName, content)
 
-        then:
-        new File(fileName).text == content
+        assert new File(fileName).text == content
 
         cleanup:
         new File(fileName).delete()
@@ -61,7 +53,6 @@ class FileSolverSpec extends Specification {
         fileSolver.isFolder('.')
     }
 
-    @Unroll
     void 'get first classpath folder from conversion options'() {
         given:
         new File(GOOD_CLASSPATH).mkdir()

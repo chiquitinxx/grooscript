@@ -14,16 +14,12 @@
 package org.grooscript
 
 import org.grooscript.util.GsConsole
-import spock.lang.Specification
-import spock.lang.Unroll
-
 import static org.grooscript.util.Util.LINE_SEPARATOR as LS
 
-class GrooScriptSpec extends Specification {
+class GrooScriptSpec extends GroovyTestCase {
 
-    def 'default options'() {
-        expect:
-        GrooScript.defaultConversionOptions == [
+    void testDefaultConversionOptions() {
+        assert GrooScript.defaultConversionOptions == [
                 classpath: null,
                 customization: null,
                 mainContextScope: null,
@@ -31,56 +27,45 @@ class GrooScriptSpec extends Specification {
                 finalText: null,
                 addGsLib: null,
                 recursive: false,
-                requireJsModule: false,
                 consoleInfo: false,
                 includeDependencies: false,
                 nashornConsole: false
         ]
     }
 
-    @Unroll
-    def 'convert some groovy files to one .js file'() {
-        given:
-        GrooScript.convert(SOURCES_FOLDER, destinationFile, [classpath: SOURCES_CLASSPATH])
+    void testConvertBigFile() {
+        GrooScript.convert(SOURCES_FOLDER, BIG_JS_FILE, [classpath: SOURCES_CLASSPATH])
+        new File(BIG_JS_FILE).exists()
 
-        expect:
-        new File(destinationFile).exists()
-
-        cleanup:
-        new File(destinationFile).delete()
+        new File(BIG_JS_FILE).delete()
         new File(DEST_FOLDER).deleteDir()
-
-        where:
-        destinationFile << [BIG_JS_FILE, "$DEST_FOLDER/$BIG_JS_FILE"]
     }
 
-    @Unroll
-    def 'convert some files to one file'() {
-        given:
-        GrooScript.convert([new File(SOURCES_FOLDER)], new File(destinationFile), [classpath: SOURCES_CLASSPATH])
+    void testConvertBigFileInOtherFolder() {
+        GrooScript.convert(SOURCES_FOLDER, "$DEST_FOLDER/$BIG_JS_FILE", [classpath: SOURCES_CLASSPATH])
+        assert new File("$DEST_FOLDER/$BIG_JS_FILE").exists()
 
-        expect:
-        new File(destinationFile).exists()
-
-        cleanup:
-        new File(destinationFile).delete()
+        new File("$DEST_FOLDER/$BIG_JS_FILE").delete()
         new File(DEST_FOLDER).deleteDir()
-
-        where:
-        destinationFile << [BIG_JS_FILE, "$DEST_FOLDER/$BIG_JS_FILE"]
     }
 
-    def 'convert some groovy files to one folder that not exists'() {
-        given:
+    void testConvertSomeFileToOneFile() {
+        GrooScript.convert([new File(SOURCES_FOLDER)], new File(BIG_JS_FILE), [classpath: SOURCES_CLASSPATH])
+        assert new File(BIG_JS_FILE).exists()
+
+        cleanup:
+        new File(BIG_JS_FILE).delete()
+        new File(DEST_FOLDER).deleteDir()
+    }
+
+    void testConvertSomeGroovyFilesToOneFolderThatNotExists() {
         GrooScript.convert(SOURCES_FOLDER, DEST_FOLDER, [classpath: SOURCES_CLASSPATH])
 
-        expect:
-        new File(DEST_FOLDER).exists()
-        new File(SOURCES_FOLDER).listFiles().count { it.file } == new File(DEST_FOLDER).listFiles().count {
+        assert new File(DEST_FOLDER).exists()
+        assert new File(SOURCES_FOLDER).listFiles().count { it.file } == new File(DEST_FOLDER).listFiles().count {
             it.file && it.name.endsWith('.js')
         }
 
-        cleanup:
         new File(DEST_FOLDER).deleteDir()
     }
 
@@ -125,7 +110,6 @@ class GrooScriptSpec extends Specification {
         !testResult.assertFails
     }
 
-    @Unroll
     def 'evaluate js code another gs lib'() {
         when:
         def testResult = GrooScript.evaluateGroovyCode('println "Hello!"', libs)
@@ -138,7 +122,6 @@ class GrooScriptSpec extends Specification {
         libs << ['grooscript', 'grooscript, grooscript.min']
     }
 
-    @Unroll
     def 'convert to groovy and javascript does nothing'() {
         given:
         def data = testData
@@ -152,7 +135,6 @@ class GrooScriptSpec extends Specification {
         testData << [null, '', 'hello', 55, [1, 2, 3], [one: 1, two: 2], 0, false]
     }
 
-    @Unroll
     def 'convert function #nameFunc generates js code'() {
         given:
         def code = """
@@ -167,7 +149,6 @@ GrooScript.${nameFunc}('hello')
         nameFunc << ['toJavascript', 'toGroovy', 'toJsObj']
     }
 
-    @Unroll
     def 'convert function #nameFunc generates js code with import static'() {
         given:
         def code = """
@@ -194,7 +175,6 @@ ${nameFunc}('hello')
         1 * GsConsole.error('No files to be converted. *.groovy or *.java files not found.')
     }
 
-    @Unroll
     def 'native code returns the string code'() {
         given:
         def data = testData

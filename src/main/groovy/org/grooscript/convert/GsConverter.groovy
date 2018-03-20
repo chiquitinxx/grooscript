@@ -15,7 +15,6 @@ package org.grooscript.convert
 
 import org.grooscript.GrooScript
 import org.grooscript.convert.ast.AstTreeGenerator
-import org.grooscript.convert.util.RequireJsDependency
 import org.grooscript.util.GrooScriptException
 import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.expr.*
@@ -35,8 +34,6 @@ class GsConverter {
     //Conversion Options
     Map<String, Object> conversionOptions
 
-    List<RequireJsDependency> requireJsDependencies = []
-
     /**
      * Converts Groovy script to Javascript
      * @param String script in groovy
@@ -47,7 +44,7 @@ class GsConverter {
         String result = null
         //Script not empty plz!
         def phase = 0
-        if (script && validateConversionOptions(options)) {
+        if (script) {
             conversionOptions = options ?: GrooScript.defaultConversionOptions
             try {
                 if (consoleInfo) {
@@ -97,11 +94,6 @@ class GsConverter {
             context = conversionFactory.context
             context.nativeFunctions = nativeFunctions
             out = conversionFactory.out
-            if (conversionOptions[ConversionOptions.REQUIRE_JS_MODULE.text] == true) {
-                requireJsDependencies = []
-                out.indent++
-                out.addTab()
-            }
 
             if (conversionOptions[ConversionOptions.MAIN_CONTEXT_SCOPE.text]) {
                 conversionOptions[ConversionOptions.MAIN_CONTEXT_SCOPE.text].each { var ->
@@ -170,10 +162,6 @@ class GsConverter {
             result = out.finalScript
         }
         result
-    }
-
-    public void addRequireJsDependency(String path, String name) {
-        requireJsDependencies << new RequireJsDependency(path: path, name: name)
     }
 
     //Process list of classes in correct order, inheritance order
@@ -637,19 +625,5 @@ class GsConverter {
 
     private boolean isConsoleInfo() {
         conversionOptions && conversionOptions[ConversionOptions.CONSOLE_INFO.text] == true
-    }
-
-    private boolean validateConversionOptions(Map options) {
-        options ? areCompatibles(options) : true
-    }
-
-    private boolean areCompatibles(Map options) {
-        if (options[ConversionOptions.REQUIRE_JS_MODULE.text] == true &&
-                options[ConversionOptions.INCLUDE_DEPENDENCIES.text] == true
-        ) {
-            throw new GrooScriptException("Incompatible conversion options " +
-                    "(${ConversionOptions.REQUIRE_JS_MODULE.text} - ${ConversionOptions.INCLUDE_DEPENDENCIES.text})")
-        }
-        true
     }
 }

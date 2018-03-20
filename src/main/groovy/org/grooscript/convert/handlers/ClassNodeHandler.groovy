@@ -259,34 +259,13 @@ class ClassNodeHandler extends TraitBaseHandler {
             previous = ''
         }
 
-        if (isRequireJsModuleAnnotated(fieldOrProperty) &&
-                conversionFactory.converter.conversionOptions[ConversionOptions.REQUIRE_JS_MODULE.text] == true) {
-            out.addScript("${previous}.${fieldOrProperty.name} = ${fieldOrProperty.name};", true)
-            addRequireJsDependency(fieldOrProperty)
-        } else if (fieldOrProperty.initialExpression) {
+        if (fieldOrProperty.initialExpression) {
             out.addScript("${previous}.${fieldOrProperty.name} = ")
             conversionFactory.visitNode(fieldOrProperty.initialExpression)
             out.addScript(';', true)
         } else {
             out.addScript("${previous}.${fieldOrProperty.name} = null;", true)
         }
-    }
-
-    private boolean isRequireJsModuleAnnotated(fieldOrProperty) {
-        def annotations = (fieldOrProperty instanceof PropertyNode ?
-                fieldOrProperty.field.annotations : fieldOrProperty.annotations)
-        annotations.any { AnnotationNode annotationNode ->
-            annotationNode.getClassNode().name == 'org.grooscript.asts.RequireJsModule'
-        }
-    }
-
-    private addRequireJsDependency(fieldOrProperty) {
-        def annotations = (fieldOrProperty instanceof PropertyNode ?
-                fieldOrProperty.field.annotations : fieldOrProperty.annotations)
-        AnnotationNode annotationNode = annotations.find {
-            it.getClassNode().name == 'org.grooscript.asts.RequireJsModule'
-        }
-        conversionFactory.converter.addRequireJsDependency(annotationNode.getMember('path').value, fieldOrProperty.name)
     }
 
     private addPropertyStaticToClass(String name) {

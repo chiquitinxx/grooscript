@@ -16,18 +16,14 @@ package org.grooscript.convert
 import org.grooscript.test.ConversionMixin
 import org.grooscript.test.JsTestResult
 import org.grooscript.util.GrooScriptException
-import spock.lang.Specification
-import spock.lang.Unroll
 
-@Mixin([ConversionMixin])
-class TestContributors extends Specification {
+class TestContributors extends GroovyTestCase implements ConversionMixin {
 
     def 'test jochen' () {
         expect:
         convertAndEvaluate('contribution/JochenTheodorou')
     }
 
-    @Unroll('Testing MrHaki #file')
     def 'test MrHaki' () {
         expect:
         convertAndEvaluate(file)
@@ -60,7 +56,6 @@ class TestContributors extends Specification {
         convertAndEvaluate('contribution/MarioGarcia')
     }
 
-    @Unroll('Testing anonymous web #file')
     def 'test anonymous contributions in web' () {
         expect:
         JsTestResult result = convertAndEvaluateWithJsEngine(file)
@@ -106,7 +101,6 @@ class TestContributors extends Specification {
         convertAndEvaluate('contribution/Twitter1')
     }
 
-    @Unroll('My test #file')
     def 'my tests and experiments'() {
         expect:
         convertAndEvaluate(file)
@@ -134,7 +128,6 @@ class TestContributors extends Specification {
         'contribution/MySelf19'    | _
     }
 
-    @Unroll
     def 'guillaume example #file from talks'() {
         expect:
         convertAndEvaluate file
@@ -192,7 +185,6 @@ class TestContributors extends Specification {
         convertAndEvaluate('contribution/H1romas4GsNative')
     }
 
-    @Unroll
     def 'groovy site code fragment #number'() {
         expect:
         convertAndEvaluate("contribution/GroovySite${number}")

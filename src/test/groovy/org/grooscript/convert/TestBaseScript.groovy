@@ -14,13 +14,8 @@
 package org.grooscript.convert
 
 import org.grooscript.test.ConversionMixin
-import org.grooscript.util.Util
-import spock.lang.IgnoreIf
-import spock.lang.Specification
 
-@Mixin([ConversionMixin])
-@IgnoreIf({ !Util.groovyVersionAtLeast('2.2') })
-class TestBaseScript extends Specification {
+class TestBaseScript extends GroovyTestCase implements ConversionMixin {
 
     void 'initial base script'() {
         expect:

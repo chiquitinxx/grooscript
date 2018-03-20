@@ -14,10 +14,8 @@
 package org.grooscript.convert
 
 import org.grooscript.test.ConversionMixin
-import spock.lang.Specification
 
-@Mixin([ConversionMixin])
-class TestWeb extends Specification {
+class TestWeb extends GroovyTestCase implements ConversionMixin {
 
     def 'test prefix and postfix undefined'() {
         expect:

@@ -14,30 +14,26 @@
 package org.grooscript.templates
 
 import org.grooscript.builder.HtmlBuilder
-import spock.lang.Specification
 
-class TemplatesSpec extends Specification {
+class TemplatesSpec extends GroovyTestCase {
 
-    def 'convert template'() {
-        expect:
-        templates.applyTemplate('one.gtpl') == '<p>Hello!</p>'
+    void testConvertTemplate() {
+        assert templates.applyTemplate('one.gtpl') == '<p>Hello!</p>'
     }
 
-    def 'convert template with model'() {
-        expect:
-        templates.applyTemplate('two.tpl', [list: [1, 2], message: 'Msg']) ==
+    void testConvertTemplateWithModel() {
+        assert templates.applyTemplate('two.tpl', [list: [1, 2], message: 'Msg']) ==
                 '<ul><li>1</li><li>2</li></ul><p>Msg</p>'
     }
 
-    def 'convert template using other template'() {
-        expect:
-        templates.applyTemplate('three.gtpl', [list: [1, 1, 1]]) ==
+    void testConvertTemplateUsingOtherTemplate() {
+        assert templates.applyTemplate('three.gtpl', [list: [1, 1, 1]]) ==
                 '<ul><p>Hello!</p><p>Hello!</p><p>Hello!</p></ul>'
     }
 
-    Templates templates = new Templates()
+    private Templates templates = new Templates()
 
-    def setup() {
+    void setUp() {
         templates.templates = [
             'one.gtpl': { model = [:] ->
                 HtmlBuilder.build {

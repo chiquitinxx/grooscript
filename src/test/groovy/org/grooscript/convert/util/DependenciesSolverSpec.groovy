@@ -14,9 +14,8 @@
 package org.grooscript.convert.util
 
 import org.grooscript.util.FileSolver
-import spock.lang.Specification
 
-class DependenciesSolverSpec extends Specification {
+class DependenciesSolverSpec extends GroovyTestCase {
 
     void 'resolve all dependencies from a file without dependencies'() {
         given:

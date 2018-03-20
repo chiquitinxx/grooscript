@@ -14,10 +14,8 @@
 package org.grooscript.convert
 
 import org.grooscript.test.ConversionMixin
-import spock.lang.Specification
 
-@Mixin([ConversionMixin])
-class TestScope extends Specification {
+class TestScope extends GroovyTestCase implements ConversionMixin {
 
     def 'variables not visible' () {
         when:

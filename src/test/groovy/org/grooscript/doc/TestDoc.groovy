@@ -14,13 +14,9 @@
 package org.grooscript.doc
 
 import org.grooscript.test.ConversionMixin
-import spock.lang.Specification
-import spock.lang.Unroll
 
-@Mixin([ConversionMixin])
-class TestDoc extends Specification {
+class TestDoc extends GroovyTestCase implements ConversionMixin {
 
-    @Unroll
     def 'doc tests'() {
         expect:
         convertAndEvaluate filePath

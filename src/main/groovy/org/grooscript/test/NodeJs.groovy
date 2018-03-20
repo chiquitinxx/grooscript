@@ -23,7 +23,7 @@ class NodeJs {
 
     private static final String NODE_BINARY = Util.isWindows() ? 'node.exe' : 'node'
     private static final String FILE_NAME = 'nodeJsTest.js'
-    private static final FILE_HEAD = "var gs = require('./dist/grooscript.js');" +
+    private static final FILE_HEAD = "var gs = require('./src/main/resources/grooscript.js');" +
             "${LINE_SEPARATOR}gs.consoleOutput = false;${LINE_SEPARATOR}"
     private static final String SEPARATOR = '#'
     private static final FILE_FOOT = "${LINE_SEPARATOR}console.log(gs.fails + '${SEPARATOR}' + gs.consoleData);"

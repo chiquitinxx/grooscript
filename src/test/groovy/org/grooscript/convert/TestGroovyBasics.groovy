@@ -16,10 +16,8 @@ package org.grooscript.convert
 import org.grooscript.test.ConversionMixin
 import org.grooscript.test.JavascriptEngine
 import org.grooscript.test.JsTestResult
-import spock.lang.Specification
 
-@Mixin([ConversionMixin])
-class TestGroovyBasics extends Specification {
+class TestGroovyBasics extends GroovyTestCase implements ConversionMixin {
 
     def 'assert function'() {
 
