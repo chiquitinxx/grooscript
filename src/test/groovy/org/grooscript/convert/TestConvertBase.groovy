@@ -19,45 +19,29 @@ import org.grooscript.util.Util
 
 class TestConvertBase extends GroovyTestCase {
 
-    //Just started well
-    def 'converter ready'() {
-        when:
-        def converter = new GsConverter()
-
-        then:
-        converter
-
-        and: 'Returns null if no script passed'
-        converter.toJs(null) == null
+    void testConverterReady() {
+        GsConverter converter = new GsConverter()
+        assert converter.toJs(null) == null
     }
 
-    def 'conversion basic'() {
-        when:
-        def result = Util.fullProcessScript("println 'Trying GScript!'")
-
-        then:
-        result
-        !result.assertFails
+    void testBasicConversion() {
+        JsTestResult result = Util.fullProcessScript("println 'Trying GScript!'")
+        assert !result.assertFails
     }
 
-    def 'full conversion results'() {
-        when:
+    void testFullConversionResults() {
         JsTestResult result = Util.fullProcessScript("def a=0;println 'Hey';assert true")
 
-        then:
-        result.console == 'Hey'
-        !result.assertFails
-        result.bind.a == 0
-        !result.exception
-        result.jsScript == "var a = 0;${Util.LINE_SEPARATOR}gs.println(\"Hey\");${Util.LINE_SEPARATOR}" +
+        assert result.console == 'Hey'
+        assert !result.assertFails
+        assert result.bind.a == 0
+        assert !result.exception
+        assert result.jsScript == "var a = 0;${Util.LINE_SEPARATOR}gs.println(\"Hey\");${Util.LINE_SEPARATOR}" +
                 "gs.assert(true, \"Assertion fails: true\");${Util.LINE_SEPARATOR}"
     }
 
-    def 'use static class converter'() {
-        when:
-        def result = GrooScript.convert('def a=0')
-
-        then:
-        result == 'var a = 0;' + Util.LINE_SEPARATOR
+    void testUseStaticClassConverter() {
+        String result = GrooScript.convert('def a=0')
+        assert result == 'var a = 0;' + Util.LINE_SEPARATOR
     }
 }

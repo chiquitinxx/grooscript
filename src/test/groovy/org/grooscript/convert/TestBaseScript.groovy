@@ -13,9 +13,9 @@
  */
 package org.grooscript.convert
 
-import org.grooscript.test.ConversionMixin
+import org.grooscript.test.ConversionTrait
 
-class TestBaseScript extends GroovyTestCase implements ConversionMixin {
+class TestBaseScript extends GroovyTestCase implements ConversionTrait {
 
     void 'initial base script'() {
         expect:

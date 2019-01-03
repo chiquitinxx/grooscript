@@ -312,7 +312,7 @@ class GrooScript {
                     if (fileText) {
                         result = fileText + LINE_SEPARATOR + result
                     } else {
-                        throw new GroovyException('Converting, this library does not exists: ' + fileName)
+                        throw new GrooScriptException('Converting, this library does not exists: ' + fileName)
                     }
                 }
             }

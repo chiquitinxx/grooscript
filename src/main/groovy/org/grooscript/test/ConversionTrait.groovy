@@ -20,7 +20,7 @@ import org.grooscript.util.GsConsole
 
 import static org.grooscript.util.Util.*
 
-trait ConversionMixin {
+trait ConversionTrait {
 
     GsConverter converter = new GsConverter()
     NodeJs nodeJs = new NodeJs()

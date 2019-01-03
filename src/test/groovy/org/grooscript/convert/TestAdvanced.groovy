@@ -13,202 +13,163 @@
  */
 package org.grooscript.convert
 
-import org.grooscript.test.ConversionMixin
+import org.grooscript.test.ConversionTrait
 
-class TestAdvanced extends GroovyTestCase implements ConversionMixin {
+class TestAdvanced extends GroovyTestCase implements ConversionTrait {
 
-    def 'test tree object' () {
-        expect:
-        convertAndEvaluate('advanced/Tree')
+    void testTreeObject() {
+        assert convertAndEvaluate('advanced/Tree')
     }
 
-    def 'expando world' () {
-        expect:
-        convertAndEvaluate('advanced/ExpandoWorld')
+    void testExpandoWorld() {
+        assert convertAndEvaluate('advanced/ExpandoWorld')
     }
 
-    def 'mystic table' () {
-        expect:
-        convertAndEvaluate('advanced/MysticTable')
+    void testMysticTable() {
+        assert convertAndEvaluate('advanced/MysticTable')
     }
 
-    def 'summer function callings' () {
-        expect:
-        convertAndEvaluate('advanced/summer')
+    void testSummerFunctionCallings() {
+        assert convertAndEvaluate('advanced/summer')
     }
 
-    def 'regular expressions' () {
-        expect:
-        convertAndEvaluate('advanced/RegularExpressions')
+    void testRegularExpressions() {
+        assert convertAndEvaluate('advanced/RegularExpressions')
     }
 
-    def 'random world' () {
-        expect:
-        convertAndEvaluate('advanced/RandomWorld')
+    void testRandomWorld() {
+        assert convertAndEvaluate('advanced/RandomWorld')
     }
 
-    def 'test Robot'() {
-        expect:
-        convertAndEvaluate('advanced/SampleRobot')
+    void testRobot() {
+        assert convertAndEvaluate('advanced/SampleRobot')
     }
 
-    def 'closuring and maps again' () {
-        expect:
-        convertAndEvaluate('advanced/ClosuringRevisited')
+    void testClosuringAndMapsAgain() {
+        assert convertAndEvaluate('advanced/ClosuringRevisited')
     }
 
-    def 'sorting lists' () {
-        expect:
-        convertAndEvaluate('advanced/Sorting')
+    void testSortingLists() {
+        assert convertAndEvaluate('advanced/Sorting')
     }
 
-    def 'features 0.1' () {
-        expect:
-        convertAndEvaluate('features/ZeroOne')
+    void testFeaturesZeroOne() {
+        assert convertAndEvaluate('features/ZeroOne')
     }
 
-    def 'mastering scope'() {
-        expect:
-        convertAndEvaluate('advanced/MasterScoping')
+    void testMasteringScope() {
+        assert convertAndEvaluate('advanced/MasterScoping')
     }
 
-    def 'test setters'() {
-        expect:
-        convertAndEvaluate('advanced/Setters')
+    void testSetters() {
+        assert convertAndEvaluate('advanced/Setters')
     }
 
-    def 'test getters'() {
-        expect:
-        convertAndEvaluate('advanced/Getters')
+    void testGetters() {
+        assert convertAndEvaluate('advanced/Getters')
     }
 
-    def 'test getter and setters'() {
-        expect:
-        convertAndEvaluate('advanced/GettersAndSetters')
+    void testGetterAndSetters() {
+        assert convertAndEvaluate('advanced/GettersAndSetters')
     }
 
-    def 'test missing method'() {
-        expect:
-        convertAndEvaluate('advanced/MethodMissing')
+    void testMissingMethod() {
+        assert convertAndEvaluate('advanced/MethodMissing')
     }
 
-    def 'web example'() {
-        expect:
-        convertAndEvaluate('advanced/WebExample')
+    void testWebExample() {
+        assert convertAndEvaluate('advanced/WebExample')
     }
 
-    def 'advanced web example'() {
-        expect:
-        convertAndEvaluate('advanced/AdvancedWebExample')
+    void testAdvancedWebExample() {
+        assert convertAndEvaluate('advanced/AdvancedWebExample')
     }
 
-    def 'more string features'() {
-        expect:
-        convertAndEvaluate('advanced/StringSecrets')
+    void testStringFeatures() {
+        assert convertAndEvaluate('advanced/StringSecrets')
     }
 
-    def 'object comparation'() {
-        expect:
-        convertAndEvaluate('advanced/Comparable')
+    void testObjectComparation() {
+        assert convertAndEvaluate('advanced/Comparable')
     }
 
-    def 'more list and maps features'() {
-        expect:
-        convertAndEvaluate('advanced/ListMapsAdvanced')
+    void testListAndMapsFeatures() {
+        assert convertAndEvaluate('advanced/ListMapsAdvanced')
     }
 
-    def 'Get properties and methods of classes'() {
-        expect:
-        convertAndEvaluate('advanced/PropertiesAndMethods')
+    void testGetPropertiesAndMethodsOfClasses() {
+        assert convertAndEvaluate('advanced/PropertiesAndMethods')
     }
 
-    def 'Get tuple from object'() {
-        expect:
-        convertAndEvaluate('advanced/GetTupleFromObject')
+    void testGetTupleFromObject() {
+        assert convertAndEvaluate('advanced/GetTupleFromObject')
     }
 
-    def 'test method pointer'() {
-        expect:
-        convertAndEvaluate('advanced/MethodPointer')
+    void testMethodPointer() {
+        assert convertAndEvaluate('advanced/MethodPointer')
     }
 
-    def 'test safe navigation'() {
-        expect:
-        convertAndEvaluate('advanced/SafeNavigation')
+    void testSafeNavigation() {
+        assert convertAndEvaluate('advanced/SafeNavigation')
     }
 
-    def 'list ninja'() {
-        expect:
-        convertAndEvaluate('advanced/ListNinja')
+    void testListNinja() {
+        assert convertAndEvaluate('advanced/ListNinja')
     }
 
-    def 'maybe dsls'() {
-        expect:
-        convertAndEvaluate('advanced/TryDsls')
+    void testMaybeDsls() {
+        assert convertAndEvaluate('advanced/TryDsls')
     }
 
-    def 'multiple conditions'() {
-        expect:
-        convertAndEvaluate('advanced/MultipleConditions')
+    void testMultipleConditions() {
+        assert convertAndEvaluate('advanced/MultipleConditions')
     }
 
-    def 'method missing with this'() {
-        expect:
-        convertAndEvaluate('advanced/MethodMissingTwo')
+    void testMethodMissingWithThis() {
+        assert convertAndEvaluate('advanced/MethodMissingTwo')
     }
 
-    def 'curry, rcurry and ncurry'() {
-        expect:
-        convertAndEvaluate('advanced/Curry')
+    void testCurryRcurryAndNcurry() {
+        assert convertAndEvaluate('advanced/Curry')
     }
 
-    def 'mixin annotation'() {
-        expect:
-        convertAndEvaluate('advanced/MixinAst')
+    void testMixinAnnotation() {
+        assert convertAndEvaluate('advanced/MixinAst')
     }
 
-    def 'variable number of arguments'() {
-        expect:
-        convertAndEvaluate('advanced/VariableArguments')
+    void testVariableNumberOfArguments() {
+        assert convertAndEvaluate('advanced/VariableArguments')
     }
 
-    def 'ranges of chars'() {
-        expect:
-        convertAndEvaluate('advanced/RangeChars')
+    void testRangesOfChars() {
+        assert convertAndEvaluate('advanced/RangeChars')
     }
 
-    def 'return values'() {
-        expect:
-        convertAndEvaluate('advanced/ReturnValues')
+    void testReturnValues() {
+        assert convertAndEvaluate('advanced/ReturnValues')
     }
 
-    def 'test method pointer advanced'() {
-        expect:
-        convertAndEvaluate('advanced/MethodPointerAdvanced')
+    void testMethodPointerAdvanced() {
+        assert convertAndEvaluate('advanced/MethodPointerAdvanced')
     }
 
-    def 'test callback this'() {
-        expect:
-        convertAndEvaluate('advanced/CallbackThis')
+    void testCallbackThis() {
+        assert convertAndEvaluate('advanced/CallbackThis')
     }
 
-    def 'test property missing'() {
-        expect:
-        convertAndEvaluate('advanced/PropertyMissing')
+    void testPropertyMissing() {
+        assert convertAndEvaluate('advanced/PropertyMissing')
     }
 
-    def 'test get boolean properties with is functions'() {
-        expect:
-        convertAndEvaluate('advanced/BooleanProperties')
+    void testGetBooleanPropertiesWithIsFunctions() {
+        assert convertAndEvaluate('advanced/BooleanProperties')
     }
 
-    def 'finally blocks executed'() {
-        expect:
-        convertAndEvaluate('advanced/Finally')
+    void testFinallyBlocksExecuted() {
+        assert convertAndEvaluate('advanced/Finally')
     }
 
-    def 'spread method params'() {
-        expect:
-        convertAndEvaluate('advanced/SpreadParams')
+    void testSpreadMethodParams() {
+        assert convertAndEvaluate('advanced/SpreadParams')
     }
 }

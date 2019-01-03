@@ -16,7 +16,7 @@ package org.grooscript.test
 import javax.script.ScriptEngine
 import javax.script.Bindings
 
-class TestJavaScriptEngine extends GroovyTestCase implements ConversionMixin {
+class TestJavaScriptEngine extends GroovyTestCase implements ConversionTrait {
 
     private ScriptEngine engine
 

@@ -15,7 +15,7 @@ package org.grooscript.convert
 
 class NativeFunctionSpec extends GroovyTestCase {
 
-    def testNativeFunctionToString() {
+    void testNativeFunctionToString() {
         assert new NativeFunction(className: 'cn', methodName: 'mn').toString() == 'cn - mn'
     }
 }

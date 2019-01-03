@@ -14,12 +14,12 @@
 package org.grooscript.convert
 
 import org.grooscript.GrooScript
-import org.grooscript.test.ConversionMixin
+import org.grooscript.test.ConversionTrait
 import org.grooscript.test.JsTestResult
 import org.grooscript.util.GrooScriptException
 import org.grooscript.util.Util
 
-class TestConversionFails extends GroovyTestCase implements ConversionMixin {
+class TestConversionFails extends GroovyTestCase implements ConversionTrait {
 
     def 'test fail assertion' () {
         when:

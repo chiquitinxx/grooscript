@@ -13,19 +13,16 @@
  */
 package org.grooscript.convert
 
-import org.grooscript.test.ConversionMixin
+import org.grooscript.test.ConversionTrait
 
-class TestScope extends GroovyTestCase implements ConversionMixin {
+class TestScope extends GroovyTestCase implements ConversionTrait {
 
-    def 'variables not visible' () {
-        when:
-        def result = convertFile('scope/variables')
+    void testVariablesNotVisible() {
+        String result = convertFile('scope/variables')
 
-        then:
-        result.contains("gs.fs('a', this, gSobject)")
-        result.contains("gs.fs('b', this, gSobject)")
+        assert result.contains("gs.fs('a', this, gSobject)")
+        assert result.contains("gs.fs('b', this, gSobject)")
 
-        expect:
-        convertAndEvaluate('scope/variables', true)
+        assert convertAndEvaluate('scope/variables', true)
     }
 }

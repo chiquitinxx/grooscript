@@ -13,11 +13,11 @@
  */
 package org.grooscript.convert
 
-import org.grooscript.test.ConversionMixin
+import org.grooscript.test.ConversionTrait
 import org.grooscript.test.JavascriptEngine
 import org.grooscript.test.JsTestResult
 
-class TestGroovyBasics extends GroovyTestCase implements ConversionMixin {
+class TestGroovyBasics extends GroovyTestCase implements ConversionTrait {
 
     def 'assert function'() {
 

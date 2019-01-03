@@ -13,9 +13,9 @@
  */
 package org.grooscript.doc
 
-import org.grooscript.test.ConversionMixin
+import org.grooscript.test.ConversionTrait
 
-class TestDoc extends GroovyTestCase implements ConversionMixin {
+class TestDoc extends GroovyTestCase implements ConversionTrait {
 
     def 'doc tests'() {
         expect:

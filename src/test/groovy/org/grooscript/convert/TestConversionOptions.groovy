@@ -190,6 +190,13 @@ class TestConversionOptions extends GroovyTestCase {
         }
     }
 
+    void testAddJsArchiveThatNotExists() {
+        def message = shouldFail (GrooScriptException) {
+            GrooScript.convert('println "Hello!"', [addGsLib: 'notExistsJsFile'])
+        }
+        assert message.contains('this library does not exists: notExistsJsFile')
+    }
+
     void testAddTwoGrooscriptJsArchivesAtTheBeginning() {
         def options = [addGsLib: 'grooscript.min, testWithNode']
         def result = GrooScript.convert('println "Hello!"', options)

@@ -13,9 +13,9 @@
  */
 package org.grooscript.builder
 
-import org.grooscript.test.ConversionMixin
+import org.grooscript.test.ConversionTrait
 
-class TestHtmlBuilder extends GroovyTestCase implements ConversionMixin {
+class TestHtmlBuilder extends GroovyTestCase implements ConversionTrait {
 
     static final TEXT = 'text'
 

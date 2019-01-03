@@ -13,9 +13,9 @@
  */
 package org.grooscript.convert
 
-import org.grooscript.test.ConversionMixin
+import org.grooscript.test.ConversionTrait
 
-class GroovyAstsSpec extends GroovyTestCase implements ConversionMixin {
+class GroovyAstsSpec extends GroovyTestCase implements ConversionTrait {
 
     void testUsingGroovyBuilderAst() {
         assert convertAndEvaluate('groovy/builderAst')

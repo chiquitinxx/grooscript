@@ -13,10 +13,10 @@
  */
 package org.grooscript.convert
 
-import org.grooscript.test.ConversionMixin
+import org.grooscript.test.ConversionTrait
 import org.grooscript.test.JsTestResult
 
-class TestAdvancedClass extends GroovyTestCase implements ConversionMixin {
+class TestAdvancedClass extends GroovyTestCase implements ConversionTrait {
 
     def 'test class names' () {
         expect:

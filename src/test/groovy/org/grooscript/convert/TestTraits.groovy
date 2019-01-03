@@ -13,9 +13,9 @@
  */
 package org.grooscript.convert
 
-import org.grooscript.test.ConversionMixin
+import org.grooscript.test.ConversionTrait
 
-class TestTraits extends GroovyTestCase implements ConversionMixin {
+class TestTraits extends GroovyTestCase implements ConversionTrait {
 
     def 'initial traits support'() {
         assert convertAndEvaluate('traits/Starting')

@@ -13,9 +13,9 @@
  */
 package org.grooscript.convert
 
-import org.grooscript.test.ConversionMixin
+import org.grooscript.test.ConversionTrait
 
-class TestWeb extends GroovyTestCase implements ConversionMixin {
+class TestWeb extends GroovyTestCase implements ConversionTrait {
 
     def 'test prefix and postfix undefined'() {
         expect:

@@ -13,200 +13,104 @@
  */
 package org.grooscript.convert
 
-import org.grooscript.test.ConversionMixin
+import org.grooscript.test.ConversionTrait
 import org.grooscript.test.JsTestResult
 import org.grooscript.util.GrooScriptException
 
-class TestContributors extends GroovyTestCase implements ConversionMixin {
+class TestContributors extends GroovyTestCase implements ConversionTrait {
 
-    def 'test jochen' () {
-        expect:
-        convertAndEvaluate('contribution/JochenTheodorou')
+    void testJochen() {
+        assert convertAndEvaluate('contribution/JochenTheodorou')
     }
 
-    def 'test MrHaki' () {
-        expect:
-        convertAndEvaluate(file)
-
-        where:
-        file                                    | _
-        'contribution/MrHakiClosureReturn'      | _
-        'contribution/MrHakiFirstLast'          | _
-        'contribution/MrHakiSum'                | _
-        'contribution/MrHakiLooping'            | _
-        'contribution/MrHakiInject'             | _
-        'contribution/MrHakiGrep'               | _
-        'contribution/MrHakiGetSetProperties'   | _
-        'contribution/MrHakiSpread'             | _
-        'contribution/MrHakiCategories'         | _
-        'contribution/MrHakiTraits1'            | _
-        'contribution/MrHakiTraits2'            | _
-        'contribution/MrHakiCountList'          | _
-        'contribution/MrHakiSwitch'             | _
-        'contribution/MrHakiInit'               | _
+    void testMrHaki() {
+        assert convertAndEvaluate('contribution/MrHakiClosureReturn')
+        assert convertAndEvaluate('contribution/MrHakiFirstLast')
+        assert convertAndEvaluate('contribution/MrHakiSum')
+        assert convertAndEvaluate('contribution/MrHakiLooping')
+        assert convertAndEvaluate('contribution/MrHakiInject')
+        assert convertAndEvaluate('contribution/MrHakiGrep')
+        assert convertAndEvaluate('contribution/MrHakiGetSetProperties')
+        assert convertAndEvaluate('contribution/MrHakiSpread')
+        assert convertAndEvaluate('contribution/MrHakiCategories')
+        assert convertAndEvaluate('contribution/MrHakiTraits1')
+        assert convertAndEvaluate('contribution/MrHakiTraits2')
+        assert convertAndEvaluate('contribution/MrHakiCountList')
+        assert convertAndEvaluate('contribution/MrHakiSwitch')
+        assert convertAndEvaluate('contribution/MrHakiInit')
     }
 
-    def 'test alex anderson' () {
-        expect:
-        convertAndEvaluate('contribution/AlexAnderson')
+    void testAnonymousContributionsInWeb() {
+        List resultText = ['FizzBuzz\n91', 'fizzbuzz\n91', 'fizZbuzZ\n16']
+        0..2.each {
+            JsTestResult result = convertAndEvaluateWithJsEngine('contribution/Anonymous' + it)
+            assert !result.assertFails
+            assert result.console.contains(resultText[it])
+        }
     }
 
-    def 'test mario garcia' () {
-        expect:
-        convertAndEvaluate('contribution/MarioGarcia')
-    }
-
-    def 'test anonymous contributions in web' () {
-        expect:
-        JsTestResult result = convertAndEvaluateWithJsEngine(file)
-        !result.assertFails
-        result.console.contains(text)
-
-        where:
-        file                       | text
-        'contribution/Anonymous0'  | 'FizzBuzz\n91'
-        'contribution/Anonymous1'  | 'fizzbuzz\n91'
-        'contribution/Anonymous2'  | 'fizZbuzZ\n16'
-    }
-
-    def 'bugs coming from monkfish'() {
-        when:
-        def result = convertAndEvaluateWithJsEngine('contribution/MonkFish', false, null,
+    void testMonkfishErrors() {
+        JsTestResult result = convertAndEvaluateWithJsEngine('contribution/MonkFish', false, null,
                 'gSobject.value = 0;',
                 'gSobject.value = 0;gSobject.two = function() {return 2;};')
 
-        then:
-        !result.assertFails
+        assert !result.assertFails
     }
 
-    def 'testing more web' () {
+    void testMyExperiments() {
+        1..19.each {
+            assert convertAndEvaluate('contribution/MySelf' + it)
+        }
+    }
+
+    void testGuillaumeExamples() {
         expect:
-        convertAndEvaluate('contribution/Anonymous3')
-        convertAndEvaluate('contribution/Anonymous4')
-        convertAndEvaluate('contribution/Anonymous5')
+        assert convertAndEvaluate('contribution/Guillaume')
+        assert convertAndEvaluate('contribution/GuillaumeClosuresComposition')
+        assert convertAndEvaluate('contribution/GuillaumeOptionalReturn')
+        assert convertAndEvaluate('contribution/GuillaumeCommandChain')
+        assert convertAndEvaluate('contribution/GuillaumeTrailingClosure')
+        assert convertAndEvaluate('contribution/GuillaumeCustomizeTruth')
     }
 
-    def 'testing mario extends'() {
-        expect:
-        convertAndEvaluate('contribution/MarioGarcia2')
+    void testContributions() {
+        assert convertAndEvaluate('contribution/Ronny')
+        assert convertAndEvaluate('contribution/Mscharhag')
+        assert convertAndEvaluate('contribution/JasonWinnebeck')
+        assert convertAndEvaluate('contribution/Dinko')
+        assert convertAndEvaluate('contribution/Menehtbeo')
+        assert convertAndEvaluate('contribution/Yellowsnow')
+        assert convertAndEvaluate('contribution/ChrisMiles')
+        assert convertAndEvaluate('contribution/H1romas4')
+        assert convertAndEvaluate('contribution/H1romas4GsNative')
+        assert convertAndEvaluate('contribution/AlexAnderson')
+        assert convertAndEvaluate('contribution/MarioGarcia')
+        assert convertAndEvaluate('contribution/Anonymous3')
+        assert convertAndEvaluate('contribution/Anonymous4')
+        assert convertAndEvaluate('contribution/Anonymous5')
+        assert convertAndEvaluate('contribution/MarioGarcia2')
+        assert convertAndEvaluate('contribution/MarioGarcia3')
+        assert convertAndEvaluate('contribution/Twitter1')
     }
 
-    def 'testing mario maps'() {
-        expect:
-        convertAndEvaluate('contribution/MarioGarcia3')
+    void testGroovySiteCodeFragments() {
+        assert convertAndEvaluate('contribution/GroovySite0')
+        assert convertAndEvaluate('contribution/GroovySite1')
     }
 
-    def 'twitter code found scoping closures'() {
-        expect:
-        convertAndEvaluate('contribution/Twitter1')
+    void testErrorsFoundByDilvan() {
+        assert convertAndEvaluate('contribution/Dilvan')
+        assert convertAndEvaluate('contribution/DilvanEmpty')
+        assert convertAndEvaluate('contribution/DilvanBreak')
     }
 
-    def 'my tests and experiments'() {
-        expect:
-        convertAndEvaluate(file)
-
-        where:
-        file                       | _
-        'contribution/MySelf1'     | _
-        'contribution/MySelf2'     | _
-        'contribution/MySelf3'     | _
-        'contribution/MySelf4'     | _
-        'contribution/MySelf5'     | _
-        'contribution/MySelf6'     | _
-        'contribution/MySelf7'     | _
-        'contribution/MySelf8'     | _
-        'contribution/MySelf9'     | _
-        'contribution/MySelf10'    | _
-        'contribution/MySelf11'    | _
-        'contribution/MySelf12'    | _
-        'contribution/MySelf13'    | _
-        'contribution/MySelf14'    | _
-        'contribution/MySelf15'    | _
-        'contribution/MySelf16'    | _
-        'contribution/MySelf17'    | _
-        'contribution/MySelf18'    | _
-        'contribution/MySelf19'    | _
-    }
-
-    def 'guillaume example #file from talks'() {
-        expect:
-        convertAndEvaluate file
-
-        where:
-        file << [
-                'contribution/Guillaume', 'contribution/GuillaumeClosuresComposition',
-                'contribution/GuillaumeOptionalReturn', 'contribution/GuillaumeCommandChain',
-                'contribution/GuillaumeTrailingClosure', 'contribution/GuillaumeCustomizeTruth'
-        ]
-    }
-
-    def 'ronny is'() {
-        expect:
-        convertAndEvaluate('contribution/Ronny')
-    }
-
-    def 'mscharhag closure composition'() {
-        expect:
-        convertAndEvaluate('contribution/Mscharhag')
-    }
-
-    def 'jason winnebeck interface safe'() {
-        expect:
-        convertAndEvaluate('contribution/JasonWinnebeck')
-    }
-
-    def 'dinko assignation returns value assigned'() {
-        expect:
-        convertAndEvaluate('contribution/Dinko')
-    }
-
-    def 'menehtbeo found big bug'() {
-        expect:
-        convertAndEvaluate('contribution/Menehtbeo')
-    }
-
-    def 'yellowsnow list groupBy'() {
-        expect:
-        convertAndEvaluate('contribution/Yellowsnow')
-    }
-
-    def 'chrismil46 class stuff'() {
-        expect:
-        convertAndEvaluate('contribution/ChrisMiles')
-    }
-
-    def 'h1romas4 constructor field scope'() {
-        expect:
-        convertAndEvaluate('contribution/H1romas4')
-    }
-
-    def 'h1romas4 repeated GsNative'() {
-        expect:
-        convertAndEvaluate('contribution/H1romas4GsNative')
-    }
-
-    def 'groovy site code fragment #number'() {
-        expect:
-        convertAndEvaluate("contribution/GroovySite${number}")
-
-        where:
-        number << [0, 1]
-    }
-
-    def 'Dilvan errors found'() {
-        expect:
-        convertAndEvaluate('contribution/Dilvan')
-        convertAndEvaluate('contribution/DilvanEmpty')
-        convertAndEvaluate('contribution/DilvanBreak')
-    }
-
-    def 'not supporting anonymous classes'() {
-        when:
-        convertAndEvaluate('contribution/DilvanInnerRunnable', true)
-
-        then:
-        def e = thrown(GrooScriptException)
-        e.message == 'Compiler END ERROR on Script - Not supporting anonymous classes(java.lang.Runnable) ' +
-                'in class contribution.WithRunnable'
+    void testNotSupportAnonymousClasses() {
+        try {
+            convertAndEvaluate('contribution/DilvanInnerRunnable', true)
+            fail('Must fail!')
+        } catch (GrooScriptException exception) {
+            assert exception.message == 'Compiler END ERROR on Script - Not supporting anonymous classes(java.lang.Runnable) ' +
+                    'in class contribution.WithRunnable'
+        }
     }
 }

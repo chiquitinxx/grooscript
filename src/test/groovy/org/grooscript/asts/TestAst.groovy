@@ -13,11 +13,11 @@
  */
 package org.grooscript.asts
 
-import org.grooscript.test.ConversionMixin
+import org.grooscript.test.ConversionTrait
 import org.grooscript.test.JavascriptEngine
 import org.grooscript.util.Util
 
-class TestAst extends GroovyTestCase implements ConversionMixin {
+class TestAst extends GroovyTestCase implements ConversionTrait {
 
     def readAndConvert(nameOfFile,consoleOutput) {
 

@@ -14,13 +14,13 @@
 package org.grooscript.convert
 
 import org.grooscript.GrooScript
-import org.grooscript.test.ConversionMixin
+import org.grooscript.test.ConversionTrait
 import org.grooscript.test.JavascriptEngine
 import org.grooscript.util.GrooScriptException
 
 import static org.grooscript.util.Util.SEP
 
-class TestFiles extends GroovyTestCase implements ConversionMixin {
+class TestFiles extends GroovyTestCase implements ConversionTrait {
 
     void testInitialInheritanceOnDistinctFiles() {
         def result = convertFile('files/Car', options)

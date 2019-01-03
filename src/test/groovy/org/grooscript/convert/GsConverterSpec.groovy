@@ -13,16 +13,14 @@
  */
 package org.grooscript.convert
 
-import org.grooscript.test.ConversionMixin
+import org.grooscript.test.ConversionTrait
 
-class GsConverterSpec extends GroovyTestCase implements ConversionMixin {
+class GsConverterSpec extends GroovyTestCase implements ConversionTrait {
 
-    void 'test basic conversion'() {
-        expect:
-        converter.toJs(BASIC_CLASS).startsWith '''function A() {'''
+    void testBasicConversion() {
+        assert converter.toJs(BASIC_CLASS).startsWith('function A() {')
     }
 
     private static final BASIC_CLASS = 'class A {}'
 
-    private GsConverter converter = new GsConverter()
 }
