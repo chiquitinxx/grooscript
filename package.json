@@ -1,8 +1,11 @@
 {
-    "name"          : "build",
-    "homepage"      : "http://grooscript.org",
-    "author"        : "Jorge Franco <grooscript@gmail.com>",
-    "repository"    : {"type": "git", "url": "git://github.com/chiquitinxx/grooscript.git"},
+    "name": "build",
+    "homepage": "http://grooscript.org",
+    "author": "Jorge Franco <grooscript@gmail.com>",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/chiquitinxx/grooscript.git"
+    },
     "licenses": [
         {
             "type": "APACHE2",

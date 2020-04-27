@@ -12,3 +12,5 @@ initial.png
 *.class
 grooscript-builder.js
 node_modules
+.gradle
+build
