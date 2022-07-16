@@ -9,6 +9,8 @@ image:https://travis-ci.org/{project-full-path}.svg?branch={github-branch}["Buil
 image:https://coveralls.io/repos/chiquitinxx/grooscript/badge.svg?branch={github-branch}["Coverage Status", link="https://coveralls.io/r/chiquitinxx/grooscript?branch={github-branch}"]
 image:https://maven-badges.herokuapp.com/maven-central/org.grooscript/grooscript/badge.svg["Maven Central Version", link="http://search.maven.org/#search|ga|1|a%3A%22grooscript%22"]
 
+Abandoned project.
+
 == grooscript
 
 Converts your Groovy or Java code to JavaScript(Groovy 2.x to Javascript ECMAScript 5). You need groovy jar greater than 2.0 to make conversions. For more information about the project, see http://grooscript.org[grooscript.org]
@@ -94,12 +96,6 @@ Grooscript licensed under the terms of the link:http://www.apache.org/licenses/L
 - Lourens van Heerden
 - Ruaan van der Spuy
 
-== Contact
+== The end
 
-Twitter: link:http://twitter.com/grooscript:[@grooscript]
-
-Email: mailto:grooscript@gmail.com[]
-
-#grooscript channel in link:https://groovycommunity.com/[Apache Groovy Community Slack]
-
-Please all feedback welcome, thank you!
+Thank you all for amazing journey :)
